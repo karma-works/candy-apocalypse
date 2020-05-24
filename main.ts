@@ -1,9 +1,9 @@
-import { Wad } from './src/wad/wad'
+import { Doom } from './src/doom/doom'
 
-function main() {
-  const wad = new Wad()
+async function main() {
+  const doom = new Doom()
 
-  wad.addFile('./data/Doom.wad')
+  await doom.init()
 }
 
 main()
