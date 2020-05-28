@@ -1,4 +1,9 @@
-import { GameMission, GameMode, Language, VERSION } from '../global/doomdef'
+import { GameMission, GameMode, GameState, Language, VERSION } from '../global/doomdef'
+import { HeadsUp } from '../heads-up/stuff'
+import { Video as IVideo } from '../interfaces/video'
+import { Menu } from '../menu/menu'
+import { Video as RVIdeo } from '../rendering/video'
+import { Rendering } from '../rendering/rendering'
 import { Wad } from '../wad/wad'
 
 async function access(file: string): Promise<boolean> {
@@ -17,12 +22,87 @@ export class Doom {
   // Set if homebrew PWAD stuff has been added.
   modifiedGame = false
 
+  //?
+  gameState: GameState = GameState.DemoScreen
+
+
   private wadfiles: string[] = []
 
   // print title for every printed line
   private title = ''
 
-  private wad: Wad = new Wad()
+  private wad = new Wad()
+  private headsUp = new HeadsUp(this.wad)
+  private rendering = new Rendering()
+  private rvideo = new RVIdeo()
+  private ivideo = new IVideo(this.rvideo)
+  private menu = new Menu(this, this.headsUp, this.ivideo, this.rvideo, this.wad)
+
+  // wipegamestate can be set to -1 to force a wipe on the next draw
+  private wipeGameState = GameState.DemoScreen
+  private oldGameState: GameState = -1
+  private borderDrawCount = 0
+  //
+  // D_Display
+  //  draw current display, possibly wiping it from the previous
+  //
+  private async display(): Promise<void> {
+    let wipe: boolean
+
+    // change the view size if needed
+    if (this.rendering.setSizeNeeded) {
+      this.rendering.executeSetViewSize()
+      // force background redraw
+      this.oldGameState = -1
+      this.borderDrawCount = 3
+    }
+
+    // save the current screen if about to wipe
+    if (this.gameState !== this.wipeGameState) {
+      wipe = true
+    } else {
+      wipe = false
+    }
+
+    // clean up border stuff
+    if (this.gameState !== this.oldGameState &&
+        this.gameState !== GameState.Level) {
+      this.ivideo.setPalette(await this.wad.cacheLumpName('PLAYPAL'))
+    }
+
+    this.oldGameState = this.wipeGameState = this.gameState
+
+    // menus go directly to the screen
+    // menu is drawn even on top of everything
+    await this.menu.drawer()
+
+    // normal update
+    if (!wipe) {
+      // page flip or blit buffer
+      this.ivideo.finishUpdate()
+      return
+    }
+  }
+
+  //
+  // D-DoomLoop()
+  // Not a globally visible function,
+  //  just included for source reference,
+  //  called by D_DoomMain, never exits.
+  // Manages timing and IO,
+  //  calls all ?_Responder, ?_Ticker, and ?_Drawer,
+  //  calls I_GetTime, I_StartFrame, and I_StartTic
+  //
+  private doomLoop(): void {
+    this.ivideo.initGraphics()
+    this.renderFrame()
+  }
+  private renderFrame(): void {
+    requestAnimationFrame(async() => {
+      await this.display()
+      this.renderFrame()
+    })
+  }
 
   //
   // D_AddFile
@@ -137,6 +217,10 @@ export class Doom {
 
     console.log(this.title)
 
+    // init subsystems
+    console.log('V_Init: allocate screens.')
+    this.rvideo.init()
+
     console.log('W_Init: Init WADfiles.')
     await this.wad.initMultipleFiles(this.wadfiles)
 
@@ -160,6 +244,18 @@ export class Doom {
       // Ouch.
       break
     }
+
+    console.log('M_Init: Init miscellaneous info.')
+    this.menu.init()
+    this.menu.startControlPanel()
+
+    console.log('R_Init: Init DOOM refresh daemon - ')
+    this.rendering.init()
+
+    console.log('HU_Init: Setting up heads up display.')
+    await this.headsUp.init()
+
+    this.doomLoop()
   }
 }
 

@@ -36,3 +36,56 @@ export const enum Language {
   German,
   Unknown,
 }
+
+export const SCREENWIDTH = 320
+export const SCREENHEIGHT = 200
+
+// State updates, number of tics / second.
+export const TICRATE = 35
+
+// The current state of the game: whether we are
+// playing, gazing at the intermission screen,
+// the game final animation, or a demo.
+export const enum GameState {
+  Level,
+  Intermission,
+  Finale,
+  DemoScreen,
+}
+
+//
+// DOOM keyboard definition.
+// This is the stuff configured by Setup.Exe.
+// Most key data are simple ascii (uppercased).
+//
+export const KEY_RIGHTARROW = 39
+export const KEY_LEFTARROW = 37
+export const KEY_UPARROW = 38
+export const KEY_DOWNARROW = 40
+export const KEY_ESCAPE = 27
+export const KEY_ENTER = 13
+export const KEY_TAB = 9
+export const KEY_F1 = 112
+export const KEY_F2 = 113
+export const KEY_F3 = 114
+export const KEY_F4 = 115
+export const KEY_F5 = 116
+export const KEY_F6 = 117
+export const KEY_F7 = 118
+export const KEY_F8 = 119
+export const KEY_F9 = 120
+export const KEY_F10 = 121
+export const KEY_F11 = 122
+export const KEY_F12 = 123
+
+export const KEY_BACKSPACE = 8
+export const KEY_PAUSE = 19
+
+export const KEY_EQUALS = 187
+export const KEY_MINUS = 189
+
+export const KEY_RSHIFT = 16
+export const KEY_RCTRL = 17
+export const KEY_RALT = 18
+
+export const KEY_LALT = KEY_RALT
