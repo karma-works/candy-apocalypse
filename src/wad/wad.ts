@@ -161,7 +161,7 @@ export class Wad {
   // W_CheckNumForName
   // Returns -1 if name not found.
   //
-  private checkNumForName(name: string): number {
+  checkNumForName(name: string): number {
     // scan backwards so patch lump files take precedence
     for (let i = this.numLumps - 1; i >= 0; --i) {
       if (this.lumpInfo[i].name === name) {

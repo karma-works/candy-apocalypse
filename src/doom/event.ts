@@ -11,7 +11,7 @@ export const enum EvType {
 }
 
 // Event structure.
-export interface Event {
+export interface DEvent {
   type: EvType
   // keys / mouse/joystick buttons
   data1: number
@@ -64,3 +64,5 @@ export const enum ButtonCode {
   SaveMask = (4+8+16),
   SaveShift = 2,
 }
+
+export const MAX_EVENTS = 64

@@ -1,4 +1,4 @@
-import { EvType, Event } from '../doom/event'
+import { DEvent, EvType } from '../doom/event'
 import { GameMode, KEY_BACKSPACE, KEY_DOWNARROW, KEY_ENTER, KEY_EQUALS, KEY_ESCAPE, KEY_F1, KEY_F10, KEY_F11, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_LEFTARROW, KEY_MINUS, KEY_RIGHTARROW, KEY_UPARROW, SCREENWIDTH } from '../global/doomdef'
 import { HU_FONTSIZE, HU_FONTSTART, HeadsUp } from '../heads-up/stuff'
 import { MainEnum, loadGame, mainDef, mainMenu, quitDOOM, saveGame } from './doom-menu'
@@ -141,14 +141,20 @@ export class Menu {
     }
   }
 
+  //
+  // CONTROL PANEL
+  //
+
+  //
+  // M_Responder
+  //
   private joywait = 0
   private mousewait = 0
   private mousey = 0
   private lasty = 0
   private mousex = 0
   private lastx = 0
-
-  async responder(ev: Event): Promise<boolean> {
+  async responder(ev: DEvent): Promise<boolean> {
     let ch = -1
 
     if (ev.type === EvType.Joystick && this.joywait < getTime()) {
@@ -552,6 +558,16 @@ export class Menu {
   //
   clearMenus(): void {
     this.menuActive = false
+  }
+
+  //
+  // M_Ticker
+  //
+  ticker(): void {
+    if (--this.skullAnimCounter <= 0) {
+      this.whichSkull ^= 1
+      this.skullAnimCounter = 8
+    }
   }
 
   init(): void {
