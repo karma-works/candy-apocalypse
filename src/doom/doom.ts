@@ -1,10 +1,13 @@
 import { DEvent, MAX_EVENTS } from './event'
 import { GameMission, GameMode, GameState, Language, VERSION } from '../global/doomdef'
+import { EnglishStrings } from '../translation/english'
+import { FrenchStrings } from '../translation/french'
 import { HeadsUp } from '../heads-up/stuff'
 import { Video as IVideo } from '../interfaces/video'
 import { Menu } from '../menu/menu'
 import { Video as RVIdeo } from '../rendering/video'
 import { Rendering } from '../rendering/rendering'
+import { Strings } from '../translation/strings'
 import { Wad } from '../wad/wad'
 
 async function access(file: string): Promise<boolean> {
@@ -19,6 +22,7 @@ export class Doom {
 
   // Language
   language: Language = Language.English
+  strings: Strings = new EnglishStrings()
 
   // Set if homebrew PWAD stuff has been added.
   modifiedGame = false
@@ -191,6 +195,7 @@ export class Doom {
       // C'est ridicule!
       // Let's handle languages in config files, okay?
       this.language = Language.French
+      this.strings = new FrenchStrings()
       console.log('French version')
       this.addFile(doom2fwad)
       return
