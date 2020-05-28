@@ -13,6 +13,12 @@ export const HU_FONTSIZE =
 export class HeadsUp {
   font: Patch[] = []
 
+  messageOn = false
+  messageDontFuckWithMe = false
+  messageNotToBeFuckedWith = false
+
+  showMessages = true
+
   constructor(private wad: Wad) { }
 
   async init(): Promise<void> {

@@ -18,9 +18,9 @@ export class FrenchStrings implements Strings {
   qsavespot = 'VOUS N\'AVEZ PAS CHOISI UN EMPLACEMENT!\n\n' + this.presskey
   savedead = 'VOUS NE POUVEZ PAS SAUVER SI VOUS NE JOUEZ ' +
     'PAS!\n\n' + this.presskey
-  qsprompt = 'SAUVEGARDE RAPIDE DANS LE FICHIER \n\n\'%s\'?\n\n' + this.pressyn
-  qlprompt = 'VOULEZ-VOUS CHARGER LA SAUVEGARDE' +
-    '\n\n\'%s\'?\n\n' + this.pressyn
+  qsprompt = (s: string): string => `SAUVEGARDE RAPIDE DANS LE FICHIER \n\n'${s}'?\n\n` + this.pressyn
+  qlprompt = (s: string): string => 'VOULEZ-VOUS CHARGER LA SAUVEGARDE' +
+    `\n\n'${s}'?\n\n` + this.pressyn
   newgame = 'VOUS NE POUVEZ PAS LANCER\n' +
     'UN NOUVEAU JEU SUR RESEAU.\n\n' + this.presskey
   nightmare = 'VOUS CONFIRMEZ? CE NIVEAU EST\n' +
@@ -32,6 +32,9 @@ export class FrenchStrings implements Strings {
   netend = 'VOUS NE POUVEZ PAS METTRE FIN A UN JEU SUR ' +
     'RESEAU!\n\n' + this.presskey
   endgame = 'VOUS VOULEZ VRAIMENT METTRE FIN AU JEU?\n\n' + this.pressyn
+
+  endmsg = [ this.quitmsg ]
+  numQuitMessages = 1
 
   dosy = '(APPUYEZ SUR Y POUR REVENIR AU OS.)'
 

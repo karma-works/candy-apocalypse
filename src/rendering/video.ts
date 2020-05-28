@@ -19,7 +19,11 @@ export class Video {
   // V_DrawPatch
   // Masks a column based masked pic to the screen.
   //
-  private drawPatch(x: number, y: number, scrn: number, patch: Patch) {
+  drawPatch(x: number, y: number, scrn: number, patch: Patch | ArrayBuffer): void {
+    if (patch instanceof ArrayBuffer) {
+      patch = new Patch(patch)
+    }
+
     y -= patch.topOffset
     x -= patch.leftOffset
 
@@ -61,9 +65,6 @@ export class Video {
   // Draws directly to the screen on the pc.
   //
   drawPatchDirect(x: number, y: number, scrn: number, patch: Patch | ArrayBuffer): void {
-    if (patch instanceof ArrayBuffer) {
-      patch = new Patch(patch)
-    }
     this.drawPatch(x, y, scrn, patch)
   }
 

@@ -56,7 +56,7 @@ function xlateKey({ code, key }: KeyboardEvent): number {
     rc = KEY_RALT
     break
   default:
-    rc = key.toUpperCase().charCodeAt(0)
+    rc = key.toLowerCase().charCodeAt(0)
   }
   return rc
 }

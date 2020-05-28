@@ -8,10 +8,10 @@ export class Post {
   bytes: Uint8Array
 
   constructor(private buffer: ArrayBuffer) {
-    const int8 = new Int8Array(buffer, 0)
+    const int8 = new Uint8Array(buffer, 0)
     this.topDelta = int8[0]
 
-    if (this.topDelta !== -1) {
+    if (this.topDelta !== 0xff) {
       this.length = int8[1]
       // 2 or 3
       this.bytes = new Uint8Array(buffer, 3, this.length)
@@ -30,7 +30,7 @@ export class Column {
     let i = 0
     let post = new Post(this.buffer.slice(i))
 
-    while (post.topDelta !== -1) {
+    while (post.topDelta !== 0xff) {
       yield post
 
       i += post.length + 4

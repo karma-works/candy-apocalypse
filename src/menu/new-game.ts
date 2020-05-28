@@ -1,8 +1,8 @@
 import { MenuItem, MenuStruct } from './typedefs'
+import { chooseSkill, episodeDef } from './episode-select'
 import { Menu } from './menu'
-import { episodeDef } from './episode-select'
 
-const enum NewGame {
+export const enum NewGame {
   KillThings,
   TooRough,
   HurtMe,
@@ -53,10 +53,16 @@ export const newDef: MenuStruct = {
   lastOn: NewGame.HurtMe,
 }
 
-function chooseSkill(menu: Menu, choice: number): void {
-  debugger
-}
-
-function drawNewGame(menu: Menu): void {
-  debugger
+//
+// M_NewGame
+//
+async function drawNewGame(menu: Menu): Promise<void> {
+  menu.rvideo.drawPatchDirect(
+    96, 14, 0,
+    await menu.wad.cacheLumpName('M_NEWG'),
+  )
+  menu.rvideo.drawPatchDirect(
+    54, 38, 0,
+    await menu.wad.cacheLumpName('M_SKILL'),
+  )
 }

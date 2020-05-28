@@ -1,8 +1,8 @@
+import { LINEHEIGHT, Menu } from './menu'
 import { MenuItem, MenuStruct } from './typedefs'
-import { Menu } from './menu'
 import { mainDef } from './doom-menu'
 
-const enum Load {
+export const enum Load {
   Load1,
   Load2,
   Load3,
@@ -12,7 +12,7 @@ const enum Load {
   LoadEnd,
 }
 
-const loadMenu: MenuItem[] = [
+export const loadMenu: MenuItem[] = [
   {
     status: 1,
     name: '',
@@ -60,14 +60,48 @@ export const loadDef: MenuStruct = {
   lastOn: 0,
 }
 
-function loadSelect(menu: Menu, choice: number): void {
-  debugger
+//
+// M_LoadGame & Cie.
+//
+async function drawLoad(menu: Menu): Promise<void> {
+  menu.rvideo.drawPatchDirect(
+    72, 28, 0,
+    await menu.wad.cacheLumpName('M_LOADG'),
+  )
+
+  for (let i = 0; i < Load.LoadEnd; ++i) {
+    await menu.drawSaveLoadBorder(loadDef.x, loadDef.y + LINEHEIGHT * i)
+    menu.writeText(
+      loadDef.x,
+      loadDef.y + LINEHEIGHT * i,
+      menu.saveGameStrings[i],
+    )
+  }
 }
 
-function drawLoad(menu: Menu): void {
-  debugger
+//
+// User wants to load this game
+//
+async function loadSelect(menu: Menu/* , choice: number */): Promise<void> {
+  menu.clearMenus()
 }
 
-export function quickLoad(menu: Menu): void {
-  debugger
+//
+// M_QuickLoad
+//
+async function quickLoadResponse(menu: Menu, choice: number): Promise<void> {
+  if (choice === 'y'.charCodeAt(0)) {
+    await loadSelect(menu/* , menu.quickSaveSlot */)
+  }
+}
+export async function quickLoad(menu: Menu): Promise<void> {
+  if (menu.quickSaveSlot < 0) {
+    menu.startMessage(menu.doom.strings.qsavespot, undefined, false)
+    return
+  }
+  menu.startMessage(
+    menu.doom.strings.qlprompt(menu.saveGameStrings[menu.quickSaveSlot]),
+    quickLoadResponse,
+    true,
+  )
 }

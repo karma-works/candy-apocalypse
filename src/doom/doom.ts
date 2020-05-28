@@ -1,7 +1,8 @@
-import { DEvent, MAX_EVENTS } from './event'
+import { DEvent, GameAction, MAX_EVENTS } from './event'
 import { GameMission, GameMode, GameState, Language, VERSION } from '../global/doomdef'
 import { EnglishStrings } from '../translation/english'
 import { FrenchStrings } from '../translation/french'
+import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
 import { Video as IVideo } from '../interfaces/video'
 import { Menu } from '../menu/menu'
@@ -30,6 +31,7 @@ export class Doom {
   //?
   gameState: GameState = GameState.DemoScreen
 
+  private advancedemo = false
 
   private wadfiles: string[] = []
 
@@ -41,7 +43,15 @@ export class Doom {
   private rendering = new Rendering()
   private rvideo = new RVIdeo()
   private ivideo = new IVideo(this, this.rvideo)
-  private menu = new Menu(this, this.headsUp, this.ivideo, this.rvideo, this.wad)
+  private game = new Game()
+  private menu = new Menu(this,
+    this.headsUp,
+    this.ivideo,
+    this.rvideo,
+    this.rendering,
+    this.wad,
+    this.game,
+  )
 
   //
   // EVENT HANDLING
@@ -66,7 +76,7 @@ export class Doom {
   // D_ProcessEvents
   // Send all the events of the given timestamp down the responder chain
   //
-  processEvents(): void {
+  async processEvents(): Promise<void> {
     // IF STORE DEMO, DO NOT ACCEPT INPUT
     if (this.gameMode === GameMode.Commercial &&
         this.wad.checkNumForName('map01') < 0) {
@@ -78,7 +88,7 @@ export class Doom {
       this.eventTail = ++this.eventTail & MAX_EVENTS - 1
     ) {
       ev = this.events[this.eventTail]
-      if (this.menu.responder(ev)) {
+      if (await this.menu.responder(ev)) {
         // menu ate the event
         continue
       }
@@ -109,6 +119,13 @@ export class Doom {
       wipe = true
     } else {
       wipe = false
+    }
+
+    // do buffered drawing
+    switch (this.gameState) {
+    case GameState.DemoScreen:
+      await this.pageDrawer()
+      break
     }
 
     // clean up border stuff
@@ -147,13 +164,120 @@ export class Doom {
       // process one or more tics
       if (true) {
         this.ivideo.startTic()
-        this.processEvents()
+        await this.processEvents()
+        if (this.advancedemo) {
+          this.doAdvanceDemo()
+        }
         this.menu.ticker()
+        this.game.gametic++
       }
       await this.display()
       requestAnimationFrame(w.bind(this))
     }
     await w()
+  }
+
+  //
+  //  DEMO LOOP
+  //
+  private demoSequence = -1
+  private pageTic = -1
+  private pageName = ''
+
+  //
+  // D_PageTicker
+  // Handles timing for warped projection
+  //
+  private pageTicker(): void {
+    if (--this.pageTic < 0) {
+      this.advanceDemo()
+    }
+  }
+
+  //
+  // D_PageDrawer
+  //
+  private async pageDrawer(): Promise<void> {
+    this.rvideo.drawPatch(0, 0, 0,
+      await this.wad.cacheLumpName(this.pageName),
+    )
+  }
+
+  //
+  // D_AdvanceDemo
+  // Called after each demo or intro demosequence finishes
+  //
+  private advanceDemo(): void {
+    this.advancedemo = true
+  }
+
+  //
+  // This cycles through the demo sequences.
+  // FIXME - version dependend demo numbers?
+  //
+  private doAdvanceDemo(): void {
+    this.advancedemo = false
+    this.game.gameAction = GameAction.Nothing
+
+    if (this.gameMode === GameMode.Retail) {
+      this.demoSequence = (this.demoSequence + 1) % 7
+    } else {
+      this.demoSequence = (this.demoSequence + 1) % 6
+    }
+
+    switch (this.demoSequence) {
+    case 0:
+      if (this.gameMode === GameMode.Commercial) {
+        this.pageTic = 35 * 11
+      } else {
+        this.pageTic = 170
+      }
+      this.gameState = GameState.DemoScreen
+      this.pageName = 'TITLEPIC'
+      break
+    case 1:
+      // TODO
+      break
+    case 2:
+      this.pageTic = 200
+      this.gameState = GameState.DemoScreen
+      this.pageName = 'CREDIT'
+      break
+    case 3:
+      // TODO
+      break
+    case 4:
+      this.gameState = GameState.DemoScreen
+      if (this.gameMode === GameMode.Commercial) {
+        this.pageTic = 35 * 11
+        this.pageName = 'TITLEPIC'
+      } else {
+        this.pageTic = 200
+
+        if (this.gameMode === GameMode.Retail) {
+          this.pageName = 'CREDIT'
+        } else {
+          this.pageName = 'HELP2'
+        }
+      }
+      break
+    case 5:
+      // TODO
+      break
+    case 6:
+      // THE DEFINITIVE DOOM Special Edition demo
+      // TODO
+      break
+    }
+  }
+
+  //
+  // D_StartTitle
+  //
+  startTitle(): void {
+    this.game.gameAction = GameAction.Nothing
+    this.demoSequence = -1
+    this.advanceDemo()
   }
 
   //
@@ -307,6 +431,11 @@ export class Doom {
 
     console.log('HU_Init: Setting up heads up display.')
     await this.headsUp.init()
+
+    if (this.game.gameAction !== GameAction.LoadGame) {
+      // start up intro loop
+      this.startTitle()
+    }
 
     await this.doomLoop()
   }

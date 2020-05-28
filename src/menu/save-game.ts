@@ -1,5 +1,5 @@
+import { LINEHEIGHT, Menu } from './menu'
 import { MenuItem, MenuStruct } from './typedefs'
-import { Menu } from './menu'
 import { mainDef } from './doom-menu'
 
 const enum Save {
@@ -60,18 +60,79 @@ export const saveDef: MenuStruct = {
   lastOn: 0,
 }
 
-function saveSelect(menu: Menu, choice: number): void {
-  debugger
+//
+//  M_SaveGame & Cie.
+//
+async function drawSave(menu: Menu): Promise<void> {
+  menu.rvideo.drawPatchDirect(
+    72, 28, 0,
+    await menu.wad.cacheLumpName('M_SAVEG'),
+  )
+
+  for (let i = 0; i < Save.SaveEnd; ++i) {
+    await menu.drawSaveLoadBorder(saveDef.x, saveDef.y + LINEHEIGHT * i)
+    menu.writeText(
+      saveDef.x,
+      saveDef.y + LINEHEIGHT * i,
+      menu.saveGameStrings[i],
+    )
+  }
+
+  if (menu.saveStringEnter) {
+    const i = menu.stringWidth(menu.saveGameStrings[menu.saveSlot])
+    menu.writeText(
+      saveDef.x + i,
+      saveDef.y + LINEHEIGHT * menu.saveSlot,
+      '_',
+    )
+  }
 }
 
-function drawSave(menu: Menu): void {
-  debugger
+//
+// M_Responder calls this when user is finished
+//
+export async function doSave(menu: Menu, slot: number): Promise<void> {
+  menu.clearMenus()
+
+  // PICK QUICKSAVE SLOT YET?
+  if (menu.quickSaveSlot === -2) {
+    menu.quickSaveSlot = slot
+  }
 }
 
-export function doSave(menu: Menu, slot: number): void {
-  debugger
+//
+// User wants to save. Start string input for M_Responder
+//
+async function saveSelect(menu: Menu, choice: number): Promise<void> {
+  // we are going to be intercepting all chars
+  menu.saveStringEnter = true
+
+  menu.saveSlot = choice
+  menu.saveOldString = menu.saveGameStrings[choice]
+  menu.saveCharIndex = menu.saveGameStrings[choice].length
 }
 
-export function quickSave(menu: Menu): void {
-  debugger
+//
+//      M_QuickSave
+//
+async function quickSaveResponse(menu: Menu, ch: number): Promise<void> {
+  if (ch === 'y'.charCodeAt(0)) {
+    await doSave(menu, menu.quickSaveSlot)
+  }
+}
+
+export async function quickSave(menu: Menu): Promise<void> {
+  if (menu.quickSaveSlot < 0) {
+    menu.startControlPanel()
+    await menu.readSaveStrings()
+    menu.setupNextMenu(saveDef)
+    // means to pick a slot now
+    menu.quickSaveSlot = -2
+    return
+  }
+  menu.startMessage(
+    menu.doom.strings.qsprompt(menu.saveGameStrings[menu.quickSaveSlot]),
+    quickSaveResponse,
+    true,
+  )
 }

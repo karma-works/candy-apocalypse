@@ -1,5 +1,5 @@
+import { LINEHEIGHT, Menu } from './menu'
 import { MenuItem, MenuStruct } from './typedefs'
-import { Menu } from './menu'
 import { optionsDef } from './options'
 
 export const enum Sound {
@@ -42,14 +42,32 @@ export const soundDef: MenuStruct = {
   lastOn: 0,
 }
 
-function sfxVol(menu: Menu, choice: number): void {
-  debugger
-}
-function musicVol(menu: Menu, choice: number): void {
-  debugger
+//
+// Change Sfx & Music volumes
+//
+async function drawSound(menu: Menu): Promise<void> {
+  menu.rvideo.drawPatchDirect(60, 38, 0,
+    await menu.wad.cacheLumpName('M_SVOL'),
+  )
+
+  await menu.drawThermo(
+    soundDef.x,
+    soundDef.y + LINEHEIGHT * (Sound.SfxVol + 1),
+    16,
+    0, // TODO
+  )
+  await menu.drawThermo(
+    soundDef.x,
+    soundDef.y + LINEHEIGHT * (Sound.MusicVol + 1),
+    16,
+    0, // TODO
+  )
 }
 
-
-function drawSound(menu: Menu): void {
-  debugger
+async function sfxVol(/* menu: Menu, choice: number */): Promise<void> {
+  // TODO
 }
+async function musicVol(/* menu: Menu, choice: number */): Promise<void> {
+  // TODO
+}
+

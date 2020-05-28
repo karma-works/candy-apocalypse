@@ -1,5 +1,12 @@
+import { GameMode, Language } from '../global/doomdef'
 import { MenuItem, MenuStruct } from './typedefs'
 import { Menu } from './menu'
+import { episodeDef } from './episode-select'
+import { loadDef } from './load-game'
+import { newDef } from './new-game'
+import { optionsDef } from './options'
+import { readDef1 } from './read-this'
+import { saveDef } from './save-game'
 
 export const enum MainEnum {
   NewGame,
@@ -60,25 +67,71 @@ export const mainDef: MenuStruct = {
   lastOn: 0,
 }
 
-function newGame(menu: Menu, choice: number): void {
-  debugger
-}
-function options(menu: Menu, choice: number): void {
-  debugger
-}
-export function loadGame(menu: Menu, choice: number): void {
-  debugger
-}
-export function saveGame(menu: Menu, choice: number): void {
-  debugger
-}
-function readThis(menu: Menu, choice: number): void {
-  debugger
-}
-export function quitDOOM(menu: Menu, choice: number): void {
-  debugger
+
+//
+// Selected from DOOM menu
+//
+export async function loadGame(menu: Menu): Promise<void> {
+  menu.setupNextMenu(loadDef)
+  await menu.readSaveStrings()
 }
 
-function drawMainMenu(menu: Menu): void {
-  // debugger
+//
+// Selected from DOOM menu
+//
+export async function saveGame(menu: Menu): Promise<void> {
+  menu.setupNextMenu(saveDef)
+  await menu.readSaveStrings()
+}
+
+//
+// M_DrawMainMenu
+//
+async function drawMainMenu(menu: Menu): Promise<void> {
+  menu.rvideo.drawPatchDirect(
+    94, 2, 0,
+    await menu.wad.cacheLumpName('M_DOOM'),
+  )
+}
+
+//
+// M_NewGame
+//
+async function newGame(menu: Menu): Promise<void> {
+  if (menu.doom.gameMode === GameMode.Commercial) {
+    menu.setupNextMenu(newDef)
+  } else {
+    menu.setupNextMenu(episodeDef)
+  }
+}
+
+async function options(menu: Menu): Promise<void> {
+  menu.setupNextMenu(optionsDef)
+}
+
+//
+// M_ReadThis
+//
+async function readThis(menu: Menu): Promise<void> {
+  menu.setupNextMenu(readDef1)
+}
+
+async function quitResponse(menu: Menu, ch: number): Promise<void> {
+  if (ch !== 'y'.charCodeAt(0)) {
+    return
+  }
+  // TODO
+}
+
+export async function quitDOOM(menu: Menu): Promise<void> {
+  let endString: string
+  // We pick index 0 which is language sensitive,
+  //  or one at random, between 1 and maximum number.
+  if (menu.doom.language !== Language.English) {
+    endString = `${menu.doom.strings.endmsg[0]}\n\n` + menu.doom.strings.dosy
+  } else {
+    const idx = menu.game.gametic % (menu.doom.strings.numQuitMessages - 2) + 1
+    endString = `${menu.doom.strings.endmsg[idx]}\n\n` + menu.doom.strings.dosy
+  }
+  menu.startMessage(endString, quitResponse, true)
 }

@@ -1,4 +1,5 @@
 import { MenuItem, MenuStruct } from './typedefs'
+import { NewGame, newDef } from './new-game'
 import { Menu } from './menu'
 import { mainDef } from './doom-menu'
 
@@ -46,10 +47,36 @@ export const episodeDef: MenuStruct = {
   lastOn: Episodes.Ep1,
 }
 
-function episode(menu: Menu, choice: number): void {
-  debugger
+//
+//      M_Episode
+//
+let epi: number
+
+async function drawEpisode(menu: Menu): Promise<void> {
+  menu.rvideo.drawPatchDirect(
+    54, 38, 0,
+    await menu.wad.cacheLumpName('M_EPISOD'),
+  )
 }
 
-function drawEpisode(menu: Menu): void {
-  debugger
+async function verifyNightmare(menu: Menu, ch: number): Promise<void> {
+  if (ch !== 'y'.charCodeAt(0)) {
+    return
+  }
+
+  menu.clearMenus()
+}
+
+export async function chooseSkill(menu: Menu, choice: number): Promise<void> {
+  if (choice === NewGame.Nightmare) {
+    menu.startMessage(menu.doom.strings.nightmare, verifyNightmare, true)
+    return
+  }
+
+  menu.clearMenus()
+}
+
+async function episode(menu: Menu, choice: number): Promise<void> {
+  epi = choice
+  menu.setupNextMenu(newDef)
 }

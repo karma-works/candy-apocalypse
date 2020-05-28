@@ -18,8 +18,8 @@ export class EnglishStrings implements Strings {
   qloadnet = 'you can\'t quickload during a netgame!\n\n' + this.presskey
   qsavespot = 'you haven\'t picked a quicksave slot yet!\n\n' + this.presskey
   savedead = 'you can\'t save if you aren\'t playing!\n\n' + this.presskey
-  qsprompt = 'quicksave over your game named\n\n\'%s\'?\n\n' + this.pressyn
-  qlprompt = 'do you want to quickload the game named\n\n\'%s\'?\n\n' + this.pressyn
+  qsprompt = (s: string): string => `quicksave over your game named\n\n'${s}'?\n\n` + this.pressyn
+  qlprompt = (s: string): string => `do you want to quickload the game named\n\n'${s}'?\n\n` + this.pressyn
 
   newgame =
     'you can\'t start a new game\n' +
@@ -37,6 +37,40 @@ export class EnglishStrings implements Strings {
   msgon = 'Messages ON'
   netend = 'you can\'t end a netgame!\n\n' + this.presskey
   endgame = 'are you sure you want to end the game?\n\n' + this.pressyn
+
+  endmsg = [
+    // DOOM1
+    this.quitmsg,
+    'please don\'t leave, there\'s more\ndemons to toast!',
+    'let\'s beat it -- this is turning\ninto a bloodbath!',
+    'i wouldn\'t leave if i were you.\ndos is much worse.',
+    'you\'re trying to say you like dos\nbetter than me, right?',
+    'don\'t leave yet -- there\'s a\ndemon around that corner!',
+    'ya know, next time you come in here\ni\'m gonna toast ya.',
+    'go ahead and leave. see if i care.',
+
+    // QuitDOOM II messages
+    'you want to quit?\nthen, thou hast lost an eighth!',
+    'don\'t go now, there\'s a \ndimensional shambler waiting\nat the dos prompt!',
+    'get outta here and go back\nto your boring programs.',
+    'if i were your boss, i\'d \n deathmatch ya in a minute!',
+    'look, bud. you leave now\nand you forfeit your body count!',
+    'just leave. when you come\nback, i\'ll be waiting with a bat.',
+    'you\'re lucky i don\'t smack\nyou for thinking about leaving.',
+
+    // FinalDOOM?
+    'fuck you, pussy!\nget the fuck out!',
+    'you quit and i\'ll jizz\nin your cystholes!',
+    'if you leave, i\'ll make\nthe lord drink my jizz.',
+    'hey, ron! can we say\n\'fuck\' in the game?',
+    'i\'d leave: this is just\nmore monsters and levels.\nwhat a load.',
+    'suck it down, asshole!\nyou\'re a fucking wimp!',
+    'don\'t quit now! we\'re \nstill spending your money!',
+
+    // Internal debug. Different style, too.
+    'THIS IS NO MESSAGE!\nPage intentionally left blank.',
+  ]
+  numQuitMessages = 22
 
   dosy = '(press y to quit)'
 

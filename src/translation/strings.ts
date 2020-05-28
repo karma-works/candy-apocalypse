@@ -16,8 +16,8 @@ export interface Strings {
   qloadnet: string
   qsavespot: string
   savedead: string
-  qsprompt: string
-  qlprompt: string
+  qsprompt: (s: string) => string
+  qlprompt: (s: string) => string
 
   newgame: string
 
@@ -29,6 +29,9 @@ export interface Strings {
   msgon: string
   netend: string
   endgame: string
+
+  endmsg: string[]
+  numQuitMessages: number
 
   dosy: string
 

@@ -1,25 +1,27 @@
 import { DEvent, EvType } from '../doom/event'
 import { GameMode, KEY_BACKSPACE, KEY_DOWNARROW, KEY_ENTER, KEY_EQUALS, KEY_ESCAPE, KEY_F1, KEY_F10, KEY_F11, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_LEFTARROW, KEY_MINUS, KEY_RIGHTARROW, KEY_UPARROW, SCREENWIDTH } from '../global/doomdef'
 import { HU_FONTSIZE, HU_FONTSTART, HeadsUp } from '../heads-up/stuff'
+import { Load, loadMenu, quickLoad } from './load-game'
 import { MainEnum, loadGame, mainDef, mainMenu, quitDOOM, saveGame } from './doom-menu'
 import { Sound, soundDef } from './sound-volume'
 import { changeDetail, changeMessages, endGame, sizeDisplay } from './options'
 import { doSave, quickSave } from './save-game'
 import { drawReadThis1, finishReadThis, readDef1, readDef2, readMenu1 } from './read-this'
 import { Doom } from '../doom/doom'
+import { Game } from '../game/game'
 import { Video as IVideo } from '../interfaces/video'
 import { MenuStruct } from './typedefs'
 import { Video as RVideo } from '../rendering/video'
+import { Rendering } from '../rendering/rendering'
 import { Wad } from '../wad/wad'
 import { episodeDef as epiDef } from './episode-select'
 import { getTime } from '../system/system'
 import { newDef } from './new-game'
-import { quickLoad } from './load-game'
 import { toupper } from '../c'
 
 const SAVESTRINGSIZE = 24
 const SKULLOFF = -32
-const LINEHEIGHT = 16
+export const LINEHEIGHT = 16
 
 export class Menu {
 
@@ -32,24 +34,24 @@ export class Menu {
 
   // timed message = no input from user
   messageNeedsInput = false
-  messageRoutine?: (menu: Menu, response: number) => void
+  messageRoutine?: (menu: Menu, response: number) => Promise<void>
 
   // we are going to be entering a savegame string
-  private saveStringEnter = 0
+  saveStringEnter = false
   // which slot to save in
-  private saveSlot = 0
+  saveSlot = 0
   // which char we're editing
-  private saveCharIndex = 0
+  saveCharIndex = 0
   // old save description before edit
-  private saveOldString = ''
+  saveOldString = ''
 
-  private inHelpScreens = false
+  inHelpScreens = false
   private menuActive = false
 
-  private saveGameStrings: string[] = new Array(10).fill('')
+  saveGameStrings: string[] = new Array(10).fill('')
 
   // menu item skull is on
-  private itemOn = 0
+  itemOn = 0
   // skull animation counter
   private skullAnimCounter = 0
   // which skull to draw
@@ -60,15 +62,108 @@ export class Menu {
   private skullName = [ 'M_SKULL1', 'M_SKULL2' ]
 
   // current menudef
-  private currentMenu: MenuStruct = mainDef
+  currentMenu: MenuStruct = mainDef
 
-  private quickSaveSlot = 0
+  quickSaveSlot = 0
 
-  constructor(private doom: Doom,
-              private headsUp: HeadsUp,
+  constructor(public doom: Doom,
+              public headsUp: HeadsUp,
               private ivideo: IVideo,
-              private rvideo: RVideo,
-              private wad: Wad) {}
+              public rvideo: RVideo,
+              public rendering: Rendering,
+              public wad: Wad,
+              public game: Game) {}
+
+  //
+  // M_ReadSaveStrings
+  //  read the strings from the savegame files
+  //
+  async readSaveStrings(): Promise<void> {
+    for (let i = 0; i < Load.LoadEnd; ++i) {
+      this.saveGameStrings[i] = ''
+      loadMenu[i].status = 0
+    }
+  }
+
+  //
+  // Draw border for the savegame description
+  //
+  async drawSaveLoadBorder(x: number, y: number): Promise<void> {
+    this.rvideo.drawPatchDirect(
+      x - 8, y + 7, 0,
+      await this.wad.cacheLumpName('M_LSLEFT'),
+    )
+    for (let i = 0; i < 24; ++i) {
+      this.rvideo.drawPatchDirect(
+        x, y + 7, 0,
+        await this.wad.cacheLumpName('M_LSCNTR'),
+      )
+      x += 8
+    }
+    this.rvideo.drawPatchDirect(
+      x, y + 7, 0,
+      await this.wad.cacheLumpName('M_LSRGHT'),
+    )
+  }
+
+  //
+  //      Menu Functions
+  //
+  async drawThermo(x: number, y: number, thermWidth: number, thermDot: number): Promise<void> {
+    let xx = x
+    this.rvideo.drawPatchDirect(
+      xx, y, 0,
+      await this.wad.cacheLumpName('M_THERML'),
+    )
+    xx += 8
+    for (let i = 0; i < thermWidth; ++i) {
+      this.rvideo.drawPatchDirect(
+        xx, y, 0,
+        await this.wad.cacheLumpName('M_THERMM'),
+      )
+      xx += 8
+    }
+    this.rvideo.drawPatchDirect(
+      xx, y, 0,
+      await this.wad.cacheLumpName('M_THERMR'),
+    )
+    this.rvideo.drawPatchDirect(
+      x + 8 + thermDot * 8, y, 0,
+      await this.wad.cacheLumpName('M_THERMO'),
+    )
+  }
+
+  async drawEmptyCell(menu: MenuStruct, item: number): Promise<void> {
+    this.rvideo.drawPatchDirect(
+      menu.x - 10, menu.y + item * LINEHEIGHT - 1, 0,
+      await this.wad.cacheLumpName('M_CELL1'),
+    )
+  }
+
+  async drawSelCell(menu: MenuStruct, item: number): Promise<void> {
+    this.rvideo.drawPatchDirect(
+      menu.x - 10, menu.y + item * LINEHEIGHT - 1, 0,
+      await this.wad.cacheLumpName('M_CELL2'),
+    )
+  }
+
+  startMessage(
+    str: string,
+    routine: ((menu: Menu, response: number) => Promise<void>) | undefined,
+    input: boolean,
+  ): void {
+    this.messageLastMenuActive = this.menuActive
+    this.messageToPrint = true
+    this.messageString = str
+    this.messageRoutine = routine
+    this.messageNeedsInput = input
+    this.menuActive = true
+    return
+  }
+  stopMessage(): void {
+    this.menuActive = this.messageLastMenuActive
+    this.messageToPrint = false
+  }
 
   //
   // Find string width from hu_font chars
@@ -237,14 +332,14 @@ export class Menu {
         break
 
       case KEY_ESCAPE:
-        this.saveStringEnter = 0
+        this.saveStringEnter = false
         this.saveGameStrings[this.saveSlot] = this.saveOldString
         break
 
       case KEY_ENTER:
-        this.saveStringEnter = 0
+        this.saveStringEnter = false
         if (this.saveGameStrings[this.saveSlot].length > 0) {
-          doSave(this, this.saveSlot)
+          await doSave(this, this.saveSlot)
         }
         break
 
@@ -282,7 +377,7 @@ export class Menu {
       this.menuActive = this.messageLastMenuActive
       this.messageToPrint = false
       if (this.messageRoutine) {
-        this.messageRoutine(this, ch)
+        await this.messageRoutine(this, ch)
       }
 
       this.menuActive = false
@@ -293,12 +388,12 @@ export class Menu {
       switch (ch) {
       // Screen size down
       case KEY_MINUS:
-        sizeDisplay(this, 0)
+        await sizeDisplay(this, 0)
         return true
 
       // Screen size up
       case KEY_EQUALS:
-        sizeDisplay(this, 1)
+        await sizeDisplay(this, 1)
         return true
 
       // Help key
@@ -317,13 +412,13 @@ export class Menu {
       // Save
       case KEY_F2:
         this.startControlPanel()
-        saveGame(this, 0)
+        await saveGame(this)
         return true
 
       // Load
       case KEY_F3:
         this.startControlPanel()
-        loadGame(this, 0)
+        await loadGame(this)
         return true
 
       // Sound Volume
@@ -335,32 +430,32 @@ export class Menu {
 
       // Detail toggle
       case KEY_F5:
-        changeDetail(this, 0)
+        await changeDetail()
         return true
 
       // Quicksave
       case KEY_F6:
-        quickSave(this)
+        await quickSave(this)
         return true
 
       // End game
       case KEY_F7:
-        endGame(this, 0)
+        await endGame(this)
         return true
 
       // Toggle messages
       case KEY_F8:
-        changeMessages(this, 0)
+        await changeMessages(this)
         return true
 
       // Quickload
       case KEY_F9:
-        quickLoad(this)
+        await quickLoad(this)
         return true
 
       // Quit DOOM
       case KEY_F10:
-        quitDOOM(this, 0)
+        await quitDOOM(this)
         return true
 
       // gamma toggle
@@ -408,7 +503,7 @@ export class Menu {
     case KEY_LEFTARROW: {
       const item = this.currentMenu.menuItems[this.itemOn]
       if (item.routine && item.status === 2) {
-        item.routine(this, 0)
+        await item.routine(this, 0)
       }
       return true
     }
@@ -416,7 +511,7 @@ export class Menu {
     case KEY_RIGHTARROW: {
       const item = this.currentMenu.menuItems[this.itemOn]
       if (item.routine && item.status === 2) {
-        item.routine(this, 1)
+        await item.routine(this, 1)
       }
       return true
     }
@@ -427,9 +522,9 @@ export class Menu {
         this.currentMenu.lastOn = this.itemOn
         if (item.status === 2) {
           // right arrow
-          item.routine(this, 1)
+          await item.routine(this, 1)
         } else {
-          item.routine(this, this.itemOn)
+          await item.routine(this, this.itemOn)
         }
       }
       return true
@@ -449,6 +544,7 @@ export class Menu {
       return true
 
     default:
+      debugger
       for (let i = this.itemOn + 1; i < this.currentMenu.numItems; ++i) {
         if (this.currentMenu.menuItems[i].alphaKey === String.fromCharCode(ch)) {
           this.itemOn = i
@@ -526,7 +622,7 @@ export class Menu {
 
     if (this.currentMenu.routine) {
       // call Draw routine
-      this.currentMenu.routine(this)
+      await this.currentMenu.routine(this)
     }
 
     // DRAW MENU
@@ -558,6 +654,14 @@ export class Menu {
   //
   clearMenus(): void {
     this.menuActive = false
+  }
+
+  //
+  // M_SetupNextMenu
+  //
+  setupNextMenu(menuDef: MenuStruct): void {
+    this.currentMenu = menuDef
+    this.itemOn = this.currentMenu.lastOn
   }
 
   //
