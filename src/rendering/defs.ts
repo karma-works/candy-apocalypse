@@ -7,7 +7,7 @@ export class Post {
 
   bytes: Uint8Array
 
-  constructor(private buffer: ArrayBuffer) {
+  constructor(buffer: ArrayBuffer) {
     const int8 = new Uint8Array(buffer, 0)
     this.topDelta = int8[0]
 
@@ -53,7 +53,7 @@ export class Patch {
   // pixels below the origin
   topOffset: number
 
-  private columnOfs: number[]
+  columnOfs: number[]
 
   constructor(private buffer: ArrayBuffer) {
     const int16 = new Int16Array(buffer, 0, 4)

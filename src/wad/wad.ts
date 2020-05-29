@@ -1,4 +1,5 @@
 import { FileLump, LumpInfo, WadInfo } from './types'
+import { tostring } from '../c'
 
 function extractFileBase(path: string): string {
   const idx = path.lastIndexOf('/')
@@ -85,18 +86,13 @@ export class Wad {
 
       let fileReader: Int32Array
       let name: string
-      let nullIdx: number
       for (let filePtr = header.infoTableOfs;
         filePtr < header.infoTableOfs + length;
         filePtr += sizeOfFileLump
       ) {
         fileReader = new Int32Array(handle, filePtr, 2)
 
-        name = String.fromCharCode(...new Int8Array(handle, filePtr + 8, 8))
-        nullIdx = name.indexOf(String.fromCharCode(0))
-        if (nullIdx >= 0) {
-          name = name.substr(0, nullIdx)
-        }
+        name = tostring(handle, filePtr + 8, 8)
 
         fileInfo.push({
           filePos: fileReader[0],
@@ -177,7 +173,7 @@ export class Wad {
   // W_GetNumForName
   // Calls W_CheckNumForName, but bombs out if not found.
   //
-  private getNumForName(name: string): number {
+  getNumForName(name: string): number {
     const i = this.checkNumForName(name)
 
     if (i === -1) {
@@ -187,11 +183,23 @@ export class Wad {
   }
 
   //
+  // W_LumpLength
+  // Returns the buffer size needed to load the given lump.
+  //
+  lumpLength(lump: number): number {
+    if (lump >= this.numLumps) {
+      throw `W_LumpLength: ${lump} >= numlumps`
+    }
+
+    return this.lumpInfo[lump].size
+  }
+
+  //
   // W_ReadLump
   // Loads the lump into the given buffer,
   //  which must be >= W_LumpLength().
   //
-  private async readLump(lump: number): Promise<ArrayBuffer> {
+  async readLump(lump: number): Promise<ArrayBuffer> {
     if (lump >= this.numLumps) {
       throw `W_ReadLump: ${lump} >= numlumps`
     }
@@ -218,7 +226,7 @@ export class Wad {
   //
   // W_CacheLumpNum
   //
-  private async cacheLumpNum(lump: number): Promise<ArrayBuffer> {
+  async cacheLumpNum(lump: number): Promise<ArrayBuffer> {
     if (lump >= this.numLumps) {
       throw `W_CacheLumpNum: ${lump} >= numlumps`
     }

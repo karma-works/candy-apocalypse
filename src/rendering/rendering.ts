@@ -1,4 +1,10 @@
+import { Data } from './data'
+import { Wad } from '../wad/wad'
+
 export class Rendering {
+  public data = new Data(this.wad)
+
+  constructor(private wad: Wad) { }
 
   // Blocky mode, has default, 0 = high, 1 = normal
   detailLevel = 0
@@ -30,7 +36,10 @@ export class Rendering {
     this.setSizeNeeded = false
   }
 
-  init(): void {
+  async init(): Promise<void> {
+    await this.data.initData()
+    console.log('R_InitData')
+
     this.setViewSize(this.screenBlocks, this.detailLevel)
   }
 }
