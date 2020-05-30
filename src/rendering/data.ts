@@ -1,3 +1,4 @@
+import { FRACBITS } from '../misc/fixed'
 import { Patch } from './defs'
 import { Wad } from '../wad/wad'
 import { tostring } from '../c'
@@ -310,7 +311,7 @@ export class Data {
         j <<= 1
       }
       this.textureWidthMask[i] = j - 1
-      this.textureHeight[i] = texture.height << 16
+      this.textureHeight[i] = texture.height << FRACBITS
     }
 
     // Precalculate whatever possible.
@@ -358,9 +359,9 @@ export class Data {
     for (let i = 0; i < this.numSpriteLumps; ++i) {
       patch = new Patch(await this.wad.cacheLumpNum(this.firstSpriteLump + i))
 
-      this.spriteWidth[i] = patch.width << 16
-      this.spriteOffset[i] = patch.leftOffset << 16
-      this.spriteTopOffset[i] = patch.topOffset << 16
+      this.spriteWidth[i] = patch.width << FRACBITS
+      this.spriteOffset[i] = patch.leftOffset << FRACBITS
+      this.spriteTopOffset[i] = patch.topOffset << FRACBITS
     }
   }
 

@@ -1,3 +1,5 @@
+import { FRACUNIT } from '../misc/fixed'
+
 //
 // sky mapping
 //
@@ -18,6 +20,6 @@ export class Sky {
   // Called whenever the view size changes.
   //
   initSkyMap(): void {
-    this.skyTextureMid = 100 * (1 << 16)
+    this.skyTextureMid = 100 * FRACUNIT
   }
 }

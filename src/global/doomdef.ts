@@ -53,6 +53,15 @@ export const enum GameState {
   DemoScreen,
 }
 
+
+export const enum Skill {
+  Baby,
+  Easy,
+  Medium,
+  Hard,
+  Nightmare,
+}
+
 //
 // DOOM keyboard definition.
 // This is the stuff configured by Setup.Exe.

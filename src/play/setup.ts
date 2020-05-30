@@ -1,0 +1,353 @@
+import { FRACBITS, div } from '../misc/fixed'
+import { Line, Node, Sector, Seg, Side, SlopeType, SubSector, Vertex } from '../rendering/defs'
+import { MapLineDef, MapLineFlag, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef, MapSubSector, MapVertex } from '../doom/data'
+import { BBox } from '../misc/bbox'
+import { Rendering } from '../rendering/rendering'
+import { Skill } from '../global/doomdef'
+import { Wad } from '../wad/wad'
+
+export class Play {
+  //
+  // MAP related Lookup tables.
+  // Store VERTEXES, LINEDEFS, SIDEDEFS, etc.
+  //
+  private numVertexes = -1
+  private vertexes = new Array<Vertex>()
+
+  private numSegs = -1
+  private segs = new Array<Seg>()
+
+  private numSectors = -1
+  private sectors = new Array<Sector>()
+
+  private numSubSectors = -1
+  private subSectors = new Array<SubSector>()
+
+  private numNodes = -1
+  private nodes = new Array<Node>()
+
+  private numLines = -1
+  private lines = new Array<Line>()
+
+  private numSides = -1
+  private sides = new Array<Side>()
+
+
+  // BLOCKMAP
+  // Created from axis aligned bounding box
+  // of the map, a rectangular array of
+  // blocks of size ...
+  // Used to speed up collision detection
+  // by spatial subdivision in 2D.
+  //
+  // Blockmap size.
+  private bMapWidth = -1
+  // size in mapblocks
+  private bMapHeight = -1
+  // int for larger maps
+  private blockMap: Int16Array = new Int16Array(0)
+  // offsets in blockmap are from here
+  private blockMapLump: Int16Array = new Int16Array(0)
+  // origin of block map
+  private bMapOrgX = -1
+  private bMapOrgY = -1
+
+  constructor(private wad: Wad,
+              private rendering: Rendering) { }
+
+  //
+  // P_LoadVertexes
+  //
+  private async loadVertexes(lump: number): Promise<void> {
+    // Determine number of lumps:
+    //  total lump length / vertex record length.
+    this.numVertexes = this.wad.lumpLength(lump) / MapVertex.sizeOf
+
+    // Allocate zone memory for buffer.
+    this.vertexes = new Array(this.numVertexes)
+
+    // Load data into cache.
+    const data = await this.wad.cacheLumpNum(lump)
+    let ml: MapVertex
+    let mlPtr = 0
+    // Copy and convert vertex coordinates,
+    // internal representation as fixed.
+    for (let i = 0; i < this.numVertexes; ++i, mlPtr += MapVertex.sizeOf) {
+      ml = new MapVertex(data.slice(mlPtr))
+      this.vertexes[i] = {
+        x: ml.x << FRACBITS,
+        y: ml.y << FRACBITS,
+      }
+    }
+  }
+
+  //
+  // P_LoadSegs
+  //
+  private async loadSegs(lump: number): Promise<void> {
+    this.numSegs = this.wad.lumpLength(lump) / MapSeg.sizeOf
+    this.segs = new Array(this.numSegs)
+    const data = await this.wad.cacheLumpNum(lump)
+
+    let ml: MapSeg
+    let mlIdx = 0
+    let lDef: Line
+    let li: Seg
+    for (let i = 0; i < this.numSegs; ++i, mlIdx += MapSeg.sizeOf) {
+      ml = new MapSeg(data.slice(mlIdx))
+      lDef = this.lines[ml.lineDef]
+      li = {
+        v1: this.vertexes[ml.v1],
+        v2: this.vertexes[ml.v2],
+        angle: ml.angle << 16,
+        offset: ml.offset << 16,
+        lineDef: lDef,
+        sideDef: this.sides[lDef.sideNum[ml.side]],
+        frontSector: this.sides[lDef.sideNum[ml.side]].sector,
+        backSector: null,
+      }
+      if (lDef.flags & MapLineFlag.TwoSided) {
+        li.backSector = this.sides[lDef.sideNum[ml.side^1]].sector
+      } else {
+        li.backSector = null
+      }
+      this.segs[i] = li
+    }
+  }
+
+  //
+  // P_LoadSubsectors
+  //
+  private async loadSubSectors(lump: number): Promise<void> {
+    this.numSubSectors = this.wad.lumpLength(lump) / MapSubSector.sizeOf
+    this.subSectors = new Array(this.numSubSectors)
+    const data = await this.wad.cacheLumpNum(lump)
+
+    let ms: MapSubSector
+    let msPtr = 0
+    for (let i = 0; i < this.numSubSectors; ++i, msPtr += MapSubSector.sizeOf) {
+      ms = new MapSubSector(data.slice(msPtr))
+      this.subSectors[i] = {
+        numLines: ms.numSegs,
+        firstLine: ms.firstSeg,
+        sector: null,
+      }
+    }
+  }
+
+
+  //
+  // P_LoadSectors
+  //
+  private async loadSectors(lump: number): Promise<void> {
+    this.numSectors = this.wad.lumpLength(lump) / MapSector.sizeOf
+    this.sectors = new Array(this.numSectors)
+    const data = await this.wad.cacheLumpNum(lump)
+
+    let ms: MapSector
+    let msPtr = 0
+    for (let i = 0; i < this.numSectors; ++i, msPtr += MapSector.sizeOf) {
+      ms = new MapSector(data.slice(msPtr))
+      this.sectors[i] = {
+        floorHeight: ms.floorHeight << FRACBITS,
+        ceilingHeight: ms.ceilingHeight << FRACBITS,
+        floorPic: this.rendering.data.flatNumForName(ms.floorPic),
+        ceilingPic: this.rendering.data.flatNumForName(ms.ceilingPic),
+        lightLevel: ms.lightLevel,
+        special: ms.special,
+        tag: ms.tag,
+        thingList: null,
+
+        soundTraversed: 0,
+        soundTarget: null,
+        blockBox: new Array(4).fill(0),
+        soundOrg: null,
+        validCount: 0,
+        specialData: null,
+        lineCount: 0,
+        lines: [],
+      }
+    }
+  }
+
+  //
+  // P_LoadNodes
+  //
+  private async loadNodes(lump: number): Promise<void> {
+    this.numNodes = this.wad.lumpLength(lump) / MapNode.sizeOf
+    this.nodes = new Array(this.numNodes)
+    const data = await this.wad.cacheLumpNum(lump)
+
+    let mn: MapNode
+    let mnPtr = 0
+    let no: Node
+    for (let i = 0; i < this.numNodes; ++i, mnPtr += MapNode.sizeOf) {
+      mn = new MapNode(data.slice(mnPtr))
+      no = {
+        x: mn.x << FRACBITS,
+        y: mn.y << FRACBITS,
+        dX: mn.dX << FRACBITS,
+        dY: mn.dY << FRACBITS,
+
+        bbox: [ new BBox(), new BBox() ],
+        children: new Array(2),
+      }
+
+      for (let j = 0; j < 2; ++j) {
+        no.children[j] = mn.children[j]
+        no.bbox[j].top = mn.bbox[j][0] << FRACBITS
+        no.bbox[j].bottom = mn.bbox[j][1] << FRACBITS
+        no.bbox[j].left = mn.bbox[j][2] << FRACBITS
+        no.bbox[j].right = mn.bbox[j][3] << FRACBITS
+      }
+
+      this.nodes[i] = no
+    }
+  }
+
+  //
+  // P_LoadLineDefs
+  // Also counts secret lines for intermissions.
+  //
+  private async loadLineDefs(lump: number): Promise<void> {
+    this.numLines = this.wad.lumpLength(lump) / MapLineDef.sizeOf
+    this.lines = new Array(this.numLines)
+    const data = await this.wad.cacheLumpNum(lump)
+
+    let mld: MapLineDef
+    let mldPtr = 0
+    let ld: Line
+    let v1: Vertex, v2: Vertex
+    for (let i = 0; i < this.numLines; ++i, mldPtr += MapLineDef.sizeOf) {
+      mld = new MapLineDef(data.slice(mldPtr))
+      v1 = this.vertexes[mld.v1]
+      v2 = this.vertexes[mld.v2]
+      ld = {
+        flags: mld.flags,
+        special: mld.special,
+        tag: mld.tag,
+        v1, v2,
+        dX: v2.x - v1.x,
+        dY: v2.y - v1.y,
+
+        sideNum: new Array(2).fill(0),
+        bbox: new BBox(),
+        slopeType: 0,
+        frontSector: null,
+        backSector: null,
+        validCount: 0,
+        specialData: null,
+      }
+
+      if (!ld.dX) {
+        ld.slopeType = SlopeType.Vertical
+      } else if (!ld.dY) {
+        ld.slopeType = SlopeType.Horizontal
+      } else {
+        if (div(ld.dY, ld.dX) > 0) {
+          ld.slopeType = SlopeType.Positive
+        } else {
+          ld.slopeType = SlopeType.Negative
+        }
+      }
+
+      if (v1.x < v2.x) {
+        ld.bbox.left = v1.x
+        ld.bbox.right = v2.x
+      } else {
+        ld.bbox.left = v2.x
+        ld.bbox.right = v1.x
+      }
+
+      if (v1.y < v2.y) {
+        ld.bbox.bottom = v1.y
+        ld.bbox.top = v2.y
+      } else {
+        ld.bbox.bottom = v2.y
+        ld.bbox.top = v1.y
+      }
+
+      ld.sideNum[0] = mld.sideNum[0]
+      ld.sideNum[1] = mld.sideNum[1]
+
+      if (ld.sideNum[0] !== -1) {
+        ld.frontSector = this.sides[ld.sideNum[0]].sector
+      } else {
+        ld.frontSector = null
+      }
+
+      if (ld.sideNum[1] !== -1) {
+        ld.backSector = this.sides[ld.sideNum[1]].sector
+      } else {
+        ld.backSector = null
+      }
+
+      this.lines[i] = ld
+    }
+  }
+
+  //
+  // P_LoadSideDefs
+  //
+  private async loadSideDefs(lump: number): Promise<void> {
+    this.numSides = this.wad.lumpLength(lump) / MapSideDef.sizeOf
+    this.sides = new Array(this.numSides)
+    const data = await this.wad.cacheLumpNum(lump)
+
+    let msd: MapSideDef
+    let msdPtr = 0
+    for (let i = 0; i < this.numSides; ++i, msdPtr += MapSideDef.sizeOf) {
+      msd = new MapSideDef(data.slice(msdPtr))
+
+      this.sides[i] = {
+        textureOffset: msd.textureOffset << FRACBITS,
+        rowOffset: msd.textureOffset << FRACBITS,
+        topTexture: this.rendering.data.textureNumForName(msd.topTexture),
+        bottomTexture: this.rendering.data.textureNumForName(msd.bottomTexture),
+        midTexture: this.rendering.data.textureNumForName(msd.midTexture),
+        sector: this.sectors[msd.sector],
+      }
+    }
+  }
+
+  //
+  // P_LoadBlockMap
+  //
+  private async loadBlockMap(lump: number): Promise<void> {
+    const buffer = await this.wad.cacheLumpNum(lump)
+    this.blockMapLump = new Int16Array(buffer)
+    this.blockMap = new Int16Array(buffer, 4)
+
+    this.bMapOrgX = this.blockMapLump[0] << FRACBITS
+    this.bMapOrgY = this.blockMapLump[1] << FRACBITS
+    this.bMapWidth = this.blockMapLump[2]
+    this.bMapHeight = this.blockMapLump[3]
+  }
+
+  //
+  // P_SetupLevel
+  //
+  async setupLevel(episode: number, map: number, playMask: number, skill: Skill): Promise<void> {
+    const lumpName = `E${episode}M${map}`
+
+    const lumpNum = this.wad.getNumForName(lumpName)
+
+    // note: most of this ordering is important
+    await this.loadBlockMap(lumpNum + MapLumpOrder.BlockMap)
+    await this.loadVertexes(lumpNum + MapLumpOrder.Vertexes)
+    await this.loadSectors(lumpNum + MapLumpOrder.Sectors)
+    await this.loadSideDefs(lumpNum + MapLumpOrder.SideDefs)
+
+    await this.loadLineDefs(lumpNum + MapLumpOrder.LineDefs)
+    await this.loadSubSectors(lumpNum + MapLumpOrder.SSectors)
+    await this.loadNodes(lumpNum + MapLumpOrder.Nodes)
+    await this.loadSegs(lumpNum + MapLumpOrder.Segs)
+  }
+
+  //
+  // P_Init
+  //
+  init(): void {
+    console.log('TODO')
+  }
+}

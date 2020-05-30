@@ -6,6 +6,7 @@ import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
 import { Video as IVideo } from '../interfaces/video'
 import { Menu } from '../menu/menu'
+import { Play } from '../play/setup'
 import { Video as RVIdeo } from '../rendering/video'
 import { Rendering } from '../rendering/rendering'
 import { Strings } from '../translation/strings'
@@ -41,6 +42,7 @@ export class Doom {
   private wad = new Wad()
   private headsUp = new HeadsUp(this.wad)
   private rendering = new Rendering(this.wad)
+  private play = new Play(this.wad, this.rendering)
   private rvideo = new RVIdeo()
   private ivideo = new IVideo(this, this.rvideo)
   private game = new Game()
@@ -428,6 +430,9 @@ export class Doom {
 
     console.log('R_Init: Init DOOM refresh daemon - ')
     await this.rendering.init()
+
+    console.log('P_Init: Init Playloop state.')
+    this.play.init()
 
     console.log('HU_Init: Setting up heads up display.')
     await this.headsUp.init()
