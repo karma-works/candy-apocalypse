@@ -1,5 +1,6 @@
 import { FRACBITS, div } from '../misc/fixed'
 import { Line, Node, Sector, Seg, Side, SlopeType, SubSector, Vertex } from '../rendering/defs'
+import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
 import { MapLineDef, MapLineFlag, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef, MapSubSector, MapVertex } from '../doom/data'
 import { BBox } from '../misc/bbox'
 import { Rendering } from '../rendering/rendering'
@@ -51,6 +52,15 @@ export class Play {
   // origin of block map
   private bMapOrgX = -1
   private bMapOrgY = -1
+
+  // REJECT
+  // For fast sight rejection.
+  // Speeds up enemy AI by skipping detailed
+  //  LineOf Sight calculation.
+  // Without special effect, this could be
+  //  used as a PVS lookup as well.
+  //
+  private rejectMatrix: ArrayBuffer = new ArrayBuffer(0)
 
   constructor(private wad: Wad,
               private rendering: Rendering) { }
@@ -160,7 +170,7 @@ export class Play {
 
         soundTraversed: 0,
         soundTarget: null,
-        blockBox: new Array(4).fill(0),
+        blockBox: new BBox(),
         soundOrg: null,
         validCount: 0,
         specialData: null,
@@ -325,6 +335,89 @@ export class Play {
   }
 
   //
+  // P_GroupLines
+  // Builds sector line lists and subsector sector numbers.
+  // Finds block bounding boxes for sectors.
+  //
+  private groupLines(): void {
+    let i: number
+    // look up sector number for each subsector
+    let ss: SubSector
+    let ssPtr = 0
+    let seg : Seg
+    for (i = 0; i < this.numSubSectors; ++i, ++ssPtr) {
+      ss = this.subSectors[ssPtr]
+      seg = this.segs[ss.firstLine]
+      ss.sector = seg.sideDef.sector
+    }
+
+    // count number of lines in each sector
+    let li: Line
+    let liPtr = 0
+    let total = 0
+    for (i = 0; i < this.numLines; ++i, ++liPtr) {
+      li = this.lines[liPtr]
+
+      ++total
+      if (li.frontSector !== null) {
+        li.frontSector.lineCount++
+      }
+
+      if (li.backSector && li.backSector !== li.frontSector) {
+        li.backSector.lineCount++
+        ++total
+      }
+    }
+
+    // build line tables for each sector
+    const lineBuffer = new Array<Line>(total * 4)
+    let lineBufferPtr = 0
+    let sector: Sector
+    let sectorPtr = 0
+    let sectorLinePtr = 0
+    const bbox = new BBox()
+
+    let block: number
+    for (i = 0; i < this.numSectors; ++i, ++sectorPtr) {
+      sector = this.sectors[sectorPtr]
+      bbox.clear()
+      // sector.lines = lineBuffer TODO
+      sectorLinePtr = lineBufferPtr
+
+      liPtr = 0
+      for (let j = 0; j < this.numLines; ++j, ++liPtr) {
+        li = this.lines[liPtr]
+        if (li.frontSector === sector || li.backSector === sector) {
+          lineBuffer[lineBufferPtr++] = li
+          bbox.add(li.v1.x, li.v1.y)
+          bbox.add(li.v2.x, li.v2.y)
+        }
+      }
+      sector.lines = lineBuffer.slice(sectorLinePtr, lineBufferPtr)
+      if (lineBufferPtr - sectorLinePtr !== sector.lineCount) {
+        throw 'P_GroupLines: miscounted'
+      }
+
+      // adjust bounding box to map blocks
+      block = bbox.top - this.bMapOrgY + MAX_RADIUS >> MAP_BLOCK_SHIFT
+      block = block >= this.bMapHeight ? this.bMapHeight-1 : block
+      sector.blockBox.top = block
+
+      block = bbox.bottom - this.bMapOrgY - MAX_RADIUS >> MAP_BLOCK_SHIFT
+      block = block < 0 ? 0 : block
+      sector.blockBox.bottom = block
+
+      block = bbox.right - this.bMapOrgX + MAX_RADIUS >> MAP_BLOCK_SHIFT
+      block = block >= this.bMapWidth ? this.bMapWidth-1 : block
+      sector.blockBox.right = block
+
+      block = bbox.left - this.bMapOrgX - MAX_RADIUS >> MAP_BLOCK_SHIFT
+      block = block < 0 ? 0 : block
+      sector.blockBox.left = block
+    }
+  }
+
+  //
   // P_SetupLevel
   //
   async setupLevel(episode: number, map: number, playMask: number, skill: Skill): Promise<void> {
@@ -342,6 +435,9 @@ export class Play {
     await this.loadSubSectors(lumpNum + MapLumpOrder.SSectors)
     await this.loadNodes(lumpNum + MapLumpOrder.Nodes)
     await this.loadSegs(lumpNum + MapLumpOrder.Segs)
+
+    this.rejectMatrix = await this.wad.cacheLumpNum(lumpNum + MapLumpOrder.Reject)
+    this.groupLines()
   }
 
   //

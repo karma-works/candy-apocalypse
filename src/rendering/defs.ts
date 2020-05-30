@@ -35,7 +35,7 @@ export interface Sector {
     soundTarget: /* MObj |  */null
 
     // mapblock bounding box for height changes
-    blockBox: number[]
+    blockBox: BBox
 
     // origin for any sounds played by the sector
     soundOrg: /* DegenMObj |  */null
