@@ -394,4 +394,50 @@ export class Data {
     console.log('InitColormaps')
   }
 
+  //
+  // R_FlatNumForName
+  // Retrieval, get a flat number for a flat name.
+  //
+  flatNumForName(name: string): number {
+    const i = this.wad.checkNumForName(name)
+    if (i === -1) {
+      throw `R_FlatNumForName: ${name} not found`
+    }
+    return i - this.firstFlat
+  }
+
+  //
+  // R_CheckTextureNumForName
+  // Check whether texture is available.
+  // Filter out NoTexture indicator.
+  //
+  private checkTextureNumForName(name: string): number {
+    // "NoTexture" marker.
+    if (name.startsWith('-')) {
+      return 0
+    }
+
+    for (let i = 0; i < this.numTextures; ++i) {
+      if (this.textures[i].name === name) {
+        return i
+      }
+    }
+
+    return -1
+  }
+
+  //
+  // R_TextureNumForName
+  // Calls R_CheckTextureNumForName,
+  //  aborts with error message.
+  //
+  textureNumForName(name: string): number {
+    const i = this.checkTextureNumForName(name)
+
+    if (i === -1) {
+      throw `R_TextureNumForName: ${name} not found`
+    }
+
+    return i
+  }
 }
