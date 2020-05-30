@@ -1,8 +1,10 @@
 import { Data } from './data'
+import { Sky } from './sky'
 import { Wad } from '../wad/wad'
 
 export class Rendering {
   public data = new Data(this.wad)
+  public sky = new Sky()
 
   constructor(private wad: Wad) { }
 
@@ -41,5 +43,8 @@ export class Rendering {
     console.log('R_InitData')
 
     this.setViewSize(this.screenBlocks, this.detailLevel)
+
+    this.sky.initSkyMap()
+    console.log('R_InitSkyMap')
   }
 }
