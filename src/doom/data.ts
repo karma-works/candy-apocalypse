@@ -241,3 +241,25 @@ export class MapNode {
     this.children = [ int16[12], int16[13] ]
   }
 }
+
+// Thing definition, position, orientation and type,
+// plus skill/visibility flags and attributes.
+export class MapThing {
+  static sizeOf = 2 * 5
+
+  x: number
+  y: number
+  angle: number
+  type: number
+  options: number
+
+  constructor(buffer: ArrayBuffer) {
+    const int16 = new Int16Array(buffer, 0, 5)
+
+    this.x = int16[0]
+    this.y = int16[1]
+    this.angle = int16[2]
+    this.type = int16[3]
+    this.options = int16[4]
+  }
+}

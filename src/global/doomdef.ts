@@ -62,6 +62,26 @@ export const enum Skill {
   Nightmare,
 }
 
+// The defined weapons,
+//  including a marker indicating
+//  user has not changed weapon.
+export const enum WeaponType {
+  Fist,
+  Pistol,
+  Shotgun,
+  Chaingun,
+  Missile,
+  Plasma,
+  BFG,
+  Chainsaw,
+  Supershotgun,
+
+  NUMWEAPONS,
+
+  // No pending weapon change.
+  NoChange,
+}
+
 //
 // DOOM keyboard definition.
 // This is the stuff configured by Setup.Exe.
