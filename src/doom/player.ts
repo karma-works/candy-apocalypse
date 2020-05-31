@@ -1,12 +1,12 @@
 import { MObj } from '../play/mobj'
-import { SpriteDef } from '../play/sprite'
+import { PSpriteDef } from '../play/sprite'
 import { TickCmd } from './tick-cmd'
 import { WeaponType } from '../global/doomdef'
 
 //
 // Player states.
 //
-const enum PlayState {
+export const enum PlayerState {
   // Playing or camping.
   Live,
   // Dead on the ground, view follows killer.
@@ -31,8 +31,8 @@ const enum Cheat {
 // Extended player object info: player_t
 //
 export interface Player {
-  mo: MObj
-  playerState: PlayState
+  mo: MObj | null
+  playerState: PlayerState
   cmd: TickCmd
 
   // Determine POV,
@@ -93,7 +93,7 @@ export interface Player {
   bonusCount: number;
 
   // Who did damage (NULL for floors/ceilings).
-  attacker: MObj
+  attacker: MObj | null
 
   // So gun flashes light up areas.
   extraLight: number
@@ -107,8 +107,8 @@ export interface Player {
   colorMap: number
 
   // Overlay view sprites (gun, etc).
-  pSprites: SpriteDef[]
+  pSprites: PSpriteDef[]
 
   // True if secret level has been done.
-  didSecre: boolean
+  didSecret: boolean
 }

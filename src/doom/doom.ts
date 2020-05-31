@@ -1,11 +1,12 @@
 import { DEvent, GameAction, MAX_EVENTS } from './event'
-import { GameMission, GameMode, GameState, Language, VERSION } from '../global/doomdef'
+import { GameMission, GameMode, GameState, Language, Skill, VERSION } from '../global/doomdef'
 import { EnglishStrings } from '../translation/english'
 import { FrenchStrings } from '../translation/french'
 import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
 import { Video as IVideo } from '../interfaces/video'
 import { Menu } from '../menu/menu'
+import { Params } from './params'
 import { Play } from '../play/setup'
 import { Video as RVIdeo } from '../rendering/video'
 import { Rendering } from '../rendering/rendering'
@@ -29,12 +30,23 @@ export class Doom {
   // Set if homebrew PWAD stuff has been added.
   modifiedGame = false
 
-  //?
-  gameState: GameState = GameState.DemoScreen
+  private startSkill: Skill = -1
+  private startEpisode = -1
+  private startMap = -1
+  private autoStart = false
 
   private advancedemo = false
 
   private wadfiles: string[] = []
+
+  // started game with -devparm
+  private devParam = false
+  // checkparm of -nomonsters
+  private noMonsters = false
+  // checkparm of -respawn
+  respawnParam = false
+  // checkparm of -fast
+  fastParam = false
 
   // print title for every printed line
   private title = ''
@@ -42,10 +54,10 @@ export class Doom {
   private wad = new Wad()
   private headsUp = new HeadsUp(this.wad)
   private rendering = new Rendering(this.wad)
-  private play = new Play(this.wad, this.rendering)
+  private play = new Play(this, this.wad, this.rendering)
   private rvideo = new RVIdeo()
   private ivideo = new IVideo(this, this.rvideo)
-  private game = new Game()
+  private game = new Game(this, this.rendering, this.play)
   private menu = new Menu(this,
     this.headsUp,
     this.ivideo,
@@ -98,7 +110,7 @@ export class Doom {
   }
 
   // wipegamestate can be set to -1 to force a wipe on the next draw
-  private wipeGameState = GameState.DemoScreen
+  wipeGameState = GameState.DemoScreen
   private oldGameState: GameState = -1
   private borderDrawCount = 0
   //
@@ -117,26 +129,26 @@ export class Doom {
     }
 
     // save the current screen if about to wipe
-    if (this.gameState !== this.wipeGameState) {
+    if (this.game.gameState !== this.wipeGameState) {
       wipe = true
     } else {
       wipe = false
     }
 
     // do buffered drawing
-    switch (this.gameState) {
+    switch (this.game.gameState) {
     case GameState.DemoScreen:
       await this.pageDrawer()
       break
     }
 
     // clean up border stuff
-    if (this.gameState !== this.oldGameState &&
-        this.gameState !== GameState.Level) {
+    if (this.game.gameState !== this.oldGameState &&
+        this.game.gameState !== GameState.Level) {
       this.ivideo.setPalette(await this.wad.cacheLumpName('PLAYPAL'))
     }
 
-    this.oldGameState = this.wipeGameState = this.gameState
+    this.oldGameState = this.wipeGameState = this.game.gameState
 
     // menus go directly to the screen
     // menu is drawn even on top of everything
@@ -234,7 +246,7 @@ export class Doom {
       } else {
         this.pageTic = 170
       }
-      this.gameState = GameState.DemoScreen
+      this.game.gameState = GameState.DemoScreen
       this.pageName = 'TITLEPIC'
       break
     case 1:
@@ -242,14 +254,14 @@ export class Doom {
       break
     case 2:
       this.pageTic = 200
-      this.gameState = GameState.DemoScreen
+      this.game.gameState = GameState.DemoScreen
       this.pageName = 'CREDIT'
       break
     case 3:
       // TODO
       break
     case 4:
-      this.gameState = GameState.DemoScreen
+      this.game.gameState = GameState.DemoScreen
       if (this.gameMode === GameMode.Commercial) {
         this.pageTic = 35 * 11
         this.pageName = 'TITLEPIC'
@@ -363,8 +375,13 @@ export class Doom {
     // We don't abort. Let's see what the PWAD contains.
   }
 
-  async init(): Promise<void> {
+  async init(param: Params): Promise<void> {
     await this.identifyVersion()
+
+    this.noMonsters = !!param.noMonsters
+    this.respawnParam = !!param.respawm
+    this.fastParam = !!param.fast
+    this.devParam = !!param.dev
 
     switch (this.gameMode) {
     case GameMode.Retail:
@@ -396,6 +413,29 @@ export class Doom {
 
     console.log(this.title)
 
+    if (this.devParam) {
+      console.log(this.strings.dDevstr)
+    }
+
+    // get skill / episode / map from parms
+    this.startSkill = Skill.Medium
+    this.startEpisode = 1
+    this.startMap = 1
+    this.autoStart = false
+
+    if (param.skill !== undefined) {
+      this.startSkill = param.skill
+      this.autoStart = true
+    }
+    if (param.episode !== undefined) {
+      this.startEpisode = param.episode
+      this.autoStart = true
+    }
+    if (param.map !== undefined) {
+      this.startMap = param.map
+      this.autoStart = true
+    }
+
     // init subsystems
     console.log('V_Init: allocate screens.')
     this.rvideo.init()
@@ -426,7 +466,6 @@ export class Doom {
 
     console.log('M_Init: Init miscellaneous info.')
     this.menu.init()
-    this.menu.startControlPanel()
 
     console.log('R_Init: Init DOOM refresh daemon - ')
     await this.rendering.init()
@@ -438,8 +477,14 @@ export class Doom {
     await this.headsUp.init()
 
     if (this.game.gameAction !== GameAction.LoadGame) {
-      // start up intro loop
-      this.startTitle()
+      if (this.autoStart) {
+        await this.game.initNew(
+          this.startSkill, this.startEpisode, this.startMap,
+        )
+      } else {
+        // start up intro loop
+        this.startTitle()
+      }
     }
 
     await this.doomLoop()

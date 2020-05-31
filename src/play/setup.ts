@@ -1,10 +1,11 @@
 import { FRACBITS, div } from '../misc/fixed'
+import { GameMode, Skill } from '../global/doomdef'
 import { Line, Node, Sector, Seg, Side, SlopeType, SubSector, Vertex } from '../rendering/defs'
 import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
-import { MapLineDef, MapLineFlag, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef, MapSubSector, MapVertex } from '../doom/data'
+import { MapLineDef, MapLineFlag, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef, MapSubSector, MapThing, MapVertex } from '../doom/data'
 import { BBox } from '../misc/bbox'
+import { Doom } from '../doom/doom'
 import { Rendering } from '../rendering/rendering'
-import { Skill } from '../global/doomdef'
 import { Wad } from '../wad/wad'
 
 export class Play {
@@ -62,7 +63,8 @@ export class Play {
   //
   private rejectMatrix: ArrayBuffer = new ArrayBuffer(0)
 
-  constructor(private wad: Wad,
+  constructor(private doom: Doom,
+              private wad: Wad,
               private rendering: Rendering) { }
 
   //
@@ -212,6 +214,45 @@ export class Play {
       }
 
       this.nodes[i] = no
+    }
+  }
+
+  //
+  // P_LoadThings
+  //
+  private async loadThings(lump: number) {
+    const data = await this.wad.cacheLumpNum(lump)
+    const numThings = this.wad.lumpLength(lump) / MapThing.sizeOf
+
+    let mt: MapThing
+    let mtPtr = 0
+    let spawn: boolean
+    for (let i = 0; i < numThings; ++i, mtPtr += MapThing.sizeOf) {
+      mt = new MapThing(data.slice(mtPtr))
+      spawn = true
+
+      // Do not spawn cool, new monsters if !commercial
+      if (this.doom.gameMode !== GameMode.Commercial) {
+        switch (mt.type) {
+        /* eslint-disable line-comment-position */
+        case 68: // Arachnotron
+        case 64: // Archvile
+        case 88: // Boss Brain
+        case 89: // Boss Shooter
+        case 69: // Hell Knight
+        case 67: // Mancubus
+        case 71: // Pain Elemental
+        case 65: // Former Human Commando
+        case 66: // Revenant
+        case 84: // Wolf SS
+          spawn = false
+          break
+        /* eslint-enable line-comment-position */
+        }
+      }
+      if (spawn === false) {
+        break
+      }
     }
   }
 
@@ -438,6 +479,8 @@ export class Play {
 
     this.rejectMatrix = await this.wad.cacheLumpNum(lumpNum + MapLumpOrder.Reject)
     this.groupLines()
+
+    await this.loadThings(lumpNum + MapLumpOrder.Things)
   }
 
   //

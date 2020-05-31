@@ -145,7 +145,7 @@ export const enum SpriteNum {
   NUMSPRITES
 }
 
-const enum StateNum {
+export const enum StateNum {
   Null,
   Lightdone,
   Punch,

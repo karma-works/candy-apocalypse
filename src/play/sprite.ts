@@ -5,15 +5,15 @@ import { State } from '../doom/info'
 // drawn directly on the view screen,
 // coordinates are given for a 320*200 view screen.
 //
-export const enum SpriteNum {
+export const enum PSpriteNum {
     Weapon,
     Flash,
     NUMPSPRITES,
 }
 
-export interface SpriteDef {
+export interface PSpriteDef {
   // a NULL state means not active
-  state: State
+  state: State | null
   tics: number
   sX: number
   sY: number

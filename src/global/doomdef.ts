@@ -40,6 +40,9 @@ export const enum Language {
 export const SCREENWIDTH = 320
 export const SCREENHEIGHT = 200
 
+// The maximum number of players, multiplayer/networking.
+export const MAX_PLAYERS = 1
+
 // State updates, number of tics / second.
 export const TICRATE = 35
 
@@ -53,13 +56,26 @@ export const enum GameState {
   DemoScreen,
 }
 
-
 export const enum Skill {
   Baby,
   Easy,
   Medium,
   Hard,
   Nightmare,
+}
+
+//
+// Key cards.
+//
+export const enum Card {
+  BlueCard,
+  YellowCard,
+  RedCard,
+  BlueSkull,
+  YellowSkull,
+  RedSkull,
+
+  NUMCARDS,
 }
 
 // The defined weapons,
@@ -80,6 +96,35 @@ export const enum WeaponType {
 
   // No pending weapon change.
   NoChange,
+}
+
+
+// Ammunition types defined.
+export const enum AmmoType {
+  // Pistol / chaingun ammo.
+  Clip,
+  // Shotgun / double barreled shotgun.
+  Shell,
+  // Plasma rifle, BFG.
+  Cell,
+  // Missile launcher.
+  Misl,
+
+  NUMAMMO,
+  // Unlimited for chainsaw / fist.
+  Noammo,
+}
+
+// Power up artifacts.
+export const enum PowerType {
+  Invulnerability,
+  Strength,
+  Invisibility,
+  Ironfeet,
+  Allmap,
+  Infrared,
+
+  NUMPOWERS,
 }
 
 //
