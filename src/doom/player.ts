@@ -86,7 +86,7 @@ export interface Player {
   secretCount: number;
 
   // Hint messages.
-  message: string
+  message: string | null
 
   // For screen flashing (red or bright).
   damageCount: number;

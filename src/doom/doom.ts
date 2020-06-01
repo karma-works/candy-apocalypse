@@ -42,7 +42,7 @@ export class Doom {
   // started game with -devparm
   private devParam = false
   // checkparm of -nomonsters
-  private noMonsters = false
+  noMonsters = false
   // checkparm of -respawn
   respawnParam = false
   // checkparm of -fast
@@ -51,13 +51,13 @@ export class Doom {
   // print title for every printed line
   private title = ''
 
-  private wad = new Wad()
+  public wad = new Wad()
   private headsUp = new HeadsUp(this.wad)
-  private rendering = new Rendering(this.wad)
-  private play = new Play(this, this.wad, this.rendering)
+  private rendering = new Rendering(this)
+  public play = new Play(this, this.wad, this.rendering)
+  game = new Game(this, this.rendering, this.play)
   private rvideo = new RVIdeo()
   private ivideo = new IVideo(this, this.rvideo)
-  private game = new Game(this, this.rendering, this.play)
   private menu = new Menu(this,
     this.headsUp,
     this.ivideo,
@@ -140,6 +140,15 @@ export class Doom {
     case GameState.DemoScreen:
       await this.pageDrawer()
       break
+    }
+
+    // draw the view directly
+    if (this.game.gameState === GameState.Level &&
+    /* !this.autoMapActive &&  */this.game.gametic
+    ) {
+      this.rendering.renderPlayerView(
+        this.game.players[this.game.displayPlayer],
+      )
     }
 
     // clean up border stuff

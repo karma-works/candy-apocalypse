@@ -1,10 +1,13 @@
 import { FRACBITS, div } from '../misc/fixed'
-import { GameMode, Skill } from '../global/doomdef'
+import { GameMode, MAX_PLAYERS, Skill } from '../global/doomdef'
 import { Line, Node, Sector, Seg, Side, SlopeType, SubSector, Vertex } from '../rendering/defs'
 import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
 import { MapLineDef, MapLineFlag, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef, MapSubSector, MapThing, MapVertex } from '../doom/data'
 import { BBox } from '../misc/bbox'
 import { Doom } from '../doom/doom'
+import { MObj } from './mobj'
+import { MObjHandler } from './mobj-handler'
+import { MapUtils } from './map-utils'
 import { Rendering } from '../rendering/rendering'
 import { Wad } from '../wad/wad'
 
@@ -13,27 +16,26 @@ export class Play {
   // MAP related Lookup tables.
   // Store VERTEXES, LINEDEFS, SIDEDEFS, etc.
   //
-  private numVertexes = -1
-  private vertexes = new Array<Vertex>()
+  numVertexes = -1
+  vertexes = new Array<Vertex>()
 
-  private numSegs = -1
-  private segs = new Array<Seg>()
+  numSegs = -1
+  segs = new Array<Seg>()
 
-  private numSectors = -1
-  private sectors = new Array<Sector>()
+  numSectors = -1
+  sectors = new Array<Sector>()
 
-  private numSubSectors = -1
-  private subSectors = new Array<SubSector>()
+  numSubSectors = -1
+  subSectors = new Array<SubSector>()
 
-  private numNodes = -1
-  private nodes = new Array<Node>()
+  numNodes = -1
+  nodes = new Array<Node>()
 
-  private numLines = -1
-  private lines = new Array<Line>()
+  numLines = -1
+  lines = new Array<Line>()
 
-  private numSides = -1
-  private sides = new Array<Side>()
-
+  numSides = -1
+  sides = new Array<Side>()
 
   // BLOCKMAP
   // Created from axis aligned bounding box
@@ -43,16 +45,17 @@ export class Play {
   // by spatial subdivision in 2D.
   //
   // Blockmap size.
-  private bMapWidth = -1
+  bMapWidth = -1
   // size in mapblocks
-  private bMapHeight = -1
+  bMapHeight = -1
   // int for larger maps
   private blockMap: Int16Array = new Int16Array(0)
   // offsets in blockmap are from here
   private blockMapLump: Int16Array = new Int16Array(0)
   // origin of block map
-  private bMapOrgX = -1
-  private bMapOrgY = -1
+  bMapOrgX = -1
+  bMapOrgY = -1
+  blockLinks = new Array<MObj>()
 
   // REJECT
   // For fast sight rejection.
@@ -63,7 +66,10 @@ export class Play {
   //
   private rejectMatrix: ArrayBuffer = new ArrayBuffer(0)
 
-  constructor(private doom: Doom,
+  public mapUtils = new MapUtils(this, this.rendering)
+  private mObjHandler = new MObjHandler(this, this.doom)
+
+  constructor(public doom: Doom,
               private wad: Wad,
               private rendering: Rendering) { }
 
@@ -253,6 +259,8 @@ export class Play {
       if (spawn === false) {
         break
       }
+
+      this.mObjHandler.spawnMapThing(mt)
     }
   }
 
@@ -373,6 +381,9 @@ export class Play {
     this.bMapOrgY = this.blockMapLump[1] << FRACBITS
     this.bMapWidth = this.blockMapLump[2]
     this.bMapHeight = this.blockMapLump[3]
+
+    // clear ou mobj chains
+    this.blockLinks = []
   }
 
   //
@@ -462,7 +473,30 @@ export class Play {
   // P_SetupLevel
   //
   async setupLevel(episode: number, map: number, playMask: number, skill: Skill): Promise<void> {
-    const lumpName = `E${episode}M${map}`
+    this.doom.game.totalKills =
+        this.doom.game.totalItems =
+        this.doom.game.totalSecret = 0
+
+    for (let i = 0; i < MAX_PLAYERS; ++i) {
+      this.doom.game.players[i].killCount =
+          this.doom.game.players[i].secretCount =
+          this.doom.game.players[i].itemCount = 0
+    }
+
+    // Initial height of PointOfView
+    // will be set by player think.
+    this.doom.game.players[this.doom.game.consolePlayer].viewZ = 1
+
+    let lumpName: string
+    if (this.doom.gameMode === GameMode.Commercial) {
+      if (map < 10) {
+        lumpName = `map0${map}`
+      } else {
+        lumpName = `map${map}`
+      }
+    } else {
+      lumpName = `E${episode}M${map}`
+    }
 
     const lumpNum = this.wad.getNumForName(lumpName)
 

@@ -1,4 +1,5 @@
 import { BBox } from '../misc/bbox'
+import { MObj } from '../play/mobj'
 
 //
 // INTERNAL MAP TYPES
@@ -44,7 +45,7 @@ export interface Sector {
     validCount: number
 
     // list of mobjs in sector
-    thingList: /* MObj |  */null
+    thingList: MObj | null
 
     // thinker_t for reversable actions
     specialData: null

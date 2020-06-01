@@ -210,6 +210,9 @@ export class MapSeg {
 // BSP node structure.
 
 // Indicate a leaf.
+export const NF_SUBSECTOR = 0x8000
+
+// Indicate a leaf.
 export class MapNode {
   static sizeOf = 2 + 2 + 2 + 2 + 2 * 4 * 2 + 2 * 2
 

@@ -1,8 +1,12 @@
-import { MObjInfo, MObjType, SpriteNum, State } from '../doom/info'
+import { MAX_PLAYERS, Skill } from '../global/doomdef'
+import { MObjInfo, MObjType, SpriteNum, State, mObjInfo, states } from '../doom/info'
+import { ON_CEILING_Z, ON_FLOOR_Z } from './local'
 import { MapThing } from '../doom/data'
+import { Play } from './setup'
 import { Player } from '../doom/player'
 import { SubSector } from '../rendering/defs'
 import { Thinker } from '../doom/think'
+import { random } from '../misc/random'
 
 //
 // NOTES: mobj_t
@@ -160,22 +164,16 @@ export const enum MObjFlag {
 
 
 // Map Object definition.
-export interface MObj {
+export class MObj {
   // List: thinker links.
-  thinker: Thinker
-
-  // Info for drawing: position.
-  x: number
-  y: number
-  z: number
+  thinker: Thinker | null
 
   // More list: links in sector (if needed)
-  sNext: MObj
-  sPrev: MObj
-
+  sNext: MObj | null = null
+  sPrev: MObj | null = null
   //More drawing info: to determine current sprite.
   // orientation
-  angle: number
+  angle = 0
   // used to find patch_t and flip value
   sprite: SpriteNum
   // might be ORed with FF_FULLBRIGHT
@@ -183,10 +181,10 @@ export interface MObj {
 
   // Interaction info, by BLOCKMAP.
   // Links in blocks (if needed).
-  bNext: MObj
-  bPrev: MObj
+  bNext: MObj | null = null
+  bPrev: MObj | null = null
 
-  subSector: SubSector
+  subSector: SubSector | null = null
 
   // The closest interval over all contacted Sectors.
   floorZ: number
@@ -197,14 +195,13 @@ export interface MObj {
   height: number
 
   // Momentums, used to update position.
-  momX: number
-  momY: number
-  momZ: number
+  momX = 0
+  momY = 0
+  momZ = 0
 
   // If == validcount, already checked.
-  validCount: number
+  validCount = 0
 
-  type: MObjType
   info: MObjInfo
 
   // state tic counter
@@ -215,32 +212,96 @@ export interface MObj {
 
   // Movement direction, movement generation (zig-zagging).
   // 0-7
-  movedir: number
+  moveDir = 0
   // when 0, select a new dir
-  movecount: number
+  moveCount = 0
 
   // Thing being chased/attacked (or NULL),
   // also the originator for missiles.
-  target: MObj
+  target: MObj | null = null
 
   // Reaction time: if non 0, don't attack yet.
   // Used by player to freeze a bit after teleporting.
-  reactiontime: number
+  reactionTime: number
 
   // If >0, the target will be chased
   // no matter what (even if shot)
-  threshold: number
+  threshold = 0
 
   // Additional info record for player avatars only.
   // Only valid if type == MT_PLAYER
-  player: Player
+  player: Player | null = null
 
   // Player number last looked for.
-  lastlook: number
+  lastLook: number
 
   // For nightmare respawn.
-  spawnpoint: MapThing
+  spawnPoint: MapThing | null = null
 
   // Thing being chased/attacked for tracers.
-  tracer: MObj
+  tracer: MObj | null = null
+
+  constructor(
+    play: Play,
+
+    // Info for drawing: position.
+    public x: number,
+    public y: number,
+    public z: number,
+
+    public type: MObjType,
+  ) {
+    const info = mObjInfo[type]
+    this.info = info
+    this.radius = info.radius
+    this.height = info.height
+    this.flags = info.flags
+    this.health = info.spawnHealth
+
+    if (play.doom.game.gameSkill !== Skill.Nightmare) {
+      this.reactionTime = info.reactionTime
+    } else {
+      this.reactionTime = 0
+    }
+
+    this.lastLook = random.pRandom() % MAX_PLAYERS
+
+    // do not set the state with P_SetMobjState,
+    // because action routines can not be called yet
+    const st = states[info.spawnState]
+    this.state = st
+    this.tics = st.tics
+    this.sprite = st.sprite
+    this.frame = st.frame
+
+    // set subsector and/or block links
+    play.mapUtils.setThingPosition(this)
+
+    if (this.subSector === null || this.subSector.sector === null) {
+      throw 'mobj.subSector = null'
+    }
+
+    this.floorZ = this.subSector.sector.floorHeight
+    this.ceilingZ = this.subSector.sector.ceilingHeight
+
+    if (z === ON_FLOOR_Z) {
+      this.z = this.floorZ
+    } else if (z === ON_CEILING_Z) {
+      this.z = this.ceilingZ - this.info.height
+    }
+
+    this.thinker = {
+      prev: null, next: null,
+      function: mObjThinker,
+    }
+
+    // P_AddThinker
+  }
+}
+
+//
+// P_MobjThinker
+//
+export async function mObjThinker(mObj: MObj): Promise<void> {
+  debugger
 }

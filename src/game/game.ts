@@ -9,13 +9,14 @@ import { Play } from '../play/setup'
 import { Rendering } from '../rendering/rendering'
 import { SKY_FLAT_NAME } from '../rendering/sky'
 import { getTime } from '../system/system'
+import { random } from '../misc/random'
 
 const NUM_KEYS = 256
 
 export class Game {
   gameAction = GameAction.Nothing
   gameState: GameState = -1
-  private gameSkill: Skill = -1
+  gameSkill: Skill = -1
   private respawnMonsters = false
   private gameEpisode = -1
   private gameMap = -1
@@ -33,8 +34,12 @@ export class Game {
 
   private viewActive = false
 
-  private playerInGame = new Array<boolean>(MAX_PLAYERS).fill(false)
-  private players = Array.from({ length: MAX_PLAYERS }, () => <Player> {
+  // only if started as net death
+  deathMatch = 0
+  // only true if packets are broadcast
+  netGame = false
+  playerInGame = new Array<boolean>(MAX_PLAYERS).fill(false)
+  players = Array.from({ length: MAX_PLAYERS }, () => <Player> {
     mo: null,
     playerState: -1,
     cmd: {
@@ -85,12 +90,16 @@ export class Game {
   })
 
   // player taking events and displaying
-  private consolePlayer = 0
+  consolePlayer = 0
   // view being displayed
-  private displayPlayer = 0
+  displayPlayer = 0
   gametic = 0
   // gametic at level start
   private levelStartTic = 0
+  // for intermission
+  totalKills = 0
+  totalItems = 0
+  totalSecret = 0
 
   private demoPlayback = false
 
@@ -250,6 +259,8 @@ export class Game {
     if (map > 9 && this.doom.gameMode !== GameMode.Commercial) {
       map = 9
     }
+
+    random.clearRandom()
 
     if (skill === Skill.Nightmare && this.doom.respawnParam) {
       this.respawnMonsters = true

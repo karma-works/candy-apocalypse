@@ -56,6 +56,9 @@ export const enum GameState {
   DemoScreen,
 }
 
+// Deaf monsters/do not react to sound.
+export const MTF_AMBUSH = 8
+
 export const enum Skill {
   Baby,
   Easy,
