@@ -66,11 +66,16 @@ export class Menu {
 
   quickSaveSlot = 0
 
+  get rendering(): Rendering {
+    return this.doom.rendering
+  }
+  get rvideo(): RVideo {
+    return this.rendering.video
+  }
+
   constructor(public doom: Doom,
               public headsUp: HeadsUp,
               private ivideo: IVideo,
-              public rvideo: RVideo,
-              public rendering: Rendering,
               public wad: Wad,
               public game: Game) {}
 

@@ -4,8 +4,10 @@ import { Play } from './setup'
 import { Rendering } from '../rendering/rendering'
 
 export class MapUtils {
-  constructor(private play: Play,
-              private rendering: Rendering) {}
+  private get rendering(): Rendering {
+    return this.play.rendering
+  }
+  constructor(private play: Play) {}
 
   //
   // P_SetThingPosition

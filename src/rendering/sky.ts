@@ -11,9 +11,9 @@ export const SKY_FLAT_NAME = 'F_SKY1'
 export const ANGLE_TO_SKY_SHIFT = 22
 
 export class Sky {
-  skyFlatNum = -1
-  skyTexture = -1
-  skyTextureMid = -1
+  skyFlatNum = 0
+  skyTexture = 0
+  skyTextureMid = 0
 
   //
   // R_InitSkyMap

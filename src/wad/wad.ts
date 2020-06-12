@@ -14,7 +14,7 @@ function extractFileBase(path: string): string {
 
 export class Wad {
   // Location of each lump on disk.
-  private lumpInfo: LumpInfo[] = []
+  lumpInfo: LumpInfo[] = []
   private numLumps = 0
 
   private lumpCache: ArrayBuffer[] = []

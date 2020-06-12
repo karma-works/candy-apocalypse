@@ -231,7 +231,8 @@ export class MapNode {
   children: number[]
 
   constructor(buffer: ArrayBuffer) {
-    const int16 = new Int16Array(buffer, 0, 14)
+    const int16 = new Int16Array(buffer, 0, 12)
+    const uint16 = new Uint16Array(buffer, 24, 2)
 
     this.x = int16[0]
     this.y = int16[1]
@@ -241,7 +242,7 @@ export class MapNode {
       [ int16[4], int16[5], int16[6], int16[7] ],
       [ int16[8], int16[9], int16[10], int16[11] ],
     ]
-    this.children = [ int16[12], int16[13] ]
+    this.children = [ uint16[0], uint16[1] ]
   }
 }
 

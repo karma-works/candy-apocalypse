@@ -10,6 +10,7 @@ import { Params } from './params'
 import { Play } from '../play/setup'
 import { Video as RVIdeo } from '../rendering/video'
 import { Rendering } from '../rendering/rendering'
+import { StatusBar } from '../status/stuff'
 import { Strings } from '../translation/strings'
 import { Wad } from '../wad/wad'
 
@@ -53,19 +54,21 @@ export class Doom {
 
   public wad = new Wad()
   private headsUp = new HeadsUp(this.wad)
-  private rendering = new Rendering(this)
-  public play = new Play(this, this.wad, this.rendering)
-  game = new Game(this, this.rendering, this.play)
-  private rvideo = new RVIdeo()
-  private ivideo = new IVideo(this, this.rvideo)
+  public statusBar = new StatusBar(this)
+  public play = new Play(this)
+  public rendering = new Rendering(this)
+  public game = new Game(this)
+  public iVideo = new IVideo(this)
   private menu = new Menu(this,
     this.headsUp,
-    this.ivideo,
-    this.rvideo,
-    this.rendering,
+    this.iVideo,
     this.wad,
     this.game,
   )
+
+  private get rVideo(): RVIdeo {
+    return this.rendering.video
+  }
 
   //
   // EVENT HANDLING
@@ -137,6 +140,12 @@ export class Doom {
 
     // do buffered drawing
     switch (this.game.gameState) {
+    case GameState.Level:
+      if (!this.game.gametic) {
+        break
+      }
+      await this.statusBar.drawer(this.rendering.draw.viewHeight === 200, false)
+      break
     case GameState.DemoScreen:
       await this.pageDrawer()
       break
@@ -154,7 +163,7 @@ export class Doom {
     // clean up border stuff
     if (this.game.gameState !== this.oldGameState &&
         this.game.gameState !== GameState.Level) {
-      this.ivideo.setPalette(await this.wad.cacheLumpName('PLAYPAL'))
+      this.iVideo.setPalette(await this.wad.cacheLumpName('PLAYPAL'))
     }
 
     this.oldGameState = this.wipeGameState = this.game.gameState
@@ -166,7 +175,7 @@ export class Doom {
     // normal update
     if (!wipe) {
       // page flip or blit buffer
-      this.ivideo.finishUpdate()
+      this.iVideo.finishUpdate()
       return
     }
   }
@@ -181,17 +190,18 @@ export class Doom {
   //  calls I_GetTime, I_StartFrame, and I_StartTic
   //
   private async doomLoop(): Promise<void> {
-    this.ivideo.initGraphics()
+    this.iVideo.initGraphics()
 
     const w = async() => {
       // process one or more tics
       if (true) {
-        this.ivideo.startTic()
+        this.iVideo.startTic()
         await this.processEvents()
         if (this.advancedemo) {
           this.doAdvanceDemo()
         }
         this.menu.ticker()
+        this.game.ticker()
         this.game.gametic++
       }
       await this.display()
@@ -221,7 +231,7 @@ export class Doom {
   // D_PageDrawer
   //
   private async pageDrawer(): Promise<void> {
-    this.rvideo.drawPatch(0, 0, 0,
+    this.rVideo.drawPatch(0, 0, 0,
       await this.wad.cacheLumpName(this.pageName),
     )
   }
@@ -447,7 +457,7 @@ export class Doom {
 
     // init subsystems
     console.log('V_Init: allocate screens.')
-    this.rvideo.init()
+    this.rVideo.init()
 
     console.log('W_Init: Init WADfiles.')
     await this.wad.initMultipleFiles(this.wadfiles)
@@ -484,6 +494,9 @@ export class Doom {
 
     console.log('HU_Init: Setting up heads up display.')
     await this.headsUp.init()
+
+    console.log('ST_Init: Init status bar.')
+    this.statusBar.init()
 
     if (this.game.gameAction !== GameAction.LoadGame) {
       if (this.autoStart) {

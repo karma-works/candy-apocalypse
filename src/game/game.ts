@@ -1,13 +1,14 @@
-import { AmmoType, Card, GameMission, GameMode, GameState, MAX_PLAYERS, PowerType, Skill, WeaponType } from '../global/doomdef'
+import { AmmoType, GameMission, GameMode, GameState, MAX_PLAYERS, Skill, WeaponType } from '../global/doomdef'
 import { MObjType, StateNum, mObjInfo, states } from '../doom/info'
-import { PSpriteDef, PSpriteNum } from '../play/sprite'
 import { Player, PlayerState } from '../doom/player'
 import { Doom } from '../doom/doom'
 import { FRACUNIT } from '../misc/fixed'
 import { GameAction } from '../doom/event'
+import { MAX_HEALTH } from '../play/local'
 import { Play } from '../play/setup'
 import { Rendering } from '../rendering/rendering'
 import { SKY_FLAT_NAME } from '../rendering/sky'
+import { Tick } from '../play/tick'
 import { getTime } from '../system/system'
 import { random } from '../misc/random'
 
@@ -21,7 +22,7 @@ export class Game {
   private gameEpisode = -1
   private gameMap = -1
 
-  private paused = false
+  paused = false
   // send a pause event next tic
   private sendPause = false
   // send a save event next tic
@@ -38,56 +39,8 @@ export class Game {
   deathMatch = 0
   // only true if packets are broadcast
   netGame = false
-  playerInGame = new Array<boolean>(MAX_PLAYERS).fill(false)
-  players = Array.from({ length: MAX_PLAYERS }, () => <Player> {
-    mo: null,
-    playerState: -1,
-    cmd: {
-      forwardMove: -1,
-      sideMove: -1,
-      angleTurn: -1,
-      consistancy: -1,
-      chatChar: -1,
-      buttons: -1,
-    },
-    viewZ: -1,
-    viewHeight: -1,
-    deltaViewHeight: -1,
-    bob: -1,
-    health: -1,
-    armorPoints: -1,
-    armorType: -1,
-    powers: new Array(PowerType.NUMPOWERS).fill(-1),
-    cards: new Array(Card.NUMCARDS).fill(false),
-    backpack: false,
-    frags: new Array(MAX_PLAYERS).fill(-1),
-    readyWeapon: -1,
-    pendingWeapon: -1,
-    weaponOwned: new Array(WeaponType.NUMWEAPONS).fill(false),
-    ammo: new Array(AmmoType.NUMAMMO).fill(-1),
-    maxAmmo: new Array(AmmoType.NUMAMMO).fill(-1),
-    attackDown: -1,
-    useDown: -1,
-    cheats: -1,
-    refire: -1,
-    killCount: -1,
-    itemCount: -1,
-    secretCount: -1,
-    message: '',
-    damageCount: -1,
-    bonusCount: -1,
-    attacker: null,
-    extraLight: -1,
-    fixedColorMap: -1,
-    colorMap: -1,
-    pSprites: Array.from({ length: PSpriteNum.NUMPSPRITES }, () => <PSpriteDef> {
-      state: null,
-      tics: -1,
-      sX: -1,
-      sY: -1,
-    }),
-    didSecret: false,
-  })
+  playerInGame = new Array<boolean>(MAX_PLAYERS).fill(true)
+  players = Array.from({ length: MAX_PLAYERS }, () => new Player())
 
   // player taking events and displaying
   consolePlayer = 0
@@ -101,7 +54,7 @@ export class Game {
   totalItems = 0
   totalSecret = 0
 
-  private demoPlayback = false
+  demoPlayback = false
 
   private gameKeyDown = new Array<boolean>(NUM_KEYS).fill(false)
 
@@ -119,11 +72,21 @@ export class Game {
   // allow [-1]
   private joyButtons = new Array<false>(4).fill(false)
 
+  bodyQueSlot = -1
+
   mouseSensitivity = 5
 
-  constructor(private doom: Doom,
-              private rendering: Rendering,
-              private play: Play) { }
+  private get play(): Play {
+    return this.doom.play
+  }
+  private get rendering(): Rendering {
+    return this.doom.rendering
+  }
+  private get tick(): Tick {
+    return this.play.tick
+  }
+
+  constructor(private doom: Doom) { }
 
   //
   // G_DoLoadLevel
@@ -191,12 +154,86 @@ export class Game {
   // Make ticcmd_ts for the players.
   //
   ticker(): void {
+    // do player reborns if needed
+    for (let i = 0; i < MAX_PLAYERS; ++i) {
+      if (this.playerInGame[i] && this.players[i].playerState === PlayerState.Reborn) {
+        this.doReborn(i)
+      }
+    }
+
     while (this.gameAction !== GameAction.Nothing) {
       switch (this.gameAction) {
       case GameAction.NewGame:
         this.doNewGame()
         break
       }
+    }
+
+    // do main actions
+    switch (this.gameState) {
+    case GameState.Level:
+      this.tick.ticker()
+    }
+  }
+
+  //
+  // PLAYER STRUCTURE FUNCTIONS
+  // also see P_SpawnPlayer in P_Things
+  //
+
+  //
+  // G_InitPlayer
+  // Called at the start.
+  // Called by the game initialization functions.
+  //
+  initPlayer(player: number): void {
+    // clear everthing else to default
+    this.playerReborn(player)
+  }
+
+  //
+  // G_PlayerReborn
+  // Called after a player dies
+  // almost everything is cleared and initialized
+  //
+  playerReborn(player: number): void {
+    const frags = [ ...this.players[player].frags ]
+    const killCount = this.players[player].killCount
+    const itemCount = this.players[player].itemCount
+    const secretCount = this.players[player].secretCount
+
+    const p = this.players[player]
+    p.reset()
+
+    p.frags.splice(0, p.frags.length, ...frags)
+    p.killCount = killCount
+    p.itemCount = itemCount
+    p.secretCount = secretCount
+
+    // don't do anything immediately
+    p.useDown = p.attackDown = true
+    p.playerState = PlayerState.Live
+    p.health = MAX_HEALTH
+    p.readyWeapon = p.pendingWeapon = WeaponType.Pistol
+    p.weaponOwned[WeaponType.Fist] = true
+    p.weaponOwned[WeaponType.Pistol] = true
+    p.ammo[AmmoType.Clip] = 50
+
+    for (let i = 0; i < AmmoType.NUMAMMO; ++i) {
+      // p.maxAmmo[i] = maxammo[i]
+    }
+  }
+
+  //
+  // G_DoReborn
+  //
+  doReborn(playerNum: number): void {
+    if (!this.netGame) {
+      // reload the level from scratch
+      this.gameAction = GameAction.LoadLevel
+    } else {
+      // respawn at the start
+      // TODO
     }
   }
 

@@ -4,7 +4,7 @@ import { ON_CEILING_Z, ON_FLOOR_Z } from './local'
 import { MapThing } from '../doom/data'
 import { Play } from './setup'
 import { Player } from '../doom/player'
-import { SubSector } from '../rendering/defs'
+import { SubSector } from '../rendering/sub-sector'
 import { Thinker } from '../doom/think'
 import { random } from '../misc/random'
 
@@ -290,10 +290,7 @@ export class MObj {
       this.z = this.ceilingZ - this.info.height
     }
 
-    this.thinker = {
-      prev: null, next: null,
-      function: mObjThinker,
-    }
+    this.thinker = new Thinker(mObjThinker)
 
     // P_AddThinker
   }

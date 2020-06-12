@@ -1,4 +1,4 @@
-import { Patch } from '../rendering/defs'
+import { Patch } from '../rendering/patch'
 import { Wad } from '../wad/wad'
 
 // the first font characters

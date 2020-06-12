@@ -1,15 +1,26 @@
 import { FRACBITS, div } from '../misc/fixed'
 import { GameMode, MAX_PLAYERS, Skill } from '../global/doomdef'
-import { Line, Node, Sector, Seg, Side, SlopeType, SubSector, Vertex } from '../rendering/defs'
 import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
 import { MapLineDef, MapLineFlag, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef, MapSubSector, MapThing, MapVertex } from '../doom/data'
 import { BBox } from '../misc/bbox'
 import { Doom } from '../doom/doom'
+import { Game } from '../game/game'
+import { Line } from '../rendering/line'
 import { MObj } from './mobj'
 import { MObjHandler } from './mobj-handler'
 import { MapUtils } from './map-utils'
+import { Node } from '../rendering/node'
 import { Rendering } from '../rendering/rendering'
+import { Sector } from '../rendering/sector'
+import { Seg } from '../rendering/seg'
+import { Side } from '../rendering/side'
+import { SlopeType } from '../rendering/slope-type'
+import { SubSector } from '../rendering/sub-sector'
+import { Tick } from './tick'
+import { User } from './user'
+import { Vertex } from '../rendering/vertex'
 import { Wad } from '../wad/wad'
+import { sprNames } from '../doom/info'
 
 export class Play {
   //
@@ -66,12 +77,22 @@ export class Play {
   //
   private rejectMatrix: ArrayBuffer = new ArrayBuffer(0)
 
-  public mapUtils = new MapUtils(this, this.rendering)
-  private mObjHandler = new MObjHandler(this, this.doom)
+  public tick = new Tick(this)
+  public mapUtils = new MapUtils(this)
+  private mObjHandler = new MObjHandler(this)
+  public user = new User(this)
 
-  constructor(public doom: Doom,
-              private wad: Wad,
-              private rendering: Rendering) { }
+  get rendering(): Rendering {
+    return this.doom.rendering
+  }
+  private get wad(): Wad {
+    return this.doom.wad
+  }
+  get game(): Game {
+    return this.doom.game
+  }
+
+  constructor(public doom: Doom) { }
 
   //
   // P_LoadVertexes
@@ -117,7 +138,7 @@ export class Play {
       li = {
         v1: this.vertexes[ml.v1],
         v2: this.vertexes[ml.v2],
-        angle: ml.angle << 16,
+        angle: ml.angle << 16 >>> 0,
         offset: ml.offset << 16,
         lineDef: lDef,
         sideDef: this.sides[lDef.sideNum[ml.side]],
@@ -260,7 +281,7 @@ export class Play {
         break
       }
 
-      this.mObjHandler.spawnMapThing(mt)
+      await this.mObjHandler.spawnMapThing(mt)
     }
   }
 
@@ -487,6 +508,9 @@ export class Play {
     // will be set by player think.
     this.doom.game.players[this.doom.game.consolePlayer].viewZ = 1
 
+    // UNUSED W_Profile ();
+    this.tick.initThinkers()
+
     let lumpName: string
     if (this.doom.gameMode === GameMode.Commercial) {
       if (map < 10) {
@@ -499,6 +523,8 @@ export class Play {
     }
 
     const lumpNum = this.wad.getNumForName(lumpName)
+
+    this.tick.levelTime = 0
 
     // note: most of this ordering is important
     await this.loadBlockMap(lumpNum + MapLumpOrder.BlockMap)
@@ -514,6 +540,7 @@ export class Play {
     this.rejectMatrix = await this.wad.cacheLumpNum(lumpNum + MapLumpOrder.Reject)
     this.groupLines()
 
+    this.game.bodyQueSlot = 0
     await this.loadThings(lumpNum + MapLumpOrder.Things)
   }
 
@@ -521,6 +548,6 @@ export class Play {
   // P_Init
   //
   init(): void {
-    console.log('TODO')
+    this.rendering.things.initSprites(sprNames)
   }
 }

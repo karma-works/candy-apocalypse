@@ -77,8 +77,11 @@ export class Video {
   // to use ....
   private multiply = 1
 
-  constructor(private doom: Doom,
-              private rVideo: RVideo) { }
+  private get rVideo(): RVideo {
+    return this.doom.rendering.video
+  }
+
+  constructor(private doom: Doom) { }
 
   private lastMouseX = 0
   private lastMouseY = 0

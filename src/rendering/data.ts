@@ -1,6 +1,21 @@
+import { Column } from './column'
 import { FRACBITS } from '../misc/fixed'
-import { Patch } from './defs'
+import { Game } from '../game/game'
+import { MapPatch } from './map-patch'
+import { MapTexture } from './map-texture'
+import { Patch } from './patch'
+import { Play } from '../play/setup'
+import { Post } from './post'
+import { Rendering } from './rendering'
+import { Sky } from './sky'
+import { SpriteFrame } from './sprite-frame'
+import { TexPatch } from './tex-patch'
+import { Texture } from './texture'
+import { Things } from './things'
+import { Thinker } from '../doom/think'
+import { Tick } from '../play/tick'
 import { Wad } from '../wad/wad'
+import { mObjThinker } from '../play/mobj'
 import { tostring } from '../c'
 
 //
@@ -11,97 +26,30 @@ import { tostring } from '../c'
 // a patch or sprite is composed of zero or more columns.
 //
 
-
-//
-// Texture definition.
-// Each texture is composed of one or more patches,
-// with patches being lumps stored in the WAD.
-// The lumps are referenced by number, and patched
-// into the rectangular texture space using origin
-// and possibly other attributes.
-//
-class MapPatch {
-  static sizeOf = 5 * 2
-
-  originX: number
-  originY: number
-  patch: number
-  stepDir: number
-  colorMap: number
-
-  constructor(buffer: ArrayBuffer) {
-    const int16 = new Int16Array(buffer, 0, 5)
-    this.originX = int16[0]
-    this.originY = int16[1]
-    this.patch = int16[2]
-    this.stepDir = int16[3]
-    this.colorMap = int16[4]
-  }
-}
-
-//
-// Texture definition.
-// A DOOM wall texture is a list of patches
-// which are to be combined in a predefined order.
-//
-class MapTexture {
-  static sizeOf = 8 + 4 + 2 + 2 + 4 + 2
-
-  name: string
-  masked: boolean
-  width: number
-  height: number
-  patchCount: number
-
-  constructor(private buffer: ArrayBuffer) {
-    this.name = tostring(buffer, 0, 8)
-    const int16 = new Int16Array(buffer, 8, 7)
-    this.masked = int16[0] !== 0 && int16[1] !== 0
-    this.width = int16[2]
-    this.height = int16[3]
-    // void **columndirectory; // OBSOLETE
-    this.patchCount = int16[6]
-  }
-
-  *patches(): Generator<MapPatch, void> {
-    for (let i = 0; i < this.patchCount; ++i) {
-      yield new MapPatch(
-        this.buffer.slice(MapTexture.sizeOf + i * MapPatch.sizeOf),
-      )
-    }
-  }
-
-}
-
-// A single patch from a texture definition,
-//  basically a rectangular area within
-//  the texture rectangle.
-interface TexPatch {
-  // Block origin (allways UL),
-  // which has allready accounted
-  // for the internal origin of the patch.
-  originX: number
-  originY: number
-  patch: number
-}
-
-// A maptexturedef_t describes a rectangular texture,
-//  which is composed of one or more mappatch_t structures
-//  that arrange graphic patches.
-interface Texture {
-  // Keep name for switch changing, etc.
-  name: string
-  width: number
-  height: number
-
-  // All the patches[patchcount]
-  //  are drawn back to front into the cached texture.
-  patchCount: number
-  patches: TexPatch[]
-}
-
 export class Data {
-  private firstFlat = 0
+  private get game(): Game {
+    return this.rendering.game
+  }
+  private get play(): Play {
+    return this.rendering.play
+  }
+  private get sky(): Sky {
+    return this.rendering.sky
+  }
+  private get things(): Things {
+    return this.rendering.things
+  }
+  private get tick(): Tick {
+    return this.rendering.tick
+  }
+  private get wad(): Wad {
+    return this.rendering.wad
+  }
+
+  constructor(private rendering: Rendering) { }
+
+
+  firstFlat = 0
   private lastFlat = 0
   private numFlats = 0
 
@@ -109,8 +57,8 @@ export class Data {
   private lastPatch = 0
   private numPatchs = 0
 
-  private firstSpriteLump = 0
-  private lastSpriteLump = 0
+  firstSpriteLump = 0
+  lastSpriteLump = 0
   private numSpriteLumps = 0
 
   private numTextures = 0
@@ -118,39 +66,133 @@ export class Data {
 
   private textureWidthMask = new Array<number>()
   // needed for texture pegging
-  private textureHeight = new Array<number>()
+  textureHeight = new Array<number>()
   private textureCompositeSize = new Array<number>()
   private textureColumnLump = new Array<number[]>()
   private textureColumnOfs = new Array<number[]>()
-  private textureComposite = new Array<number[]>()
+  private textureComposite = new Array<ArrayBuffer>()
 
   // for global animation
-  private flatTranslation: number[] = []
-  private textureTranslation: number[] = []
+  flatTranslation: number[] = []
+  textureTranslation: number[] = []
 
   // needed for pre rendering
-  private spriteWidth = new Array<number>()
-  private spriteOffset = new Array<number>()
-  private spriteTopOffset = new Array<number>()
+  spriteWidth = new Array<number>()
+  spriteOffset = new Array<number>()
+  spriteTopOffset = new Array<number>()
 
-  private colorMaps: ArrayBuffer | null = null
+  colorMaps = new Uint8ClampedArray(0)
 
-  constructor(private wad: Wad) { }
+
+  //
+  // MAPTEXTURE_T CACHING
+  // When a texture is first needed,
+  //  it counts the number of composite columns
+  //  required in the texture and allocates space
+  //  for a column directory and any new columns.
+  // The directory will simply point inside other patches
+  //  if there is only one patch in a given column,
+  //  but any columns with multiple patches
+  //  will have new column_ts generated.
+  //
+
+  //
+  // R_DrawColumnInCache
+  // Clip and draw a column
+  //  from a patch into a cached post.
+  //
+  drawColumnInCache(patch: Column, cache: Uint8Array, originX: number, cacheHeight: number): void {
+    let count: number
+    let position: number
+
+    let col: Post
+    for (col of patch) {
+      count = col.length
+      position = originX + col.topDelta
+
+      if (position < 0) {
+        count += position
+        position = 0
+      }
+
+      if (position + count > cacheHeight) {
+        count = cacheHeight - position
+      }
+
+      if (count > 0) {
+        cache.set(col.bytes.slice(0, count), position)
+      }
+    }
+  }
+
+  //
+  // R_GenerateComposite
+  // Using the texture definition,
+  //  the composite texture is created from the patches,
+  //  and each column is cached.
+  //
+  async generateComposite(textNum: number): Promise<void> {
+
+    const texture = this.textures[textNum]
+    const colLump = this.textureColumnLump[textNum]
+    const colOfs = this.textureColumnOfs[textNum]
+
+    const block = new ArrayBuffer(this.textureCompositeSize[textNum])
+    this.textureComposite[textNum] = block
+
+    // Composite the columns together.
+    let patch: TexPatch
+    let realPatch: Patch
+    let x: number
+    let x1: number
+    let x2: number
+    let patchCol: Column
+    for (let i = 0; i < texture.patchCount; ++i) {
+      patch = texture.patches[i]
+      realPatch = new Patch(await this.wad.cacheLumpNum(patch.patch))
+      x1 = patch.originX
+      x2 = x1 + realPatch.width
+
+      if (x1 < 0) {
+        x = 0
+      } else {
+        x = x1
+      }
+
+      if (x2 > texture.width) {
+        x2 = texture.width
+      }
+
+      for (; x < x2; ++x) {
+        // Column does not have multiple patches?
+        if (colLump[x] >= 0) {
+          continue
+        }
+
+        patchCol = realPatch.getColumn(x - x1)
+
+        this.drawColumnInCache(
+          patchCol,
+          new Uint8Array(block, colOfs[x]),
+          patch.originX,
+          texture.height,
+        )
+      }
+    }
+  }
 
   //
   // R_GenerateLookup
   //
-  private async regenerateLookup(textNum: number): Promise<void> {
+  private async generateLookup(textNum: number): Promise<void> {
     const texture = this.textures[textNum]
 
     // Composited texture not created yet.
-    this.textureComposite[textNum] = []
+    delete this.textureComposite[textNum]
 
     this.textureCompositeSize[textNum] = 0
-    const colLump: number[] = []
-    this.textureColumnLump[textNum] = colLump
-    const colOfs: number[] = []
-    this.textureColumnOfs[textNum] = colOfs
+    const colLump = this.textureColumnLump[textNum]
+    const colOfs = this.textureColumnOfs[textNum]
 
     // Now count the number of columns
     //  that are covered by more than one patch.
@@ -205,6 +247,26 @@ export class Data {
   }
 
   //
+  // R_GetColumn
+  //
+  async getColumn(tex: number, col: number): Promise<ArrayBuffer> {
+
+    col &= this.textureWidthMask[tex]
+    const lump = this.textureColumnLump[tex][col]
+    const ofs = this.textureColumnOfs[tex][col]
+
+    if (lump > 0) {
+      return (await this.wad.cacheLumpNum(lump)).slice(ofs)
+    }
+
+    if (this.textureComposite[tex].byteLength) {
+      await this.generateComposite(tex)
+    }
+
+    return this.textureComposite[tex].slice(ofs)
+  }
+
+  //
   // R_InitTextures
   // Initializes the texture list
   //  with the textures from the world map.
@@ -245,19 +307,19 @@ export class Data {
       maxOff2 =this.wad.lumpLength(this.wad.getNumForName('TEXTURE2'))
     } else {
       mapTex2 = null
-      maxOff2 = 0
       numTextures2 = 0
+      maxOff2 = 0
     }
 
     this.numTextures = numTextures1 + numTextures2
 
-    this.textures = new Array(this.numTextures)
-    this.textureColumnLump = new Array(this.numTextures)
-    this.textureColumnOfs = new Array(this.numTextures)
-    this.textureComposite = new Array(this.numTextures)
-    this.textureCompositeSize = new Array(this.numTextures)
-    this.textureWidthMask = new Array(this.numTextures)
-    this.textureHeight = new Array(this.numTextures)
+    this.textures = new Array(this.numTextures).fill(0)
+    this.textureColumnLump = new Array(this.numTextures).fill(0)
+    this.textureColumnOfs = new Array(this.numTextures).fill(0)
+    this.textureComposite = new Array(this.numTextures).fill(0)
+    this.textureCompositeSize = new Array(this.numTextures).fill(0)
+    this.textureWidthMask = new Array(this.numTextures).fill(0)
+    this.textureHeight = new Array(this.numTextures).fill(0)
 
     let offset: number
 
@@ -284,29 +346,30 @@ export class Data {
 
       mTexture = new MapTexture(mapTex.slice(offset))
 
-      texture = {
-        width: mTexture.width,
-        height: mTexture.height,
-        patchCount: mTexture.patchCount,
-        name: mTexture.name,
-        patches: [],
-      }
-      this.textures[i] = texture
-
+      texture = this.textures[i] = new Texture(
+        mTexture.name,
+        mTexture.width,
+        mTexture.height,
+        mTexture.patchCount,
+      )
+      let j = 0
       for (mPatch of mTexture.patches()) {
-        patch = {
-          originX: mPatch.originX,
-          originY: mPatch.originY,
-          patch: patchLoopkup[mPatch.patch],
-        }
-        texture.patches.push(patch)
+        patch = texture.patches[j]
+        patch.originX = mPatch.originX
+        patch.originY = mPatch.originY
+        patch.patch = patchLoopkup[mPatch.patch]
+
+        ++j
 
         if (patch.patch === -1) {
           throw `R_InitTextures: Missing patch in texture ${texture.name}`
         }
       }
 
-      let j = 1
+      this.textureColumnLump[i] = new Array(texture.width).fill(0)
+      this.textureColumnOfs[i] = new Array(texture.width).fill(0)
+
+      j = 1
       while (j * 2 <= texture.width) {
         j <<= 1
       }
@@ -316,9 +379,11 @@ export class Data {
 
     // Precalculate whatever possible.
     for (let i = 0; i < this.numTextures; ++i) {
-      await this.regenerateLookup(i)
+      await this.generateLookup(i)
     }
 
+    // Create translation table for global animation.
+    this.textureTranslation = new Array(this.numTextures + 1).fill(0)
     for (let i = 0; i < this.numTextures; ++i) {
       this.textureTranslation[i] = i
     }
@@ -328,12 +393,13 @@ export class Data {
   // R_InitFlats
   //
   private initFlats(): void {
+
     this.firstFlat = this.wad.getNumForName('F_START') + 1
     this.lastFlat = this.wad.getNumForName('F_END') - 1
     this.numFlats = this.lastFlat - this.firstFlat + 1
 
     // Create translation table for global animation.
-    this.flatTranslation = new Array(this.numFlats + 1)
+    this.flatTranslation = new Array(this.numFlats + 1).fill(0)
 
     for (let i = 0; i < this.numFlats; ++i) {
       this.flatTranslation[i] = i
@@ -347,13 +413,14 @@ export class Data {
   //  just for having the header info ready during rendering.
   //
   private async initSpriteLumps(): Promise<void> {
+
     this.firstSpriteLump = this.wad.getNumForName('S_START') + 1
     this.lastSpriteLump = this.wad.getNumForName('S_END') - 1
-    this.numSpriteLumps = this.lastSpriteLump - this.firstSpriteLump + 1
 
-    this.spriteWidth = new Array(this.numSpriteLumps)
-    this.spriteOffset = new Array(this.numSpriteLumps)
-    this.spriteTopOffset = new Array(this.numSpriteLumps)
+    this.numSpriteLumps = this.lastSpriteLump - this.firstSpriteLump + 1
+    this.spriteWidth = new Array(this.numSpriteLumps).fill(0)
+    this.spriteOffset = new Array(this.numSpriteLumps).fill(0)
+    this.spriteTopOffset = new Array(this.numSpriteLumps).fill(0)
 
     let patch: Patch
     for (let i = 0; i < this.numSpriteLumps; ++i) {
@@ -375,7 +442,7 @@ export class Data {
     const lump = this.wad.getNumForName('COLORMAP')
 
     // const colorMaps
-    this.colorMaps = await this.wad.readLump(lump)
+    this.colorMaps = new Uint8ClampedArray(await this.wad.readLump(lump))
   }
 
   //
@@ -400,6 +467,7 @@ export class Data {
   // Retrieval, get a flat number for a flat name.
   //
   flatNumForName(name: string): number {
+
     const i = this.wad.checkNumForName(name)
     if (i === -1) {
       throw `R_FlatNumForName: ${name} not found`
@@ -413,6 +481,7 @@ export class Data {
   // Filter out NoTexture indicator.
   //
   private checkTextureNumForName(name: string): number {
+
     // "NoTexture" marker.
     if (name.startsWith('-')) {
       return 0
@@ -441,4 +510,102 @@ export class Data {
 
     return i
   }
+
+  //
+  // R_PrecacheLevel
+  // Preloads all relevant graphics for the level.
+  //
+  private flatMemory = 0
+  private textureMemory = 0
+  private spriteMemory = 0
+
+  async precacheLevel(): Promise<void> {
+    if (this.game.demoPlayback) {
+      return
+    }
+    let i: number
+
+    // Precache flats
+    const flatPresent = new Array<boolean>(this.numFlats).fill(false)
+    for (i = 0; i < this.play.numSectors; ++i) {
+      flatPresent[this.play.sectors[i].floorPic] = true
+      flatPresent[this.play.sectors[i].ceilingPic] = true
+    }
+
+    this.flatMemory = 0
+    let lump: number
+    for (i = 0; i < this.numFlats; ++i) {
+      if (flatPresent[i]) {
+        lump = this.firstFlat + i
+        this.flatMemory += this.wad.lumpInfo[lump].size
+        await this.wad.cacheLumpNum(lump)
+      }
+    }
+
+
+    // Precache textures.
+    const texturePresent = new Array<boolean>(this.numTextures).fill(false)
+    for (i = 0; i < this.play.numSides; ++i) {
+      texturePresent[this.play.sides[i].topTexture] = true
+      texturePresent[this.play.sides[i].midTexture] = true
+      texturePresent[this.play.sides[i].bottomTexture] = true
+    }
+
+    // Sky texture is always present.
+    // Note that F_SKY1 is the name used to
+    //  indicate a sky floor/ceiling as a flat,
+    //  while the sky texture is stored like
+    //  a wall texture, with an episode dependend
+    //  name.
+    texturePresent[this.sky.skyTexture] = true
+
+    this.textureMemory = 0
+    let j: number
+    let texture: Texture
+    for (i = 0; i < this.numTextures; ++i) {
+      if (!texturePresent[i]) {
+        continue
+      }
+
+      texture = this.textures[i]
+
+      for (j = 0; j < texture.patchCount; ++j) {
+        lump = texture.patches[j].patch
+        this.textureMemory += this.wad.lumpInfo[lump].size
+        await this.wad.cacheLumpNum(lump)
+      }
+    }
+
+    // Precache sprites.
+    const spritePresent = new Array<boolean>(this.things.numSprites).fill(false)
+    let th: Thinker | null
+    for (th = this.tick.thinkerCap.next;
+      th !== null && th !== this.tick.thinkerCap;
+      th = th.next
+    ) {
+      if (th.func === mObjThinker) {
+        debugger
+        // spritepresent[((mobj_t *)th)->sprite] = 1;
+      }
+    }
+
+    this.spriteMemory = 0
+    let sf: SpriteFrame
+    let k: number
+    for (i = 0; i < this.things.numSprites; ++i) {
+      if (!spritePresent[i]) {
+        continue
+      }
+
+      for (j = 0; j < this.things.sprites[i].numFrames; ++j) {
+        sf = this.things.sprites[i].spriteFrames[j]
+        for (k = 0; k < 8; ++k) {
+          lump = this.firstSpriteLump + sf.lump[k]
+          this.spriteMemory += this.wad.lumpInfo[lump].size
+          await this.wad.cacheLumpNum(lump)
+        }
+      }
+    }
+  }
+
 }

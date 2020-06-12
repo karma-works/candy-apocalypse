@@ -5,8 +5,8 @@ export class BBox {
   right = 0
 
   clear(): void {
-    this.top = this.right = Number.MIN_SAFE_INTEGER
-    this.bottom = this.left = Number.MAX_SAFE_INTEGER
+    this.top = this.right = -2147483648
+    this.bottom = this.left = 2147483647
   }
 
   add(x: number, y: number): void {

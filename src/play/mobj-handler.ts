@@ -5,15 +5,25 @@ import { ON_CEILING_Z, ON_FLOOR_Z, VIEW_HEIGHT } from './local'
 import { ANG45 } from '../misc/table'
 import { Doom } from '../doom/doom'
 import { FRACBITS } from '../misc/fixed'
+import { Game } from '../game/game'
 import { MapThing } from '../doom/data'
 import { Play } from './setup'
 import { PlayerState } from '../doom/player'
+import { StatusBar } from '../status/stuff'
 import { random } from '../misc/random'
 
 export class MObjHandler {
+  private get doom(): Doom {
+    return this.play.doom
+  }
+  private get game(): Game {
+    return this.doom.game
+  }
+  private get statusBar(): StatusBar {
+    return this.doom.statusBar
+  }
 
-  constructor(private play: Play,
-              private doom: Doom) { }
+  constructor(private play: Play) { }
 
   //
   // P_SpawnMobj
@@ -28,7 +38,7 @@ export class MObjHandler {
   // Most of the player structure stays unchanged
   //  between levels.
   //
-  private spawnPlayer(mThing: MapThing): void {
+  private async spawnPlayer(mThing: MapThing): Promise<void> {
     // not playing?
     if (!this.doom.game.playerInGame[mThing.type - 1]) {
       return
@@ -37,7 +47,7 @@ export class MObjHandler {
     const p = this.doom.game.players[mThing.type - 1]
 
     if (p.playerState === PlayerState.Reborn) {
-      // this.game.playerReborn(mThing.type - 1)
+      this.game.playerReborn(mThing.type - 1)
     }
 
     const x = mThing.x << FRACBITS
@@ -50,7 +60,7 @@ export class MObjHandler {
       mObj.flags |= mThing.type - 1 << MObjFlag.TransShift
     }
 
-    mObj.angle = ANG45 * mThing.angle / 45
+    mObj.angle = ANG45 * mThing.angle / 45 >>> 0
     mObj.player = p
     mObj.health = p.health
 
@@ -74,6 +84,10 @@ export class MObjHandler {
     //   }
     // }
 
+    if (mThing.type - 1 === this.game.consolePlayer) {
+      // wake up the status bar
+      await this.statusBar.start()
+    }
     // if (mthing->type-1 == consoleplayer) {
     //   // wake up the status bar
     //   ST_Start ();
@@ -87,7 +101,7 @@ export class MObjHandler {
   // The fields of the mapthing should
   // already be in host byte order.
   //
-  spawnMapThing(mThing: MapThing): void {
+  async spawnMapThing(mThing: MapThing): Promise<void> {
     // count deathmatch start positions
     if (mThing.type === 11) {
       // if (deathmatch_p < &deathmatchstarts[10])
@@ -102,8 +116,8 @@ export class MObjHandler {
     if (mThing.type <= 4) {
       // save spots for respawning in network games
       // playerstarts[mthing->type-1] = *mthing;
-      if (this.doom.game.deathMatch) {
-        this.spawnPlayer(mThing)
+      if (!this.doom.game.deathMatch) {
+        await this.spawnPlayer(mThing)
       }
       return
     }
@@ -171,7 +185,7 @@ export class MObjHandler {
       this.doom.game.totalItems++
     }
 
-    mObj.angle = ANG45 * (mThing.angle / 45)
+    mObj.angle = ANG45 * (mThing.angle / 45) >>> 0
     if (mThing.options & MTF_AMBUSH) {
       mObj.flags |= MObjFlag.Ambush
     }

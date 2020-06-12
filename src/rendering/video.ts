@@ -1,6 +1,8 @@
-import { Column, Patch, Post } from './defs'
-import { SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
+import { RANGE_CHECK, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { BBox } from '../misc/bbox'
+import { Column } from './column'
+import { Patch } from './patch'
+import { Post } from './post'
 
 export class Video {
   // Each screen is [SCREENWIDTH*SCREENHEIGHT];
@@ -26,6 +28,19 @@ export class Video {
 
     y -= patch.topOffset
     x -= patch.leftOffset
+
+    if (RANGE_CHECK) {
+      if (x < 0 ||
+        x + patch.width > SCREENWIDTH ||
+        y < 0 ||
+        y + patch.height > SCREENHEIGHT ||
+        scrn > 4
+      ) {
+        console.error(`Patch at ${x},${y} exceeds LFB`)
+        console.error('V_DrawPatch: bad patch (ignored)')
+        return
+      }
+    }
 
     if (!scrn) {
       this.markRect(x, y, patch.width, patch.height)

@@ -37,6 +37,16 @@ export const enum Language {
   Unknown,
 }
 
+// If rangecheck is undefined,
+// most parameter validation debugging code will not be compiled
+export const RANGE_CHECK = true
+
+// It is educational but futile to change this
+//  scaling e.g. to 2. Drawing of status bar,
+//  menues etc. is tied to the scale implied
+//  by the graphics.
+export const SCREEN_MUL = 1
+
 export const SCREENWIDTH = 320
 export const SCREENHEIGHT = 200
 
