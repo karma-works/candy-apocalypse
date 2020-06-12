@@ -5,11 +5,11 @@ export const FRACBITS = 16
 export const FRACUNIT = 1 << FRACBITS
 
 export function mul(a: number, b: number): number {
-  return a * b >> FRACBITS
+  return Math.floor(a * b / 0x10000) >> 0
 }
 export function div(a: number, b: number): number {
   if (Math.abs(a) >> 14 >= Math.abs(b)) {
-    return (a^b) < 0 ? Number.MIN_SAFE_INTEGER : Number.MAX_SAFE_INTEGER
+    return (a^b) < 0 ? -2147483648 : 2147483647
   }
   return div2(a, b)
 }
@@ -20,5 +20,5 @@ function div2(a: number, b: number): number {
   if (c >= 2147483648.0 || c < -2147483648.0) {
     throw 'FixedDiv: divide by zero'
   }
-  return c
+  return c << 0
 }
