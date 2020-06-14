@@ -1,6 +1,8 @@
+import { ANG90, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, FINE_MASK, fineSine } from '../misc/table'
 import { Cheat, Player, PlayerState } from '../doom/player'
-import { FINE_ANGLES, FINE_MASK, fineSine } from '../misc/table'
 import { FRACUNIT, mul } from '../misc/fixed'
+import { StateNum, states } from '../doom/info'
+import { MObjHandler } from './mobj-handler'
 import { Play } from './setup'
 import { Tick } from './tick'
 import { VIEW_HEIGHT } from './local'
@@ -16,10 +18,27 @@ const MAX_BOB = 0x100000
 export class User {
   private onGround = false
 
+  private get mObjHandler(): MObjHandler {
+    return this.play.mObjHandler
+  }
   private get tick(): Tick {
     return this.play.tick
   }
   constructor(private play: Play) { }
+
+  //
+  // P_Thrust
+  // Moves the given origin along a given angle.
+  //
+  private thrust(player: Player, angle: number, move: number): void {
+    angle >>>= ANGLE_TO_FINE_SHIFT
+
+    if (player.mo === null) {
+      throw 'player.mo = null'
+    }
+    player.mo.momX += mul(move, fineSine[FINE_ANGLES / 4 + angle])
+    player.mo.momY += mul(move, fineSine[angle])
+  }
 
   //
   // P_CalcHeight
@@ -93,9 +112,52 @@ export class User {
   }
 
   //
+  // P_MovePlayer
+  //
+  private async movePlayer(player: Player): Promise<void> {
+    if (player.mo === null) {
+      throw 'player.mo = null'
+    }
+
+    const cmd = player.cmd
+
+    player.mo.angle += cmd.angleTurn << 16 >>> 0
+    player.mo.angle >>>= 0
+
+    // Do not let the player control movement
+    //  if not onground.
+    this.onGround = player.mo.z <= player.mo.floorZ
+
+    if (cmd.forwardMove && this.onGround) {
+      this.thrust(player, player.mo.angle, cmd.forwardMove * 2048)
+    }
+    if (cmd.sideMove && this.onGround) {
+      this.thrust(player, player.mo.angle - ANG90 >>> 0, cmd.sideMove * 2048)
+    }
+
+    if ((cmd.forwardMove || cmd.sideMove) &&
+      player.mo.state === states[StateNum.Play]
+    ) {
+      await this.mObjHandler.setMObjState(player.mo, StateNum.PlayRun1)
+    }
+  }
+
+  //
   // P_PlayerThink
   //
-  playerThink(player: Player): void {
+  async playerThink(player: Player): Promise<void> {
+    if (player.mo === null) {
+      throw 'player.mo = null'
+    }
+    // Move around.
+    // Reactiontime is used to prevent movement
+    //  for a bit after a teleport.
+    if (player.mo.reactionTime) {
+      player.mo.reactionTime--
+    } else {
+      await this.movePlayer(player)
+    }
+
     this.calcHeight(player)
   }
 }

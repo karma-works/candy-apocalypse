@@ -8,6 +8,7 @@ import { Game } from '../game/game'
 import { Line } from '../rendering/line'
 import { MObj } from './mobj'
 import { MObjHandler } from './mobj-handler'
+import { Map } from './map'
 import { MapUtils } from './map-utils'
 import { Node } from '../rendering/node'
 import { Rendering } from '../rendering/rendering'
@@ -60,9 +61,9 @@ export class Play {
   // size in mapblocks
   bMapHeight = -1
   // int for larger maps
-  private blockMap: Int16Array = new Int16Array(0)
+  blockMap: Int16Array = new Int16Array(0)
   // offsets in blockmap are from here
-  private blockMapLump: Int16Array = new Int16Array(0)
+  blockMapLump: Int16Array = new Int16Array(0)
   // origin of block map
   bMapOrgX = -1
   bMapOrgY = -1
@@ -78,8 +79,9 @@ export class Play {
   private rejectMatrix: ArrayBuffer = new ArrayBuffer(0)
 
   public tick = new Tick(this)
+  public map = new Map(this)
   public mapUtils = new MapUtils(this)
-  private mObjHandler = new MObjHandler(this)
+  public mObjHandler = new MObjHandler(this)
   public user = new User(this)
 
   get rendering(): Rendering {

@@ -1,10 +1,10 @@
+import { tostring } from '../c'
+
 //
 // Map level types.
 // The following data structures define the persistent format
 // used in the lumps of the WAD files.
 //
-
-import { tostring } from '../c'
 
 // Lump order in a map WAD: each map needs a couple of lumps
 // to provide a complete scene geometry description.
@@ -251,19 +251,21 @@ export class MapNode {
 export class MapThing {
   static sizeOf = 2 * 5
 
-  x: number
-  y: number
-  angle: number
-  type: number
-  options: number
+  x = 0
+  y = 0
+  angle = 0
+  type = 0
+  options = 0
 
-  constructor(buffer: ArrayBuffer) {
-    const int16 = new Int16Array(buffer, 0, 5)
+  constructor(buffer?: ArrayBuffer) {
+    if (buffer) {
+      const int16 = new Int16Array(buffer, 0, 5)
 
-    this.x = int16[0]
-    this.y = int16[1]
-    this.angle = int16[2]
-    this.type = int16[3]
-    this.options = int16[4]
+      this.x = int16[0]
+      this.y = int16[1]
+      this.angle = int16[2]
+      this.type = int16[3]
+      this.options = int16[4]
+    }
   }
 }

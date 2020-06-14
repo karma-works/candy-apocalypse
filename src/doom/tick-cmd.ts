@@ -22,4 +22,13 @@ export class TickCmd {
     this.chatChar = 0
     this.buttons = 0
   }
+
+  copyFrom(from: TickCmd): void {
+    this.forwardMove = from.forwardMove
+    this.sideMove = from.sideMove
+    this.angleTurn = from.angleTurn
+    this.consistancy = from.consistancy
+    this.chatChar = from.chatChar
+    this.buttons = from.buttons
+  }
 }

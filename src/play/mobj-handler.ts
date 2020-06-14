@@ -1,16 +1,23 @@
+import { FRACBITS, mul } from '../misc/fixed'
+import { ITEM_QUE_SIZE, MAX_MOVE, ON_CEILING_Z, ON_FLOOR_Z, VIEW_HEIGHT, GRAVITY } from './local'
 import { MObj, MObjFlag } from './mobj'
-import { MObjType, mObjInfo } from '../doom/info'
+import { MObjType, State, StateNum, mObjInfo, states } from '../doom/info'
 import { MTF_AMBUSH, Skill } from '../global/doomdef'
-import { ON_CEILING_Z, ON_FLOOR_Z, VIEW_HEIGHT } from './local'
+import { Thinker, noopFunc } from '../doom/think'
 import { ANG45 } from '../misc/table'
 import { Doom } from '../doom/doom'
-import { FRACBITS } from '../misc/fixed'
 import { Game } from '../game/game'
+import { Map } from './map'
 import { MapThing } from '../doom/data'
+import { MapUtils } from './map-utils'
 import { Play } from './setup'
 import { PlayerState } from '../doom/player'
 import { StatusBar } from '../status/stuff'
+import { Tick } from './tick'
 import { random } from '../misc/random'
+
+const STOP_SPEED = 0x1000
+const FRICTION = 0xe800
 
 export class MObjHandler {
   private get doom(): Doom {
@@ -19,17 +26,267 @@ export class MObjHandler {
   private get game(): Game {
     return this.doom.game
   }
+  private get map(): Map {
+    return this.play.map
+  }
+  private get mapUtils(): MapUtils {
+    return this.play.mapUtils
+  }
   private get statusBar(): StatusBar {
     return this.doom.statusBar
+  }
+  private get tick(): Tick {
+    return this.play.tick
   }
 
   constructor(private play: Play) { }
 
   //
+  // P_SetMobjState
+  // Returns true if the mobj is still present.
+  //
+  async setMObjState(mobj: MObj, state: StateNum): Promise<boolean> {
+    let st: State
+    do {
+      if (state === StateNum.Null) {
+        mobj.state = states[StateNum.Null]
+        this.removeMObj(mobj)
+        return false
+      }
+
+      st = states[state]
+      mobj.state = st
+      mobj.tics = st.tics
+      mobj.sprite = st.sprite
+      mobj.frame = st.frame
+
+      // Modified handling.
+      // Call action functions when the state is set
+      if (st.action !== null) {
+        await st.action(mobj)
+      }
+
+      state = st.nextState
+    } while (!mobj.tics)
+
+    return true
+  }
+
+  //
+  // P_XYMovement
+  //
+  private async xyMovement(mo: MObj): Promise<void> {
+    if (!mo.momX && !mo.momY) {
+      if (mo.flags & MObjFlag.SkullFly) {
+        // the skull slammed into something
+        mo.flags &= ~MObjFlag.SkullFly
+        mo.momX = mo.momY = mo.momZ = 0
+
+        await this.setMObjState(mo, mo.info.spawnState)
+      }
+      return
+    }
+
+    const player = mo.player
+
+    if (mo.momX > MAX_MOVE) {
+      mo.momX = MAX_MOVE
+    } else if (mo.momX < -MAX_MOVE) {
+      mo.momX = -MAX_MOVE
+    }
+
+    if (mo.momY > MAX_MOVE) {
+      mo.momY = MAX_MOVE
+    } else if (mo.momY < -MAX_MOVE) {
+      mo.momY = -MAX_MOVE
+    }
+
+    let xMove = mo.momX
+    let yMove = mo.momY
+    let pTryX: number
+    let pTryY: number
+    do {
+      if (xMove > MAX_MOVE / 2 || yMove > MAX_MOVE / 2) {
+        pTryX = mo.x + xMove / 2
+        pTryY = mo.y + yMove / 2
+        xMove >>= 1
+        yMove >>= 1
+      } else {
+        pTryX = mo.x + xMove
+        pTryY = mo.y + yMove
+        xMove = yMove = 0
+      }
+      if (!this.map.tryMove(mo, pTryX, pTryY)) {
+        // TODO
+        mo.momX = mo.momY = 0
+      }
+
+
+    } while (xMove || yMove)
+
+    if (mo.momX > -STOP_SPEED &&
+      mo.momX < STOP_SPEED &&
+      mo.momY > -STOP_SPEED &&
+      mo.momY < STOP_SPEED &&
+      (!player ||
+        player.cmd.forwardMove === 0 &&
+        player.cmd.sideMove === 0)
+    ) {
+      if (player !== null) {
+        if (player.mo === null) {
+          throw 'player.mo = null'
+        }
+
+        // if in a walking frame, stop moving
+        if (states.indexOf(player.mo.state) - StateNum.PlayRun1 < 0) {
+          debugger
+        }
+        if (states.indexOf(player.mo.state) - StateNum.PlayRun1 < 4) {
+          this.setMObjState(player.mo, StateNum.Play)
+        }
+      }
+
+      mo.momX = 0
+      mo.momY = 0
+    } else {
+      mo.momX = mul(mo.momX, FRICTION)
+      mo.momY = mul(mo.momY, FRICTION)
+    }
+  }
+
+  //
+  // P_ZMovement
+  //
+  private zMovement(mo: MObj): void {
+    // check for smooth step up
+    if (mo.player && mo.z < mo.floorZ) {
+      mo.player.viewHeight -= mo.floorZ - mo.z
+
+      mo.player.deltaViewHeight =
+        (VIEW_HEIGHT - mo.player.viewHeight) >> 3
+    }
+
+    // adjust height
+    mo.z += mo.momZ
+
+    // clip movement
+    if (mo.z <= mo.floorZ) {
+      // hit the floor
+
+      // Note (id):
+      //  somebody left this after the setting momz to 0,
+      //  kinda useless there.
+      if (mo.flags & MObjFlag.SkullFly) {
+        // the skull slammed into something
+        mo.momZ = -mo.momZ
+      }
+
+      if (mo.momZ < 0) {
+        if (mo.player &&
+          mo.momZ < GRAVITY * 8
+        ) {
+          // Squat down.
+          // Decrease viewheight for a moment
+          // after hitting the ground (hard),
+          // and utter appropriate sound.
+          mo.player.deltaViewHeight = mo.momZ >> 3
+        }
+        mo.momZ = 0
+      }
+      mo.z = mo.floorZ
+    } else if (!(mo.flags & MObjFlag.NoGravity)) {
+      if (mo.momZ === 0) {
+        mo.momZ = -GRAVITY * 2
+      } else {
+        mo.momZ -= GRAVITY
+      }
+    }
+
+    if (mo.z + mo.height > mo.ceilingZ) {
+      // hit the ceiling
+      if (mo.momZ > 0) {
+        mo.momZ = 0
+      }
+      mo.z = mo.ceilingZ - mo.height
+
+      if (mo.flags & MObjFlag.SkullFly) {
+        // the skull slammed into something
+        mo.momZ = -mo.momZ
+      }
+    }
+  }
+
+  //
+  // P_MobjThinker
+  //
+  async thinker(mObj: MObj): Promise<void> {
+    // momentum movement
+    if (mObj.momX ||
+      mObj.momY ||
+      mObj.flags & MObjFlag.SkullFly
+    ) {
+      this.xyMovement(mObj)
+    }
+
+    if (mObj.func === noopFunc) {
+      // mobj was removed
+      return
+    }
+
+    if (mObj.z !== mObj.floorZ ||
+      mObj.momZ
+    ) {
+      this.zMovement(mObj)
+    }
+
+    if (mObj.func === noopFunc) {
+      // mobj was removed
+      return
+    }
+  }
+
+  //
   // P_SpawnMobj
   //
   private spawnMObj(x: number, y: number, z: number, type: MObjType): MObj {
-    return new MObj(this.play, x, y, z, type)
+    const mObj = new MObj(this.play, this.thinker, x, y, z, type)
+
+    this.tick.addThinker(mObj as Thinker<unknown, unknown>)
+
+    return mObj
+  }
+
+  //
+  // P_RemoveMobj
+  //
+  private itemRespawnQue = Array.from({ length: ITEM_QUE_SIZE }, () => new MapThing())
+  private itemRespawnTime = new Array<number>(ITEM_QUE_SIZE).fill(0)
+  private iQueHead = 0
+  private iQueTail = 0
+  private removeMObj(mobj: MObj): void {
+    if (mobj.flags & MObjFlag.Special &&
+      !(mobj.flags & MObjFlag.Dropped) &&
+      mobj.type !== MObjType.Inv &&
+      mobj.type !== MObjType.Ins
+    ) {
+      if (mobj.spawnPoint === null) {
+        throw 'mobj.spawnPoint = null'
+      }
+      this.itemRespawnQue[this.iQueHead] = mobj.spawnPoint
+      this.itemRespawnTime[this.iQueHead] = this.tick.levelTime
+      this.iQueHead = this.iQueHead + 1 & ITEM_QUE_SIZE - 1
+
+      // lose one off the end?
+      if (this.iQueHead === this.iQueTail) {
+        this.iQueTail = this.iQueTail + 1 & ITEM_QUE_SIZE - 1
+      }
+    }
+
+    // unlink from sector and block lists
+    this.mapUtils.unsetThingPosition(mobj)
+
+    // free block
+    this.tick.removeThinker(mobj as Thinker<never, never>)
   }
 
   //

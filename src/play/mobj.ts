@@ -1,11 +1,12 @@
+import { Action, Thinker } from '../doom/think'
 import { MAX_PLAYERS, Skill } from '../global/doomdef'
 import { MObjInfo, MObjType, SpriteNum, State, mObjInfo, states } from '../doom/info'
 import { ON_CEILING_Z, ON_FLOOR_Z } from './local'
+import { MObjHandler } from './mobj-handler'
 import { MapThing } from '../doom/data'
 import { Play } from './setup'
 import { Player } from '../doom/player'
 import { SubSector } from '../rendering/sub-sector'
-import { Thinker } from '../doom/think'
 import { random } from '../misc/random'
 
 //
@@ -164,10 +165,7 @@ export const enum MObjFlag {
 
 
 // Map Object definition.
-export class MObj {
-  // List: thinker links.
-  thinker: Thinker | null
-
+export class MObj extends Thinker<MObjHandler, MObj> {
   // More list: links in sector (if needed)
   sNext: MObj | null = null
   sPrev: MObj | null = null
@@ -243,6 +241,7 @@ export class MObj {
 
   constructor(
     play: Play,
+    func: Action<MObjHandler, MObj>,
 
     // Info for drawing: position.
     public x: number,
@@ -251,6 +250,8 @@ export class MObj {
 
     public type: MObjType,
   ) {
+    super(func, play.mObjHandler)
+
     const info = mObjInfo[type]
     this.info = info
     this.radius = info.radius
@@ -289,16 +290,5 @@ export class MObj {
     } else if (z === ON_CEILING_Z) {
       this.z = this.ceilingZ - this.info.height
     }
-
-    this.thinker = new Thinker(mObjThinker)
-
-    // P_AddThinker
   }
-}
-
-//
-// P_MobjThinker
-//
-export async function mObjThinker(mObj: MObj): Promise<void> {
-  debugger
 }

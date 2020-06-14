@@ -130,7 +130,7 @@ export async function quitDOOM(menu: Menu): Promise<void> {
   if (menu.doom.language !== Language.English) {
     endString = `${menu.doom.strings.endmsg[0]}\n\n` + menu.doom.strings.dosy
   } else {
-    const idx = menu.game.gametic % (menu.doom.strings.numQuitMessages - 2) + 1
+    const idx = menu.game.gameTic % (menu.doom.strings.numQuitMessages - 2) + 1
     endString = `${menu.doom.strings.endmsg[idx]}\n\n` + menu.doom.strings.dosy
   }
   menu.startMessage(endString, quitResponse, true)

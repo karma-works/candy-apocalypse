@@ -1,7 +1,7 @@
+import { Thinker, noopFunc } from '../doom/think'
 import { Game } from '../game/game'
 import { MAX_PLAYERS } from '../global/doomdef'
 import { Play } from './setup'
-import { Thinker } from '../doom/think'
 import { User } from './user'
 
 //
@@ -37,7 +37,7 @@ export class Tick {
   // P_AddThinker
   // Adds a new thinker at the end of the list.
   //
-  addThinker(thinker: Thinker): void {
+  addThinker(thinker: Thinker<unknown, unknown>): void {
     if (this.thinkerCap.prev === null) {
       throw 'this.thinkerCap.prev = null'
     }
@@ -52,15 +52,42 @@ export class Tick {
   // Deallocation is lazy -- it will not actually be freed
   // until its thinking turn comes up.
   //
-  removeThinker(thinker: Thinker): void {
-    // FIXME: NOP.
-    thinker.func = null
+  removeThinker(thinker: Thinker<never, never>): void {
+    thinker.func = noopFunc
+  }
+
+  //
+  // P_RunThinkers
+  //
+  private async runThinkers(): Promise<void> {
+    let currentThinker = this.thinkerCap.next
+
+    while (currentThinker !== null &&
+      currentThinker !== this.thinkerCap
+    ) {
+      if (currentThinker.func === noopFunc) {
+        if (currentThinker.next === null) {
+          throw 'currentThinker.next = null'
+        }
+        if (currentThinker.prev === null) {
+          throw 'currentThinker.next = null'
+        }
+        // time to remove it
+        currentThinker.next.prev = currentThinker.prev
+        currentThinker.prev.next = currentThinker.next
+      } else {
+        if (currentThinker.func !== null) {
+          await currentThinker.func.call(currentThinker.handler, currentThinker)
+        }
+      }
+      currentThinker = currentThinker.next
+    }
   }
 
   //
   // P_Ticker
   //
-  ticker(): void {
+  async ticker(): Promise<void> {
     // run the tic
     if (this.game.paused) {
       return
@@ -68,8 +95,10 @@ export class Tick {
 
     for (let i = 0; i < MAX_PLAYERS; ++i) {
       if (this.game.playerInGame[i]) {
-        this.user.playerThink(this.game.players[i])
+        await this.user.playerThink(this.game.players[i])
       }
     }
+
+    await this.runThinkers()
   }
 }

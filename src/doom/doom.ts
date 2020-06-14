@@ -6,6 +6,7 @@ import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
 import { Video as IVideo } from '../interfaces/video'
 import { Menu } from '../menu/menu'
+import { Net } from './net'
 import { Params } from './params'
 import { Play } from '../play/setup'
 import { Video as RVIdeo } from '../rendering/video'
@@ -53,6 +54,7 @@ export class Doom {
   private title = ''
 
   public wad = new Wad()
+  public net = new Net()
   private headsUp = new HeadsUp(this.wad)
   public statusBar = new StatusBar(this)
   public play = new Play(this)
@@ -109,6 +111,7 @@ export class Doom {
         // menu ate the event
         continue
       }
+      this.game.responder(ev)
     }
   }
 
@@ -141,7 +144,7 @@ export class Doom {
     // do buffered drawing
     switch (this.game.gameState) {
     case GameState.Level:
-      if (!this.game.gametic) {
+      if (!this.game.gameTic) {
         break
       }
       await this.statusBar.drawer(this.rendering.draw.viewHeight === 200, false)
@@ -153,7 +156,7 @@ export class Doom {
 
     // draw the view directly
     if (this.game.gameState === GameState.Level &&
-    /* !this.autoMapActive &&  */this.game.gametic
+    /* !this.autoMapActive &&  */this.game.gameTic
     ) {
       this.rendering.renderPlayerView(
         this.game.players[this.game.displayPlayer],
@@ -197,12 +200,16 @@ export class Doom {
       if (true) {
         this.iVideo.startTic()
         await this.processEvents()
+        this.game.buildTicCmd(
+          this.net.netCmds[this.game.consolePlayer][this.net.makeTic],
+        )
         if (this.advancedemo) {
           this.doAdvanceDemo()
         }
         this.menu.ticker()
-        this.game.ticker()
-        this.game.gametic++
+        await this.game.ticker()
+        this.game.gameTic++
+        // this.net.makeTic++
       }
       await this.display()
       requestAnimationFrame(w.bind(this))

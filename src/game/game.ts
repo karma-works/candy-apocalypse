@@ -1,16 +1,22 @@
-import { AmmoType, GameMission, GameMode, GameState, MAX_PLAYERS, Skill, WeaponType } from '../global/doomdef'
+import { AmmoType, GameMission, GameMode, GameState, KEY_DOWNARROW, KEY_LEFTARROW, KEY_PAUSE, KEY_RALT, KEY_RCTRL, KEY_RIGHTARROW, KEY_RSHIFT, KEY_UPARROW, MAX_PLAYERS, Skill, WeaponType } from '../global/doomdef'
+import { BACKUP_TICS, Net } from '../doom/net'
+import { DEvent, EvType, GameAction } from '../doom/event'
 import { MObjType, StateNum, mObjInfo, states } from '../doom/info'
 import { Player, PlayerState } from '../doom/player'
 import { Doom } from '../doom/doom'
 import { FRACUNIT } from '../misc/fixed'
-import { GameAction } from '../doom/event'
 import { MAX_HEALTH } from '../play/local'
 import { Play } from '../play/setup'
 import { Rendering } from '../rendering/rendering'
 import { SKY_FLAT_NAME } from '../rendering/sky'
 import { Tick } from '../play/tick'
+import { TickCmd } from '../doom/tick-cmd'
 import { getTime } from '../system/system'
 import { random } from '../misc/random'
+
+const MAX_PL_MOVE = 0x32
+
+const SLOW_TURN_TICS = 6
 
 const NUM_KEYS = 256
 
@@ -46,7 +52,7 @@ export class Game {
   consolePlayer = 0
   // view being displayed
   displayPlayer = 0
-  gametic = 0
+  gameTic = 0
   // gametic at level start
   private levelStartTic = 0
   // for intermission
@@ -56,10 +62,41 @@ export class Game {
 
   demoPlayback = false
 
+  //
+  // controls (have defaults)
+  //
+  private keyRight = KEY_RIGHTARROW
+  private keyLeft = KEY_LEFTARROW
+
+  private keyUp = KEY_UPARROW
+  private keyDown = KEY_DOWNARROW
+  private keyStrafeLeft = ','.charCodeAt(0)
+  private keyStrafeRight = '.'.charCodeAt(0)
+  private keyFire = KEY_RCTRL
+  private keyUse = ' '.charCodeAt(0)
+  private keyStrafe = KEY_RALT
+  private keySpeed = KEY_RSHIFT
+
+  private mouseBFire = 0
+  private mouseBStrafe = 1
+  private mouseBForward = 2
+
+  private joyBFire = 0
+  private joyBStrafe = 1
+  private joyBUse = 3
+  private joyBSpeed = 2
+
+  private forwardMove = [ 0x19, 0x32 ]
+  private sideMove = [ 0x18, 0x28 ]
+  // + slow turn
+  private angleTurn = [ 640, 1280, 320 ]
+
   private gameKeyDown = new Array<boolean>(NUM_KEYS).fill(false)
+  // for accelerative turning
+  private turnHeld = 0
 
   // allow [-1]
-  private mouseButtons = new Array<false>(3).fill(false)
+  private mouseButtons = new Array<boolean>(3).fill(false)
 
   // mouse values are used once
   private mouseX = -1
@@ -70,12 +107,15 @@ export class Game {
   private joyYMove = -1
 
   // allow [-1]
-  private joyButtons = new Array<false>(4).fill(false)
+  private joyButtons = new Array<boolean>(4).fill(false)
 
   bodyQueSlot = -1
 
   mouseSensitivity = 5
 
+  private get net(): Net {
+    return this.doom.net
+  }
   private get play(): Play {
     return this.doom.play
   }
@@ -87,6 +127,125 @@ export class Game {
   }
 
   constructor(private doom: Doom) { }
+
+  //
+  // G_BuildTiccmd
+  // Builds a ticcmd from all of the available inputs
+  // or reads it from the demo buffer.
+  // If recording a demo, write it out
+  //
+  buildTicCmd(cmd: TickCmd): void {
+    // empty, or external driver
+    cmd.reset()
+
+    const strafe = this.gameKeyDown[this.keyStrafe] ||
+      this.mouseButtons[this.mouseBStrafe] ||
+      this.joyButtons[this.joyBStrafe]
+
+    const speed = this.gameKeyDown[this.keySpeed] ||
+      this.joyButtons[this.joyBSpeed] ? 1 : 0
+
+    let forward = 0
+    let side = 0
+
+    // use two stage accelerative turning
+    // on the keyboard and joystick
+    if (this.joyXMove < 0 ||
+      this.joyXMove > 0 ||
+      this.gameKeyDown[this.keyRight] ||
+      this.gameKeyDown[this.keyLeft]
+    ) {
+      this.turnHeld += this.net.ticDup
+    } else {
+      this.turnHeld = 0
+    }
+
+
+    let tSpeed: number
+    if (this.turnHeld < SLOW_TURN_TICS) {
+      // slow turn
+      tSpeed = 2
+    } else {
+      tSpeed = speed
+    }
+
+    // let movement keys cancel each other out
+    if (strafe) {
+      if (this.gameKeyDown[this.keyRight]) {
+        side += this.sideMove[speed]
+      }
+      if (this.gameKeyDown[this.keyLeft]) {
+        side -= this.sideMove[speed]
+      }
+      if (this.joyXMove > 0) {
+        side += this.sideMove[speed]
+      }
+      if (this.joyXMove < 0) {
+        side -= this.sideMove[speed]
+      }
+    } else {
+      if (this.gameKeyDown[this.keyRight]) {
+        cmd.angleTurn -= this.angleTurn[tSpeed]
+      }
+      if (this.gameKeyDown[this.keyLeft]) {
+        cmd.angleTurn += this.angleTurn[tSpeed]
+      }
+      if (this.joyXMove > 0) {
+        cmd.angleTurn -= this.angleTurn[tSpeed]
+      }
+      if (this.joyXMove < 0) {
+        cmd.angleTurn -= this.angleTurn[tSpeed]
+      }
+    }
+
+    if (this.gameKeyDown[this.keyUp]) {
+      forward += this.forwardMove[speed]
+    }
+    if (this.gameKeyDown[this.keyDown]) {
+      forward -= this.forwardMove[speed]
+    }
+    if (this.joyYMove < 0) {
+      forward += this.forwardMove[speed]
+    }
+    if (this.joyYMove > 0) {
+      forward -= this.forwardMove[speed]
+    }
+    if (this.gameKeyDown[this.keyStrafeRight]) {
+      side += this.sideMove[speed]
+    }
+    if (this.gameKeyDown[this.keyStrafeLeft]) {
+      side -= this.sideMove[speed]
+    }
+
+    // mouse
+    if (this.mouseButtons[this.mouseBForward]) {
+      forward += this.forwardMove[speed]
+    }
+
+    forward += this.mouseY
+    if (strafe) {
+      side += this.mouseX * 2
+    } else {
+      cmd.angleTurn -= this.mouseX * 0x8
+    }
+
+    this.mouseX = 0
+    this.mouseY = 0
+
+    if (forward > MAX_PL_MOVE) {
+      forward = MAX_PL_MOVE
+    } else if (forward < -MAX_PL_MOVE) {
+      forward = -MAX_PL_MOVE
+    }
+    if (side > MAX_PL_MOVE) {
+      side = MAX_PL_MOVE
+    } else if (side < -MAX_PL_MOVE) {
+      side = -MAX_PL_MOVE
+    }
+
+    cmd.forwardMove += forward
+    cmd.sideMove += side
+  }
 
   //
   // G_DoLoadLevel
@@ -116,7 +275,7 @@ export class Game {
     }
 
     // for time calculation
-    this.levelStartTic = this.gametic
+    this.levelStartTic = this.gameTic
 
     if (this.doom.wipeGameState === GameState.Level) {
       // force a wipe
@@ -150,10 +309,56 @@ export class Game {
   }
 
   //
+  // G_Responder
+  // Get info needed to make ticcmd_ts for the players.
+  //
+  responder(ev: DEvent): boolean {
+    switch (ev.type) {
+    case EvType.KeyDown:
+      if (ev.data1 === KEY_PAUSE) {
+        this.sendPause = true
+        return true
+      }
+      if (ev.data1 < NUM_KEYS) {
+        this.gameKeyDown[ev.data1] = true
+      }
+      // eat key down events
+      return true
+    case EvType.KeyUp:
+      if (ev.data1 < NUM_KEYS) {
+        this.gameKeyDown[ev.data1] = false
+      }
+      // always let key up events filter down
+      return false
+    case EvType.Mouse:
+      this.mouseButtons[0] = !!(ev.data1 & 1)
+      this.mouseButtons[1] = !!(ev.data1 & 2)
+      this.mouseButtons[2] = !!(ev.data1 & 4)
+      this.mouseX = ev.data2 * (this.mouseSensitivity + 5) / 10
+      this.mouseY = ev.data3 * (this.mouseSensitivity + 5) / 10
+      // eat events
+      return true
+    case EvType.Joystick:
+      this.joyButtons[0] = !!(ev.data1 & 1)
+      this.joyButtons[1] = !!(ev.data1 & 2)
+      this.joyButtons[2] = !!(ev.data1 & 4)
+      this.joyButtons[2] = !!(ev.data1 & 8)
+      this.joyXMove = ev.data2
+      this.joyYMove = ev.data3
+      // eat events
+      return true
+    default:
+      break
+    }
+
+    return false
+  }
+
+  //
   // G_Ticker
   // Make ticcmd_ts for the players.
   //
-  ticker(): void {
+  async ticker(): Promise<void> {
     // do player reborns if needed
     for (let i = 0; i < MAX_PLAYERS; ++i) {
       if (this.playerInGame[i] && this.players[i].playerState === PlayerState.Reborn) {
@@ -169,10 +374,22 @@ export class Game {
       }
     }
 
+    // get commands, check consistancy,
+    // and build new consistancy check
+    const buf = this.gameTic / this.net.ticDup % BACKUP_TICS
+
+    let cmd: TickCmd
+    for (let i = 0; i < MAX_PLAYERS; ++i) {
+      if (this.playerInGame[i]) {
+        cmd = this.players[i].cmd
+        cmd.copyFrom(this.net.netCmds[i][buf])
+      }
+    }
+
     // do main actions
     switch (this.gameState) {
     case GameState.Level:
-      this.tick.ticker()
+      await this.tick.ticker()
     }
   }
 
