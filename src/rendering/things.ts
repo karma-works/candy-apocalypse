@@ -308,7 +308,7 @@ export class Things {
         this.draw.dcYh = this.mFloorClip[this.draw.dcX] - 1
       }
       if (this.draw.dcYl <= this.mCeilingClip[this.draw.dcX]) {
-        this.draw.dcYl = this.mCeilingClip[this.draw.dcX] - 1
+        this.draw.dcYl = this.mCeilingClip[this.draw.dcX] + 1
       }
 
       if (this.draw.dcYl <= this.draw.dcYh) {
@@ -424,7 +424,7 @@ export class Things {
     if (sprFrame.rotate) {
       // choose a different rotation based on player view
       const ang = this.rendering.pointToAngle(thing.x, thing.y)
-      const rot = ang - thing.angle + ANG45 / 2 * 9 >> 29
+      const rot = ang - thing.angle + ANG45 / 2 * 9 >>> 29
       lump = sprFrame.lump[rot]
       flip = !!sprFrame.flip[rot]
     } else {

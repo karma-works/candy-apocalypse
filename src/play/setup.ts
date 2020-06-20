@@ -383,7 +383,7 @@ export class Play {
 
       this.sides[i] = {
         textureOffset: msd.textureOffset << FRACBITS,
-        rowOffset: msd.textureOffset << FRACBITS,
+        rowOffset: msd.rowOffset << FRACBITS,
         topTexture: this.rendering.data.textureNumForName(msd.topTexture),
         bottomTexture: this.rendering.data.textureNumForName(msd.bottomTexture),
         midTexture: this.rendering.data.textureNumForName(msd.midTexture),

@@ -1,5 +1,5 @@
 import { FRACBITS, mul } from '../misc/fixed'
-import { ITEM_QUE_SIZE, MAX_MOVE, ON_CEILING_Z, ON_FLOOR_Z, VIEW_HEIGHT, GRAVITY } from './local'
+import { GRAVITY, ITEM_QUE_SIZE, MAX_MOVE, ON_CEILING_Z, ON_FLOOR_Z, VIEW_HEIGHT } from './local'
 import { MObj, MObjFlag } from './mobj'
 import { MObjType, State, StateNum, mObjInfo, states } from '../doom/info'
 import { MTF_AMBUSH, Skill } from '../global/doomdef'
@@ -163,7 +163,7 @@ export class MObjHandler {
       mo.player.viewHeight -= mo.floorZ - mo.z
 
       mo.player.deltaViewHeight =
-        (VIEW_HEIGHT - mo.player.viewHeight) >> 3
+        VIEW_HEIGHT - mo.player.viewHeight >> 3
     }
 
     // adjust height

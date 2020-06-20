@@ -229,10 +229,6 @@ export class Draw {
       // Current texture index in u,v.
       spot = (yFrac >> 16 - 6 & 63 * 64) + (xFrac >> 16 & 63)
 
-      if (this.dsColorMap === undefined) {
-        debugger
-      }
-
       // Lookup pixel from flat texture tile,
       //  re-index using light/colormap.
       dest[destPtr++] = this.dsColorMap[this.dsSource[spot]]

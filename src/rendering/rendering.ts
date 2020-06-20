@@ -335,8 +335,8 @@ export class Rendering {
   // rw_distance must be calculated first.
   //
   scaleFromGlobalAngle(visAngle: number): number {
-    const angleA = ANG90 + visAngle - this.viewAngle
-    const angleB = ANG90 + visAngle - this.segsHandler.rwNormalAngle
+    const angleA = ANG90 + visAngle - this.viewAngle >>> 0
+    const angleB = ANG90 + visAngle - this.segsHandler.rwNormalAngle >>> 0
 
     // both sines are allways positive
     const sineA = fineSine[angleA >> ANGLE_TO_FINE_SHIFT]
@@ -436,7 +436,7 @@ export class Rendering {
       for (j = 0; j < MAX_LIGHT_Z; ++j) {
         scale = div(SCREENWIDTH / 2 * FRACUNIT, j + 1 << LIGHT_Z_SHIFT)
         scale >>= LIGHT_SCALE_SHIFT
-        level = startMap - scale / DIST_MAP
+        level = startMap - (scale / DIST_MAP >> 0)
 
         if (level < 0) {
           level = 0
@@ -542,8 +542,9 @@ export class Rendering {
     for (let i = 0; i < LIGHT_LEVELS; ++i) {
       startMap = (LIGHT_LEVELS - 1 - i) * 2 * NUM_COLOR_MAPS / LIGHT_LEVELS
       for (j = 0; j < MAX_LIGHT_SCALE; ++j) {
-        level = startMap - j * SCREENWIDTH /
-            (this.draw.viewWidth << this.detailShift) / DIST_MAP
+        level = startMap - (j * SCREENWIDTH /
+            (this.draw.viewWidth << this.detailShift) /
+            DIST_MAP >> 0)
 
         if (level < 0) {
           level = 0
@@ -618,8 +619,8 @@ export class Rendering {
 
     this.viewZ = player.viewZ
 
-    this.viewSin = fineSine[this.viewAngle >> ANGLE_TO_FINE_SHIFT]
-    this.viewCos = fineSine[FINE_ANGLES / 4 + (this.viewAngle >> ANGLE_TO_FINE_SHIFT)]
+    this.viewSin = fineSine[this.viewAngle >>> ANGLE_TO_FINE_SHIFT]
+    this.viewCos = fineSine[FINE_ANGLES / 4 + (this.viewAngle >>> ANGLE_TO_FINE_SHIFT)]
 
     this.ssCount = 0
 

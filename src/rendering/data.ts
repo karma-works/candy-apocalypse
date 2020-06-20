@@ -101,14 +101,14 @@ export class Data {
   // Clip and draw a column
   //  from a patch into a cached post.
   //
-  drawColumnInCache(patch: Column, cache: Uint8Array, originX: number, cacheHeight: number): void {
+  drawColumnInCache(patch: Column, cache: Uint8Array, originY: number, cacheHeight: number): void {
     let count: number
     let position: number
 
     let col: Post
     for (col of patch) {
       count = col.length
-      position = originX + col.topDelta
+      position = originY + col.topDelta
 
       if (position < 0) {
         count += position
@@ -174,7 +174,7 @@ export class Data {
         this.drawColumnInCache(
           patchCol,
           new Uint8Array(block, colOfs[x]),
-          patch.originX,
+          patch.originY,
           texture.height,
         )
       }
@@ -234,7 +234,7 @@ export class Data {
 
       if (patchCount[x] > 1) {
         // Use the cached block.
-        colLump[x] - 1
+        colLump[x] = -1
         colOfs[x] = this.textureCompositeSize[textNum]
 
         if (this.textureCompositeSize[textNum] > 0x10000 - texture.height) {
@@ -249,17 +249,21 @@ export class Data {
   //
   // R_GetColumn
   //
-  async getColumn(tex: number, col: number): Promise<ArrayBuffer> {
-
+  async getColumn(tex: number, col: number, withHeader = false): Promise<ArrayBuffer> {
     col &= this.textureWidthMask[tex]
     const lump = this.textureColumnLump[tex][col]
-    const ofs = this.textureColumnOfs[tex][col]
+    let ofs = this.textureColumnOfs[tex][col]
+    if (withHeader) {
+      ofs -= 3
+    }
 
     if (lump > 0) {
       return (await this.wad.cacheLumpNum(lump)).slice(ofs)
     }
 
-    if (this.textureComposite[tex].byteLength) {
+    if (!this.textureComposite[tex] ||
+      this.textureComposite[tex].byteLength === 0
+    ) {
       await this.generateComposite(tex)
     }
 

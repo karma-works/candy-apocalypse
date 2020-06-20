@@ -132,7 +132,7 @@ export class Plane {
     }
 
     const length = mul(distance, this.distScale[x1])
-    const angle = this.rendering.viewAngle + this.rendering.xToViewAngle[x1] >> ANGLE_TO_FINE_SHIFT
+    const angle = this.rendering.viewAngle + this.rendering.xToViewAngle[x1] >>> ANGLE_TO_FINE_SHIFT
     this.draw.dsXFrac = this.rendering.viewX + mul(fineSine[FINE_ANGLES / 4 + angle], length)
     this.draw.dsYFrac = -this.rendering.viewY - mul(fineSine[angle], length)
 
@@ -177,9 +177,8 @@ export class Plane {
     this.cachedHeight.fill(0)
 
     // left to right mapping
-    const angle = (this.rendering.viewAngle >>> 0) - ANG90
-        >> ANGLE_TO_FINE_SHIFT
-        >>> 0
+    const angle = ((this.rendering.viewAngle - ANG90))
+        >>> ANGLE_TO_FINE_SHIFT
 
     // scale will be unit scale at SCREENWIDTH/2 distance
     this.baseXScale = div(fineSine[FINE_ANGLES / 4 + angle], this.rendering.centerXFrac)

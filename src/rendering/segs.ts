@@ -178,12 +178,15 @@ export class Segs {
 
         this.things.sprTopScreen = this.rendering.centerYFrac -
           mul(this.draw.dcTextureMid, this.things.sprYScale)
-        this.draw.dcIScale = 0xffffffff / this.things.sprYScale
+        this.draw.dcIScale = 0xffffffff / this.things.sprYScale >>> 0
 
         // draw the texture
-        debugger
         col = new Column(
-          await this.data.getColumn(textNum, this.maskedTextureCol[this.draw.dcX]),
+          await this.data.getColumn(
+            textNum,
+            this.maskedTextureCol[this.draw.dcX],
+            true,
+          ),
         )
 
         this.things.drawMaskedColumn(col)
@@ -278,7 +281,7 @@ export class Segs {
 
         this.draw.dcColorMap = this.wallLights[index]
         this.draw.dcX = this.rwX
-        this.draw.dcIScale = 0xffffffff / this.rwScale
+        this.draw.dcIScale = 0xffffffff / this.rwScale >>> 0
       }
 
       // draw the wall tiers
@@ -400,8 +403,8 @@ export class Segs {
     this.bsp.lineDef.flags |= MapLineFlag.Mapped
 
     // calculate rw_distance for scale calculation
-    this.rwNormalAngle = this.bsp.curLine.angle + ANG90
-    let offsetAngle = Math.abs(this.rwNormalAngle - this.rwAngle1)
+    this.rwNormalAngle = this.bsp.curLine.angle + ANG90 >>> 0
+    let offsetAngle = Math.abs(this.rwNormalAngle - this.rwAngle1 >> 0)
 
     if (offsetAngle > ANG90) {
       offsetAngle = ANG90
@@ -420,7 +423,7 @@ export class Segs {
     // calculate scale at both ends and step
     dsP.scale1 = this.rwScale =
       this.rendering.scaleFromGlobalAngle(
-        this.rendering.viewAngle + this.rendering.xToViewAngle[start],
+        this.rendering.viewAngle + this.rendering.xToViewAngle[start] >>> 0,
       )
 
     if (stop > start) {
@@ -603,7 +606,7 @@ export class Segs {
       const sineVal = fineSine[offsetAngle >> ANGLE_TO_FINE_SHIFT]
       this.rwOffset = mul(hyp, sineVal)
 
-      if (this.rwNormalAngle-this.rwAngle1 < ANG180) {
+      if (this.rwNormalAngle - this.rwAngle1 >>> 0 < ANG180) {
         this.rwOffset = -this.rwOffset
       }
 

@@ -253,7 +253,7 @@ export class BSP {
     }
 
     // Global angle needed by segcalc.
-    this.segs.rwAngle1 = angle1
+    this.segs.rwAngle1 = angle1 >> 0
     angle1 = angle1 - this.rendering.viewAngle >>> 0
     angle2 = angle2 - this.rendering.viewAngle >>> 0
 
