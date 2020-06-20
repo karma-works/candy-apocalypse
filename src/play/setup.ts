@@ -1,10 +1,11 @@
-import { FRACBITS, div } from '../misc/fixed'
 import { GameMode, MAX_PLAYERS, Skill } from '../global/doomdef'
 import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
 import { MapLineDef, MapLineFlag, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef, MapSubSector, MapThing, MapVertex } from '../doom/data'
 import { BBox } from '../misc/bbox'
 import { Doom } from '../doom/doom'
+import { FRACBITS } from '../misc/fixed'
 import { Game } from '../game/game'
+import { Lights } from './lights'
 import { Line } from '../rendering/line'
 import { MObj } from './mobj'
 import { MObjHandler } from './mobj-handler'
@@ -15,7 +16,7 @@ import { Rendering } from '../rendering/rendering'
 import { Sector } from '../rendering/sector'
 import { Seg } from '../rendering/seg'
 import { Side } from '../rendering/side'
-import { SlopeType } from '../rendering/slope-type'
+import { Special } from './special'
 import { SubSector } from '../rendering/sub-sector'
 import { Tick } from './tick'
 import { User } from './user'
@@ -79,15 +80,17 @@ export class Play {
   private rejectMatrix: ArrayBuffer = new ArrayBuffer(0)
 
   public tick = new Tick(this)
+  public lights = new Lights(this)
   public map = new Map(this)
   public mapUtils = new MapUtils(this)
   public mObjHandler = new MObjHandler(this)
+  private special = new Special(this)
   public user = new User(this)
 
   get rendering(): Rendering {
     return this.doom.rendering
   }
-  private get wad(): Wad {
+  get wad(): Wad {
     return this.doom.wad
   }
   get game(): Game {
@@ -115,10 +118,10 @@ export class Play {
     // internal representation as fixed.
     for (let i = 0; i < this.numVertexes; ++i, mlPtr += MapVertex.sizeOf) {
       ml = new MapVertex(data.slice(mlPtr))
-      this.vertexes[i] = {
-        x: ml.x << FRACBITS,
-        y: ml.y << FRACBITS,
-      }
+      this.vertexes[i] = new Vertex(
+        ml.x << FRACBITS,
+        ml.y << FRACBITS,
+      )
     }
   }
 
@@ -189,25 +192,16 @@ export class Play {
     let msPtr = 0
     for (let i = 0; i < this.numSectors; ++i, msPtr += MapSector.sizeOf) {
       ms = new MapSector(data.slice(msPtr))
-      this.sectors[i] = {
-        floorHeight: ms.floorHeight << FRACBITS,
-        ceilingHeight: ms.ceilingHeight << FRACBITS,
-        floorPic: this.rendering.data.flatNumForName(ms.floorPic),
-        ceilingPic: this.rendering.data.flatNumForName(ms.ceilingPic),
-        lightLevel: ms.lightLevel,
-        special: ms.special,
-        tag: ms.tag,
-        thingList: null,
-
-        soundTraversed: 0,
-        soundTarget: null,
-        blockBox: new BBox(),
-        soundOrg: null,
-        validCount: 0,
-        specialData: null,
-        lineCount: 0,
-        lines: [],
-      }
+      this.sectors[i] = new Sector(
+        ms.floorHeight << FRACBITS,
+        ms.ceilingHeight << FRACBITS,
+        this.rendering.data.flatNumForName(ms.floorPic),
+        this.rendering.data.flatNumForName(ms.ceilingPic),
+        ms.lightLevel,
+        ms.special,
+        ms.tag,
+        null,
+      )
     }
   }
 
@@ -304,50 +298,7 @@ export class Play {
       mld = new MapLineDef(data.slice(mldPtr))
       v1 = this.vertexes[mld.v1]
       v2 = this.vertexes[mld.v2]
-      ld = {
-        flags: mld.flags,
-        special: mld.special,
-        tag: mld.tag,
-        v1, v2,
-        dX: v2.x - v1.x,
-        dY: v2.y - v1.y,
-
-        sideNum: new Array(2).fill(0),
-        bbox: new BBox(),
-        slopeType: 0,
-        frontSector: null,
-        backSector: null,
-        validCount: 0,
-        specialData: null,
-      }
-
-      if (!ld.dX) {
-        ld.slopeType = SlopeType.Vertical
-      } else if (!ld.dY) {
-        ld.slopeType = SlopeType.Horizontal
-      } else {
-        if (div(ld.dY, ld.dX) > 0) {
-          ld.slopeType = SlopeType.Positive
-        } else {
-          ld.slopeType = SlopeType.Negative
-        }
-      }
-
-      if (v1.x < v2.x) {
-        ld.bbox.left = v1.x
-        ld.bbox.right = v2.x
-      } else {
-        ld.bbox.left = v2.x
-        ld.bbox.right = v1.x
-      }
-
-      if (v1.y < v2.y) {
-        ld.bbox.bottom = v1.y
-        ld.bbox.top = v2.y
-      } else {
-        ld.bbox.bottom = v2.y
-        ld.bbox.top = v1.y
-      }
+      ld = new Line(v1, v2, mld.flags, mld.special, mld.tag)
 
       ld.sideNum[0] = mld.sideNum[0]
       ld.sideNum[1] = mld.sideNum[1]
@@ -544,6 +495,9 @@ export class Play {
 
     this.game.bodyQueSlot = 0
     await this.loadThings(lumpNum + MapLumpOrder.Things)
+
+    // set up world state
+    this.special.spawnSpecials()
   }
 
   //

@@ -7,7 +7,9 @@
 // Note: transformed values not buffered locally,
 //  like some DOOM-alikes ("wt", "WebView") did.
 //
-export interface Vertex {
-  x: number;
-  y: number;
+export class Vertex {
+  constructor(
+    public x: number = 0,
+    public y: number = 0,
+  ) { }
 }

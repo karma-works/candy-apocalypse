@@ -3,7 +3,6 @@ import { GRAVITY, ITEM_QUE_SIZE, MAX_MOVE, ON_CEILING_Z, ON_FLOOR_Z, VIEW_HEIGHT
 import { MObj, MObjFlag } from './mobj'
 import { MObjType, State, StateNum, mObjInfo, states } from '../doom/info'
 import { MTF_AMBUSH, Skill } from '../global/doomdef'
-import { Thinker, noopFunc } from '../doom/think'
 import { ANG45 } from '../misc/table'
 import { Doom } from '../doom/doom'
 import { Game } from '../game/game'
@@ -14,6 +13,7 @@ import { Play } from './setup'
 import { PlayerState } from '../doom/player'
 import { StatusBar } from '../status/stuff'
 import { Tick } from './tick'
+import { noopFunc } from '../doom/think'
 import { random } from '../misc/random'
 
 const STOP_SPEED = 0x1000
@@ -243,6 +243,20 @@ export class MObjHandler {
       // mobj was removed
       return
     }
+
+    // cycle through states,
+    // calling action functions at transitions
+    if (mObj.tics !== -1) {
+      mObj.tics--
+
+      // you can cycle through multiple states in a tic
+      if (!mObj.tics) {
+        if (!this.setMObjState(mObj, mObj.state.nextState)) {
+          // freed itself
+          return
+        }
+      }
+    }
   }
 
   //
@@ -251,7 +265,7 @@ export class MObjHandler {
   private spawnMObj(x: number, y: number, z: number, type: MObjType): MObj {
     const mObj = new MObj(this.play, this.thinker, x, y, z, type)
 
-    this.tick.addThinker(mObj as Thinker<unknown, unknown>)
+    this.tick.addThinker(mObj)
 
     return mObj
   }
@@ -286,7 +300,7 @@ export class MObjHandler {
     this.mapUtils.unsetThingPosition(mobj)
 
     // free block
-    this.tick.removeThinker(mobj as Thinker<never, never>)
+    this.tick.removeThinker(mobj)
   }
 
   //

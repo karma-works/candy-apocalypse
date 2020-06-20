@@ -177,7 +177,7 @@ export class Plane {
     this.cachedHeight.fill(0)
 
     // left to right mapping
-    const angle = ((this.rendering.viewAngle - ANG90))
+    const angle = this.rendering.viewAngle - ANG90
         >>> ANGLE_TO_FINE_SHIFT
 
     // scale will be unit scale at SCREENWIDTH/2 distance
