@@ -48,9 +48,14 @@ export function XListenEvent(display: HTMLCanvasElement): void {
   const list = new Array<XEvent>()
   pending.set(display, list)
   display.tabIndex = 0
-  display.addEventListener('keydown', ev => list.push(ev))
-  display.addEventListener('keyup', ev => list.push(ev))
-  display.addEventListener('mousedown', ev => list.push(ev))
-  display.addEventListener('mouseup', ev => list.push(ev))
-  display.addEventListener('mousemove', ev => list.push(ev))
+  display.focus()
+  const listener = (ev: XEvent): void => {
+    list.push(ev) && ev.preventDefault()
+  }
+  display.addEventListener('keydown', listener)
+  display.addEventListener('keyup', listener)
+  display.addEventListener('mousedown', listener)
+  display.addEventListener('mouseup', listener)
+  display.addEventListener('mousemove', listener)
+  display.addEventListener('contextmenu', ev => ev.preventDefault())
 }
