@@ -1,7 +1,9 @@
-import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
+import { ANG180, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table'
+import { FRACUNIT, mul } from '../misc/fixed'
+import { MAP_BLOCK_SHIFT, MAX_RADIUS, PT_ADD_LINES } from './local'
 import { MObj, MObjFlag } from './mobj'
 import { BBox } from '../misc/bbox'
-import { FRACUNIT } from '../misc/fixed'
+import { Intercept } from './map-utils/intercept'
 import { Line } from '../rendering/line'
 import { MObjHandler } from './mobj-handler'
 import { MapLineFlag } from '../doom/data'
@@ -9,6 +11,7 @@ import { MapUtils } from './map-utils'
 import { Play } from './setup'
 import { Rendering } from '../rendering/rendering'
 import { Sector } from '../rendering/sector'
+import { SlopeType } from '../rendering/slope-type'
 import { Special } from './special'
 import { StateNum } from '../doom/info'
 import { Tick } from './tick'
@@ -356,6 +359,239 @@ export class Map {
 
     return true
   }
+
+  //
+  // SLIDE MOVE
+  // Allows the player to slide along any angled walls.
+  //
+  private bestSlideFrac = 0
+
+  private bestSlideLine: Line | null = null
+
+  private slideMo: MObj | null = null
+
+  private tmXMove = 0
+  private tmYMove = 0
+
+  //
+  // P_HitSlideLine
+  // Adjusts the xmove / ymove
+  // so that the next move will slide along the wall.
+  //
+  private hitSlideLine(ld: Line): void {
+    if (ld.slopeType === SlopeType.Horizontal) {
+      this.tmYMove = 0
+      return
+    }
+    if (ld.slopeType === SlopeType.Vertical) {
+      this.tmXMove = 0
+      return
+    }
+
+    if (this.slideMo === null) {
+      throw 'this.slideMo = null'
+    }
+
+    const side = this.mapUtils.pointOnLineSide(
+      this.slideMo.x,
+      this.slideMo.y,
+      ld,
+    )
+
+    let lineAngle = this.rendering.pointToAngle2(
+      0, 0, ld.dX, ld.dY,
+    )
+
+    if (side === 1) {
+      lineAngle = lineAngle + ANG180 >>> 0
+    }
+
+    const moveAngle = this.rendering.pointToAngle2(
+      0, 0, this.tmXMove, this.tmYMove,
+    )
+
+    let deltaAngle = moveAngle - lineAngle >>> 0
+
+    if (deltaAngle > ANG180) {
+      deltaAngle = deltaAngle + ANG180 >>> 0
+    }
+
+    lineAngle >>>= ANGLE_TO_FINE_SHIFT
+    deltaAngle >>>= ANGLE_TO_FINE_SHIFT
+
+    const moveLen = this.mapUtils.aproxDistance(
+      this.tmXMove, this.tmYMove,
+    )
+    const newLen = mul(
+      moveLen, fineSine[FINE_ANGLES / 4 + deltaAngle],
+    )
+
+    this.tmXMove = mul(newLen, fineSine[FINE_ANGLES / 4 + lineAngle])
+    this.tmYMove = mul(newLen, fineSine[lineAngle])
+  }
+
+  //
+  // PTR_SlideTraverse
+  //
+  private slideTraverse(inter: Intercept): boolean {
+    if (!inter.isALine) {
+      throw 'PTR_SlideTraverse: not a line?'
+    }
+    if (this.slideMo === null) {
+      throw 'this.slideMo = null'
+    }
+
+    const li = inter.d
+
+    if (!(li.flags && MapLineFlag.TwoSided)) {
+      if (this.mapUtils.pointOnLineSide(this.slideMo.x, this.slideMo.y, li)) {
+        // don't hit the back side
+        return true
+      }
+
+      return this.slideTraverseGoToIsBlocking(inter, li)
+    }
+
+    // set openrange, opentop, openbottom
+    this.mapUtils.lineOpening(li)
+
+    if (this.mapUtils.openRange < this.slideMo.height) {
+      // doesn't fit
+      return this.slideTraverseGoToIsBlocking(inter, li)
+    }
+
+    if (this.mapUtils.openTop - this.slideMo.z < this.slideMo.height) {
+      // mobj is too high
+      return this.slideTraverseGoToIsBlocking(inter, li)
+    }
+
+    if (this.mapUtils.openBottom - this.slideMo.z > 24 * FRACUNIT) {
+      // too big a step up
+      return this.slideTraverseGoToIsBlocking(inter, li)
+    }
+
+    // this line doesn't block movement
+    return true
+  }
+  // the line does block movement,
+  // see if it is closer than best so far
+  private slideTraverseGoToIsBlocking(inter: Intercept, li: Line): boolean {
+    if (inter.frac < this.bestSlideFrac) {
+      this.bestSlideFrac = inter.frac
+      this.bestSlideLine = li
+    }
+
+    // stop
+    return false
+  }
+
+  //
+  // P_SlideMove
+  // The momx / momy move is bad, so try to slide
+  // along a wall.
+  // Find the first line hit, move flush to it,
+  // and slide along it
+  //
+  // This is a kludgy mess.
+  //
+  slideMove(mo: MObj): void {
+    this.slideMo = mo
+
+    return this.slideMoveGoToRetry(mo, 0)
+  }
+  private slideMoveGoToRetry(mo: MObj, hitCount: number): void {
+    if (++hitCount === 3) {
+      // don't loop forever
+      return this.slideMoveGoToStairStep(mo)
+    }
+
+    let leadX: number
+    let leadY: number
+    let trailX: number
+    let trailY: number
+
+    // trace along the three leading corners
+    if (mo.momX > 0) {
+      leadX = mo.x + mo.radius
+      trailX = mo.x - mo.radius
+    } else {
+      leadX = mo.x - mo.radius
+      trailX = mo.x + mo.radius
+    }
+
+    if (mo.momY > 0) {
+      leadY = mo.y + mo.radius
+      trailY = mo.y - mo.radius
+    } else {
+      leadY = mo.y - mo.radius
+      trailY = mo.y + mo.radius
+    }
+
+    this.bestSlideFrac = FRACUNIT + 1
+
+    this.mapUtils.pathTraverse(
+      leadX, leadY, leadX + mo.momX, leadY + mo.momY,
+      PT_ADD_LINES, this.slideTraverse, this,
+    )
+    this.mapUtils.pathTraverse(
+      trailX, leadY, trailX + mo.momX, leadY + mo.momY,
+      PT_ADD_LINES, this.slideTraverse, this,
+    )
+    this.mapUtils.pathTraverse(
+      leadX, trailY, leadX + mo.momX, trailY + mo.momY,
+      PT_ADD_LINES, this.slideTraverse, this,
+    )
+
+    // move up to the wall
+    if (this.bestSlideFrac === FRACUNIT + 1) {
+      return this.slideMoveGoToStairStep(mo)
+    }
+
+    // fudge a bit to make sure it doesn't hit
+    this.bestSlideFrac -= 0x800
+    if (this.bestSlideFrac > 0) {
+      const newX = mul(mo.momX, this.bestSlideFrac)
+      const newY = mul(mo.momY, this.bestSlideFrac)
+
+      if (!this.tryMove(mo, mo.x + newX, mo.y + newY)) {
+        return this.slideMoveGoToStairStep(mo)
+      }
+    }
+
+    // Now continue along the wall.
+    // First calculate remainder.
+    this.bestSlideFrac = FRACUNIT - (this.bestSlideFrac + 0x800)
+
+    if (this.bestSlideFrac > FRACUNIT) {
+      this.bestSlideFrac = FRACUNIT
+    }
+
+    if (this.bestSlideFrac <= 0) {
+      return
+    }
+
+    this.tmXMove = mul(mo.momX, this.bestSlideFrac)
+    this.tmYMove = mul(mo.momY, this.bestSlideFrac)
+
+    if (this.bestSlideLine === null) {
+      throw 'this.bestSlideLine = null'
+    }
+    // clip the moves
+    this.hitSlideLine(this.bestSlideLine)
+
+    mo.momX = this.tmXMove
+    mo.momY = this.tmYMove
+
+    if (!this.tryMove(mo, mo.x + this.tmXMove, mo.y + this.tmYMove)) {
+      return this.slideMoveGoToRetry(mo, hitCount)
+    }
+  }
+  private slideMoveGoToStairStep(mo: MObj): void {
+    if (!this.tryMove(mo, mo.x, mo.y + mo.momY)) {
+      this.tryMove(mo, mo.x + mo.momX, mo.y)
+    }
+  }
+
 
   //
   // SECTOR HEIGHT CHANGING

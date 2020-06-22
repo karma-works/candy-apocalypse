@@ -19,7 +19,7 @@ export class MapUtils {
   // P_AproxDistance
   // Gives an estimation of distance (not exact)
   //
-  private aproxDistance(dx: number, dy: number): number {
+  aproxDistance(dx: number, dy: number): number {
     dx = Math.abs(dx)
     dy = Math.abs(dy)
     if (dx < dy) {
@@ -179,7 +179,7 @@ export class MapUtils {
   //
   openTop = 0
   openBottom = 0
-  private openRange = 0
+  openRange = 0
   lowFloor = 0
 
   lineOpening(lineDef: Line): void {
@@ -417,7 +417,7 @@ export class MapUtils {
   // INTERCEPT ROUTINES
   //
   private intercepts = Array.from({ length: MAX_INTERCEPTS },
-    () => new Intercept())
+    () => <Intercept> { frac: 0, isALine: false, d: null })
   private interceptPtr = 0
 
   private trace = new DivLine()
@@ -593,7 +593,7 @@ export class MapUtils {
   // Returns true if the traverser function returns true
   // for all lines.
   //
-  private pathTraverse<T>(
+  pathTraverse<T>(
     x1: number, y1: number, x2: number, y2: number, flags: number,
     trav: (this: T, v: Intercept) => boolean, thisArg: T,
   ): boolean {

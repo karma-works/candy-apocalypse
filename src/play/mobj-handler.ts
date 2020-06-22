@@ -117,8 +117,13 @@ export class MObjHandler {
         xMove = yMove = 0
       }
       if (!this.map.tryMove(mo, pTryX, pTryY)) {
-        // TODO
-        mo.momX = mo.momY = 0
+        // blocked move
+        if (mo.player) {
+          // try to slide along it
+          this.map.slideMove(mo)
+        } else {
+          mo.momX = mo.momY = 0
+        }
       }
 
 

@@ -1,9 +1,13 @@
 import { Line } from '../../rendering/line'
 import { MObj } from '../mobj'
 
-export class Intercept {
+export type Intercept = {
   // along trace line
-  frac = 0
-  isALine = false
-  d: MObj | Line | null = null
-}
+  frac: number
+} & ({
+  isALine: true
+  d: Line
+} | {
+  isALine: false
+  d: MObj | null
+})

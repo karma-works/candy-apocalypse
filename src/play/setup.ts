@@ -353,7 +353,7 @@ export class Play {
   private async loadBlockMap(lump: number): Promise<void> {
     const buffer = await this.wad.cacheLumpNum(lump)
     this.blockMapLump = new Int16Array(buffer)
-    this.blockMap = new Int16Array(buffer, 4)
+    this.blockMap = new Int16Array(buffer, 8)
 
     this.bMapOrgX = this.blockMapLump[0] << FRACBITS
     this.bMapOrgY = this.blockMapLump[1] << FRACBITS
