@@ -277,7 +277,7 @@ export class MObjHandler {
   private itemRespawnTime = new Array<number>(ITEM_QUE_SIZE).fill(0)
   private iQueHead = 0
   private iQueTail = 0
-  private removeMObj(mobj: MObj): void {
+  removeMObj(mobj: MObj): void {
     if (mobj.flags & MObjFlag.Special &&
       !(mobj.flags & MObjFlag.Dropped) &&
       mobj.type !== MObjType.Inv &&

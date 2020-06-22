@@ -3,10 +3,15 @@ import { MObj, MObjFlag } from './mobj'
 import { BBox } from '../misc/bbox'
 import { FRACUNIT } from '../misc/fixed'
 import { Line } from '../rendering/line'
+import { MObjHandler } from './mobj-handler'
 import { MapLineFlag } from '../doom/data'
 import { MapUtils } from './map-utils'
 import { Play } from './setup'
 import { Rendering } from '../rendering/rendering'
+import { Sector } from '../rendering/sector'
+import { Special } from './special'
+import { StateNum } from '../doom/info'
+import { Tick } from './tick'
 
 // keep track of special lines as they are hit,
 // but don't process them until the move is proven valid
@@ -36,8 +41,17 @@ export class Map {
   private get mapUtils(): MapUtils {
     return this.play.mapUtils
   }
+  private get mObjHandler(): MObjHandler {
+    return this.play.mObjHandler
+  }
   private get rendering(): Rendering {
     return this.play.rendering
+  }
+  private get special(): Special {
+    return this.play.special
+  }
+  private get tick(): Tick {
+    return this.play.tick
   }
   constructor(private play: Play) { }
 
@@ -281,8 +295,145 @@ export class Map {
 
     this.mapUtils.setThingPosition(thing)
 
-    // TODO
+    let side: number
+    let oldSide: number
+    let ld: Line
+    // if any special lines were hit, do the effect
+    if (!(thing.flags & (MObjFlag.Teleport | MObjFlag.NoClip))) {
+      while (this.numSpecHit--) {
+        // see if the lien was crossed
+        ld = this.specHit[this.numSpecHit]
+        side = this.mapUtils.pointOnLineSide(thing.x, thing.y, ld)
+        oldSide = this.mapUtils.pointOnLineSide(oldX, oldY, ld)
+
+        if (side !== oldSide) {
+          if (ld.special) {
+            this.special.crossSpecialLine(
+              this.play.lines.indexOf(ld),
+              oldSide,
+              thing,
+            )
+          }
+        }
+      }
+    }
 
     return true
+  }
+
+  //
+  // P_ThingHeightClip
+  // Takes a valid thing and adjusts the thing->floorz,
+  // thing->ceilingz, and possibly thing->z.
+  // This is called for all nearby monsters
+  // whenever a sector changes height.
+  // If the thing doesn't fit,
+  // the z will be set to the lowest value
+  // and false will be returned.
+  //
+  private thingHeightClip(thing: MObj): boolean {
+    const onFloor = thing.z === thing.floorZ
+
+    this.checkPosition(thing, thing.x, thing.y)
+    // what about stranding a monster partially off an edge?
+
+    thing.floorZ = this.tmFloorZ
+    thing.ceilingZ = this.tmCeilingZ
+
+    if (onFloor) {
+      // walking monsters rise and fall with the floor
+      thing.z = thing.floorZ
+    } else {
+      // don't adjust a floating monster unless forced to
+      if (thing.z + thing.height > thing.ceilingZ) {
+        thing.z = thing.ceilingZ - thing.height
+      }
+    }
+
+    if (thing.ceilingZ - thing.floorZ < thing.height) {
+      return false
+    }
+
+    return true
+  }
+
+  //
+  // SECTOR HEIGHT CHANGING
+  // After modifying a sectors floor or ceiling height,
+  // call this routine to adjust the positions
+  // of all things that touch the sector.
+  //
+  // If anything doesn't fit anymore, true will be returned.
+  // If crunch is true, they will take damage
+  //  as they are being crushed.
+  // If Crunch is false, you should set the sector height back
+  //  the way it was and call P_ChangeSector again
+  //  to undo the changes.
+  //
+  private crushChange = false
+  private noFit = false
+
+  //
+  // PIT_ChangeSector
+  //
+  pitChangeSector(thing: MObj): boolean {
+    if (this.thingHeightClip(thing)) {
+      // keep checking
+      return true
+    }
+
+    // crunch bodies to giblets
+    if (thing.health <= 0) {
+      this.mObjHandler.setMObjState(thing, StateNum.Gibs)
+
+      thing.flags &= ~MObjFlag.Solid
+      thing.height = 0
+      thing.radius = 0
+
+      // keep checking
+      return true
+    }
+
+    // crunch dropped items
+    if (thing.flags & MObjFlag.Dropped) {
+      this.mObjHandler.removeMObj(thing)
+
+      // keep checking
+      return true
+    }
+
+    if (!(thing.flags & MObjFlag.Shootable)) {
+      // assume it is bloody gibs or something
+      return true
+    }
+
+    this.noFit = true
+
+    if (this.crushChange && !(this.tick.levelTime & 3)) {
+      debugger
+    }
+
+    // keep checking (crush other things)
+    return true
+  }
+
+  //
+  // P_ChangeSector
+  //
+  changeSector(sector: Sector, crunch: boolean): boolean {
+    let x: number
+    let y: number
+
+    this.noFit = false
+    this.crushChange = crunch
+
+    // re-check heights for all things near the moving sector
+    for (x = sector.blockBox.left; x <= sector.blockBox.right; ++x) {
+      for (y = sector.blockBox.bottom; y <= sector.blockBox.top; ++y) {
+        this.mapUtils.blockThingsIterator(x, y, this.pitChangeSector, this)
+      }
+    }
+
+    return this.noFit
   }
 }

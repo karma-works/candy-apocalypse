@@ -27,7 +27,7 @@ export class Sector {
   // list of mobjs in sector
   thingList: MObj | null
   // thinker_t for reversable actions
-  specialData = null
+  specialData: unknown = null
   lineCount = 0
   // [linecount] size
   lines: Line[] = []
@@ -66,6 +66,29 @@ export class Sector {
       return line.backSector
     }
     return line.frontSector
+  }
+
+  //
+  // FIND LOWEST CEILING IN THE SURROUNDING SECTORS
+  //
+  findLowestCeilingSurrounding(): number {
+    let check: Line
+    let other: Sector | null
+    let height = 2147483647
+    for (let i = 0; i < this.lineCount; ++i) {
+      check = this.lines[i]
+      other = this.getNextSector(check)
+
+      if (!other) {
+        continue
+      }
+
+      if (other.ceilingHeight < height) {
+        height = other.ceilingHeight
+      }
+    }
+
+    return height
   }
 
   //

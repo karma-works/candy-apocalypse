@@ -3,7 +3,9 @@ import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
 import { MapLineDef, MapLineFlag, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef, MapSubSector, MapThing, MapVertex } from '../doom/data'
 import { BBox } from '../misc/bbox'
 import { Doom } from '../doom/doom'
+import { Doors } from './doors'
 import { FRACBITS } from '../misc/fixed'
+import { Floor } from './floor'
 import { Game } from '../game/game'
 import { Lights } from './lights'
 import { Line } from '../rendering/line'
@@ -80,11 +82,13 @@ export class Play {
   private rejectMatrix: ArrayBuffer = new ArrayBuffer(0)
 
   public tick = new Tick(this)
+  public doors = new Doors(this)
+  public floor = new Floor(this)
   public lights = new Lights(this)
   public map = new Map(this)
   public mapUtils = new MapUtils(this)
   public mObjHandler = new MObjHandler(this)
-  private special = new Special(this)
+  public special = new Special(this)
   public user = new User(this)
 
   get rendering(): Rendering {

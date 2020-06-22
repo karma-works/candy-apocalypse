@@ -32,7 +32,7 @@ export class MapUtils {
   // P_PointOnLineSide
   // Returns 0 or 1
   //
-  private pointOnLineSide(x: number, y: number, line: Line): 0 | 1 {
+  pointOnLineSide(x: number, y: number, line: Line): 0 | 1 {
     if (!line.dX) {
       if (x <= line.v1.x) {
         return line.dY > 0 ? 1 : 0
