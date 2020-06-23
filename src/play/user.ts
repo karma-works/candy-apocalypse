@@ -2,7 +2,9 @@ import { ANG90, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, FINE_MASK, fineSine } from '..
 import { Cheat, Player, PlayerState } from '../doom/player'
 import { FRACUNIT, mul } from '../misc/fixed'
 import { StateNum, states } from '../doom/info'
+import { ButtonCode } from '../doom/event'
 import { MObjHandler } from './mobj-handler'
+import { Map } from './map'
 import { Play } from './setup'
 import { Tick } from './tick'
 import { VIEW_HEIGHT } from './local'
@@ -18,6 +20,9 @@ const MAX_BOB = 0x100000
 export class User {
   private onGround = false
 
+  private get map(): Map {
+    return this.play.map
+  }
   private get mObjHandler(): MObjHandler {
     return this.play.mObjHandler
   }
@@ -149,6 +154,9 @@ export class User {
     if (player.mo === null) {
       throw 'player.mo = null'
     }
+
+    const cmd = player.cmd
+
     // Move around.
     // Reactiontime is used to prevent movement
     //  for a bit after a teleport.
@@ -159,5 +167,15 @@ export class User {
     }
 
     this.calcHeight(player)
+
+    // check for use
+    if (cmd.buttons & ButtonCode.Use) {
+      if (!player.useDown) {
+        this.map.useLines(player)
+        player.useDown = true
+      }
+    } else {
+      player.useDown = false
+    }
   }
 }

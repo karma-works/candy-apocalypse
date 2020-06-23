@@ -20,6 +20,7 @@ import { Seg } from '../rendering/seg'
 import { Side } from '../rendering/side'
 import { Special } from './special'
 import { SubSector } from '../rendering/sub-sector'
+import { Switch } from './switch'
 import { Tick } from './tick'
 import { User } from './user'
 import { Vertex } from '../rendering/vertex'
@@ -89,6 +90,7 @@ export class Play {
   public mapUtils = new MapUtils(this)
   public mObjHandler = new MObjHandler(this)
   public special = new Special(this)
+  public switch = new Switch(this)
   public user = new User(this)
 
   get rendering(): Rendering {
@@ -508,6 +510,7 @@ export class Play {
   // P_Init
   //
   init(): void {
+    this.switch.initSwitchList()
     this.rendering.things.initSprites(sprNames)
   }
 }

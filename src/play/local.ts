@@ -18,6 +18,8 @@ export const MAX_RADIUS = 32 * FRACUNIT
 export const GRAVITY = FRACUNIT
 export const MAX_MOVE = 30 * FRACUNIT
 
+export const USE_RANGE = 64 * FRACUNIT
+
 //
 // P_MOBJ
 //

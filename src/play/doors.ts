@@ -1,4 +1,4 @@
-import { DOOR_SPEED, Door } from './doors/door'
+import { DOOR_SPEED, DOOR_WAIT, Door } from './doors/door'
 import { Card } from '../global/doomdef'
 import { DoorType } from './doors/door-type'
 import { FRACUNIT } from '../misc/fixed'
@@ -146,7 +146,7 @@ export class Doors {
   // EV_DoLockedDoor
   // Move a locked door up/down
   //
-  private doLockedDoor(line: Line, type: DoorType, thing: MObj): number {
+  evDoLockedDoor(line: Line, type: DoorType, thing: MObj): number {
     const p = thing.player
     if (!p) {
       return 0
@@ -188,7 +188,7 @@ export class Doors {
     let sec: Sector
     let door: Door
 
-    while ((secNum = this.special.findSectorFromLineTag(line, secNum)) !== 0) {
+    while ((secNum = this.special.findSectorFromLineTag(line, secNum)) >= 0) {
       sec = this.play.sectors[secNum]
       if (sec.specialData) {
         continue
@@ -203,6 +203,7 @@ export class Doors {
         this.verticalDoor,
         this,
       )
+      this.tick.addThinker(door)
 
       switch (type) {
       case DoorType.BlazeClose:
@@ -242,6 +243,122 @@ export class Doors {
     }
 
     return rtn
+  }
+
+  //
+  // EV_VerticalDoor : open a door manually, no tag value
+  //
+  evVerticalDoor(line: Line, thing: MObj): void {
+    // only front sides can be used
+    const side = 0
+
+    // Check for locks
+    const player = thing.player
+
+    switch (line.special) {
+    case 26:
+    case 32:
+      // Blue Lock
+      if (player === null) {
+        return
+      }
+      if (!player.cards[Card.BlueCard] && !player.cards[Card.BlueSkull]) {
+        player.message = this.strings.pdBluek
+        return
+      }
+      break
+    case 27:
+    case 34:
+      // Yellow Lock
+      if (player === null) {
+        return
+      }
+      if (!player.cards[Card.YellowCard] && !player.cards[Card.YellowSkull]) {
+        player.message = this.strings.pdYellowk
+        return
+      }
+      break
+    case 28:
+    case 33:
+      // Red Lock
+      if (player === null) {
+        return
+      }
+      if (!player.cards[Card.RedCard] && !player.cards[Card.RedSkull]) {
+        player.message = this.strings.pdRedk
+        return
+      }
+      break
+    }
+
+    // if the sector has an active thinker, use it
+    const sec = this.play.sides[line.sideNum[side ^ 1]].sector
+
+    let door: Door
+    if (sec.specialData) {
+      door = sec.specialData as Door
+      switch (line.special) {
+      // ONLY FOR "RAISE" DOORS, NOT "OPEN"s
+      case 1:
+      case 26:
+      case 27:
+      case 28:
+      case 117:
+        if (door.direction === -1) {
+          // go back up
+          door.direction = 1
+        } else {
+          if (!thing.player) {
+            // JDC: bad guys never close doors
+            return
+          }
+          // start going down immediately
+          door.direction = -1
+        }
+        return
+      }
+    }
+    door = new Door(0, sec, this.verticalDoor, this)
+    this.tick.addThinker(door)
+
+    // new door thinker
+    door.direction = 1
+    door.speed = DOOR_SPEED
+    door.topWait = DOOR_WAIT
+    door.topCountDown = 0
+
+    switch (line.special) {
+    case 1:
+    case 26:
+    case 27:
+    case 28:
+      door.type = DoorType.Normal
+      break
+
+    case 31:
+    case 32:
+    case 33:
+    case 34:
+      door.type = DoorType.Open
+      line.special = 0
+      break
+
+    case 117:
+      // blazing door raise
+      door.type = DoorType.BlazeRaise
+      door.speed = DOOR_SPEED * 4
+      break
+    case 118:
+      // blazing door open
+      door.type = DoorType.BlazeOpen
+      line.special = 0
+      door.speed = DOOR_SPEED * 4
+      break
+    }
+
+    // find the top and bottom of the movement range
+    door.topHeight = sec.findLowestCeilingSurrounding()
+    door.topHeight -= 4 * FRACUNIT
   }
 
   //

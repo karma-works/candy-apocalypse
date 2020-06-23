@@ -1,6 +1,6 @@
 import { AmmoType, GameMission, GameMode, GameState, KEY_DOWNARROW, KEY_LEFTARROW, KEY_PAUSE, KEY_RALT, KEY_RCTRL, KEY_RIGHTARROW, KEY_RSHIFT, KEY_UPARROW, MAX_PLAYERS, Skill, WeaponType } from '../global/doomdef'
 import { BACKUP_TICS, Net } from '../doom/net'
-import { DEvent, EvType, GameAction } from '../doom/event'
+import { ButtonCode, DEvent, EvType, GameAction } from '../doom/event'
 import { MObjType, StateNum, mObjInfo, states } from '../doom/info'
 import { Player, PlayerState } from '../doom/player'
 import { Doom } from '../doom/doom'
@@ -101,6 +101,10 @@ export class Game {
   // mouse values are used once
   private mouseX = -1
   private mouseY = -1
+
+  private dClickTime = 0
+  private dClickState = false
+  private dClicks = 0
 
   // joystick values are repeated
   private joyXMove = -1
@@ -217,9 +221,45 @@ export class Game {
       side -= this.sideMove[speed]
     }
 
+    // buttons
+    if (this.gameKeyDown[this.keyFire] ||
+      this.mouseButtons[this.mouseBFire]
+    ) {
+      cmd.buttons |= ButtonCode.Attack
+    }
+
+    if (this.gameKeyDown[this.keyUse]) {
+      cmd.buttons |= ButtonCode.Use
+      // clear double clicks if hit use button
+      this.dClicks = 0
+    }
+
+
     // mouse
     if (this.mouseButtons[this.mouseBForward]) {
       forward += this.forwardMove[speed]
+    }
+
+    // forward double click
+    if (this.mouseButtons[this.mouseBForward] !== this.dClickState &&
+      this.dClickTime > 1
+    ) {
+      this.dClickState = this.mouseButtons[this.mouseBForward]
+      if (this.dClickState) {
+        this.dClicks++
+      }
+      if (this.dClicks === 2) {
+        cmd.buttons |= ButtonCode.Use
+        this.dClicks = 0
+      } else {
+        this.dClickTime = 0
+      }
+    } else {
+      this.dClickTime += this.net.ticDup
+      if (this.dClickTime > 20) {
+        this.dClicks = 0
+        this.dClickState = false
+      }
     }
 
     forward += this.mouseY

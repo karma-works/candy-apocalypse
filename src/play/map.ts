@@ -1,6 +1,6 @@
 import { ANG180, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table'
-import { FRACUNIT, mul } from '../misc/fixed'
-import { MAP_BLOCK_SHIFT, MAX_RADIUS, PT_ADD_LINES } from './local'
+import { FRACBITS, FRACUNIT, mul } from '../misc/fixed'
+import { MAP_BLOCK_SHIFT, MAX_RADIUS, PT_ADD_LINES, USE_RANGE } from './local'
 import { MObj, MObjFlag } from './mobj'
 import { BBox } from '../misc/bbox'
 import { Intercept } from './map-utils/intercept'
@@ -9,11 +9,13 @@ import { MObjHandler } from './mobj-handler'
 import { MapLineFlag } from '../doom/data'
 import { MapUtils } from './map-utils'
 import { Play } from './setup'
+import { Player } from '../doom/player'
 import { Rendering } from '../rendering/rendering'
 import { Sector } from '../rendering/sector'
 import { SlopeType } from '../rendering/slope-type'
 import { Special } from './special'
 import { StateNum } from '../doom/info'
+import { Switch } from './switch'
 import { Tick } from './tick'
 
 // keep track of special lines as they are hit,
@@ -52,6 +54,9 @@ export class Map {
   }
   private get special(): Special {
     return this.play.special
+  }
+  private get switch(): Switch {
+    return this.play.switch
   }
   private get tick(): Tick {
     return this.play.tick
@@ -592,6 +597,68 @@ export class Map {
     }
   }
 
+  //
+  // USE LINES
+  //
+  private useThing: MObj | null = null
+
+  private ptrUseTraverse(inter: Intercept) {
+    if (!inter.isALine) {
+      throw 'inter.isALine = false'
+    }
+    if (!inter.d.special) {
+      if (this.mapUtils.openRange <= 0) {
+        // can't use through a wall
+        return false
+      }
+      // not a special line, but keep checking
+      return true
+    }
+
+    if (this.useThing === null) {
+      throw 'this.useThing = null'
+    }
+
+    let side: 0 | 1 = 0
+    if (this.mapUtils.pointOnLineSide(
+      this.useThing.x, this.useThing.y, inter.d) === 1
+    ) {
+      side = 1
+    }
+
+    // return false; // don't use back side
+
+    this.switch.useSpecialLine(this.useThing, inter.d, side)
+
+    // can't use for than one special line in a row
+    return false
+  }
+
+  //
+  // P_UseLines
+  // Looks for special lines in front of the player to activate.
+  //
+  useLines(player: Player): void {
+    this.useThing = player.mo
+
+    if (player.mo === null) {
+      throw 'player.mo = null'
+    }
+
+    const angle = player.mo.angle >>> ANGLE_TO_FINE_SHIFT
+
+    const x1 = player.mo.x
+    const y1 = player.mo.y
+
+    const x2 = x1 + (USE_RANGE >> FRACBITS) * fineSine[FINE_ANGLES / 4 + angle]
+    const y2 = y1 + (USE_RANGE >> FRACBITS) * fineSine[angle]
+
+    this.mapUtils.pathTraverse(
+      x1, y1, x2, y2, PT_ADD_LINES,
+      this.ptrUseTraverse, this,
+    )
+
+  }
 
   //
   // SECTOR HEIGHT CHANGING
