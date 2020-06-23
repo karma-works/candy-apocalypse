@@ -21,6 +21,8 @@ module.exports = {
     '@typescript-eslint',
   ],
   'rules': {
+    'no-debugger': 'off',
+
     'indent': [
       'error',
       2,
