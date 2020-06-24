@@ -35,9 +35,9 @@ export class Plane {
   floorPlane: VisPlane | null = null
   ceilingPlane: VisPlane | null = null
 
-  // ?
-  openings = new Int16Array(MAX_OPENINGS)
-  lastOpeningPtr = -1
+  // Add SCREENWIDTH for underflow and overflow
+  openings = new Int16Array(SCREENWIDTH * 2 + MAX_OPENINGS)
+  lastOpeningPtr = 0
 
   //
   // Clip values are the solid pixel bounding the range.
