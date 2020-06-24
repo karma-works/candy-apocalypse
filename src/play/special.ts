@@ -1,12 +1,16 @@
 import { DoorType } from './doors/door-type'
 import { Doors } from './doors'
+import { Floor } from './floor'
+import { FloorType } from './floor/floor-type'
 import { Game } from '../game/game'
 import { Lights } from './lights'
 import { Line } from '../rendering/line'
 import { MObj } from './mobj'
 import { MObjType } from '../doom/info'
+import { MapLineFlag } from '../doom/data'
 import { Play } from './setup'
 import { Sector } from '../rendering/sector'
+import { Side } from '../rendering/side'
 
 export const GLOW_SPEED = 8
 export const STROBE_BRIGHT = 5
@@ -22,6 +26,9 @@ export class Special {
   private get doors(): Doors {
     return this.play.doors
   }
+  private get floor(): Floor {
+    return this.play.floor
+  }
   private get game(): Game {
     return this.play.game
   }
@@ -30,6 +37,44 @@ export class Special {
   }
 
   constructor(private play: Play) { }
+
+  //
+  // UTILITIES
+  //
+
+  //
+  // getSide()
+  // Will return a side_t*
+  //  given the number of the current sector,
+  //  the line number, and the side (0/1) that you want.
+  //
+  getSide(currentSector: number, line: number, side: 0 | 1): Side {
+    return this.play.sides[
+      this.play.sectors[currentSector].lines[line].sideNum[side]
+    ]
+  }
+
+  //
+  // getSector()
+  // Will return a sector_t*
+  //  given the number of the current sector,
+  //  the line number and the side (0/1) that you want.
+  //
+  getSector(currentSector: number, line: number, side: 0 | 1): Sector {
+    return this.play.sides[
+      this.play.sectors[currentSector].lines[line].sideNum[side]
+    ].sector
+  }
+
+  //
+  // twoSided()
+  // Given the sector number and the line number,
+  //  it will tell you whether the line is two-sided or not.
+  //
+  twoSided(sector: number, line: number): number {
+    return this.play.sectors[sector].lines[line]
+      .flags & MapLineFlag.TwoSided
+  }
 
   //
   // RETURN NEXT SECTOR # THAT LINE TAG REFERS TO
@@ -115,8 +160,7 @@ export class Special {
 
     case 5:
       // Raise Floor
-      // EV_DoFloor(line, raiseFloor);
-      debugger
+      this.floor.evDoFloor(line, FloorType.RaiseFloor)
       line.special = 0
       break
 
@@ -170,8 +214,7 @@ export class Special {
 
     case 19:
       // Lower Floor
-      // EV_DoFloor(line, lowerFloor);
-      debugger
+      this.floor.evDoFloor(line, FloorType.LowerFloor)
       line.special = 0
       break
 
@@ -192,8 +235,7 @@ export class Special {
     case 30:
       // Raise floor to shortest texture height
       //  on either side of lines.
-      // EV_DoFloor(line, raiseToTexture);
-      debugger
+      this.floor.evDoFloor(line, FloorType.RaiseToTexture)
       line.special = 0
       break
 
@@ -206,22 +248,19 @@ export class Special {
 
     case 36:
       // Lower Floor (TURBO)
-      // EV_DoFloor(line, turboLower);
-      debugger
+      this.floor.evDoFloor(line, FloorType.TurboLower)
       line.special = 0
       break
 
     case 37:
       // LowerAndChange
-      // EV_DoFloor(line, lowerAndChange);
-      debugger
+      this.floor.evDoFloor(line, FloorType.LowerAndChange)
       line.special = 0
       break
 
     case 38:
       // Lower Floor To Lowest
-      // EV_DoFloor(line, lowerFloorToLowest);
-      debugger
+      this.floor.evDoFloor(line, FloorType.LowerFloorToLowest)
       line.special = 0
       break
 
@@ -235,8 +274,7 @@ export class Special {
     case 40:
       // RaiseCeilingLowerFloor
       // EV_DoCeiling(line, raiseToHighest);
-      // EV_DoFloor(line, lowerFloorToLowest);
-      debugger
+      this.floor.evDoFloor(line, FloorType.LowerFloorToLowest)
       line.special = 0
       break
 
@@ -269,8 +307,7 @@ export class Special {
 
     case 56:
       // Raise Floor Crush
-      // EV_DoFloor(line, raiseFloorCrush);
-      debugger
+      this.floor.evDoFloor(line, FloorType.RaiseFloorCrush)
       line.special = 0
       break
 
@@ -283,15 +320,13 @@ export class Special {
 
     case 58:
       // Raise Floor 24
-      // EV_DoFloor(line, raiseFloor24);
-      debugger
+      this.floor.evDoFloor(line, FloorType.RaiseFloor24)
       line.special = 0
       break
 
     case 59:
       // Raise Floor 24 And Change
-      // EV_DoFloor(line, raiseFloor24AndChange);
-      debugger
+      this.floor.evDoFloor(line, FloorType.RaiseFloor24AndChange)
       line.special = 0
       break
 
@@ -329,8 +364,7 @@ export class Special {
 
     case 119:
       // Raise floor to nearest surr. floor
-      // EV_DoFloor(line, raiseFloorToNearest);
-      debugger
+      this.floor.evDoFloor(line, FloorType.RaiseFloorToNearest)
       line.special = 0
       break
 
@@ -358,8 +392,7 @@ export class Special {
 
     case 130:
       // Raise Floor Turbo
-      // EV_DoFloor(line, raiseFloorTurbo);
-      debugger
+      this.floor.evDoFloor(line, FloorType.RaiseFloorTurbo)
       line.special = 0
       break
 
@@ -425,20 +458,17 @@ export class Special {
 
     case 82:
       // Lower Floor To Lowest
-      // EV_DoFloor(line, lowerFloorToLowest);
-      debugger
+      this.floor.evDoFloor(line, FloorType.LowerFloorToLowest)
       break
 
     case 83:
       // Lower Floor
-      // EV_DoFloor(line, lowerFloor);
-      debugger
+      this.floor.evDoFloor(line, FloorType.LowerFloor)
       break
 
     case 84:
       // LowerAndChange
-      // EV_DoFloor(line, lowerAndChange);
-      debugger
+      this.floor.evDoFloor(line, FloorType.LowerAndChange)
       break
 
     case 86:
@@ -471,26 +501,22 @@ export class Special {
 
     case 91:
       // Raise Floor
-      // EV_DoFloor(line, raiseFloor);
-      debugger
+      this.floor.evDoFloor(line, FloorType.RaiseFloor)
       break
 
     case 92:
       // Raise Floor 24
-      // EV_DoFloor(line, raiseFloor24);
-      debugger
+      this.floor.evDoFloor(line, FloorType.RaiseFloor24)
       break
 
     case 93:
       // Raise Floor 24 And Change
-      // EV_DoFloor(line, raiseFloor24AndChange);
-      debugger
+      this.floor.evDoFloor(line, FloorType.RaiseFloor24AndChange)
       break
 
     case 94:
       // Raise Floor Crush
-      // EV_DoFloor(line, raiseFloorCrush);
-      debugger
+      this.floor.evDoFloor(line, FloorType.RaiseFloorCrush)
       break
 
     case 95:
@@ -503,8 +529,7 @@ export class Special {
     case 96:
       // Raise floor to shortest texture height
       // on either side of lines.
-      // EV_DoFloor(line, raiseToTexture);
-      debugger
+      this.floor.evDoFloor(line, FloorType.RaiseToTexture)
       break
 
     case 97:
@@ -515,8 +540,7 @@ export class Special {
 
     case 98:
       // Lower Floor (TURBO)
-      // EV_DoFloor(line, turboLower);
-      debugger
+      this.floor.evDoFloor(line, FloorType.TurboLower)
       break
 
     case 105:
@@ -550,14 +574,12 @@ export class Special {
 
     case 128:
       // Raise To Nearest Floor
-      // EV_DoFloor(line, raiseFloorToNearest);
-      debugger
+      this.floor.evDoFloor(line, FloorType.RaiseFloorToNearest)
       break
 
     case 129:
       // Raise Floor Turbo
-      // EV_DoFloor(line, raiseFloorTurbo);
-      debugger
+      this.floor.evDoFloor(line, FloorType.RaiseFloorTurbo)
       break
     }
   }

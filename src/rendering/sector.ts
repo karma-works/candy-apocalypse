@@ -1,7 +1,12 @@
 import { BBox } from '../misc/bbox'
+import { FRACUNIT } from '../misc/fixed'
 import { Line } from './line'
 import { MObj } from '../play/mobj'
 import { MapLineFlag } from '../doom/data'
+
+// 20 adjoining sectors max!
+const MAX_ADJOINING_SECTORS = 20
+
 //
 // The SECTORS record, at runtime.
 // Stores things/mobjs.
@@ -67,6 +72,104 @@ export class Sector {
     }
     return line.frontSector
   }
+
+  //
+  // P_FindLowestFloorSurrounding()
+  // FIND LOWEST FLOOR HEIGHT IN SURROUNDING SECTORS
+  //
+  findLowestFloorSurrounding(): number {
+    let check: Line
+    let other: Sector | null
+    let floor = this.floorHeight
+    for (let i = 0; i < this.lineCount; ++i) {
+      check = this.lines[i]
+      other = this.getNextSector(check)
+
+      if (!other) {
+        continue
+      }
+
+      if (other.floorHeight < floor) {
+        floor = other.floorHeight
+      }
+    }
+
+    return floor
+  }
+
+  //
+  // P_FindHighestFloorSurrounding()
+  // FIND HIGHEST FLOOR HEIGHT IN SURROUNDING SECTORS
+  //
+  findHighestFloorSurrounding(): number {
+    let check: Line
+    let other: Sector | null
+    let floor = -500 * FRACUNIT
+    for (let i = 0; i < this.lineCount; ++i) {
+      check = this.lines[i]
+      other = this.getNextSector(check)
+
+      if (!other) {
+        continue
+      }
+
+      if (other.floorHeight > floor) {
+        floor = other.floorHeight
+      }
+    }
+
+    return floor
+  }
+
+  //
+  // P_FindNextHighestFloor
+  // FIND NEXT HIGHEST FLOOR IN SURROUNDING SECTORS
+  // Note: this should be doable w/o a fixed array.
+  findNextHighestFloor(currentHeight = this.floorHeight): number {
+    const height = currentHeight
+
+    const heightList = new Array<number>(MAX_ADJOINING_SECTORS).fill(0)
+
+    let i: number
+    let h: number
+    let check: Line
+    let other: Sector | null
+    for (i = 0, h = 0; i < this.lineCount; ++i) {
+      check = this.lines[i]
+      other = this.getNextSector(check)
+
+      if (!other) {
+        continue
+      }
+
+      if (other.floorHeight > height) {
+        heightList[h++] = other.floorHeight
+      }
+
+      // Check for overflow. Exit.
+      if (h >= MAX_ADJOINING_SECTORS) {
+        console.error('Sector with more than 20 adjoining sectors')
+        break
+      }
+    }
+
+    // Find lowest height in list
+    if (!h) {
+      return currentHeight
+    }
+
+    let min = heightList[0]
+
+    // Range checking?
+    for (i = 1; i < h; ++i) {
+      if (heightList[i] < min) {
+        min = heightList[i]
+      }
+    }
+
+    return min
+  }
+
 
   //
   // FIND LOWEST CEILING IN THE SURROUNDING SECTORS

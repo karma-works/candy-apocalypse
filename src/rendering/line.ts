@@ -10,7 +10,7 @@ export class Line {
 
   // Visual appearance: SideDefs.
   //  sidenum[1] will be -1 if one sided
-  sideNum = new Array(2).fill(0)
+  sideNum: [number, number] = [ 0, 0 ]
   // Neat. Another bounding box, for the extent
   //  of the LineDef.
   bbox = new BBox()

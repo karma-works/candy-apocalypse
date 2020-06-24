@@ -2,6 +2,8 @@ import { Data } from '../rendering/data'
 import { Doom } from '../doom/doom'
 import { DoorType } from './doors/door-type'
 import { Doors } from './doors'
+import { Floor } from './floor'
+import { FloorType } from './floor/floor-type'
 import { GameMode } from '../global/doomdef'
 import { Line } from '../rendering/line'
 import { MObj } from './mobj'
@@ -25,6 +27,9 @@ export class Switch {
   }
   private get doors(): Doors {
     return this.play.doors
+  }
+  private get floor(): Floor {
+    return this.play.floor
   }
 
   constructor(private play: Play) { }
@@ -206,9 +211,9 @@ export class Switch {
 
     case 18:
       // Raise Floor to next highest floor
-      // if (EV_DoFloor(line, raiseFloorToNearest)) {
-      //   P_ChangeSwitchTexture(line, 0)
-      // }
+      if (this.floor.evDoFloor(line, FloorType.RaiseFloorToNearest)) {
+        this.changeSwitchTexture(line, false)
+      }
       debugger
       break
 
@@ -230,9 +235,9 @@ export class Switch {
 
     case 23:
       // Lower Floor to Lowest
-      // if (EV_DoFloor(line, lowerFloorToLowest)) {
-      //   P_ChangeSwitchTexture(line, 0)
-      // }
+      if (this.floor.evDoFloor(line, FloorType.LowerFloorToLowest)) {
+        this.changeSwitchTexture(line, false)
+      }
       debugger
       break
 
@@ -253,9 +258,9 @@ export class Switch {
 
     case 71:
       // Turbo Lower Floor
-      // if (EV_DoFloor(line, turboLower)) {
-      //   P_ChangeSwitchTexture(line, 0)
-      // }
+      if (this.floor.evDoFloor(line, FloorType.TurboLower)) {
+        this.changeSwitchTexture(line, false)
+      }
       debugger
       break
 
@@ -283,25 +288,25 @@ export class Switch {
 
     case 55:
       // Raise Floor Crush
-      // if (EV_DoFloor(line, raiseFloorCrush)) {
-      //   P_ChangeSwitchTexture(line, 0)
-      // }
+      if (this.floor.evDoFloor(line, FloorType.RaiseFloorCrush)) {
+        this.changeSwitchTexture(line, false)
+      }
       debugger
       break
 
     case 101:
       // Raise Floor
-      // if (EV_DoFloor(line, raiseFloor)) {
-      //   P_ChangeSwitchTexture(line, 0)
-      // }
+      if (this.floor.evDoFloor(line, FloorType.RaiseFloor)) {
+        this.changeSwitchTexture(line, false)
+      }
       debugger
       break
 
     case 102:
       // Lower Floor to Surrounding floor height
-      // if (EV_DoFloor(line, lowerFloor)) {
-      //   P_ChangeSwitchTexture(line, 0)
-      // }
+      if (this.floor.evDoFloor(line, FloorType.LowerFloor)) {
+        this.changeSwitchTexture(line, false)
+      }
       debugger
       break
 
@@ -351,9 +356,9 @@ export class Switch {
 
     case 131:
       // Raise Floor Turbo
-      // if (EV_DoFloor(line, raiseFloorTurbo)) {
-      //   P_ChangeSwitchTexture(line, 0)
-      // }
+      if (this.floor.evDoFloor(line, FloorType.RaiseFloorTurbo)) {
+        this.changeSwitchTexture(line, false)
+      }
       debugger
       break
 
@@ -367,9 +372,9 @@ export class Switch {
 
     case 140:
       // Raise Floor 512
-      // if (EV_DoFloor(line, raiseFloor512)) {
-      //   P_ChangeSwitchTexture(line, 0)
-      // }
+      if (this.floor.evDoFloor(line, FloorType.RaiseFloor512)) {
+        this.changeSwitchTexture(line, false)
+      }
       debugger
       break
 
@@ -391,17 +396,17 @@ export class Switch {
 
     case 45:
       // Lower Floor to Surrounding floor height
-      // if (EV_DoFloor(line, lowerFloor)) {
-      //   P_ChangeSwitchTexture(line, 1)
-      // }
+      if (this.floor.evDoFloor(line, FloorType.LowerFloor)) {
+        this.changeSwitchTexture(line, true)
+      }
       debugger
       break
 
     case 60:
       // Lower Floor to Lowest
-      // if (EV_DoFloor(line, lowerFloorToLowest)) {
-      //   P_ChangeSwitchTexture(line, 1)
-      // }
+      if (this.floor.evDoFloor(line, FloorType.LowerFloorToLowest)) {
+        this.changeSwitchTexture(line, true)
+      }
       debugger
       break
 
@@ -429,9 +434,9 @@ export class Switch {
 
     case 64:
       // Raise Floor to ceiling
-      // if (EV_DoFloor(line, raiseFloor)) {
-      //   P_ChangeSwitchTexture(line, 1)
-      // }
+      if (this.floor.evDoFloor(line, FloorType.RaiseFloor)) {
+        this.changeSwitchTexture(line, true)
+      }
       debugger
       break
 
@@ -453,9 +458,9 @@ export class Switch {
 
     case 65:
       // Raise Floor Crush
-      // if (EV_DoFloor(line, raiseFloorCrush)) {
-      //   P_ChangeSwitchTexture(line, 1)
-      // }
+      if (this.floor.evDoFloor(line, FloorType.RaiseFloorCrush)) {
+        this.changeSwitchTexture(line, true)
+      }
       debugger
       break
 
@@ -469,17 +474,17 @@ export class Switch {
 
     case 69:
       // Raise Floor to next highest floor
-      // if (EV_DoFloor(line, raiseFloorToNearest)) {
-      //   P_ChangeSwitchTexture(line, 1)
-      // }
+      if (this.floor.evDoFloor(line, FloorType.RaiseFloorToNearest)) {
+        this.changeSwitchTexture(line, true)
+      }
       debugger
       break
 
     case 70:
       // Turbo Lower Floor
-      // if (EV_DoFloor(line, turboLower)) {
-      //   P_ChangeSwitchTexture(line, 1)
-      // }
+      if (this.floor.evDoFloor(line, FloorType.TurboLower)) {
+        this.changeSwitchTexture(line, true)
+      }
       debugger
       break
 
@@ -514,9 +519,9 @@ export class Switch {
 
     case 132:
       // Raise Floor Turbo
-      // if (EV_DoFloor(line, raiseFloorTurbo)) {
-      //   P_ChangeSwitchTexture(line, 1)
-      // }
+      if (this.floor.evDoFloor(line, FloorType.RaiseFloorTurbo)) {
+        this.changeSwitchTexture(line, true)
+      }
       debugger
       break
 
