@@ -8,6 +8,8 @@ import { GameMode } from '../global/doomdef'
 import { Line } from '../rendering/line'
 import { MObj } from './mobj'
 import { MapLineFlag } from '../doom/data'
+import { PlatType } from './plats/plat-type'
+import { Plats } from './plats'
 import { Play } from './setup'
 import { alphSwitchList } from './switch/switch-list'
 
@@ -30,6 +32,9 @@ export class Switch {
   }
   private get floor(): Floor {
     return this.play.floor
+  }
+  private get plats(): Plats {
+    return this.play.plats
   }
 
   constructor(private play: Play) { }
@@ -195,18 +200,16 @@ export class Switch {
 
     case 14:
       // Raise Floor 32 and change texture
-      // if (EV_DoPlat(line, raiseAndChange, 32)) {
-      //   P_ChangeSwitchTexture(line, 0)
-      // }
-      debugger
+      if (this.plats.evDoPlat(line, PlatType.RaiseAndChange, 32)) {
+        this.changeSwitchTexture(line, false)
+      }
       break
 
     case 15:
       // Raise Floor 24 and change texture
-      // if (EV_DoPlat(line, raiseAndChange, 24)) {
-      //   P_ChangeSwitchTexture(line, 0)
-      // }
-      debugger
+      if (this.plats.evDoPlat(line, PlatType.RaiseAndChange, 24)) {
+        this.changeSwitchTexture(line, false)
+      }
       break
 
     case 18:
@@ -219,18 +222,16 @@ export class Switch {
 
     case 20:
       // Raise Plat next highest floor and change texture
-      // if (EV_DoPlat(line, raiseToNearestAndChange, 0)) {
-      //   P_ChangeSwitchTexture(line, 0)
-      // }
-      debugger
+      if (this.plats.evDoPlat(line, PlatType.RaiseToNearestAndChange, 0)) {
+        this.changeSwitchTexture(line, false)
+      }
       break
 
     case 21:
       // PlatDownWaitUpStay
-      // if (EV_DoPlat(line, downWaitUpStay, 0)) {
-      //   P_ChangeSwitchTexture(line, 0)
-      // }
-      debugger
+      if (this.plats.evDoPlat(line, PlatType.DownWaitUpStay, 0)) {
+        this.changeSwitchTexture(line, false)
+      }
       break
 
     case 23:
@@ -340,10 +341,9 @@ export class Switch {
 
     case 122:
       // Blazing PlatDownWaitUpStay
-      // if (EV_DoPlat(line, blazeDWUS, 0)) {
-      //   P_ChangeSwitchTexture(line, 0)
-      // }
-      debugger
+      if (this.plats.evDoPlat(line, PlatType.BlazeDWUS, 0)) {
+        this.changeSwitchTexture(line, false)
+      }
       break
 
     case 127:
@@ -419,10 +419,9 @@ export class Switch {
 
     case 62:
       // PlatDownWaitUpStay
-      // if (EV_DoPlat(line, downWaitUpStay, 1)) {
-      //   P_ChangeSwitchTexture(line, 1)
-      // }
-      debugger
+      if (this.plats.evDoPlat(line, PlatType.DownWaitUpStay, 1)) {
+        this.changeSwitchTexture(line, true)
+      }
       break
 
     case 63:
@@ -442,18 +441,16 @@ export class Switch {
 
     case 66:
       // Raise Floor 24 and change texture
-      // if (EV_DoPlat(line, raiseAndChange, 24)) {
-      //   P_ChangeSwitchTexture(line, 1)
-      // }
-      debugger
+      if (this.plats.evDoPlat(line, PlatType.RaiseAndChange, 24)) {
+        this.changeSwitchTexture(line, true)
+      }
       break
 
     case 67:
       // Raise Floor 32 and change texture
-      // if (EV_DoPlat(line, raiseAndChange, 32)) {
-      //   P_ChangeSwitchTexture(line, 1)
-      // }
-      debugger
+      if (this.plats.evDoPlat(line, PlatType.RaiseAndChange, 32)) {
+        this.changeSwitchTexture(line, true)
+      }
       break
 
     case 65:
@@ -466,10 +463,9 @@ export class Switch {
 
     case 68:
       // Raise Plat to next highest floor and change texture
-      // if (EV_DoPlat(line, raiseToNearestAndChange, 0)) {
-      //   P_ChangeSwitchTexture(line, 1)
-      // }
-      debugger
+      if (this.plats.evDoPlat(line, PlatType.RaiseToNearestAndChange, 0)) {
+        this.changeSwitchTexture(line, true)
+      }
       break
 
     case 69:
@@ -511,10 +507,9 @@ export class Switch {
 
     case 123:
       // Blazing PlatDownWaitUpStay
-      // if (EV_DoPlat(line, blazeDWUS, 0)) {
-      //   P_ChangeSwitchTexture(line, 1)
-      // }
-      debugger
+      if (this.plats.evDoPlat(line, PlatType.BlazeDWUS, 0)) {
+        this.changeSwitchTexture(line, true)
+      }
       break
 
     case 132:

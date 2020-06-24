@@ -14,6 +14,7 @@ import { MObjHandler } from './mobj-handler'
 import { Map } from './map'
 import { MapUtils } from './map-utils'
 import { Node } from '../rendering/node'
+import { Plats } from './plats'
 import { Rendering } from '../rendering/rendering'
 import { Sector } from '../rendering/sector'
 import { Seg } from '../rendering/seg'
@@ -89,6 +90,7 @@ export class Play {
   public map = new Map(this)
   public mapUtils = new MapUtils(this)
   public mObjHandler = new MObjHandler(this)
+  public plats = new Plats(this)
   public special = new Special(this)
   public switch = new Switch(this)
   public user = new User(this)

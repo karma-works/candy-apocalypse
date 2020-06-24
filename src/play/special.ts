@@ -8,6 +8,8 @@ import { Line } from '../rendering/line'
 import { MObj } from './mobj'
 import { MObjType } from '../doom/info'
 import { MapLineFlag } from '../doom/data'
+import { PlatType } from './plats/plat-type'
+import { Plats } from './plats'
 import { Play } from './setup'
 import { Sector } from '../rendering/sector'
 import { Side } from '../rendering/side'
@@ -34,6 +36,9 @@ export class Special {
   }
   private get lights(): Lights {
     return this.play.lights
+  }
+  private get plats(): Plats {
+    return this.play.plats
   }
 
   constructor(private play: Play) { }
@@ -180,8 +185,7 @@ export class Special {
 
     case 10:
       // PlatDownWaitUp
-      // EV_DoPlat(line, downWaitUpStay, 0);
-      debugger
+      this.plats.evDoPlat(line, PlatType.DownWaitUpStay, 0)
       line.special = 0
       break
 
@@ -220,8 +224,7 @@ export class Special {
 
     case 22:
       // Raise floor to nearest height and change texture
-      // EV_DoPlat(line, raiseToNearestAndChange, 0);
-      debugger
+      this.plats.evDoPlat(line, PlatType.RaiseToNearestAndChange, 0)
       line.special = 0
       break
 
@@ -293,15 +296,13 @@ export class Special {
 
     case 53:
       // Perpetual Platform Raise
-      // EV_DoPlat(line, perpetualRaise, 0);
-      debugger
+      this.plats.evDoPlat(line, PlatType.PerpetualRaise, 0)
       line.special = 0
       break
 
     case 54:
       // Platform Stop
-      // EV_StopPlat(line);
-      debugger
+      this.plats.evStopPlate(line)
       line.special = 0
       break
 
@@ -370,8 +371,7 @@ export class Special {
 
     case 121:
       // Blazing PlatDownWaitUpStay
-      // EV_DoPlat(line, blazeDWUS, 0);
-      debugger
+      this.plats.evDoPlat(line, PlatType.BlazeDWUS, 0)
       line.special = 0
       break
 
@@ -478,20 +478,17 @@ export class Special {
 
     case 87:
       // Perpetual Platform Raise
-      // EV_DoPlat(line, perpetualRaise, 0);
-      debugger
+      this.plats.evDoPlat(line, PlatType.PerpetualRaise, 0)
       break
 
     case 88:
       // PlatDownWaitUp
-      // EV_DoPlat(line, downWaitUpStay, 0);
-      debugger
+      this.plats.evDoPlat(line, PlatType.DownWaitUpStay, 0)
       break
 
     case 89:
       // Platform Stop
-      // EV_StopPlat(line);
-      debugger
+      this.plats.evStopPlate(line)
       break
 
     case 90:
@@ -522,8 +519,7 @@ export class Special {
     case 95:
       // Raise floor to nearest height
       // and change texture.
-      // EV_DoPlat(line, raiseToNearestAndChange, 0);
-      debugger
+      this.plats.evDoPlat(line, PlatType.RaiseToNearestAndChange, 0)
       break
 
     case 96:
@@ -560,8 +556,7 @@ export class Special {
 
     case 120:
       // Blazing PlatDownWaitUpStay.
-      // EV_DoPlat(line, blazeDWUS, 0);
-      debugger
+      this.plats.evDoPlat(line, PlatType.BlazeDWUS, 0)
       break
 
     case 126:
