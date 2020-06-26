@@ -285,8 +285,7 @@ export class Data {
 
     let name: string
     for (let i = 0; i < numMapPatches; ++i) {
-      // uppercase for w94_1
-      name = tostring(names, 4 + i * 8, 8).toUpperCase()
+      name = tostring(names, 4 + i * 8, 8)
 
       patchLoopkup[i] = this.wad.checkNumForName(name)
     }
@@ -492,7 +491,7 @@ export class Data {
     }
 
     for (let i = 0; i < this.numTextures; ++i) {
-      if (this.textures[i].name === name) {
+      if (this.textures[i].name.toUpperCase() === name.toUpperCase()) {
         return i
       }
     }

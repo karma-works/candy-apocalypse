@@ -158,6 +158,9 @@ export class Wad {
   // Returns -1 if name not found.
   //
   checkNumForName(name: string): number {
+    // case insensitive
+    name = name.toUpperCase()
+
     // scan backwards so patch lump files take precedence
     for (let i = this.numLumps - 1; i >= 0; --i) {
       if (this.lumpInfo[i].name === name) {
