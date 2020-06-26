@@ -150,3 +150,48 @@ export class Player {
     this.didSecret = false
   }
 }
+
+//
+// INTERMISSION
+// Structure passed e.g. to WI_Start(wb)
+//
+export class WbPlayer {
+  // whether the player is in game
+  in = false
+
+  // Player stats, kills, collected items etc.
+  sKills = 0
+  sItems = 0
+  sSecret = 0
+  sTime = 0
+  frags = [ 0, 0, 0, 0 ]
+  // current score on entry, modified on return
+  score = 0
+
+}
+
+export class WbStart {
+  // episode # (0-2)
+  episode = 0
+
+  // if true, splash the secret level
+  didSecret = false
+
+  // previous and next levels, origin 0
+  last = 0
+  next = 0
+
+  maxKills = 0
+  maxItems = 0
+  maxSecret = 0
+  maxFrags = 0
+
+  // the par time
+  parTime = 0
+
+  // index of this player in game
+  pNum = 0
+
+  players = Array.from({ length: MAX_PLAYERS },
+    () => new WbPlayer())
+}

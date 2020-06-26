@@ -12,7 +12,7 @@ export class Video {
   //
   // V_MarkRect
   //
-  private markRect(x: number, y: number, width: number, height: number): void {
+  markRect(x: number, y: number, width: number, height: number): void {
     this.dirtybox.add(x, y)
     this.dirtybox.add(x + width - 1, y + height - 1)
   }

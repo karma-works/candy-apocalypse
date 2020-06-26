@@ -4,6 +4,7 @@ import { DoorType } from './doors/door-type'
 import { Doors } from './doors'
 import { Floor } from './floor'
 import { FloorType } from './floor/floor-type'
+import { Game } from '../game/game'
 import { GameMode } from '../global/doomdef'
 import { Line } from '../rendering/line'
 import { MObj } from './mobj'
@@ -32,6 +33,9 @@ export class Switch {
   }
   private get floor(): Floor {
     return this.play.floor
+  }
+  private get game(): Game {
+    return this.play.game
   }
   private get plats(): Plats {
     return this.play.plats
@@ -193,9 +197,8 @@ export class Switch {
 
     case 11:
       // Exit level
-      // P_ChangeSwitchTexture(line, 0)
-      // G_ExitLevel()
-      debugger
+      this.changeSwitchTexture(line, false)
+      this.game.exitLevel()
       break
 
     case 14:

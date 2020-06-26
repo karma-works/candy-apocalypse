@@ -290,8 +290,7 @@ export class Special {
 
     case 52:
       // EXIT!
-      // G_ExitLevel();
-      debugger
+      this.game.exitLevel()
       break
 
     case 53:

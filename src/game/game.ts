@@ -2,15 +2,17 @@ import { AmmoType, GameMission, GameMode, GameState, KEY_DOWNARROW, KEY_LEFTARRO
 import { BACKUP_TICS, Net } from '../doom/net'
 import { ButtonCode, DEvent, EvType, GameAction } from '../doom/event'
 import { MObjType, StateNum, mObjInfo, states } from '../doom/info'
-import { Player, PlayerState } from '../doom/player'
+import { Player, PlayerState, WbStart } from '../doom/player'
 import { Doom } from '../doom/doom'
 import { FRACUNIT } from '../misc/fixed'
 import { MAX_HEALTH } from '../play/local'
+import { MObjFlag } from '../play/mobj'
 import { Play } from '../play/setup'
 import { Rendering } from '../rendering/rendering'
 import { SKY_FLAT_NAME } from '../rendering/sky'
 import { Tick } from '../play/tick'
 import { TickCmd } from '../doom/tick-cmd'
+import { Win } from '../win/win'
 import { getTime } from '../system/system'
 import { random } from '../misc/random'
 
@@ -19,6 +21,27 @@ const MAX_PL_MOVE = 0x32
 const SLOW_TURN_TICS = 6
 
 const NUM_KEYS = 256
+
+// DOOM Par Times
+const pars = [
+  [ 0 ],
+  [ 0,30,75,120,90,165,180,180,30,165 ],
+  [ 0,90,90,90,120,90,360,240,30,170 ],
+  [ 0,90,45,90,150,90,90,165,30,135 ],
+]
+
+// DOOM II Par Times
+const cPars = [
+  //  1-10
+  30,90,120,120,90,150,120,120,270,90,
+  // 11-20
+  210,150,150,150,210,150,420,150,210,150,
+  // 21-30
+  240,150,180,150,150,300,330,420,300,180,
+  // 31-32
+  120,30,
+]
+
 
 export class Game {
   gameAction = GameAction.Nothing
@@ -61,6 +84,9 @@ export class Game {
   totalSecret = 0
 
   demoPlayback = false
+
+  // parms for world map / intermission
+  private wmInfo = new WbStart()
 
   //
   // controls (have defaults)
@@ -128,6 +154,9 @@ export class Game {
   }
   private get tick(): Tick {
     return this.play.tick
+  }
+  private get win(): Win {
+    return this.doom.win
   }
 
   constructor(private doom: Doom) { }
@@ -411,6 +440,12 @@ export class Game {
       case GameAction.NewGame:
         this.doNewGame()
         break
+      case GameAction.Completed:
+        await this.doCompleted()
+        break
+      case GameAction.WorldDone:
+        await this.doWorldDone()
+        break
       }
     }
 
@@ -430,6 +465,10 @@ export class Game {
     switch (this.gameState) {
     case GameState.Level:
       await this.tick.ticker()
+      break
+    case GameState.Intermission:
+      this.win.ticker()
+      break
     }
   }
 
@@ -446,6 +485,31 @@ export class Game {
   initPlayer(player: number): void {
     // clear everthing else to default
     this.playerReborn(player)
+  }
+
+  //
+  // G_PlayerFinishLevel
+  // Can when a player completes a level.
+  //
+  private playerFinishLevel(player: number): void {
+    const p = this.players[player]
+
+    p.powers.fill(0)
+    p.cards.fill(false)
+
+    if (p.mo === null) {
+      throw 'p.mo = null'
+    }
+
+    // cancel invisibility
+    p.mo.flags &= ~MObjFlag.Shadow
+    // cancel gun flashes
+    p.extraLight = 0
+    // cancel ir gogles
+    p.fixedColorMap = 0
+    // no palette changes
+    p.damageCount = 0
+    p.bonusCount = 0
   }
 
   //
@@ -492,6 +556,153 @@ export class Game {
       // respawn at the start
       // TODO
     }
+  }
+
+  //
+  // G_DoCompleted
+  //
+
+  private secretExit = false
+  exitLevel(): void {
+    this.secretExit = false
+    this.gameAction = GameAction.Completed
+  }
+
+  private async doCompleted(): Promise<void> {
+    this.gameAction = GameAction.Nothing
+
+    for (let i = 0; i < MAX_PLAYERS; ++i) {
+      if (this.playerInGame[i]) {
+        // take away cards and stuff
+        this.playerFinishLevel(i)
+      }
+    }
+
+    if (this.doom.gameMode !== GameMode.Commercial) {
+      switch (this.gameMap) {
+      case 8:
+        this.gameAction = GameAction.Victory
+        return
+      case 9:
+        for (let i = 0; i < MAX_PLAYERS; ++i) {
+          this.players[i].didSecret = true
+        }
+        break
+      }
+    }
+
+    this.wmInfo.didSecret = this.players[this.consolePlayer].didSecret
+    this.wmInfo.episode = this.gameEpisode - 1
+    this.wmInfo.last = this.gameMap - 1
+
+    // wminfo.next is 0 biased, unlike gamemap
+    if (this.doom.gameMode === GameMode.Commercial) {
+      if (this.secretExit) {
+        switch (this.gameMap) {
+        case 15:
+          this.wmInfo.next = 30
+          break
+        case 31:
+          this.wmInfo.next = 31
+          break
+        }
+      } else {
+        switch (this.gameMap) {
+        case 31:
+        case 32:
+          this.wmInfo.next = 15
+          break
+        default:
+          this.wmInfo.next = this.gameMap
+          break
+        }
+      }
+    } else {
+      if (this.secretExit) {
+        // go to secret level
+        this.wmInfo.next = 8
+      } else if (this.gameMap === 9) {
+        // returning from secret level
+        switch (this.gameEpisode) {
+        case 1:
+          this.wmInfo.next = 3
+          break
+        case 2:
+          this.wmInfo.next = 5
+          break
+        case 3:
+          this.wmInfo.next = 6
+          break
+        case 4:
+          this.wmInfo.next = 2
+          break
+        }
+      } else {
+        // go to next level
+        this.wmInfo.next = this.gameMap
+      }
+    }
+
+    this.wmInfo.maxKills = this.totalKills
+    this.wmInfo.maxItems = this.totalItems
+    this.wmInfo.maxSecret = this.totalSecret
+    this.wmInfo.maxFrags = 0
+    if (this.doom.gameMode === GameMode.Commercial) {
+      this.wmInfo.parTime = 35 * cPars[this.gameMap - 1]
+    } else {
+      this.wmInfo.parTime = 35 * pars[this.gameEpisode][this.gameMap]
+    }
+    this.wmInfo.pNum = this.consolePlayer
+
+    for (let i = 0; i < MAX_PLAYERS; ++i) {
+      this.wmInfo.players[i].in = this.playerInGame[i]
+      this.wmInfo.players[i].sKills = this.players[i].killCount
+      this.wmInfo.players[i].sItems = this.players[i].itemCount
+      this.wmInfo.players[i].sSecret = this.players[i].secretCount
+      this.wmInfo.players[i].sTime = this.tick.levelTime
+      this.wmInfo.players[i].frags = [ ...this.players[i].frags ]
+    }
+
+    this.gameState = GameState.Intermission
+    this.viewActive = false
+
+    await this.win.start(this.wmInfo)
+  }
+
+  //
+  // G_WorldDone
+  //
+  worldDone(): void {
+    this.gameAction = GameAction.WorldDone
+
+    if (this.secretExit) {
+      this.players[this.consolePlayer].didSecret = true
+    }
+
+    if (this.doom.gameMode === GameMode.Commercial) {
+      switch (this.gameMap) {
+      case 15:
+      case 31:
+        if (!this.secretExit) {
+          break
+        }
+        // fallthrough
+      case 6:
+      case 11:
+      case 20:
+      case 30:
+        debugger
+        break
+      }
+    }
+  }
+
+  private async doWorldDone(): Promise<void> {
+    this.gameState = GameState.Level
+    this.gameMap = this.wmInfo.next + 1
+    await this.doLoadLevel()
+    this.gameAction = GameAction.Nothing
+    this.viewActive = true
   }
 
   //

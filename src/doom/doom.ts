@@ -14,6 +14,7 @@ import { Rendering } from '../rendering/rendering'
 import { StatusBar } from '../status/stuff'
 import { Strings } from '../translation/strings'
 import { Wad } from '../wad/wad'
+import { Win } from '../win/win'
 
 async function access(file: string): Promise<boolean> {
   return (await fetch(file)).ok
@@ -67,6 +68,7 @@ export class Doom {
     this.wad,
     this.game,
   )
+  public win = new Win(this)
 
   private get rVideo(): RVIdeo {
     return this.rendering.video
@@ -148,6 +150,9 @@ export class Doom {
         break
       }
       await this.statusBar.drawer(this.rendering.draw.viewHeight === 200, false)
+      break
+    case GameState.Intermission:
+      this.win.drawer()
       break
     case GameState.DemoScreen:
       await this.pageDrawer()
