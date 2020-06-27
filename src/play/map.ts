@@ -3,6 +3,7 @@ import { FRACBITS, FRACUNIT, mul } from '../misc/fixed'
 import { MAP_BLOCK_SHIFT, MAX_RADIUS, PT_ADD_LINES, USE_RANGE } from './local'
 import { MObj, MObjFlag } from './mobj'
 import { BBox } from '../misc/bbox'
+import { Inter } from './inter'
 import { Intercept } from './map-utils/intercept'
 import { Line } from '../rendering/line'
 import { MObjHandler } from './mobj-handler'
@@ -43,6 +44,9 @@ export class Map {
   private specHit = new Array<Line>(MAX_SPECIAL_CROSS)
   private numSpecHit = 0
 
+  private get inter(): Inter {
+    return this.play.inter
+  }
   private get mapUtils(): MapUtils {
     return this.play.mapUtils
   }
@@ -147,8 +151,52 @@ export class Map {
   // PIT_CheckThing
   //
   private checkThing(thing: MObj) {
-    // TODO
-    return true
+    let solid: boolean
+
+    if (!(thing.flags & (MObjFlag.Solid | MObjFlag.Special | MObjFlag.Shootable))) {
+      return true
+    }
+
+    if (this.tmThing === null) {
+      throw 'this.tmThing = null'
+    }
+
+    const blockDist = thing.radius + this.tmThing.radius
+
+    if (Math.abs(thing.x - this.tmX) >= blockDist ||
+      Math.abs(thing.y - this.tmY) >= blockDist
+    ) {
+      // didn't hit it
+      return true
+    }
+
+    // don't clip against self
+    if (thing === this.tmThing) {
+      return true
+    }
+
+    // check for skulls slamming into things
+    if (this.tmThing.flags & MObjFlag.SkullFly) {
+      debugger
+    }
+
+    // missiles can hit other things
+    if (this.tmThing.flags & MObjFlag.Missile) {
+      debugger
+    }
+
+    // check for special pickup
+    if (thing.flags & MObjFlag.Special) {
+      solid = !!(thing.flags & MObjFlag.Solid)
+
+      if (this.tmFlags & MObjFlag.PickUp) {
+        // can remove thing
+        this.inter.touchSpecialThing(thing, this.tmThing)
+      }
+      return !solid
+    }
+
+    return !(thing.flags & MObjFlag.Solid)
   }
 
   //

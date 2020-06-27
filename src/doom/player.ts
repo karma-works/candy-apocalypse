@@ -66,8 +66,8 @@ export class Player {
   pendingWeapon: WeaponType = 0
 
   weaponOwned = new Array<boolean>(WeaponType.NUMWEAPONS).fill(false)
-  ammo = new Array<number>(AmmoType.NUMAMMO).fill(0)
-  maxAmmo = new Array<number>(AmmoType.NUMAMMO).fill(0)
+  ammo = new Array<number>(AmmoType.NUM_AMMO).fill(0)
+  maxAmmo = new Array<number>(AmmoType.NUM_AMMO).fill(0)
 
   // True if button down last tic.
   attackDown = false;

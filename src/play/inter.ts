@@ -1,0 +1,642 @@
+import { AmmoType, Card, GameMode, PowerDuration, PowerType, Skill, WeaponType } from '../global/doomdef'
+import { MObj, MObjFlag } from './mobj'
+import { Doom } from '../doom/doom'
+import { FRACUNIT } from '../misc/fixed'
+import { Game } from '../game/game'
+import { MAX_HEALTH } from './local'
+import { MObjHandler } from './mobj-handler'
+import { Play } from './setup'
+import { Player } from '../doom/player'
+import { SpriteNum } from '../doom/info'
+import { Strings } from '../translation/strings'
+import { weaponInfo } from '../doom/items'
+
+const BONUS_ADD = 6
+
+// a weapon is found with two clip loads,
+// a big item has five clip loads
+const maxAmmo = [ 200, 50, 300, 50 ]
+const clipAmmo = [ 10, 4, 20, 1 ]
+
+export class Inter {
+
+  private get doom(): Doom {
+    return this.play.doom
+  }
+  private get game(): Game {
+    return this.play.game
+  }
+  private get mObjHandler(): MObjHandler {
+    return this.play.mObjHandler
+  }
+  private get strings(): Strings {
+    return this.play.doom.strings
+  }
+  constructor(private play: Play) { }
+
+  //
+  // GET STUFF
+  //
+
+  //
+  // P_GiveAmmo
+  // Num is the number of clip loads,
+  // not the individual count (0= 1/2 clip).
+  // Returns false if the ammo can't be picked up at all
+  //
+  private giveAmmo(player: Player, ammo: AmmoType, num: number): boolean {
+    if (ammo === AmmoType.NoAmmo) {
+      return false
+    }
+
+    if (ammo < 0 || ammo > AmmoType.NUM_AMMO) {
+      throw `P_GiveAmmo: bad type ${ammo}`
+    }
+
+    if (player.ammo[ammo] === player.maxAmmo[ammo]) {
+      return false
+    }
+
+    if (num) {
+      num *= clipAmmo[ammo]
+    } else {
+      num = clipAmmo[ammo] / 2 >> 0
+    }
+
+    if (this.game.gameSkill === Skill.Baby ||
+      this.game.gameSkill === Skill.Nightmare
+    ) {
+      // give double ammo in trainer mode,
+      // you'll need in nightmare
+      num <<= 1
+    }
+
+    const oldAmmo = player.ammo[ammo]
+    player.ammo[ammo] += num
+
+    if (player.ammo[ammo] > player.maxAmmo[ammo]) {
+      player.ammo[ammo] = player.maxAmmo[ammo]
+    }
+
+    // If non zero ammo,
+    // don't change up weapons,
+    // player was lower on purpose.
+    if (oldAmmo) {
+      return true
+    }
+
+    // We were down to zero,
+    // so select a new weapon.
+    // Preferences are not user selectable.
+    switch (ammo) {
+    case AmmoType.Clip:
+      if (player.readyWeapon === WeaponType.Fist) {
+        if (player.weaponOwned[WeaponType.Chaingun]) {
+          player.pendingWeapon = WeaponType.Chaingun
+        } else {
+          player.pendingWeapon = WeaponType.Pistol
+        }
+      }
+      break
+    case AmmoType.Shell:
+      if (player.readyWeapon === WeaponType.Fist ||
+        player.readyWeapon === WeaponType.Pistol
+      ) {
+        if (player.weaponOwned[WeaponType.Shotgun]) {
+          player.pendingWeapon = WeaponType.Shotgun
+        }
+      }
+      break
+    case AmmoType.Cell:
+      if (player.readyWeapon === WeaponType.Fist ||
+        player.readyWeapon === WeaponType.Pistol
+      ) {
+        if (player.weaponOwned[WeaponType.Plasma]) {
+          player.pendingWeapon = WeaponType.Plasma
+        }
+      }
+      break
+    case AmmoType.Misl:
+      if (player.readyWeapon === WeaponType.Fist) {
+        if (player.weaponOwned[WeaponType.Missile]) {
+          player.pendingWeapon = WeaponType.Missile
+        }
+      }
+      break
+    }
+
+    return true
+  }
+
+  //
+  // P_GiveWeapon
+  // The weapon name may have a MF_DROPPED flag ored in.
+  //
+  private giveWeapon(player: Player, weapon: WeaponType, dropped: boolean): boolean {
+    if (this.game.netGame &&
+      this.game.deathMatch !== 2 &&
+      !dropped
+    ) {
+      // leave placed weapons forever on net games
+      if (player.weaponOwned[weapon]) {
+        return false
+      }
+
+      player.bonusCount += BONUS_ADD
+      player.weaponOwned[weapon] = true
+
+      if (this.game.deathMatch) {
+        this.giveAmmo(player, weaponInfo[weapon].ammo, 5)
+      } else {
+        this.giveAmmo(player, weaponInfo[weapon].ammo, 2)
+      }
+      player.pendingWeapon = weapon
+
+      if (player === this.game.players[this.game.consolePlayer]) {
+        return false
+      }
+    }
+
+    let gaveAmmo: boolean
+    if (weaponInfo[weapon].ammo !== AmmoType.NoAmmo) {
+      // give one clip with a dropped weapon,
+      // two clips with a found weapon
+      if (dropped) {
+        gaveAmmo = this.giveAmmo(player, weaponInfo[weapon].ammo, 1)
+      } else {
+        gaveAmmo = this.giveAmmo(player, weaponInfo[weapon].ammo, 2)
+      }
+    } else {
+      gaveAmmo = false
+    }
+
+    let gaveWeapon: boolean
+    if (player.weaponOwned[weapon]) {
+      gaveWeapon = false
+    } else {
+      gaveWeapon = true
+      player.weaponOwned[weapon] = true
+      player.pendingWeapon = weapon
+    }
+
+    return gaveWeapon || gaveAmmo
+  }
+
+  //
+  // P_GiveBody
+  // Returns false if the body isn't needed at all
+  //
+  private giveBody(player: Player, num: number): boolean {
+    if (player.health >= MAX_HEALTH) {
+      return false
+    }
+
+    player.health += num
+    if (player.health > MAX_HEALTH) {
+      player.health = MAX_HEALTH
+    }
+    if (player.mo === null) {
+      throw 'player.mo = null'
+    }
+    player.mo.health = player.health
+
+    return true
+  }
+
+  //
+  // P_GiveArmor
+  // Returns false if the armor is worse
+  // than the current armor.
+  //
+  private giveArmor(player: Player, armorType: number): boolean {
+    const hits = armorType * 100
+    if (player.armorPoints >= hits) {
+      // don't pick up
+      return false
+    }
+
+    player.armorType = armorType
+    player.armorPoints = hits
+
+    return true
+  }
+
+  //
+  // P_GiveCard
+  //
+  private giveCard(player: Player, card: Card): void {
+    if (player.cards[card]) {
+      return
+    }
+    player.bonusCount = BONUS_ADD
+    player.cards[card] = true
+  }
+
+  //
+  // P_GivePower
+  //
+  private givePower(player: Player, power: PowerType): boolean {
+    if (power === PowerType.Invulnerability) {
+      player.powers[power] = PowerDuration.InvulnTics
+      return true
+    }
+    if (power === PowerType.Invisibility) {
+      player.powers[power] = PowerDuration.InvisTics
+      if (player.mo === null) {
+        throw 'player.mo = null'
+      }
+      player.mo.flags |= MObjFlag.Shadow
+      return true
+    }
+    if (power === PowerType.Infrared) {
+      player.powers[power] = PowerDuration.InfraTics
+      return true
+    }
+    if (power === PowerType.Ironfeet) {
+      player.powers[power] = PowerDuration.IronTics
+      return true
+    }
+    if (power === PowerType.Strength) {
+      this.giveBody(player, 100)
+      player.powers[power] = 1
+      return true
+    }
+
+    if (player.powers[power]) {
+      // already got it
+      return false
+    }
+
+    player.powers[power] = 1
+    return true
+  }
+
+  //
+  // P_TouchSpecialThing
+  //
+  touchSpecialThing(special: MObj, toucher: MObj): void {
+    const delta = special.z - toucher.z
+
+    if (delta > toucher.height ||
+      delta < -8 * FRACUNIT
+    ) {
+      // out of reach
+      return
+    }
+
+    const player = toucher.player
+
+    // Dead thing touching.
+    // Can happen with a sliding player corpse.
+    if (toucher.health <= 0) {
+      return
+    }
+
+    if (player === null) {
+      throw 'player = null'
+    }
+    if (player.mo === null) {
+      throw 'player.mo = null'
+    }
+
+    // Identify by sprite.
+    switch (special.sprite) {
+    // armor
+    case SpriteNum.Arm1:
+      if (!this.giveArmor(player, 1)) {
+        return
+      }
+      player.message = this.strings.gotarmor
+      break
+
+    case SpriteNum.Arm2:
+      if (!this.giveArmor(player, 2)) {
+        return
+      }
+      player.message = this.strings.gotmega
+      break
+
+      // bonus items
+    case SpriteNum.Bon1:
+      // can go over 100%
+      player.health++
+      if (player.health > 200) {
+        player.health = 200
+      }
+      player.mo.health = player.health
+      player.message = this.strings.goththbonus
+      break
+
+    case SpriteNum.Bon2:
+      // can go over 100%
+      player.armorPoints++
+      if (player.armorPoints > 200) {
+        player.armorPoints = 200
+      }
+      if (!player.armorType) {
+        player.armorType = 1
+      }
+      player.message = this.strings.gotarmbonus
+      break
+
+    case SpriteNum.Soul:
+      player.health += 100
+      if (player.health > 200) {
+        player.health = 200
+      }
+      player.mo.health = player.health
+      player.message = this.strings.gotsuper
+      // sound = sfx_getpow;
+      break
+
+    case SpriteNum.Mega:
+      if (this.doom.gameMode !== GameMode.Commercial) {
+        return
+      }
+      player.health = 200
+      player.mo.health = player.health
+      this.giveArmor(player, 2)
+      player.message = this.strings.gotmsphere
+      // sound = sfx_getpow;
+      break
+
+      // cards
+      // leave cards for everyone
+    case SpriteNum.Bkey:
+      if (!player.cards[Card.BlueCard]) {
+        player.message = this.strings.gotbluecard
+      }
+      this.giveCard(player, Card.BlueCard)
+      if (!this.game.netGame) {
+        break
+      }
+      return
+
+    case SpriteNum.Ykey:
+      if (!player.cards[Card.YellowCard]) {
+        player.message = this.strings.gotyelwcard
+      }
+      this.giveCard(player, Card.YellowCard)
+      if (!this.game.netGame) {
+        break
+      }
+      return
+
+    case SpriteNum.Rkey:
+      if (!player.cards[Card.RedCard]) {
+        player.message = this.strings.gotredcard
+      }
+      this.giveCard(player, Card.RedCard)
+      if (!this.game.netGame) {
+        break
+      }
+      return
+
+    case SpriteNum.Bsku:
+      if (!player.cards[Card.BlueSkull]) {
+        player.message = this.strings.gotblueskul
+      }
+      this.giveCard(player, Card.BlueSkull)
+      if (!this.game.netGame) {
+        break
+      }
+      return
+
+    case SpriteNum.Ysku:
+      if (!player.cards[Card.YellowSkull]) {
+        player.message = this.strings.gotyelwskul
+      }
+      this.giveCard(player, Card.YellowSkull)
+      if (!this.game.netGame) {
+        break
+      }
+      return
+
+    case SpriteNum.Rsku:
+      if (!player.cards[Card.RedSkull]) {
+        player.message = this.strings.gotredskull
+      }
+      this.giveCard(player, Card.RedSkull)
+      if (!this.game.netGame) {
+        break
+      }
+      return
+
+      // medikits, heals
+    case SpriteNum.Stim:
+      if (!this.giveBody(player, 10)) {
+        return
+      }
+      player.message = this.strings.gotstim
+      break
+
+    case SpriteNum.Medi:
+      if (!this.giveBody(player, 25)) {
+        return
+      }
+
+      if (player.health < 25) {
+        player.message = this.strings.gotmedineed
+      } else {
+        player.message = this.strings.gotmedikit
+      }
+      break
+
+
+      // power ups
+    case SpriteNum.Pinv:
+      if (!this.givePower(player, PowerType.Invulnerability)) {
+        return
+      }
+      player.message = this.strings.gotinvul
+      // sound = sfx_getpow;
+      break
+
+    case SpriteNum.Pstr:
+      if (!this.givePower(player, PowerType.Strength)) {
+        return
+      }
+      player.message = this.strings.gotberserk
+      if (player.readyWeapon !== WeaponType.Fist) {
+        player.pendingWeapon = WeaponType.Fist
+      }
+      // sound = sfx_getpow;
+      break
+
+    case SpriteNum.Pins:
+      if (!this.givePower(player, PowerType.Invisibility)) {
+        return
+      }
+      player.message = this.strings.gotinvis
+      // sound = sfx_getpow;
+      break
+
+    case SpriteNum.Suit:
+      if (!this.givePower(player, PowerType.Ironfeet)) {
+        return
+      }
+      player.message = this.strings.gotsuit
+      // sound = sfx_getpow;
+      break
+
+    case SpriteNum.Pmap:
+      if (!this.givePower(player, PowerType.Allmap)) {
+        return
+      }
+      player.message = this.strings.gotmap
+      // sound = sfx_getpow;
+      break
+
+    case SpriteNum.Pvis:
+      if (!this.givePower(player, PowerType.Infrared)) {
+        return
+      }
+      player.message = this.strings.gotvisor
+      // sound = sfx_getpow;
+      break
+
+      // ammo
+    case SpriteNum.Clip:
+      if (special.flags & MObjFlag.Dropped) {
+        if (!this.giveAmmo(player, AmmoType.Clip, 0)) {
+          return
+        }
+      } else {
+        if (!this.giveAmmo(player, AmmoType.Clip, 1)) {
+          return
+        }
+      }
+      player.message = this.strings.gotclip
+      break
+
+    case SpriteNum.Ammo:
+      if (!this.giveAmmo(player, AmmoType.Clip, 5)) {
+        return
+      }
+      player.message = this.strings.gotclipbox
+      break
+
+    case SpriteNum.Rock:
+      if (!this.giveAmmo(player, AmmoType.Misl, 1)) {
+        return
+      }
+      player.message = this.strings.gotrocket
+      break
+
+    case SpriteNum.Brok:
+      if (!this.giveAmmo(player, AmmoType.Misl, 5)) {
+        return
+      }
+      player.message = this.strings.gotrockbox
+      break
+
+    case SpriteNum.Cell:
+      if (!this.giveAmmo(player, AmmoType.Cell, 1)) {
+        return
+      }
+      player.message = this.strings.gotcell
+      break
+
+    case SpriteNum.Celp:
+      if (!this.giveAmmo(player, AmmoType.Cell, 5)) {
+        return
+      }
+      player.message = this.strings.gotcellbox
+      break
+
+    case SpriteNum.Shel:
+      if (!this.giveAmmo(player, AmmoType.Shell, 1)) {
+        return
+      }
+      player.message = this.strings.gotshells
+      break
+
+    case SpriteNum.Sbox:
+      if (!this.giveAmmo(player, AmmoType.Shell, 5)) {
+        return
+      }
+      player.message = this.strings.gotshellbox
+      break
+
+    case SpriteNum.Bpak:
+      if (!player.backpack) {
+        for (let i = 0; i < AmmoType.NUM_AMMO; i++) {
+          player.maxAmmo[i] *= 2
+        }
+        player.backpack = true
+      }
+      for (let i = 0; i < AmmoType.NUM_AMMO; i++) {
+        this.giveAmmo(player, i, 1)
+      }
+      player.message = this.strings.gotbackpack
+      break
+
+      // weapons
+    case SpriteNum.Bfug:
+      if (!this.giveWeapon(player, WeaponType.BFG, false)) {
+        return
+      }
+      player.message = this.strings.gotbfg9000
+      // sound = sfx_wpnup;
+      break
+
+    case SpriteNum.Mgun:
+      if (!this.giveWeapon(player, WeaponType.Chaingun, !!(special.flags & MObjFlag.Dropped))) {
+        return
+      }
+      player.message = this.strings.gotchaingun
+      // sound = sfx_wpnup;
+      break
+
+    case SpriteNum.Csaw:
+      if (!this.giveWeapon(player, WeaponType.Chainsaw, false)) {
+        return
+      }
+      player.message = this.strings.gotchainsaw
+      // sound = sfx_wpnup;
+      break
+
+    case SpriteNum.Laun:
+      if (!this.giveWeapon(player, WeaponType.Missile, false)) {
+        return
+      }
+      player.message = this.strings.gotlauncher
+      // sound = sfx_wpnup;
+      break
+
+    case SpriteNum.Plas:
+      if (!this.giveWeapon(player, WeaponType.Plasma, false)) {
+        return
+      }
+      player.message = this.strings.gotplasma
+      // sound = sfx_wpnup;
+      break
+
+    case SpriteNum.Shot:
+      if (!this.giveWeapon(player, WeaponType.Shotgun, !!(special.flags & MObjFlag.Dropped))) {
+        return
+      }
+      player.message = this.strings.gotshotgun
+      // sound = sfx_wpnup;
+      break
+
+    case SpriteNum.Sgn2:
+      if (!this.giveWeapon(player, WeaponType.Supershotgun, !!(special.flags & MObjFlag.Dropped))) {
+        return
+      }
+      player.message = this.strings.gotshotgun2
+      // sound = sfx_wpnup;
+      break
+
+    default:
+      throw 'P_SpecialThing: Unknown gettable thing'
+    }
+
+    if (special.flags & MObjFlag.CountItem) {
+      player.itemCount++
+    }
+
+    this.mObjHandler.removeMObj(special)
+    player.bonusCount += BONUS_ADD
+  }
+}

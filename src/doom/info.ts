@@ -149,25 +149,25 @@ export const enum StateNum {
   Null,
   Lightdone,
   Punch,
-  Punchdown,
-  Punchup,
+  PunchDown,
+  PunchUp,
   Punch1,
   Punch2,
   Punch3,
   Punch4,
   Punch5,
   Pistol,
-  Pistoldown,
-  Pistolup,
+  PistolDown,
+  PistolUp,
   Pistol1,
   Pistol2,
   Pistol3,
   Pistol4,
-  Pistolflash,
-  Sgun,
-  Sgundown,
-  Sgunup,
-  Sgun1,
+  PistolFlash,
+  SGun,
+  SGunDown,
+  SGunup,
+  SGun1,
   Sgun2,
   Sgun3,
   Sgun4,
@@ -176,12 +176,12 @@ export const enum StateNum {
   Sgun7,
   Sgun8,
   Sgun9,
-  Sgunflash1,
+  SGunFlash1,
   Sgunflash2,
-  Dsgun,
-  Dsgundown,
-  Dsgunup,
-  Dsgun1,
+  DSGun,
+  DSGunDown,
+  DSGunUp,
+  DSGun1,
   Dsgun2,
   Dsgun3,
   Dsgun4,
@@ -193,48 +193,48 @@ export const enum StateNum {
   Dsgun10,
   Dsnr1,
   Dsnr2,
-  Dsgunflash1,
+  DSGunFlash1,
   Dsgunflash2,
   Chain,
-  Chaindown,
-  Chainup,
+  ChainDown,
+  ChainUp,
   Chain1,
   Chain2,
   Chain3,
-  Chainflash1,
+  ChainFlash1,
   Chainflash2,
   Missile,
-  Missiledown,
-  Missileup,
+  MissileDown,
+  MissileUp,
   Missile1,
   Missile2,
   Missile3,
-  Missileflash1,
+  MissileFlash1,
   Missileflash2,
   Missileflash3,
   Missileflash4,
   Saw,
   Sawb,
-  Sawdown,
-  Sawup,
+  SawDown,
+  SawUp,
   Saw1,
   Saw2,
   Saw3,
   Plasma,
-  Plasmadown,
-  Plasmaup,
+  PlasmaDown,
+  PlasmaUp,
   Plasma1,
   Plasma2,
-  Plasmaflash1,
+  PlasmaFlash1,
   Plasmaflash2,
-  Bfg,
-  Bfgdown,
-  Bfgup,
-  Bfg1,
+  BFG,
+  BFGDown,
+  BFGUp,
+  BFGg1,
   Bfg2,
   Bfg3,
   Bfg4,
-  Bfgflash1,
+  BFGFlash1,
   Bfgflash2,
   Blood1,
   Blood2,
@@ -1322,9 +1322,9 @@ export const states = [
   // S_PUNCH
   new State(SpriteNum.Pung, 0, 1, null/* A_WeaponReady */, StateNum.Punch, 0, 0),
   // S_PUNCHDOWN
-  new State(SpriteNum.Pung, 0, 1, null/* A_Lower */, StateNum.Punchdown, 0, 0),
+  new State(SpriteNum.Pung, 0, 1, null/* A_Lower */, StateNum.PunchDown, 0, 0),
   // S_PUNCHUP
-  new State(SpriteNum.Pung, 0, 1, null/* A_Raise */, StateNum.Punchup, 0, 0),
+  new State(SpriteNum.Pung, 0, 1, null/* A_Raise */, StateNum.PunchUp, 0, 0),
   // S_PUNCH1
   new State(SpriteNum.Pung, 1, 4, null, StateNum.Punch2, 0, 0),
   // S_PUNCH2
@@ -1338,9 +1338,9 @@ export const states = [
   // S_PISTOL
   new State(SpriteNum.Pisg, 0, 1, null/* A_WeaponReady */, StateNum.Pistol, 0, 0),
   // S_PISTOLDOWN
-  new State(SpriteNum.Pisg, 0, 1, null/* A_Lower */, StateNum.Pistoldown, 0, 0),
+  new State(SpriteNum.Pisg, 0, 1, null/* A_Lower */, StateNum.PistolDown, 0, 0),
   // S_PISTOLUP
-  new State(SpriteNum.Pisg, 0, 1, null/* A_Raise */, StateNum.Pistolup, 0, 0),
+  new State(SpriteNum.Pisg, 0, 1, null/* A_Raise */, StateNum.PistolUp, 0, 0),
   // S_PISTOL1
   new State(SpriteNum.Pisg, 0, 4, null, StateNum.Pistol2, 0, 0),
   // S_PISTOL2
@@ -1352,11 +1352,11 @@ export const states = [
   // S_PISTOLFLASH
   new State(SpriteNum.Pisf, 32768, 7, null/* A_Light1 */, StateNum.Lightdone, 0, 0),
   // S_SGUN
-  new State(SpriteNum.Shtg, 0, 1, null/* A_WeaponReady */, StateNum.Sgun, 0, 0),
+  new State(SpriteNum.Shtg, 0, 1, null/* A_WeaponReady */, StateNum.SGun, 0, 0),
   // S_SGUNDOWN
-  new State(SpriteNum.Shtg, 0, 1, null/* A_Lower */, StateNum.Sgundown, 0, 0),
+  new State(SpriteNum.Shtg, 0, 1, null/* A_Lower */, StateNum.SGunDown, 0, 0),
   // S_SGUNUP
-  new State(SpriteNum.Shtg, 0, 1, null/* A_Raise */, StateNum.Sgunup, 0, 0),
+  new State(SpriteNum.Shtg, 0, 1, null/* A_Raise */, StateNum.SGunup, 0, 0),
   // S_SGUN1
   new State(SpriteNum.Shtg, 0, 3, null, StateNum.Sgun2, 0, 0),
   // S_SGUN2
@@ -1374,17 +1374,17 @@ export const states = [
   // S_SGUN8
   new State(SpriteNum.Shtg, 0, 3, null, StateNum.Sgun9, 0, 0),
   // S_SGUN9
-  new State(SpriteNum.Shtg, 0, 7, null/* A_ReFire */, StateNum.Sgun, 0, 0),
+  new State(SpriteNum.Shtg, 0, 7, null/* A_ReFire */, StateNum.SGun, 0, 0),
   // S_SGUNFLASH1
   new State(SpriteNum.Shtf, 32768, 4, null/* A_Light1 */, StateNum.Sgunflash2, 0, 0),
   // S_SGUNFLASH2
   new State(SpriteNum.Shtf, 32769, 3, null/* A_Light2 */, StateNum.Lightdone, 0, 0),
   // S_DSGUN
-  new State(SpriteNum.Sht2, 0, 1, null/* A_WeaponReady */, StateNum.Dsgun, 0, 0),
+  new State(SpriteNum.Sht2, 0, 1, null/* A_WeaponReady */, StateNum.DSGun, 0, 0),
   // S_DSGUNDOWN
-  new State(SpriteNum.Sht2, 0, 1, null/* A_Lower */, StateNum.Dsgundown, 0, 0),
+  new State(SpriteNum.Sht2, 0, 1, null/* A_Lower */, StateNum.DSGunDown, 0, 0),
   // S_DSGUNUP
-  new State(SpriteNum.Sht2, 0, 1, null/* A_Raise */, StateNum.Dsgunup, 0, 0),
+  new State(SpriteNum.Sht2, 0, 1, null/* A_Raise */, StateNum.DSGunUp, 0, 0),
   // S_DSGUN1
   new State(SpriteNum.Sht2, 0, 3, null, StateNum.Dsgun2, 0, 0),
   // S_DSGUN2
@@ -1404,11 +1404,11 @@ export const states = [
   // S_DSGUN9
   new State(SpriteNum.Sht2, 7, 6, null/* A_CloseShotgun2 */, StateNum.Dsgun10, 0, 0),
   // S_DSGUN10
-  new State(SpriteNum.Sht2, 0, 5, null/* A_ReFire */, StateNum.Dsgun, 0, 0),
+  new State(SpriteNum.Sht2, 0, 5, null/* A_ReFire */, StateNum.DSGun, 0, 0),
   // S_DSNR1
   new State(SpriteNum.Sht2, 1, 7, null, StateNum.Dsnr2, 0, 0),
   // S_DSNR2
-  new State(SpriteNum.Sht2, 0, 3, null, StateNum.Dsgundown, 0, 0),
+  new State(SpriteNum.Sht2, 0, 3, null, StateNum.DSGunDown, 0, 0),
   // S_DSGUNFLASH1
   new State(SpriteNum.Sht2, 32776, 5, null/* A_Light1 */, StateNum.Dsgunflash2, 0, 0),
   // S_DSGUNFLASH2
@@ -1416,9 +1416,9 @@ export const states = [
   // S_CHAIN
   new State(SpriteNum.Chgg, 0, 1, null/* A_WeaponReady */, StateNum.Chain, 0, 0),
   // S_CHAINDOWN
-  new State(SpriteNum.Chgg, 0, 1, null/* A_Lower */, StateNum.Chaindown, 0, 0),
+  new State(SpriteNum.Chgg, 0, 1, null/* A_Lower */, StateNum.ChainDown, 0, 0),
   // S_CHAINUP
-  new State(SpriteNum.Chgg, 0, 1, null/* A_Raise */, StateNum.Chainup, 0, 0),
+  new State(SpriteNum.Chgg, 0, 1, null/* A_Raise */, StateNum.ChainUp, 0, 0),
   // S_CHAIN1
   new State(SpriteNum.Chgg, 0, 4, null/* A_FireCGun */, StateNum.Chain2, 0, 0),
   // S_CHAIN2
@@ -1432,9 +1432,9 @@ export const states = [
   // S_MISSILE
   new State(SpriteNum.Misg, 0, 1, null/* A_WeaponReady */, StateNum.Missile, 0, 0),
   // S_MISSILEDOWN
-  new State(SpriteNum.Misg, 0, 1, null/* A_Lower */, StateNum.Missiledown, 0, 0),
+  new State(SpriteNum.Misg, 0, 1, null/* A_Lower */, StateNum.MissileDown, 0, 0),
   // S_MISSILEUP
-  new State(SpriteNum.Misg, 0, 1, null/* A_Raise */, StateNum.Missileup, 0, 0),
+  new State(SpriteNum.Misg, 0, 1, null/* A_Raise */, StateNum.MissileUp, 0, 0),
   // S_MISSILE1
   new State(SpriteNum.Misg, 1, 8, null/* A_GunFlash */, StateNum.Missile2, 0, 0),
   // S_MISSILE2
@@ -1454,9 +1454,9 @@ export const states = [
   // S_SAWB
   new State(SpriteNum.Sawg, 3, 4, null/* A_WeaponReady */, StateNum.Saw, 0, 0),
   // S_SAWDOWN
-  new State(SpriteNum.Sawg, 2, 1, null/* A_Lower */, StateNum.Sawdown, 0, 0),
+  new State(SpriteNum.Sawg, 2, 1, null/* A_Lower */, StateNum.SawDown, 0, 0),
   // S_SAWUP
-  new State(SpriteNum.Sawg, 2, 1, null/* A_Raise */, StateNum.Sawup, 0, 0),
+  new State(SpriteNum.Sawg, 2, 1, null/* A_Raise */, StateNum.SawUp, 0, 0),
   // S_SAW1
   new State(SpriteNum.Sawg, 0, 4, null/* A_Saw */, StateNum.Saw2, 0, 0),
   // S_SAW2
@@ -1466,9 +1466,9 @@ export const states = [
   // S_PLASMA
   new State(SpriteNum.Plsg, 0, 1, null/* A_WeaponReady */, StateNum.Plasma, 0, 0),
   // S_PLASMADOWN
-  new State(SpriteNum.Plsg, 0, 1, null/* A_Lower */, StateNum.Plasmadown, 0, 0),
+  new State(SpriteNum.Plsg, 0, 1, null/* A_Lower */, StateNum.PlasmaDown, 0, 0),
   // S_PLASMAUP
-  new State(SpriteNum.Plsg, 0, 1, null/* A_Raise */, StateNum.Plasmaup, 0, 0),
+  new State(SpriteNum.Plsg, 0, 1, null/* A_Raise */, StateNum.PlasmaUp, 0, 0),
   // S_PLASMA1
   new State(SpriteNum.Plsg, 0, 3, null/* A_FirePlasma */, StateNum.Plasma2, 0, 0),
   // S_PLASMA2
@@ -1478,11 +1478,11 @@ export const states = [
   // S_PLASMAFLASH2
   new State(SpriteNum.Plsf, 32769, 4, null/* A_Light1 */, StateNum.Lightdone, 0, 0),
   // S_BFG
-  new State(SpriteNum.Bfgg, 0, 1, null/* A_WeaponReady */, StateNum.Bfg, 0, 0),
+  new State(SpriteNum.Bfgg, 0, 1, null/* A_WeaponReady */, StateNum.BFG, 0, 0),
   // S_BFGDOWN
-  new State(SpriteNum.Bfgg, 0, 1, null/* A_Lower */, StateNum.Bfgdown, 0, 0),
+  new State(SpriteNum.Bfgg, 0, 1, null/* A_Lower */, StateNum.BFGDown, 0, 0),
   // S_BFGUP
-  new State(SpriteNum.Bfgg, 0, 1, null/* A_Raise */, StateNum.Bfgup, 0, 0),
+  new State(SpriteNum.Bfgg, 0, 1, null/* A_Raise */, StateNum.BFGUp, 0, 0),
   // S_BFG1
   new State(SpriteNum.Bfgg, 0, 20, null/* A_BFGsound */, StateNum.Bfg2, 0, 0),
   // S_BFG2
@@ -1490,7 +1490,7 @@ export const states = [
   // S_BFG3
   new State(SpriteNum.Bfgg, 1, 10, null/* A_FireBFG */, StateNum.Bfg4, 0, 0),
   // S_BFG4
-  new State(SpriteNum.Bfgg, 1, 20, null/* A_ReFire */, StateNum.Bfg, 0, 0),
+  new State(SpriteNum.Bfgg, 1, 20, null/* A_ReFire */, StateNum.BFG, 0, 0),
   // S_BFGFLASH1
   new State(SpriteNum.Bfgf, 32768, 11, null/* A_Light1 */, StateNum.Bfgflash2, 0, 0),
   // S_BFGFLASH2

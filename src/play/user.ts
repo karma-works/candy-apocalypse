@@ -3,9 +3,11 @@ import { Cheat, Player, PlayerState } from '../doom/player'
 import { FRACUNIT, mul } from '../misc/fixed'
 import { StateNum, states } from '../doom/info'
 import { ButtonCode } from '../doom/event'
+import { MObjFlag } from './mobj'
 import { MObjHandler } from './mobj-handler'
 import { Map } from './map'
 import { Play } from './setup'
+import { PowerType } from '../global/doomdef'
 import { Tick } from './tick'
 import { VIEW_HEIGHT } from './local'
 
@@ -176,6 +178,39 @@ export class User {
       }
     } else {
       player.useDown = false
+    }
+
+    // Counters, time dependend power ups.
+
+    // Strength counts up to diminish fade.
+    if (player.powers[PowerType.Strength]) {
+      player.powers[PowerType.Strength]++
+    }
+
+    if (player.powers[PowerType.Invulnerability]) {
+      player.powers[PowerType.Invulnerability]--
+    }
+
+    if (player.powers[PowerType.Invisibility]) {
+      if (!--player.powers[PowerType.Invisibility]) {
+        player.mo.flags &= ~MObjFlag.Shadow
+      }
+    }
+
+    if (player.powers[PowerType.Infrared]) {
+      player.powers[PowerType.Infrared]--
+    }
+
+    if (player.powers[PowerType.Ironfeet]) {
+      player.powers[PowerType.Ironfeet]--
+    }
+
+    if (player.damageCount) {
+      player.damageCount--
+    }
+
+    if (player.bonusCount) {
+      player.bonusCount--
     }
   }
 }

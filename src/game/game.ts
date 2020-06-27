@@ -546,7 +546,7 @@ export class Game {
     p.weaponOwned[WeaponType.Pistol] = true
     p.ammo[AmmoType.Clip] = 50
 
-    for (let i = 0; i < AmmoType.NUMAMMO; ++i) {
+    for (let i = 0; i < AmmoType.NUM_AMMO; ++i) {
       // p.maxAmmo[i] = maxammo[i]
     }
   }

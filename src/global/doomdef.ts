@@ -123,9 +123,9 @@ export const enum AmmoType {
   // Missile launcher.
   Misl,
 
-  NUMAMMO,
+  NUM_AMMO,
   // Unlimited for chainsaw / fist.
-  Noammo,
+  NoAmmo,
 }
 
 // Power up artifacts.
@@ -138,6 +138,18 @@ export const enum PowerType {
   Infrared,
 
   NUMPOWERS,
+}
+
+//
+// Power up durations,
+//  how many seconds till expiration,
+//  assuming TICRATE is 35 ticks/second.
+//
+export enum PowerDuration {
+  InvulnTics = 30 * TICRATE,
+  InvisTics = 60 * TICRATE,
+  InfraTics = 120 * TICRATE,
+  IronTics = 60 * TICRATE,
 }
 
 //

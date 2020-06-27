@@ -7,6 +7,7 @@ import { Doors } from './doors'
 import { FRACBITS } from '../misc/fixed'
 import { Floor } from './floor'
 import { Game } from '../game/game'
+import { Inter } from './inter'
 import { Lights } from './lights'
 import { Line } from '../rendering/line'
 import { MObj } from './mobj'
@@ -86,6 +87,7 @@ export class Play {
   public tick = new Tick(this)
   public doors = new Doors(this)
   public floor = new Floor(this)
+  public inter = new Inter(this)
   public lights = new Lights(this)
   public map = new Map(this)
   public mapUtils = new MapUtils(this)
