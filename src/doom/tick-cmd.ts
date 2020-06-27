@@ -3,32 +3,58 @@
 // Mainly movements/button commands per game tick,
 // plus a checksum for internal state consistency.
 export class TickCmd {
-  // *2048 for move
-  forwardMove = 0
-  // *2048 for move
-  sideMove = 0
-  // <<16 for angle delta
-  angleTurn = 0
-  // checks for net game
-  consistancy = 0
-  chatChar = 0
-  buttons = 0
+  static sizeOf = 8
 
-  reset(): void {
-    this.forwardMove = 0
-    this.sideMove = 0
-    this.angleTurn = 0
-    this.consistancy = 0
-    this.chatChar = 0
-    this.buttons = 0
+  private chars = new Int8Array(this.bytes.buffer, this.bytes.byteOffset, this.bytes.byteLength)
+  private shorts = new Int16Array(this.bytes.buffer, this.bytes.byteOffset, this.bytes.byteLength / 2)
+
+  // *2048 for move
+  get forwardMove(): number {
+    return this.chars[0]
+  }
+  set forwardMove(v: number) {
+    this.chars[0] = v
+  }
+  // *2048 for move
+  get sideMove(): number {
+    return this.chars[1]
+  }
+  set sideMove(v: number) {
+    this.chars[1] = v
+  }
+  // <<16 for angle delta
+  get angleTurn(): number {
+    return this.shorts[1]
+  }
+  set angleTurn(v: number) {
+    this.shorts[1] = v
+  }
+  // checks for net game
+  get consistancy(): number {
+    return this.shorts[2]
+  }
+  set consistancy(v: number) {
+    this.shorts[2] = v
+  }
+  get chatChar(): number {
+    return this.bytes[6]
+  }
+  set chatChar(v: number) {
+    this.bytes[6] = v
+  }
+  get buttons(): number {
+    return this.bytes[7]
+  }
+  set buttons(v: number) {
+    this.bytes[7] = v
   }
 
+  constructor(private bytes = new Uint8Array(TickCmd.sizeOf)) { }
+
+  reset(): void {
+    this.bytes.fill(0)
+  }
   copyFrom(from: TickCmd): void {
-    this.forwardMove = from.forwardMove
-    this.sideMove = from.sideMove
-    this.angleTurn = from.angleTurn
-    this.consistancy = from.consistancy
-    this.chatChar = from.chatChar
-    this.buttons = from.buttons
+    this.bytes.set(from.bytes)
   }
 }

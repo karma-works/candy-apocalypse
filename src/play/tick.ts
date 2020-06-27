@@ -100,5 +100,8 @@ export class Tick {
     }
 
     await this.runThinkers()
+
+    // for par times
+    this.levelTime++
   }
 }

@@ -1,12 +1,13 @@
 import { AmmoType, GameMission, GameMode, GameState, KEY_DOWNARROW, KEY_LEFTARROW, KEY_PAUSE, KEY_RALT, KEY_RCTRL, KEY_RIGHTARROW, KEY_RSHIFT, KEY_UPARROW, MAX_PLAYERS, Skill, WeaponType } from '../global/doomdef'
-import { BACKUP_TICS, Net } from '../doom/net'
 import { ButtonCode, DEvent, EvType, GameAction } from '../doom/event'
 import { MObjType, StateNum, mObjInfo, states } from '../doom/info'
 import { Player, PlayerState, WbStart } from '../doom/player'
+import { BACKUP_TICS } from '../doom/net/doom-data'
 import { Doom } from '../doom/doom'
 import { FRACUNIT } from '../misc/fixed'
 import { MAX_HEALTH } from '../play/local'
 import { MObjFlag } from '../play/mobj'
+import { Net } from '../doom/net'
 import { Play } from '../play/setup'
 import { Rendering } from '../rendering/rendering'
 import { SKY_FLAT_NAME } from '../rendering/sky'
@@ -87,6 +88,9 @@ export class Game {
 
   // parms for world map / intermission
   private wmInfo = new WbStart()
+
+  private consistancy = Array.from({ length: MAX_PLAYERS },
+    () => new Array<number>(BACKUP_TICS).fill(0))
 
   //
   // controls (have defaults)
@@ -170,6 +174,8 @@ export class Game {
   buildTicCmd(cmd: TickCmd): void {
     // empty, or external driver
     cmd.reset()
+
+    cmd.consistancy = this.consistancy[this.consolePlayer][this.net.makeTic % BACKUP_TICS]
 
     const strafe = this.gameKeyDown[this.keyStrafe] ||
       this.mouseButtons[this.mouseBStrafe] ||

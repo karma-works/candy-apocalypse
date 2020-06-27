@@ -7,6 +7,7 @@ import { Doom } from '../doom/doom'
 import { Draw } from './draw'
 import { Game } from '../game/game'
 import { NF_SUBSECTOR } from '../doom/data'
+import { Net } from '../doom/net'
 import { Node } from './node'
 import { Plane } from './plane'
 import { Play } from '../play/setup'
@@ -128,14 +129,17 @@ export class Rendering {
   get game(): Game {
     return this.doom.game
   }
+  get net(): Net {
+    return this.doom.net
+  }
   get play(): Play {
     return this.doom.play
   }
-  get wad(): Wad {
-    return this.doom.wad
-  }
   get tick(): Tick {
     return this.doom.play.tick
+  }
+  get wad(): Wad {
+    return this.doom.wad
   }
 
   constructor(public doom: Doom) { }
@@ -659,22 +663,22 @@ export class Rendering {
     this.things.clearSprites()
 
     // check for new console commands.
-    // NetUpdate ();
+    await this.net.netUpdate()
 
     // The head node is the last node output.
     await this.bsp.renderBSPNode(this.play.numNodes - 1)
 
     // Check for new console commands.
-    // NetUpdate ();
+    await this.net.netUpdate()
 
     await this.plane.drawPlanes()
 
     // Check for new console commands.
-    // NetUpdate ();
+    await this.net.netUpdate()
 
     await this.things.drawMasked()
 
     // Check for new console commands.
-    // NetUpdate ();
+    await this.net.netUpdate()
   }
 }

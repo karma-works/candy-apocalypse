@@ -4,6 +4,7 @@ import { EnglishStrings } from '../translation/english'
 import { FrenchStrings } from '../translation/french'
 import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
+import { Net as INet } from '../interfaces/net'
 import { Video as IVideo } from '../interfaces/video'
 import { Menu } from '../menu/menu'
 import { Net } from './net'
@@ -33,12 +34,12 @@ export class Doom {
   // Set if homebrew PWAD stuff has been added.
   modifiedGame = false
 
-  private startSkill: Skill = -1
-  private startEpisode = -1
-  private startMap = -1
+  startSkill: Skill = -1
+  startEpisode = -1
+  startMap = -1
   private autoStart = false
 
-  private advancedemo = false
+  advancedemo = false
 
   private wadfiles: string[] = []
 
@@ -51,18 +52,22 @@ export class Doom {
   // checkparm of -fast
   fastParam = false
 
+  // debug flag to cancel adaptiveness
+  singleTics = false
+
   // print title for every printed line
   private title = ''
 
   public wad = new Wad()
-  public net = new Net()
+  public net = new Net(this)
+  public iNet = new INet(this)
   private headsUp = new HeadsUp(this.wad)
   public statusBar = new StatusBar(this)
   public play = new Play(this)
   public rendering = new Rendering(this)
   public game = new Game(this)
   public iVideo = new IVideo(this)
-  private menu = new Menu(this,
+  public menu = new Menu(this,
     this.headsUp,
     this.iVideo,
     this.wad,
@@ -73,6 +78,8 @@ export class Doom {
   private get rVideo(): RVIdeo {
     return this.rendering.video
   }
+
+  public params: Params = {}
 
   //
   // EVENT HANDLING
@@ -179,6 +186,8 @@ export class Doom {
     // menus go directly to the screen
     // menu is drawn even on top of everything
     await this.menu.drawer()
+    // send out any new accumulation
+    await this.net.netUpdate()
 
     // normal update
     if (!wipe) {
@@ -202,7 +211,7 @@ export class Doom {
 
     const w = async() => {
       // process one or more tics
-      if (true) {
+      if (this.singleTics) {
         this.iVideo.startTic()
         await this.processEvents()
         this.game.buildTicCmd(
@@ -214,7 +223,10 @@ export class Doom {
         this.menu.ticker()
         await this.game.ticker()
         this.game.gameTic++
-        // this.net.makeTic++
+        this.net.makeTic++
+      } else {
+        // will run at least one tic
+        await this.net.tryRunTics()
       }
       await this.display()
       requestAnimationFrame(w.bind(this))
@@ -260,7 +272,7 @@ export class Doom {
   // This cycles through the demo sequences.
   // FIXME - version dependend demo numbers?
   //
-  private doAdvanceDemo(): void {
+  doAdvanceDemo(): void {
     this.advancedemo = false
     this.game.gameAction = GameAction.Nothing
 
@@ -407,6 +419,8 @@ export class Doom {
   }
 
   async init(param: Params): Promise<void> {
+    this.params = param
+
     await this.identifyVersion()
 
     this.noMonsters = !!param.noMonsters
@@ -503,6 +517,9 @@ export class Doom {
 
     console.log('P_Init: Init Playloop state.')
     this.play.init()
+
+    console.log('D_CheckNetGame: Checking network game status.')
+    this.net.checkNetGame()
 
     console.log('HU_Init: Setting up heads up display.')
     await this.headsUp.init()
