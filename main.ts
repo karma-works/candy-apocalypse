@@ -9,7 +9,7 @@ async function main() {
     noMonsters: true,
     skill: Skill.Medium,
     episode: 1,
-    map: 1,
+    map: 2,
   })
 }
 
