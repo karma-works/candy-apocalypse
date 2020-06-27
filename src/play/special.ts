@@ -16,6 +16,7 @@ import { Side } from '../rendering/side'
 
 export const GLOW_SPEED = 8
 export const STROBE_BRIGHT = 5
+const FAST_DARK = 15
 const SLOW_DARK = 35
 
 //
@@ -609,15 +610,16 @@ export class Special {
 
       case 2:
         // STROBE FAST
-        debugger
+        this.lights.spawnStrobeFlash(sector, FAST_DARK, 0)
         break
       case 3:
         // STROBE SLOW
-        debugger
+        this.lights.spawnStrobeFlash(sector, SLOW_DARK, 0)
         break
       case 4:
         // STROBE FAST/DEATH SLIME
-        debugger
+        this.lights.spawnStrobeFlash(sector, FAST_DARK, 0)
+        sector.special = 4
         break
       case 8:
         // GLOWING LIGHT
@@ -637,7 +639,7 @@ export class Special {
         break
       case 13:
         // SYNC STROBE FAST
-        debugger
+        this.lights.spawnStrobeFlash(sector, FAST_DARK, 1)
         break
       case 14:
         // DOOR RAISE IN 5 MINUTES
