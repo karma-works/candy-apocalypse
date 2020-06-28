@@ -61,7 +61,7 @@ export class Doom {
   public wad = new Wad()
   public net = new Net(this)
   public iNet = new INet(this)
-  private headsUp = new HeadsUp(this.wad)
+  public headsUp = new HeadsUp(this)
   public statusBar = new StatusBar(this)
   public play = new Play(this)
   public rendering = new Rendering(this)
@@ -150,6 +150,10 @@ export class Doom {
       wipe = false
     }
 
+    if (this.game.gameState === GameState.Level && this.game.gameTic) {
+      this.headsUp.erase()
+    }
+
     // do buffered drawing
     switch (this.game.gameState) {
     case GameState.Level:
@@ -173,6 +177,10 @@ export class Doom {
       this.rendering.renderPlayerView(
         this.game.players[this.game.displayPlayer],
       )
+    }
+
+    if (this.game.gameState === GameState.Level && this.game.gameTic) {
+      this.headsUp.drawer()
     }
 
     // clean up border stuff

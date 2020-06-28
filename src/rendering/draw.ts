@@ -24,8 +24,8 @@ export class Draw {
   viewWidth = 0
   scaledViewWidth = 0
   viewHeight = 0
-  private viewWindowX = 0
-  private viewWindowY = 0
+  viewWindowX = 0
+  viewWindowY = 0
   private yLookupPtr = new Array<number>(MAX_HEIGHT).fill(0)
   private columnOfs = new Array<number>(MAX_WIDTH).fill(0)
 
@@ -275,5 +275,15 @@ export class Draw {
     for (let i = 0; i < height; ++i) {
       this.yLookupPtr[i] = (i + this.viewWindowY) * SCREENWIDTH
     }
+  }
+
+  //
+  // Copy a screen buffer.
+  //
+  videoErase(ofs: number, count: number): void {
+    this.video.screens[0].set(
+      this.video.screens[1].slice(ofs, ofs + count),
+      ofs,
+    )
   }
 }

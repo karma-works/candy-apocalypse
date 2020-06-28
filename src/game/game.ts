@@ -5,6 +5,7 @@ import { Player, PlayerState, WbStart } from '../doom/player'
 import { BACKUP_TICS } from '../doom/net/doom-data'
 import { Doom } from '../doom/doom'
 import { FRACUNIT } from '../misc/fixed'
+import { HeadsUp } from '../heads-up/stuff'
 import { MAX_HEALTH } from '../play/local'
 import { MObjFlag } from '../play/mobj'
 import { Net } from '../doom/net'
@@ -49,8 +50,8 @@ export class Game {
   gameState: GameState = -1
   gameSkill: Skill = -1
   private respawnMonsters = false
-  private gameEpisode = -1
-  private gameMap = -1
+  gameEpisode = -1
+  gameMap = -1
 
   paused = false
   // send a pause event next tic
@@ -147,6 +148,9 @@ export class Game {
 
   mouseSensitivity = 5
 
+  private get headsUp(): HeadsUp {
+    return this.doom.headsUp
+  }
   private get net(): Net {
     return this.doom.net
   }
@@ -471,6 +475,7 @@ export class Game {
     switch (this.gameState) {
     case GameState.Level:
       await this.tick.ticker()
+      this.headsUp.ticker()
       break
     case GameState.Intermission:
       this.win.ticker()

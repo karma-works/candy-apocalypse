@@ -6,6 +6,7 @@ import { MTF_AMBUSH, Skill } from '../global/doomdef'
 import { ANG45 } from '../misc/table'
 import { Doom } from '../doom/doom'
 import { Game } from '../game/game'
+import { HeadsUp } from '../heads-up/stuff'
 import { Map } from './map'
 import { MapThing } from '../doom/data'
 import { MapUtils } from './map-utils'
@@ -25,6 +26,9 @@ export class MObjHandler {
   }
   private get game(): Game {
     return this.doom.game
+  }
+  private get headsUp(): HeadsUp {
+    return this.doom.headsUp
   }
   private get map(): Map {
     return this.play.map
@@ -363,6 +367,8 @@ export class MObjHandler {
     if (mThing.type - 1 === this.game.consolePlayer) {
       // wake up the status bar
       await this.statusBar.start()
+      // wake up the heads up text
+      this.headsUp.start()
     }
     // if (mthing->type-1 == consoleplayer) {
     //   // wake up the status bar
