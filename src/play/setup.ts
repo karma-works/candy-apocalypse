@@ -4,6 +4,7 @@ import { MapLineDef, MapLineFlag, MapLumpOrder, MapNode, MapSector, MapSeg, MapS
 import { BBox } from '../misc/bbox'
 import { Doom } from '../doom/doom'
 import { Doors } from './doors'
+import { Enemy } from './enemy'
 import { FRACBITS } from '../misc/fixed'
 import { Floor } from './floor'
 import { Game } from '../game/game'
@@ -86,6 +87,7 @@ export class Play {
 
   public tick = new Tick(this)
   public doors = new Doors(this)
+  public enemy = new Enemy()
   public floor = new Floor(this)
   public inter = new Inter(this)
   public lights = new Lights(this)

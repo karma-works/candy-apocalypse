@@ -5,6 +5,7 @@ import { MObjType, State, StateNum, mObjInfo, states } from '../doom/info'
 import { MTF_AMBUSH, Skill } from '../global/doomdef'
 import { ANG45 } from '../misc/table'
 import { Doom } from '../doom/doom'
+import { Enemy } from './enemy'
 import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
 import { Map } from './map'
@@ -23,6 +24,9 @@ const FRICTION = 0xe800
 export class MObjHandler {
   private get doom(): Doom {
     return this.play.doom
+  }
+  private get enemy(): Enemy {
+    return this.play.enemy
   }
   private get game(): Game {
     return this.doom.game
@@ -50,7 +54,7 @@ export class MObjHandler {
   // Returns true if the mobj is still present.
   //
   setMObjState(mobj: MObj, state: StateNum): boolean {
-    let st: State
+    let st: State<unknown>
     do {
       if (state === StateNum.Null) {
         mobj.state = states[StateNum.Null]
@@ -58,7 +62,7 @@ export class MObjHandler {
         return false
       }
 
-      st = states[state]
+      st = states[state] as State<unknown>
       mobj.state = st
       mobj.tics = st.tics
       mobj.sprite = st.sprite
@@ -67,7 +71,13 @@ export class MObjHandler {
       // Modified handling.
       // Call action functions when the state is set
       if (st.action !== null) {
-        st.action(mobj)
+        let handler: unknown
+        switch (st.handlerType) {
+        case Enemy:
+          handler = this.enemy
+          break
+        }
+        st.action.call(handler, mobj)
       }
 
       state = st.nextState

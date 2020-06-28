@@ -6,10 +6,9 @@ async function main() {
 
   await doom.init({
     dev: true,
-    noMonsters: true,
     skill: Skill.Medium,
     episode: 1,
-    map: 2,
+    map: 1,
   })
 }
 
