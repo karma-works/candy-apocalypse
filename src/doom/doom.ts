@@ -104,7 +104,7 @@ export class Doom {
   // D_ProcessEvents
   // Send all the events of the given timestamp down the responder chain
   //
-  async processEvents(): Promise<void> {
+  processEvents(): void {
     // IF STORE DEMO, DO NOT ACCEPT INPUT
     if (this.gameMode === GameMode.Commercial &&
         this.wad.checkNumForName('map01') < 0) {
@@ -116,7 +116,7 @@ export class Doom {
       this.eventTail = ++this.eventTail & MAX_EVENTS - 1
     ) {
       ev = this.events[this.eventTail]
-      if (await this.menu.responder(ev)) {
+      if (this.menu.responder(ev)) {
         // menu ate the event
         continue
       }
@@ -132,7 +132,7 @@ export class Doom {
   // D_Display
   //  draw current display, possibly wiping it from the previous
   //
-  private async display(): Promise<void> {
+  private display(): void {
     let wipe: boolean
 
     // change the view size if needed
@@ -160,13 +160,13 @@ export class Doom {
       if (!this.game.gameTic) {
         break
       }
-      await this.statusBar.drawer(this.rendering.draw.viewHeight === 200, false)
+      this.statusBar.drawer(this.rendering.draw.viewHeight === 200, false)
       break
     case GameState.Intermission:
       this.win.drawer()
       break
     case GameState.DemoScreen:
-      await this.pageDrawer()
+      this.pageDrawer()
       break
     }
 
@@ -186,16 +186,16 @@ export class Doom {
     // clean up border stuff
     if (this.game.gameState !== this.oldGameState &&
         this.game.gameState !== GameState.Level) {
-      this.iVideo.setPalette(await this.wad.cacheLumpName('PLAYPAL'))
+      this.iVideo.setPalette(this.wad.cacheLumpName('PLAYPAL'))
     }
 
     this.oldGameState = this.wipeGameState = this.game.gameState
 
     // menus go directly to the screen
     // menu is drawn even on top of everything
-    await this.menu.drawer()
+    this.menu.drawer()
     // send out any new accumulation
-    await this.net.netUpdate()
+    this.net.netUpdate()
 
     // normal update
     if (!wipe) {
@@ -214,14 +214,14 @@ export class Doom {
   //  calls all ?_Responder, ?_Ticker, and ?_Drawer,
   //  calls I_GetTime, I_StartFrame, and I_StartTic
   //
-  private async doomLoop(): Promise<void> {
+  private doomLoop(): void {
     this.iVideo.initGraphics()
 
-    const w = async() => {
+    const w = () => {
       // process one or more tics
       if (this.singleTics) {
         this.iVideo.startTic()
-        await this.processEvents()
+        this.processEvents()
         this.game.buildTicCmd(
           this.net.netCmds[this.game.consolePlayer][this.net.makeTic],
         )
@@ -229,17 +229,17 @@ export class Doom {
           this.doAdvanceDemo()
         }
         this.menu.ticker()
-        await this.game.ticker()
+        this.game.ticker()
         this.game.gameTic++
         this.net.makeTic++
       } else {
         // will run at least one tic
-        await this.net.tryRunTics()
+        this.net.tryRunTics()
       }
-      await this.display()
+      this.display()
       requestAnimationFrame(w.bind(this))
     }
-    await w()
+    w()
   }
 
   //
@@ -262,9 +262,9 @@ export class Doom {
   //
   // D_PageDrawer
   //
-  private async pageDrawer(): Promise<void> {
+  private pageDrawer(): void {
     this.rVideo.drawPatch(0, 0, 0,
-      await this.wad.cacheLumpName(this.pageName),
+      this.wad.cacheLumpName(this.pageName),
     )
   }
 
@@ -521,7 +521,7 @@ export class Doom {
     this.menu.init()
 
     console.log('R_Init: Init DOOM refresh daemon - ')
-    await this.rendering.init()
+    this.rendering.init()
 
     console.log('P_Init: Init Playloop state.')
     this.play.init()
@@ -530,14 +530,14 @@ export class Doom {
     this.net.checkNetGame()
 
     console.log('HU_Init: Setting up heads up display.')
-    await this.headsUp.init()
+    this.headsUp.init()
 
     console.log('ST_Init: Init status bar.')
     this.statusBar.init()
 
     if (this.game.gameAction !== GameAction.LoadGame) {
       if (this.autoStart) {
-        await this.game.initNew(
+        this.game.initNew(
           this.startSkill, this.startEpisode, this.startMap,
         )
       } else {
@@ -546,7 +546,7 @@ export class Doom {
       }
     }
 
-    await this.doomLoop()
+    this.doomLoop()
   }
 }
 

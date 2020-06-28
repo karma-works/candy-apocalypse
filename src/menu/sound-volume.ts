@@ -45,18 +45,18 @@ export const soundDef: MenuStruct = {
 //
 // Change Sfx & Music volumes
 //
-async function drawSound(menu: Menu): Promise<void> {
+function drawSound(menu: Menu): void {
   menu.rvideo.drawPatchDirect(60, 38, 0,
-    await menu.wad.cacheLumpName('M_SVOL'),
+    menu.wad.cacheLumpName('M_SVOL'),
   )
 
-  await menu.drawThermo(
+  menu.drawThermo(
     soundDef.x,
     soundDef.y + LINEHEIGHT * (Sound.SfxVol + 1),
     16,
     0, // TODO
   )
-  await menu.drawThermo(
+  menu.drawThermo(
     soundDef.x,
     soundDef.y + LINEHEIGHT * (Sound.MusicVol + 1),
     16,
@@ -64,10 +64,10 @@ async function drawSound(menu: Menu): Promise<void> {
   )
 }
 
-async function sfxVol(/* menu: Menu, choice: number */): Promise<void> {
+function sfxVol(/* menu: Menu, choice: number */): void {
   // TODO
 }
-async function musicVol(/* menu: Menu, choice: number */): Promise<void> {
+function musicVol(/* menu: Menu, choice: number */): void {
   // TODO
 }
 

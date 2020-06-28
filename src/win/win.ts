@@ -684,7 +684,7 @@ export class Win {
     }
   }
 
-  private async loadData(): Promise<void> {
+  private loadData(): void {
     let name: string
     if (this.doom.gameMode === GameMode.Commercial) {
       name = 'INTERPIC'
@@ -693,7 +693,7 @@ export class Win {
     }
 
     // background
-    this.bg = new Patch(await this.wad.cacheLumpName(name))
+    this.bg = new Patch(this.wad.cacheLumpName(name))
     this.rVideo.drawPatch(0, 0, 1, this.bg)
 
     if (this.doom.gameMode === GameMode.Commercial) {
@@ -703,24 +703,24 @@ export class Win {
       for (let i = 0; i < this.numCMaps; ++i) {
         name = `CWILV${i.toString().padStart(2, ' ')}`
         debugger
-        this.lNames[i] = new Patch(await this.wad.cacheLumpName(name))
+        this.lNames[i] = new Patch(this.wad.cacheLumpName(name))
       }
     } else {
       this.lNames = new Array(NUM_MAPS)
 
       for (let i = 0; i < NUM_MAPS; ++i) {
         name = `WILV${this.wbs.episode}${i}`
-        this.lNames[i] = new Patch(await this.wad.cacheLumpName(name))
+        this.lNames[i] = new Patch(this.wad.cacheLumpName(name))
       }
 
       // you are here
-      this.yah[0] = new Patch(await this.wad.cacheLumpName('WIURH0'))
+      this.yah[0] = new Patch(this.wad.cacheLumpName('WIURH0'))
 
       // you are here (alt.)
-      this.yah[1] = new Patch(await this.wad.cacheLumpName('WIURH1'))
+      this.yah[1] = new Patch(this.wad.cacheLumpName('WIURH1'))
 
       // splat
-      this.splat = new Patch(await this.wad.cacheLumpName('WISPLAT'))
+      this.splat = new Patch(this.wad.cacheLumpName('WISPLAT'))
 
       if (this.wbs.episode < 3) {
         let a: Anim
@@ -731,7 +731,7 @@ export class Win {
             if (this.wbs.episode !== 1 || j !== 8) {
               // animations
               name = `WIA${this.wbs.episode}${j.toString().padStart(2, '0')}${i.toString().padStart(2, '0')}`
-              a.p[i] = new Patch(await this.wad.cacheLumpName(name))
+              a.p[i] = new Patch(this.wad.cacheLumpName(name))
             } else {
               // HACK ALERT!
               debugger
@@ -744,82 +744,82 @@ export class Win {
 
 
     // More hacks on minus sign.
-    this.wiMinus = new Patch(await this.wad.cacheLumpName('WIMINUS'))
+    this.wiMinus = new Patch(this.wad.cacheLumpName('WIMINUS'))
 
     for (let i = 0; i < 10; i++) {
       // numbers 0-9
       name = `WINUM${i}`
-      this.num[i] = new Patch(await this.wad.cacheLumpName(name))
+      this.num[i] = new Patch(this.wad.cacheLumpName(name))
     }
 
     // percent sign
-    this.percent = new Patch(await this.wad.cacheLumpName('WIPCNT'))
+    this.percent = new Patch(this.wad.cacheLumpName('WIPCNT'))
 
     // "finished"
-    this.finished = new Patch(await this.wad.cacheLumpName('WIF'))
+    this.finished = new Patch(this.wad.cacheLumpName('WIF'))
 
     // "entering"
-    this.entering = new Patch(await this.wad.cacheLumpName('WIENTER'))
+    this.entering = new Patch(this.wad.cacheLumpName('WIENTER'))
 
     // "kills"
-    this.kills = new Patch(await this.wad.cacheLumpName('WIOSTK'))
+    this.kills = new Patch(this.wad.cacheLumpName('WIOSTK'))
 
     // "scrt"
-    this.secret = new Patch(await this.wad.cacheLumpName('WIOSTS'))
+    this.secret = new Patch(this.wad.cacheLumpName('WIOSTS'))
 
     // "secret"
-    this.spSecret = new Patch(await this.wad.cacheLumpName('WISCRT2'))
+    this.spSecret = new Patch(this.wad.cacheLumpName('WISCRT2'))
 
     // Yuck.
     if (this.doom.language === Language.French) {
       // "items"
       if (this.game.netGame && !this.game.deathMatch) {
-        this.items = new Patch(await this.wad.cacheLumpName('WIOBJ'))
+        this.items = new Patch(this.wad.cacheLumpName('WIOBJ'))
       } else {
-        this.items = new Patch(await this.wad.cacheLumpName('WIOSTI'))
+        this.items = new Patch(this.wad.cacheLumpName('WIOSTI'))
       }
     } else {
-      this.items = new Patch(await this.wad.cacheLumpName('WIOSTI'))
+      this.items = new Patch(this.wad.cacheLumpName('WIOSTI'))
     }
 
     // "frgs"
-    this.frags = new Patch(await this.wad.cacheLumpName('WIFRGS'))
+    this.frags = new Patch(this.wad.cacheLumpName('WIFRGS'))
 
     // ":"
-    this.colon = new Patch(await this.wad.cacheLumpName('WICOLON'))
+    this.colon = new Patch(this.wad.cacheLumpName('WICOLON'))
 
     // "time"
-    this.time = new Patch(await this.wad.cacheLumpName('WITIME'))
+    this.time = new Patch(this.wad.cacheLumpName('WITIME'))
 
     // "sucks"
-    this.sucks = new Patch(await this.wad.cacheLumpName('WISUCKS'))
+    this.sucks = new Patch(this.wad.cacheLumpName('WISUCKS'))
 
     // "par"
-    this.par = new Patch(await this.wad.cacheLumpName('WIPAR'))
+    this.par = new Patch(this.wad.cacheLumpName('WIPAR'))
 
     // "killers" (vertical)
-    this.killers = new Patch(await this.wad.cacheLumpName('WIKILRS'))
+    this.killers = new Patch(this.wad.cacheLumpName('WIKILRS'))
 
     // "victims" (horiz)
-    this.victims = new Patch(await this.wad.cacheLumpName('WIVCTMS'))
+    this.victims = new Patch(this.wad.cacheLumpName('WIVCTMS'))
 
     // "total"
-    this.total = new Patch(await this.wad.cacheLumpName('WIMSTT'))
+    this.total = new Patch(this.wad.cacheLumpName('WIMSTT'))
 
     // your face
-    this.star = new Patch(await this.wad.cacheLumpName('STFST01'))
+    this.star = new Patch(this.wad.cacheLumpName('STFST01'))
 
     // dead face
-    this.bStar = new Patch(await this.wad.cacheLumpName('STFDEAD0'))
+    this.bStar = new Patch(this.wad.cacheLumpName('STFDEAD0'))
 
     for (let i = 0; i < MAX_PLAYERS; i++) {
       // "1,2,3,4"
       name = `STPB${i}`
-      this.p[i] = new Patch(await this.wad.cacheLumpName(name))
+      this.p[i] = new Patch(this.wad.cacheLumpName(name))
 
       // "1,2,3,4"
       name = `WIBP${i + 1}`
-      this.bp[i] = new Patch(await this.wad.cacheLumpName(name))
+      this.bp[i] = new Patch(this.wad.cacheLumpName(name))
     }
   }
 
@@ -871,9 +871,9 @@ export class Win {
     }
   }
 
-  async start(wbStart: WbStart): Promise<void> {
+  start(wbStart: WbStart): void {
     this.initVariables(wbStart)
-    await this.loadData()
+    this.loadData()
 
     if (this.game.deathMatch) {
       this.initDeathMatchStats()

@@ -34,7 +34,7 @@ export class Menu {
 
   // timed message = no input from user
   messageNeedsInput = false
-  messageRoutine?: (menu: Menu, response: number) => Promise<void>
+  messageRoutine?: (menu: Menu, response: number) => void
 
   // we are going to be entering a savegame string
   saveStringEnter = false
@@ -83,7 +83,7 @@ export class Menu {
   // M_ReadSaveStrings
   //  read the strings from the savegame files
   //
-  async readSaveStrings(): Promise<void> {
+  readSaveStrings(): void {
     for (let i = 0; i < Load.LoadEnd; ++i) {
       this.saveGameStrings[i] = ''
       loadMenu[i].status = 0
@@ -93,68 +93,68 @@ export class Menu {
   //
   // Draw border for the savegame description
   //
-  async drawSaveLoadBorder(x: number, y: number): Promise<void> {
+  drawSaveLoadBorder(x: number, y: number): void {
     this.rvideo.drawPatchDirect(
       x - 8, y + 7, 0,
-      await this.wad.cacheLumpName('M_LSLEFT'),
+      this.wad.cacheLumpName('M_LSLEFT'),
     )
     for (let i = 0; i < 24; ++i) {
       this.rvideo.drawPatchDirect(
         x, y + 7, 0,
-        await this.wad.cacheLumpName('M_LSCNTR'),
+        this.wad.cacheLumpName('M_LSCNTR'),
       )
       x += 8
     }
     this.rvideo.drawPatchDirect(
       x, y + 7, 0,
-      await this.wad.cacheLumpName('M_LSRGHT'),
+      this.wad.cacheLumpName('M_LSRGHT'),
     )
   }
 
   //
   //      Menu Functions
   //
-  async drawThermo(x: number, y: number, thermWidth: number, thermDot: number): Promise<void> {
+  drawThermo(x: number, y: number, thermWidth: number, thermDot: number): void {
     let xx = x
     this.rvideo.drawPatchDirect(
       xx, y, 0,
-      await this.wad.cacheLumpName('M_THERML'),
+      this.wad.cacheLumpName('M_THERML'),
     )
     xx += 8
     for (let i = 0; i < thermWidth; ++i) {
       this.rvideo.drawPatchDirect(
         xx, y, 0,
-        await this.wad.cacheLumpName('M_THERMM'),
+        this.wad.cacheLumpName('M_THERMM'),
       )
       xx += 8
     }
     this.rvideo.drawPatchDirect(
       xx, y, 0,
-      await this.wad.cacheLumpName('M_THERMR'),
+      this.wad.cacheLumpName('M_THERMR'),
     )
     this.rvideo.drawPatchDirect(
       x + 8 + thermDot * 8, y, 0,
-      await this.wad.cacheLumpName('M_THERMO'),
+      this.wad.cacheLumpName('M_THERMO'),
     )
   }
 
-  async drawEmptyCell(menu: MenuStruct, item: number): Promise<void> {
+  drawEmptyCell(menu: MenuStruct, item: number): void {
     this.rvideo.drawPatchDirect(
       menu.x - 10, menu.y + item * LINEHEIGHT - 1, 0,
-      await this.wad.cacheLumpName('M_CELL1'),
+      this.wad.cacheLumpName('M_CELL1'),
     )
   }
 
-  async drawSelCell(menu: MenuStruct, item: number): Promise<void> {
+  drawSelCell(menu: MenuStruct, item: number): void {
     this.rvideo.drawPatchDirect(
       menu.x - 10, menu.y + item * LINEHEIGHT - 1, 0,
-      await this.wad.cacheLumpName('M_CELL2'),
+      this.wad.cacheLumpName('M_CELL2'),
     )
   }
 
   startMessage(
     str: string,
-    routine: ((menu: Menu, response: number) => Promise<void>) | undefined,
+    routine: ((menu: Menu, response: number) => void) | undefined,
     input: boolean,
   ): void {
     this.messageLastMenuActive = this.menuActive
@@ -254,7 +254,7 @@ export class Menu {
   private lasty = 0
   private mousex = 0
   private lastx = 0
-  async responder(ev: DEvent): Promise<boolean> {
+  responder(ev: DEvent): boolean {
     let ch = -1
 
     if (ev.type === EvType.Joystick && this.joywait < getTime()) {
@@ -344,7 +344,7 @@ export class Menu {
       case KEY_ENTER:
         this.saveStringEnter = false
         if (this.saveGameStrings[this.saveSlot].length > 0) {
-          await doSave(this, this.saveSlot)
+          doSave(this, this.saveSlot)
         }
         break
 
@@ -382,7 +382,7 @@ export class Menu {
       this.menuActive = this.messageLastMenuActive
       this.messageToPrint = false
       if (this.messageRoutine) {
-        await this.messageRoutine(this, ch)
+        this.messageRoutine(this, ch)
       }
 
       this.menuActive = false
@@ -393,12 +393,12 @@ export class Menu {
       switch (ch) {
       // Screen size down
       case KEY_MINUS:
-        await sizeDisplay(this, 0)
+        sizeDisplay(this, 0)
         return true
 
       // Screen size up
       case KEY_EQUALS:
-        await sizeDisplay(this, 1)
+        sizeDisplay(this, 1)
         return true
 
       // Help key
@@ -417,13 +417,13 @@ export class Menu {
       // Save
       case KEY_F2:
         this.startControlPanel()
-        await saveGame(this)
+        saveGame(this)
         return true
 
       // Load
       case KEY_F3:
         this.startControlPanel()
-        await loadGame(this)
+        loadGame(this)
         return true
 
       // Sound Volume
@@ -435,32 +435,32 @@ export class Menu {
 
       // Detail toggle
       case KEY_F5:
-        await changeDetail()
+        changeDetail()
         return true
 
       // Quicksave
       case KEY_F6:
-        await quickSave(this)
+        quickSave(this)
         return true
 
       // End game
       case KEY_F7:
-        await endGame(this)
+        endGame(this)
         return true
 
       // Toggle messages
       case KEY_F8:
-        await changeMessages(this)
+        changeMessages(this)
         return true
 
       // Quickload
       case KEY_F9:
-        await quickLoad(this)
+        quickLoad(this)
         return true
 
       // Quit DOOM
       case KEY_F10:
-        await quitDOOM(this)
+        quitDOOM(this)
         return true
 
       // gamma toggle
@@ -469,7 +469,7 @@ export class Menu {
         if (this.ivideo.useGamma > 4) {
           this.ivideo.useGamma = 4
         }
-        this.ivideo.setPalette(await this.wad.cacheLumpName('PLAYPAL'))
+        this.ivideo.setPalette(this.wad.cacheLumpName('PLAYPAL'))
         return true
       }
     }
@@ -508,7 +508,7 @@ export class Menu {
     case KEY_LEFTARROW: {
       const item = this.currentMenu.menuItems[this.itemOn]
       if (item.routine && item.status === 2) {
-        await item.routine(this, 0)
+        item.routine(this, 0)
       }
       return true
     }
@@ -516,7 +516,7 @@ export class Menu {
     case KEY_RIGHTARROW: {
       const item = this.currentMenu.menuItems[this.itemOn]
       if (item.routine && item.status === 2) {
-        await item.routine(this, 1)
+        item.routine(this, 1)
       }
       return true
     }
@@ -527,9 +527,9 @@ export class Menu {
         this.currentMenu.lastOn = this.itemOn
         if (item.status === 2) {
           // right arrow
-          await item.routine(this, 1)
+          item.routine(this, 1)
         } else {
-          await item.routine(this, this.itemOn)
+          item.routine(this, this.itemOn)
         }
       }
       return true
@@ -589,7 +589,7 @@ export class Menu {
   //
   private x = 0
   private y = 0
-  async drawer(): Promise<void> {
+  drawer(): void {
     this.inHelpScreens = false
 
     // Horiz. & Vertically center string and print it.
@@ -627,7 +627,7 @@ export class Menu {
 
     if (this.currentMenu.routine) {
       // call Draw routine
-      await this.currentMenu.routine(this)
+      this.currentMenu.routine(this)
     }
 
     // DRAW MENU
@@ -639,7 +639,7 @@ export class Menu {
       if (this.currentMenu.menuItems[i].name) {
         this.rvideo.drawPatchDirect(
           this.x, this.y, 0,
-          await this.wad.cacheLumpName(this.currentMenu.menuItems[i].name),
+          this.wad.cacheLumpName(this.currentMenu.menuItems[i].name),
         )
       }
       this.y += LINEHEIGHT
@@ -649,7 +649,7 @@ export class Menu {
       this.x + SKULLOFF,
       this.currentMenu.y - 5 + this.itemOn * LINEHEIGHT,
       0,
-      await this.wad.cacheLumpName(this.skullName[this.whichSkull]),
+      this.wad.cacheLumpName(this.skullName[this.whichSkull]),
     )
 
   }

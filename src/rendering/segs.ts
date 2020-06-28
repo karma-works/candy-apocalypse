@@ -93,7 +93,7 @@ export class Segs {
   //
   // R_RenderMaskedSegRange
   //
-  async renderMaskedSegRange(ds: DrawSeg, x1: number, x2: number): Promise<void> {
+  renderMaskedSegRange(ds: DrawSeg, x1: number, x2: number): void {
     // Calculate light table.
     // Use different light tables
     //   for horizontal / vertical / diagonal. Diagonal?
@@ -182,7 +182,7 @@ export class Segs {
 
         // draw the texture
         col = new Column(
-          await this.data.getColumn(
+          this.data.getColumn(
             textNum,
             this.maskedTextureCol[this.draw.dcX],
             true,
@@ -204,7 +204,7 @@ export class Segs {
   //  textures.
   // CALLED: CORE LOOPING ROUTINE.
   //
-  async renderSegLoop(): Promise<void> {
+  renderSegLoop(): void {
     if (this.rendering.colFunc === null) {
       throw 'this.rendering.colFunc = null'
     }
@@ -291,7 +291,7 @@ export class Segs {
         this.draw.dcYh = yh
         this.draw.dcTextureMid = this.rwMidTextureMid
         this.draw.dcSource = new Uint8ClampedArray(
-          await this.data.getColumn(this.midTexture, textureColumn),
+          this.data.getColumn(this.midTexture, textureColumn),
         )
         this.rendering.colFunc.apply(this.draw)
         this.plane.ceilingClip[this.rwX] = this.draw.viewHeight
@@ -312,7 +312,7 @@ export class Segs {
             this.draw.dcYh = mid
             this.draw.dcTextureMid = this.rwTopTextureMid
             this.draw.dcSource = new Uint8ClampedArray(
-              await this.data.getColumn(this.topTexture, textureColumn),
+              this.data.getColumn(this.topTexture, textureColumn),
             )
             this.rendering.colFunc.apply(this.draw)
             this.plane.ceilingClip[this.rwX] = mid
@@ -341,7 +341,7 @@ export class Segs {
             this.draw.dcYh = yh
             this.draw.dcTextureMid = this.rwBottomTextureMid
             this.draw.dcSource = new Uint8ClampedArray(
-              await this.data.getColumn(this.bottomTexture, textureColumn),
+              this.data.getColumn(this.bottomTexture, textureColumn),
             )
             this.rendering.colFunc.apply(this.draw)
             this.plane.floorClip[this.rwX] = mid
@@ -379,7 +379,7 @@ export class Segs {
   // A wall segment will be drawn
   //  between start and stop pixels (inclusive).
   //
-  async storeWallRange(start: number, stop: number): Promise<void> {
+  storeWallRange(start: number, stop: number): void {
     // don't overflow and crash
     if (this.bsp.dsP === MAX_DRAW_SEGS) {
       return
@@ -702,7 +702,7 @@ export class Segs {
       )
     }
 
-    await this.renderSegLoop()
+    this.renderSegLoop()
 
     // save sprite clipping info
     if ((dsP.silhouette & SIL_TOP || this.maskedTexture) &&

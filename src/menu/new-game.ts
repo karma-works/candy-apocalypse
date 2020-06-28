@@ -56,13 +56,13 @@ export const newDef: MenuStruct = {
 //
 // M_NewGame
 //
-async function drawNewGame(menu: Menu): Promise<void> {
+function drawNewGame(menu: Menu): void {
   menu.rvideo.drawPatchDirect(
     96, 14, 0,
-    await menu.wad.cacheLumpName('M_NEWG'),
+    menu.wad.cacheLumpName('M_NEWG'),
   )
   menu.rvideo.drawPatchDirect(
     54, 38, 0,
-    await menu.wad.cacheLumpName('M_SKILL'),
+    menu.wad.cacheLumpName('M_SKILL'),
   )
 }

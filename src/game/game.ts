@@ -329,7 +329,7 @@ export class Game {
   //
   // G_DoLoadLevel
   //
-  private async doLoadLevel(): Promise<void> {
+  private doLoadLevel(): void {
     // Set the sky map.
     // First thing, we have a dummy sky texture name,
     //  a flat. The data is in the WAD only because
@@ -372,7 +372,7 @@ export class Game {
       }
     }
 
-    await this.play.setupLevel(this.gameEpisode, this.gameMap, 0, this.gameSkill)
+    this.play.setupLevel(this.gameEpisode, this.gameMap, 0, this.gameSkill)
     // view the guy you are playing
     this.displayPlayer = this.consolePlayer
     this.startTime = getTime()
@@ -437,7 +437,7 @@ export class Game {
   // G_Ticker
   // Make ticcmd_ts for the players.
   //
-  async ticker(): Promise<void> {
+  ticker(): void {
     // do player reborns if needed
     for (let i = 0; i < MAX_PLAYERS; ++i) {
       if (this.playerInGame[i] && this.players[i].playerState === PlayerState.Reborn) {
@@ -451,10 +451,10 @@ export class Game {
         this.doNewGame()
         break
       case GameAction.Completed:
-        await this.doCompleted()
+        this.doCompleted()
         break
       case GameAction.WorldDone:
-        await this.doWorldDone()
+        this.doWorldDone()
         break
       }
     }
@@ -474,7 +474,7 @@ export class Game {
     // do main actions
     switch (this.gameState) {
     case GameState.Level:
-      await this.tick.ticker()
+      this.tick.ticker()
       this.headsUp.ticker()
       break
     case GameState.Intermission:
@@ -579,7 +579,7 @@ export class Game {
     this.gameAction = GameAction.Completed
   }
 
-  private async doCompleted(): Promise<void> {
+  private doCompleted(): void {
     this.gameAction = GameAction.Nothing
 
     for (let i = 0; i < MAX_PLAYERS; ++i) {
@@ -677,7 +677,7 @@ export class Game {
     this.gameState = GameState.Intermission
     this.viewActive = false
 
-    await this.win.start(this.wmInfo)
+    this.win.start(this.wmInfo)
   }
 
   //
@@ -708,10 +708,10 @@ export class Game {
     }
   }
 
-  private async doWorldDone(): Promise<void> {
+  private doWorldDone(): void {
     this.gameState = GameState.Level
     this.gameMap = this.wmInfo.next + 1
-    await this.doLoadLevel()
+    this.doLoadLevel()
     this.gameAction = GameAction.Nothing
     this.viewActive = true
   }
@@ -737,7 +737,7 @@ export class Game {
     this.gameAction = GameAction.Nothing
   }
 
-  async initNew(skill: Skill, episode: number, map: number): Promise<void> {
+  initNew(skill: Skill, episode: number, map: number): void {
     if (this.paused) {
       this.paused = false
     }
@@ -845,6 +845,6 @@ export class Game {
       }
     }
 
-    await this.doLoadLevel()
+    this.doLoadLevel()
   }
 }

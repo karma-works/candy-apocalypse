@@ -166,7 +166,7 @@ export class Floor {
   //
   // MOVE A FLOOR TO IT'S DESTINATION (UP OR DOWN)
   //
-  private async moveFloor(floor: FloorMove): Promise<void> {
+  private moveFloor(floor: FloorMove): void {
     const res = this.movePlane(
       floor.sector,
       floor.speed,

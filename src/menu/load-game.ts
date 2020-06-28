@@ -63,14 +63,14 @@ export const loadDef: MenuStruct = {
 //
 // M_LoadGame & Cie.
 //
-async function drawLoad(menu: Menu): Promise<void> {
+function drawLoad(menu: Menu): void {
   menu.rvideo.drawPatchDirect(
     72, 28, 0,
-    await menu.wad.cacheLumpName('M_LOADG'),
+    menu.wad.cacheLumpName('M_LOADG'),
   )
 
   for (let i = 0; i < Load.LoadEnd; ++i) {
-    await menu.drawSaveLoadBorder(loadDef.x, loadDef.y + LINEHEIGHT * i)
+    menu.drawSaveLoadBorder(loadDef.x, loadDef.y + LINEHEIGHT * i)
     menu.writeText(
       loadDef.x,
       loadDef.y + LINEHEIGHT * i,
@@ -82,19 +82,19 @@ async function drawLoad(menu: Menu): Promise<void> {
 //
 // User wants to load this game
 //
-async function loadSelect(menu: Menu/* , choice: number */): Promise<void> {
+function loadSelect(menu: Menu/* , choice: number */): void {
   menu.clearMenus()
 }
 
 //
 // M_QuickLoad
 //
-async function quickLoadResponse(menu: Menu, choice: number): Promise<void> {
+function quickLoadResponse(menu: Menu, choice: number): void {
   if (choice === 'y'.charCodeAt(0)) {
-    await loadSelect(menu/* , menu.quickSaveSlot */)
+    loadSelect(menu/* , menu.quickSaveSlot */)
   }
 }
-export async function quickLoad(menu: Menu): Promise<void> {
+export function quickLoad(menu: Menu): void {
   if (menu.quickSaveSlot < 0) {
     menu.startMessage(menu.doom.strings.qsavespot, undefined, false)
     return

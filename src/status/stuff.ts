@@ -51,7 +51,7 @@ export class StatusBar {
   private palette = 0
 
   // 1000
-  private async doPaletteStuff(): Promise<void> {
+  private doPaletteStuff(): void {
     if (this.player === null) {
       throw 'this.player = null'
     }
@@ -94,18 +94,18 @@ export class StatusBar {
 
     if (palette !== this.palette) {
       this.palette = palette
-      const pal = await this.wad.cacheLumpNum(this.luPalette)
+      const pal = this.wad.cacheLumpNum(this.luPalette)
 
       this.iVideo.setPalette(pal.slice(palette * 768))
     }
   }
 
   // 1108
-  async drawer(fullScreen: boolean, refresh: boolean): Promise<void> {
+  drawer(fullScreen: boolean, refresh: boolean): void {
     this.firstTime = this.firstTime || refresh
 
     // Do red-/gold-shifts from damage/items
-    await this.doPaletteStuff()
+    this.doPaletteStuff()
   }
 
   // 1201
@@ -123,9 +123,9 @@ export class StatusBar {
 
   private stopped = false
   // 1444
-  async start(): Promise<void> {
+  start(): void {
     if (!this.stopped) {
-      await this.stop()
+      this.stop()
     }
 
     this.initData()
@@ -133,12 +133,12 @@ export class StatusBar {
   }
 
   // 1456
-  async stop(): Promise<void> {
+  stop(): void {
     if (this.stopped) {
       return
     }
 
-    this.iVideo.setPalette(await this.wad.cacheLumpNum(this.luPalette))
+    this.iVideo.setPalette(this.wad.cacheLumpNum(this.luPalette))
   }
 
   // 1466

@@ -121,7 +121,7 @@ export class User {
   //
   // P_MovePlayer
   //
-  private async movePlayer(player: Player): Promise<void> {
+  private movePlayer(player: Player): void {
     if (player.mo === null) {
       throw 'player.mo = null'
     }
@@ -145,14 +145,14 @@ export class User {
     if ((cmd.forwardMove || cmd.sideMove) &&
       player.mo.state === states[StateNum.Play]
     ) {
-      await this.mObjHandler.setMObjState(player.mo, StateNum.PlayRun1)
+      this.mObjHandler.setMObjState(player.mo, StateNum.PlayRun1)
     }
   }
 
   //
   // P_PlayerThink
   //
-  async playerThink(player: Player): Promise<void> {
+  playerThink(player: Player): void {
     if (player.mo === null) {
       throw 'player.mo = null'
     }
@@ -165,7 +165,7 @@ export class User {
     if (player.mo.reactionTime) {
       player.mo.reactionTime--
     } else {
-      await this.movePlayer(player)
+      this.movePlayer(player)
     }
 
     this.calcHeight(player)

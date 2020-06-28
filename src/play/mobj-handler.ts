@@ -49,7 +49,7 @@ export class MObjHandler {
   // P_SetMobjState
   // Returns true if the mobj is still present.
   //
-  async setMObjState(mobj: MObj, state: StateNum): Promise<boolean> {
+  setMObjState(mobj: MObj, state: StateNum): boolean {
     let st: State
     do {
       if (state === StateNum.Null) {
@@ -67,7 +67,7 @@ export class MObjHandler {
       // Modified handling.
       // Call action functions when the state is set
       if (st.action !== null) {
-        await st.action(mobj)
+        st.action(mobj)
       }
 
       state = st.nextState
@@ -79,14 +79,14 @@ export class MObjHandler {
   //
   // P_XYMovement
   //
-  private async xyMovement(mo: MObj): Promise<void> {
+  private xyMovement(mo: MObj): void {
     if (!mo.momX && !mo.momY) {
       if (mo.flags & MObjFlag.SkullFly) {
         // the skull slammed into something
         mo.flags &= ~MObjFlag.SkullFly
         mo.momX = mo.momY = mo.momZ = 0
 
-        await this.setMObjState(mo, mo.info.spawnState)
+        this.setMObjState(mo, mo.info.spawnState)
       }
       return
     }
@@ -228,7 +228,7 @@ export class MObjHandler {
   //
   // P_MobjThinker
   //
-  async thinker(mObj: MObj): Promise<void> {
+  thinker(mObj: MObj): void {
     // momentum movement
     if (mObj.momX ||
       mObj.momY ||
@@ -318,7 +318,7 @@ export class MObjHandler {
   // Most of the player structure stays unchanged
   //  between levels.
   //
-  private async spawnPlayer(mThing: MapThing): Promise<void> {
+  private spawnPlayer(mThing: MapThing): void {
     // not playing?
     if (!this.doom.game.playerInGame[mThing.type - 1]) {
       return
@@ -366,7 +366,7 @@ export class MObjHandler {
 
     if (mThing.type - 1 === this.game.consolePlayer) {
       // wake up the status bar
-      await this.statusBar.start()
+      this.statusBar.start()
       // wake up the heads up text
       this.headsUp.start()
     }
@@ -383,7 +383,7 @@ export class MObjHandler {
   // The fields of the mapthing should
   // already be in host byte order.
   //
-  async spawnMapThing(mThing: MapThing): Promise<void> {
+  spawnMapThing(mThing: MapThing): void {
     // count deathmatch start positions
     if (mThing.type === 11) {
       // if (deathmatch_p < &deathmatchstarts[10])
@@ -399,7 +399,7 @@ export class MObjHandler {
       // save spots for respawning in network games
       // playerstarts[mthing->type-1] = *mthing;
       if (!this.doom.game.deathMatch) {
-        await this.spawnPlayer(mThing)
+        this.spawnPlayer(mThing)
       }
       return
     }

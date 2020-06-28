@@ -222,7 +222,7 @@ export class Net {
   // sends out a packet
   //
   private gameTime = 0
-  async netUpdate(): Promise<void> {
+  netUpdate(): void {
     // check time
     const nowTime = getTime() / this.ticDup >> 0
     let newTics = nowTime - this.gameTime
@@ -247,7 +247,7 @@ export class Net {
     const gameTicDiv = this.game.gameTic / this.ticDup >> 0
     for (let i = 0; i < newTics; ++i) {
       this.iVideo.startTic()
-      await this.doom.processEvents()
+      this.doom.processEvents()
 
       if (this.makeTic - gameTicDiv >= BACKUP_TICS / 2 - 1) {
         // can't hold any more
@@ -347,14 +347,14 @@ export class Net {
   private oldNetTics = 0
 
   private oldEnterTics = 0
-  async tryRunTics(): Promise<void> {
+  tryRunTics(): void {
     // get real tics
     const enterTic = getTime() / this.ticDup
     const realTics = enterTic - this.oldEnterTics
     this.oldEnterTics = enterTic
 
     // get available tics
-    await this.netUpdate()
+    this.netUpdate()
 
     let lowTic = 2147483647
 
@@ -415,7 +415,7 @@ export class Net {
 
     // wait for new tics if needed
     while (lowTic < (this.game.gameTic / this.ticDup >> 0) + counts) {
-      await this.netUpdate()
+      this.netUpdate()
       lowTic = 2147483647
 
       for (i = 0; i < this.doomCom.numNodes; ++i) {
@@ -446,7 +446,7 @@ export class Net {
           this.doom.doAdvanceDemo()
         }
         this.menu.ticker()
-        await this.game.ticker()
+        this.game.ticker()
         this.game.gameTic++
 
         // modify command for duplicated tics
@@ -465,7 +465,7 @@ export class Net {
       }
 
       // check for new console commands
-      await this.netUpdate()
+      this.netUpdate()
     }
   }
 }

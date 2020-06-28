@@ -59,7 +59,7 @@ export class Tick {
   //
   // P_RunThinkers
   //
-  private async runThinkers(): Promise<void> {
+  private runThinkers(): void {
     let currentThinker = this.thinkerCap.next
 
     while (currentThinker !== null &&
@@ -77,7 +77,7 @@ export class Tick {
         currentThinker.prev.next = currentThinker.next
       } else {
         if (currentThinker.func !== null) {
-          await currentThinker.func.call(currentThinker.handler, currentThinker)
+          currentThinker.func.call(currentThinker.handler, currentThinker)
         }
       }
       currentThinker = currentThinker.next
@@ -87,7 +87,7 @@ export class Tick {
   //
   // P_Ticker
   //
-  async ticker(): Promise<void> {
+  ticker(): void {
     // run the tic
     if (this.game.paused) {
       return
@@ -95,11 +95,11 @@ export class Tick {
 
     for (let i = 0; i < MAX_PLAYERS; ++i) {
       if (this.game.playerInGame[i]) {
-        await this.user.playerThink(this.game.players[i])
+        this.user.playerThink(this.game.players[i])
       }
     }
 
-    await this.runThinkers()
+    this.runThinkers()
 
     // for par times
     this.levelTime++

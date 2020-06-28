@@ -312,7 +312,7 @@ export class Plane {
   // R_DrawPlanes
   // At the end of each frame.
   //
-  async drawPlanes(): Promise<void> {
+  drawPlanes(): void {
 
     if (RANGE_CHECK) {
       if (this.bsp.dsP > MAX_DRAW_SEGS) {
@@ -356,7 +356,7 @@ export class Plane {
             angle = this.rendering.viewAngle + this.rendering.xToViewAngle[x] >> ANGLE_TO_SKY_SHIFT
             this.draw.dcX = x
             this.draw.dcSource = new Uint8ClampedArray(
-              await this.data.getColumn(this.sky.skyTexture, angle),
+              this.data.getColumn(this.sky.skyTexture, angle),
             )
 
             if (this.rendering.colFunc === null) {
@@ -370,7 +370,7 @@ export class Plane {
 
       // regular flat
       this.draw.dsSource = new Uint8ClampedArray(
-        await this.wad.cacheLumpNum(this.data.firstFlat + this.data.flatTranslation[pl.picNum]),
+        this.wad.cacheLumpNum(this.data.firstFlat + this.data.flatTranslation[pl.picNum]),
       )
 
       this.planeHeight = Math.abs(pl.height - this.rendering.viewZ)

@@ -31,7 +31,7 @@ export class Plats {
   //
   // Move a plat up and down
   //
-  private async plateRaise(plat: Plat): Promise<void> {
+  private plateRaise(plat: Plat): void {
     let res: Result
 
     switch (plat.status) {

@@ -25,7 +25,7 @@ export class Lights {
   // Do flashing lights.
   //
 
-  async lightFlash(flash: LightFlash): Promise<void> {
+  lightFlash(flash: LightFlash): void {
     if (--flash.count) {
       return
     }
@@ -65,7 +65,7 @@ export class Lights {
   //
   // T_StrobeFlash
   //
-  async strobeFlash(flash: Strobe): Promise<void> {
+  strobeFlash(flash: Strobe): void {
     if (--flash.count) {
       return
     }
@@ -103,7 +103,7 @@ export class Lights {
   //
   // Spawn glowing light
   //
-  async glow(g: Glow): Promise<void> {
+  glow(g: Glow): void {
     switch (g.direction) {
     case -1:
       // DOWN

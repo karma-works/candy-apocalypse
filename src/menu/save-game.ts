@@ -63,14 +63,14 @@ export const saveDef: MenuStruct = {
 //
 //  M_SaveGame & Cie.
 //
-async function drawSave(menu: Menu): Promise<void> {
+function drawSave(menu: Menu): void {
   menu.rvideo.drawPatchDirect(
     72, 28, 0,
-    await menu.wad.cacheLumpName('M_SAVEG'),
+    menu.wad.cacheLumpName('M_SAVEG'),
   )
 
   for (let i = 0; i < Save.SaveEnd; ++i) {
-    await menu.drawSaveLoadBorder(saveDef.x, saveDef.y + LINEHEIGHT * i)
+    menu.drawSaveLoadBorder(saveDef.x, saveDef.y + LINEHEIGHT * i)
     menu.writeText(
       saveDef.x,
       saveDef.y + LINEHEIGHT * i,
@@ -91,7 +91,7 @@ async function drawSave(menu: Menu): Promise<void> {
 //
 // M_Responder calls this when user is finished
 //
-export async function doSave(menu: Menu, slot: number): Promise<void> {
+export function doSave(menu: Menu, slot: number): void {
   menu.clearMenus()
 
   // PICK QUICKSAVE SLOT YET?
@@ -103,7 +103,7 @@ export async function doSave(menu: Menu, slot: number): Promise<void> {
 //
 // User wants to save. Start string input for M_Responder
 //
-async function saveSelect(menu: Menu, choice: number): Promise<void> {
+function saveSelect(menu: Menu, choice: number): void {
   // we are going to be intercepting all chars
   menu.saveStringEnter = true
 
@@ -115,16 +115,16 @@ async function saveSelect(menu: Menu, choice: number): Promise<void> {
 //
 //      M_QuickSave
 //
-async function quickSaveResponse(menu: Menu, ch: number): Promise<void> {
+function quickSaveResponse(menu: Menu, ch: number): void {
   if (ch === 'y'.charCodeAt(0)) {
-    await doSave(menu, menu.quickSaveSlot)
+    doSave(menu, menu.quickSaveSlot)
   }
 }
 
-export async function quickSave(menu: Menu): Promise<void> {
+export function quickSave(menu: Menu): void {
   if (menu.quickSaveSlot < 0) {
     menu.startControlPanel()
-    await menu.readSaveStrings()
+    menu.readSaveStrings()
     menu.setupNextMenu(saveDef)
     // means to pick a slot now
     menu.quickSaveSlot = -2

@@ -563,9 +563,9 @@ export class Rendering {
     }
   }
 
-  async init(): Promise<void> {
+  init(): void {
 
-    await this.data.initData()
+    this.data.initData()
     console.log('R_InitData')
     // this.initPointToAngle()
     console.log('R_InitPointToAngle')
@@ -653,7 +653,7 @@ export class Rendering {
   //
   // R_RenderView
   //
-  async renderPlayerView(player: Player): Promise<void> {
+  renderPlayerView(player: Player): void {
     this.setupFrame(player)
 
     // Clear buffers.
@@ -663,22 +663,22 @@ export class Rendering {
     this.things.clearSprites()
 
     // check for new console commands.
-    await this.net.netUpdate()
+    this.net.netUpdate()
 
     // The head node is the last node output.
-    await this.bsp.renderBSPNode(this.play.numNodes - 1)
+    this.bsp.renderBSPNode(this.play.numNodes - 1)
 
     // Check for new console commands.
-    await this.net.netUpdate()
+    this.net.netUpdate()
 
-    await this.plane.drawPlanes()
-
-    // Check for new console commands.
-    await this.net.netUpdate()
-
-    await this.things.drawMasked()
+    this.plane.drawPlanes()
 
     // Check for new console commands.
-    await this.net.netUpdate()
+    this.net.netUpdate()
+
+    this.things.drawMasked()
+
+    // Check for new console commands.
+    this.net.netUpdate()
   }
 }

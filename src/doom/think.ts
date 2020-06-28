@@ -1,4 +1,4 @@
-export type Action<H, T> = (this: H, thinker: T) => Promise<void>
+export type Action<H, T> = (this: H, thinker: T) => void
 
 // Doubly linked list of actors.
 export class Thinker<H, T> {
@@ -9,4 +9,4 @@ export class Thinker<H, T> {
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const noopFunc = async() => void 0
+export const noopFunc = () => void 0

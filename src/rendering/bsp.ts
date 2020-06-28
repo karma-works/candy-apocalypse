@@ -87,7 +87,7 @@ export class BSP {
   //  e.g. single sided LineDefs (middle texture)
   //  that entirely block the view.
   //
-  private async clipSolidWallSegment(first: number, last: number): Promise<void> {
+  private clipSolidWallSegment(first: number, last: number): void {
 
     // Find the first range that touches the range
     //  (adjacent pixels are touching).
@@ -105,7 +105,7 @@ export class BSP {
       if (last < start.first - 1) {
         // Post is entirely visible (above start).
         //  so insert a new clippost.
-        await this.segs.storeWallRange(first, last)
+        this.segs.storeWallRange(first, last)
         nextPtr = this.newEndPtr
         next = this.solidSegs[nextPtr]
         this.newEndPtr++
@@ -120,7 +120,7 @@ export class BSP {
         return
       }
       // There is a fragment above *start.
-      await this.segs.storeWallRange(first, start.first - 1)
+      this.segs.storeWallRange(first, start.first - 1)
       // Now adjust the clip size.
       start.first = first
     }
@@ -134,7 +134,7 @@ export class BSP {
     next = start
     while (last >= this.solidSegs[nextPtr + 1].first - 1) {
       // There is a fragment between two posts.
-      await this.segs.storeWallRange(next.last + 1, this.solidSegs[nextPtr + 1].first - 1)
+      this.segs.storeWallRange(next.last + 1, this.solidSegs[nextPtr + 1].first - 1)
       nextPtr++
       next = this.solidSegs[nextPtr]
 
@@ -147,7 +147,7 @@ export class BSP {
     }
 
     // There is a fragment after *next.
-    await this.segs.storeWallRange(next.last + 1, last)
+    this.segs.storeWallRange(next.last + 1, last)
     // Adjust the clip size.
     start.last = last
 
@@ -176,7 +176,7 @@ export class BSP {
   // Does handle windows,
   //  e.g. LineDefs with upper and lower texture.
   //
-  private async clipPassWallSegment(first: number, last: number): Promise<void> {
+  private clipPassWallSegment(first: number, last: number): void {
     // Find the first range that touches the range
     //  (adjacent pixels are touching).
     let startPtr = 0
@@ -189,12 +189,12 @@ export class BSP {
     if (first < start.first) {
       if (last < start.first - 1) {
         // Post is entirely visible (above start).
-        await this.segs.storeWallRange(first, last)
+        this.segs.storeWallRange(first, last)
         return
       }
 
       // There is a fragment above *start.
-      await this.segs.storeWallRange(first, start.first - 1)
+      this.segs.storeWallRange(first, start.first - 1)
     }
 
     // Bottom contained in start?
@@ -204,7 +204,7 @@ export class BSP {
 
     while (last >= this.solidSegs[startPtr + 1].first - 1) {
       // There is a fragment between two posts.
-      await this.segs.storeWallRange(
+      this.segs.storeWallRange(
         start.last + 1,
         this.solidSegs[startPtr + 1].first - 1,
       )
@@ -217,7 +217,7 @@ export class BSP {
     }
 
     // There is a fragment after *next.
-    await this.segs.storeWallRange(start.last + 1, last)
+    this.segs.storeWallRange(start.last + 1, last)
   }
 
   //
@@ -236,7 +236,7 @@ export class BSP {
   // Clips the given segment
   // and adds any visible pieces to the line list.
   //
-  private async addLine(line: Seg): Promise<void> {
+  private addLine(line: Seg): void {
     this.curLine = line
 
     // OPTIMIZE: quickly reject orthogonal back sides.
@@ -296,7 +296,7 @@ export class BSP {
 
     // Single sided line?
     if (!this.backSector) {
-      await this.clipSolidWallSegment(x1, x2 - 1)
+      this.clipSolidWallSegment(x1, x2 - 1)
       return
     }
     if (this.frontSector === null) {
@@ -306,14 +306,14 @@ export class BSP {
     // Closed door.
     if (this.backSector.ceilingHeight <= this.frontSector.floorHeight ||
       this.backSector.floorHeight >= this.frontSector.ceilingHeight) {
-      await this.clipSolidWallSegment(x1, x2 - 1)
+      this.clipSolidWallSegment(x1, x2 - 1)
       return
     }
 
     // Window.
     if (this.backSector.ceilingHeight !== this.frontSector.ceilingHeight ||
       this.backSector.floorHeight !== this.frontSector.floorHeight) {
-      await this.clipPassWallSegment(x1, x2 - 1)
+      this.clipPassWallSegment(x1, x2 - 1)
       return
     }
 
@@ -330,7 +330,7 @@ export class BSP {
       return
     }
 
-    await this.clipPassWallSegment(x1, x2 - 1)
+    this.clipPassWallSegment(x1, x2 - 1)
 
     return
   }
@@ -445,7 +445,7 @@ export class BSP {
   // Add sprites of things in sector.
   // Draw one or more line segments.
   //
-  private async subSector(num: number) {
+  private subSector(num: number) {
 
     if (RANGE_CHECK) {
       if (num >= this.play.numSubSectors) {
@@ -489,7 +489,7 @@ export class BSP {
 
     while (count--) {
       line = this.play.segs[linePtr]
-      await this.addLine(line)
+      this.addLine(line)
       linePtr++
     }
   }
@@ -499,13 +499,13 @@ export class BSP {
   // Renders all subsectors below a given node,
   //  traversing subtree recursively.
   // Just call with BSP root.
-  async renderBSPNode(bspNum: number): Promise<void> {
+  renderBSPNode(bspNum: number): void {
     // Found a subsector?
     if (bspNum & NF_SUBSECTOR) {
       if (bspNum === -1) {
-        await this.subSector(0)
+        this.subSector(0)
       } else {
-        await this.subSector(bspNum & ~NF_SUBSECTOR)
+        this.subSector(bspNum & ~NF_SUBSECTOR)
       }
       return
     }
@@ -516,11 +516,11 @@ export class BSP {
     const side = this.rendering.pointOnSide(this.rendering.viewX, this.rendering.viewY, bsp)
 
     // Recursively divide front space.
-    await this.renderBSPNode(bsp.children[side])
+    this.renderBSPNode(bsp.children[side])
 
     // Possibly divide back space.
     if (this.checkBBox(bsp.bbox[side^1])) {
-      await this.renderBSPNode(bsp.children[side ^ 1])
+      this.renderBSPNode(bsp.children[side ^ 1])
     }
   }
 }

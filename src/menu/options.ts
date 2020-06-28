@@ -74,7 +74,7 @@ export const optionsDef: MenuStruct = {
 //
 //      Toggle messages on/off
 //
-export async function changeMessages(menu: Menu): Promise<void> {
+export function changeMessages(menu: Menu): void {
   // TODO
   menu.headsUp.showMessages = !menu.headsUp.showMessages
   menu.headsUp.messageDontFuckWithMe = true
@@ -83,7 +83,7 @@ export async function changeMessages(menu: Menu): Promise<void> {
 //
 // M_EndGame
 //
-async function endGameResponse(menu: Menu, ch: number): Promise<void> {
+function endGameResponse(menu: Menu, ch: number): void {
   if (ch !== 'y'.charCodeAt(0)) {
     return
   }
@@ -92,11 +92,11 @@ async function endGameResponse(menu: Menu, ch: number): Promise<void> {
   menu.clearMenus()
   menu.doom.startTitle()
 }
-export async function endGame(menu: Menu): Promise<void> {
+export function endGame(menu: Menu): void {
   menu.startMessage(menu.doom.strings.endgame, endGameResponse, true)
 }
 
-async function changeSensitivity(menu: Menu, choice: number): Promise<void> {
+function changeSensitivity(menu: Menu, choice: number): void {
   switch (choice) {
   case 0:
     if (menu.game.mouseSensitivity) {
@@ -111,10 +111,10 @@ async function changeSensitivity(menu: Menu, choice: number): Promise<void> {
   }
 }
 
-export async function changeDetail(/* menu: Menu, choice: number */): Promise<void> {
+export function changeDetail(/* menu: Menu, choice: number */): void {
   // TODO
 }
-export async function sizeDisplay(menu: Menu, choice: number): Promise<void> {
+export function sizeDisplay(menu: Menu, choice: number): void {
   switch (choice) {
   case 0:
     if (menu.rendering.screenSize > 0) {
@@ -134,7 +134,7 @@ export async function sizeDisplay(menu: Menu, choice: number): Promise<void> {
     menu.rendering.detailLevel,
   )
 }
-async function sound(menu: Menu): Promise<void> {
+function sound(menu: Menu): void {
   menu.setupNextMenu(soundDef)
 }
 
@@ -142,30 +142,30 @@ const detailNames = [ 'M_GDHIGH', 'M_GDLOW' ]
 const msgNames = [ 'M_MSGOFF', 'M_MSGON' ]
 
 
-async function drawOptions(menu: Menu): Promise<void> {
+function drawOptions(menu: Menu): void {
   menu.rvideo.drawPatchDirect(
     108, 15, 0,
-    await menu.wad.cacheLumpName('M_OPTTTL'),
+    menu.wad.cacheLumpName('M_OPTTTL'),
   )
 
   menu.rvideo.drawPatchDirect(
     optionsDef.x + 175, optionsDef.y + LINEHEIGHT * Options.Detail, 0,
-    await menu.wad.cacheLumpName(detailNames[menu.rendering.detailLevel]),
+    menu.wad.cacheLumpName(detailNames[menu.rendering.detailLevel]),
   )
 
   menu.rvideo.drawPatchDirect(
     optionsDef.x + 120, optionsDef.y + LINEHEIGHT * Options.Messages, 0,
-    await menu.wad.cacheLumpName(msgNames[menu.headsUp.showMessages ? 0 : 1]),
+    menu.wad.cacheLumpName(msgNames[menu.headsUp.showMessages ? 0 : 1]),
   )
 
-  await menu.drawThermo(
+  menu.drawThermo(
     optionsDef.x,
     optionsDef.y + LINEHEIGHT * (Options.MouseSens + 1),
     10,
     menu.game.mouseSensitivity,
   )
 
-  await menu.drawThermo(
+  menu.drawThermo(
     optionsDef.x,
     optionsDef.y + LINEHEIGHT * (Options.ScrnSize + 1),
     9,

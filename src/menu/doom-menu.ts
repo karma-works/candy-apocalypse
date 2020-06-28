@@ -71,33 +71,33 @@ export const mainDef: MenuStruct = {
 //
 // Selected from DOOM menu
 //
-export async function loadGame(menu: Menu): Promise<void> {
+export function loadGame(menu: Menu): void {
   menu.setupNextMenu(loadDef)
-  await menu.readSaveStrings()
+  menu.readSaveStrings()
 }
 
 //
 // Selected from DOOM menu
 //
-export async function saveGame(menu: Menu): Promise<void> {
+export function saveGame(menu: Menu): void {
   menu.setupNextMenu(saveDef)
-  await menu.readSaveStrings()
+  menu.readSaveStrings()
 }
 
 //
 // M_DrawMainMenu
 //
-async function drawMainMenu(menu: Menu): Promise<void> {
+function drawMainMenu(menu: Menu): void {
   menu.rvideo.drawPatchDirect(
     94, 2, 0,
-    await menu.wad.cacheLumpName('M_DOOM'),
+    menu.wad.cacheLumpName('M_DOOM'),
   )
 }
 
 //
 // M_NewGame
 //
-async function newGame(menu: Menu): Promise<void> {
+function newGame(menu: Menu): void {
   if (menu.doom.gameMode === GameMode.Commercial) {
     menu.setupNextMenu(newDef)
   } else {
@@ -105,25 +105,25 @@ async function newGame(menu: Menu): Promise<void> {
   }
 }
 
-async function options(menu: Menu): Promise<void> {
+function options(menu: Menu): void {
   menu.setupNextMenu(optionsDef)
 }
 
 //
 // M_ReadThis
 //
-async function readThis(menu: Menu): Promise<void> {
+function readThis(menu: Menu): void {
   menu.setupNextMenu(readDef1)
 }
 
-async function quitResponse(menu: Menu, ch: number): Promise<void> {
+function quitResponse(menu: Menu, ch: number): void {
   if (ch !== 'y'.charCodeAt(0)) {
     return
   }
   // TODO
 }
 
-export async function quitDOOM(menu: Menu): Promise<void> {
+export function quitDOOM(menu: Menu): void {
   let endString: string
   // We pick index 0 which is language sensitive,
   //  or one at random, between 1 and maximum number.

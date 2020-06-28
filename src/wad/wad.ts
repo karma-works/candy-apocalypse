@@ -202,7 +202,7 @@ export class Wad {
   // Loads the lump into the given buffer,
   //  which must be >= W_LumpLength().
   //
-  async readLump(lump: number): Promise<ArrayBuffer> {
+  readLump(lump: number): ArrayBuffer {
     if (lump >= this.numLumps) {
       throw `W_ReadLump: ${lump} >= numlumps`
     }
@@ -211,8 +211,7 @@ export class Wad {
 
     let handle: ArrayBuffer
     if (l.handle === null) {
-      const res = await fetch(this.reloadName)
-      handle = await res.arrayBuffer()
+      throw `${this.reloadName} not loaded`
     } else {
       handle = l.handle
     }
@@ -229,13 +228,13 @@ export class Wad {
   //
   // W_CacheLumpNum
   //
-  async cacheLumpNum(lump: number): Promise<ArrayBuffer> {
+  cacheLumpNum(lump: number): ArrayBuffer {
     if (lump >= this.numLumps) {
       throw `W_CacheLumpNum: ${lump} >= numlumps`
     }
     if (!this.lumpCache[lump]) {
       // read the lump in
-      this.lumpCache[lump] = await this.readLump(lump)
+      this.lumpCache[lump] = this.readLump(lump)
     }
 
     return this.lumpCache[lump]
@@ -244,7 +243,7 @@ export class Wad {
   //
   // W_CacheLumpName
   //
-  async cacheLumpName(name: string): Promise<ArrayBuffer> {
+  cacheLumpName(name: string): ArrayBuffer {
     return this.cacheLumpNum(this.getNumForName(name))
   }
 }

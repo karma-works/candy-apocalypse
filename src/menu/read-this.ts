@@ -51,19 +51,19 @@ export const readDef2: MenuStruct = {
 // Read This Menus
 // Had a "quick hack to fix romero bug"
 //
-export async function drawReadThis1(menu: Menu): Promise<void> {
+export function drawReadThis1(menu: Menu): void {
   menu.inHelpScreens = true
   switch (menu.doom.gameMode) {
   case GameMode.Commercial:
     menu.rvideo.drawPatchDirect(0, 0, 0,
-      await menu.wad.cacheLumpName('HELP'),
+      menu.wad.cacheLumpName('HELP'),
     )
     break
   case GameMode.Shareware:
   case GameMode.Registered:
   case GameMode.Retail:
     menu.rvideo.drawPatchDirect(0, 0, 0,
-      await menu.wad.cacheLumpName('HELP1'),
+      menu.wad.cacheLumpName('HELP1'),
     )
     break
   default:
@@ -74,20 +74,20 @@ export async function drawReadThis1(menu: Menu): Promise<void> {
 //
 // Read This Menus - optional second page.
 //
-async function drawReadThis2(menu: Menu): Promise<void> {
+function drawReadThis2(menu: Menu): void {
   menu.inHelpScreens = true
   switch (menu.doom.gameMode) {
   case GameMode.Retail:
   case GameMode.Commercial:
     // This hack keeps us from having to change menus.
     menu.rvideo.drawPatchDirect(0, 0, 0,
-      await menu.wad.cacheLumpName('CREDIT'),
+      menu.wad.cacheLumpName('CREDIT'),
     )
     break
   case GameMode.Shareware:
   case GameMode.Registered:
     menu.rvideo.drawPatchDirect(0, 0, 0,
-      await menu.wad.cacheLumpName('HELP2'),
+      menu.wad.cacheLumpName('HELP2'),
     )
     break
   default:
@@ -95,9 +95,9 @@ async function drawReadThis2(menu: Menu): Promise<void> {
   }
 }
 
-async function readThis2(menu: Menu): Promise<void> {
+function readThis2(menu: Menu): void {
   menu.setupNextMenu(readDef2)
 }
-export async function finishReadThis(menu: Menu): Promise<void> {
+export function finishReadThis(menu: Menu): void {
   menu.setupNextMenu(mainDef)
 }

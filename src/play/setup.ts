@@ -112,7 +112,7 @@ export class Play {
   //
   // P_LoadVertexes
   //
-  private async loadVertexes(lump: number): Promise<void> {
+  private loadVertexes(lump: number): void {
     // Determine number of lumps:
     //  total lump length / vertex record length.
     this.numVertexes = this.wad.lumpLength(lump) / MapVertex.sizeOf
@@ -121,7 +121,7 @@ export class Play {
     this.vertexes = new Array(this.numVertexes)
 
     // Load data into cache.
-    const data = await this.wad.cacheLumpNum(lump)
+    const data = this.wad.cacheLumpNum(lump)
     let ml: MapVertex
     let mlPtr = 0
     // Copy and convert vertex coordinates,
@@ -138,10 +138,10 @@ export class Play {
   //
   // P_LoadSegs
   //
-  private async loadSegs(lump: number): Promise<void> {
+  private loadSegs(lump: number): void {
     this.numSegs = this.wad.lumpLength(lump) / MapSeg.sizeOf
     this.segs = new Array(this.numSegs)
-    const data = await this.wad.cacheLumpNum(lump)
+    const data = this.wad.cacheLumpNum(lump)
 
     let ml: MapSeg
     let mlIdx = 0
@@ -172,10 +172,10 @@ export class Play {
   //
   // P_LoadSubsectors
   //
-  private async loadSubSectors(lump: number): Promise<void> {
+  private loadSubSectors(lump: number): void {
     this.numSubSectors = this.wad.lumpLength(lump) / MapSubSector.sizeOf
     this.subSectors = new Array(this.numSubSectors)
-    const data = await this.wad.cacheLumpNum(lump)
+    const data = this.wad.cacheLumpNum(lump)
 
     let ms: MapSubSector
     let msPtr = 0
@@ -193,10 +193,10 @@ export class Play {
   //
   // P_LoadSectors
   //
-  private async loadSectors(lump: number): Promise<void> {
+  private loadSectors(lump: number): void {
     this.numSectors = this.wad.lumpLength(lump) / MapSector.sizeOf
     this.sectors = new Array(this.numSectors)
-    const data = await this.wad.cacheLumpNum(lump)
+    const data = this.wad.cacheLumpNum(lump)
 
     let ms: MapSector
     let msPtr = 0
@@ -218,10 +218,10 @@ export class Play {
   //
   // P_LoadNodes
   //
-  private async loadNodes(lump: number): Promise<void> {
+  private loadNodes(lump: number): void {
     this.numNodes = this.wad.lumpLength(lump) / MapNode.sizeOf
     this.nodes = new Array(this.numNodes)
-    const data = await this.wad.cacheLumpNum(lump)
+    const data = this.wad.cacheLumpNum(lump)
 
     let mn: MapNode
     let mnPtr = 0
@@ -253,8 +253,8 @@ export class Play {
   //
   // P_LoadThings
   //
-  private async loadThings(lump: number) {
-    const data = await this.wad.cacheLumpNum(lump)
+  private loadThings(lump: number) {
+    const data = this.wad.cacheLumpNum(lump)
     const numThings = this.wad.lumpLength(lump) / MapThing.sizeOf
 
     let mt: MapThing
@@ -287,7 +287,7 @@ export class Play {
         break
       }
 
-      await this.mObjHandler.spawnMapThing(mt)
+      this.mObjHandler.spawnMapThing(mt)
     }
   }
 
@@ -295,10 +295,10 @@ export class Play {
   // P_LoadLineDefs
   // Also counts secret lines for intermissions.
   //
-  private async loadLineDefs(lump: number): Promise<void> {
+  private loadLineDefs(lump: number): void {
     this.numLines = this.wad.lumpLength(lump) / MapLineDef.sizeOf
     this.lines = new Array(this.numLines)
-    const data = await this.wad.cacheLumpNum(lump)
+    const data = this.wad.cacheLumpNum(lump)
 
     let mld: MapLineDef
     let mldPtr = 0
@@ -332,10 +332,10 @@ export class Play {
   //
   // P_LoadSideDefs
   //
-  private async loadSideDefs(lump: number): Promise<void> {
+  private loadSideDefs(lump: number): void {
     this.numSides = this.wad.lumpLength(lump) / MapSideDef.sizeOf
     this.sides = new Array(this.numSides)
-    const data = await this.wad.cacheLumpNum(lump)
+    const data = this.wad.cacheLumpNum(lump)
 
     let msd: MapSideDef
     let msdPtr = 0
@@ -356,8 +356,8 @@ export class Play {
   //
   // P_LoadBlockMap
   //
-  private async loadBlockMap(lump: number): Promise<void> {
-    const buffer = await this.wad.cacheLumpNum(lump)
+  private loadBlockMap(lump: number): void {
+    const buffer = this.wad.cacheLumpNum(lump)
     this.blockMapLump = new Int16Array(buffer)
     this.blockMap = new Int16Array(buffer, 8)
 
@@ -456,7 +456,7 @@ export class Play {
   //
   // P_SetupLevel
   //
-  async setupLevel(episode: number, map: number, playMask: number, skill: Skill): Promise<void> {
+  setupLevel(episode: number, map: number, playMask: number, skill: Skill): void {
     this.doom.game.totalKills =
         this.doom.game.totalItems =
         this.doom.game.totalSecret = 0
@@ -490,21 +490,21 @@ export class Play {
     this.tick.levelTime = 0
 
     // note: most of this ordering is important
-    await this.loadBlockMap(lumpNum + MapLumpOrder.BlockMap)
-    await this.loadVertexes(lumpNum + MapLumpOrder.Vertexes)
-    await this.loadSectors(lumpNum + MapLumpOrder.Sectors)
-    await this.loadSideDefs(lumpNum + MapLumpOrder.SideDefs)
+    this.loadBlockMap(lumpNum + MapLumpOrder.BlockMap)
+    this.loadVertexes(lumpNum + MapLumpOrder.Vertexes)
+    this.loadSectors(lumpNum + MapLumpOrder.Sectors)
+    this.loadSideDefs(lumpNum + MapLumpOrder.SideDefs)
 
-    await this.loadLineDefs(lumpNum + MapLumpOrder.LineDefs)
-    await this.loadSubSectors(lumpNum + MapLumpOrder.SSectors)
-    await this.loadNodes(lumpNum + MapLumpOrder.Nodes)
-    await this.loadSegs(lumpNum + MapLumpOrder.Segs)
+    this.loadLineDefs(lumpNum + MapLumpOrder.LineDefs)
+    this.loadSubSectors(lumpNum + MapLumpOrder.SSectors)
+    this.loadNodes(lumpNum + MapLumpOrder.Nodes)
+    this.loadSegs(lumpNum + MapLumpOrder.Segs)
 
-    this.rejectMatrix = await this.wad.cacheLumpNum(lumpNum + MapLumpOrder.Reject)
+    this.rejectMatrix = this.wad.cacheLumpNum(lumpNum + MapLumpOrder.Reject)
     this.groupLines()
 
     this.game.bodyQueSlot = 0
-    await this.loadThings(lumpNum + MapLumpOrder.Things)
+    this.loadThings(lumpNum + MapLumpOrder.Things)
 
     // set up world state
     this.special.spawnSpecials()

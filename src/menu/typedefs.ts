@@ -12,7 +12,7 @@ export interface MenuItem {
   // choice = menu item #.
   // if status = 2,
   //   choice=0:leftarrow,1:rightarrow
-  routine?: (menu: Menu, choice: number) => Promise<void>
+  routine?: (menu: Menu, choice: number) => void
 
   // hotkey in menu
   alphaKey?: string
@@ -25,7 +25,7 @@ export interface MenuStruct {
   // menu items
   menuItems: MenuItem[]
   // draw routine
-  routine?: (menu: Menu) => Promise<void>
+  routine?: (menu: Menu) => void
   // x,y of menu
   x: number
   y: number

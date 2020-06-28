@@ -35,7 +35,7 @@ export class Doors {
   //
   // T_VerticalDoor
   //
-  private async verticalDoor(door: Door): Promise<void> {
+  private verticalDoor(door: Door): void {
     let res: Result
     switch (door.direction) {
     case 0:

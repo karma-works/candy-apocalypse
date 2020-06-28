@@ -253,7 +253,7 @@ export class HeadsUp {
 
   constructor(public doom: Doom) { }
 
-  async init(): Promise<void> {
+  init(): void {
     let buffer: string
     let paddedJ: string
     let j = HU_FONTSTART
@@ -262,7 +262,7 @@ export class HeadsUp {
       paddedJ = '0'.repeat(3 - paddedJ.length) + paddedJ
       buffer = 'STCFN' + paddedJ
 
-      this.font[i] = new Patch(await this.wad.cacheLumpName(buffer))
+      this.font[i] = new Patch(this.wad.cacheLumpName(buffer))
     }
   }
 

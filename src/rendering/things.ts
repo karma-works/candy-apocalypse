@@ -328,9 +328,9 @@ export class Things {
   // R_DrawVisSprite
   //  mfloorclip and mceilingclip should also be set.
   //
-  async drawVisSprite(vis: VisSprite): Promise<void> {
+  drawVisSprite(vis: VisSprite): void {
     const patch = new Patch(
-      await this.wad.cacheLumpNum(vis.patch + this.data.firstSpriteLump),
+      this.wad.cacheLumpNum(vis.patch + this.data.firstSpriteLump),
     )
 
     this.draw.dcColorMap = vis.colorMap
@@ -532,7 +532,7 @@ export class Things {
   //
   // R_DrawPSprite
   //
-  async drawPSprite(psp: PSpriteDef): Promise<void> {
+  drawPSprite(psp: PSpriteDef): void {
     if (psp.state === null) {
       throw 'psp.state = null'
     }
@@ -615,13 +615,13 @@ export class Things {
       vis.colorMap = this.spriteLights[MAX_LIGHT_SCALE - 1]
     }
 
-    await this.drawVisSprite(vis)
+    this.drawVisSprite(vis)
   }
 
   //
   // R_DrawPlayerSprites
   //
-  async drawPlayerSprites(): Promise<void> {
+  drawPlayerSprites(): void {
     if (this.rendering.viewPlayer === null) {
       throw 'this.rendering.viewPlayer = null'
     }
@@ -657,7 +657,7 @@ export class Things {
     for (let i = 0; i < PSpriteNum.NUM_PSPRITES; ++i) {
       psp = this.rendering.viewPlayer.pSprites[i]
       if (psp.state) {
-        await this.drawPSprite(psp)
+        this.drawPSprite(psp)
       }
     }
   }
@@ -725,7 +725,7 @@ export class Things {
   //
   // R_DrawSprite
   //
-  async drawSprite(spr: VisSprite): Promise<void> {
+  drawSprite(spr: VisSprite): void {
 
     const clipBot = new Int16Array(SCREENWIDTH)
     const clipTop = new Int16Array(SCREENWIDTH)
@@ -776,7 +776,7 @@ export class Things {
       ) {
         // masked mid texture?
         if (ds.maskedTextureCol) {
-          await this.segs.renderMaskedSegRange(ds, r1, r2)
+          this.segs.renderMaskedSegRange(ds, r1, r2)
         }
         // seg is behind sprite
         continue
@@ -849,13 +849,13 @@ export class Things {
     this.mFloorClip = clipBot
     this.mCeilingClip = clipTop
 
-    await this.drawVisSprite(spr)
+    this.drawVisSprite(spr)
   }
 
   //
   // R_DrawMasked
   //
-  async drawMasked(): Promise<void> {
+  drawMasked(): void {
     this.sortVisSprites()
 
     if (this.visSpritePtr > 0) {
@@ -864,7 +864,7 @@ export class Things {
         spr && spr !== this.vSprSortedHead;
         spr = spr.next
       ) {
-        await this.drawSprite(spr)
+        this.drawSprite(spr)
       }
     }
 
@@ -873,14 +873,14 @@ export class Things {
     for (let dsPtr = this.bsp.dsP - 1; dsPtr >= 0; --dsPtr) {
       ds = this.bsp.drawSegs[dsPtr]
       if (ds.maskedTextureCol) {
-        await this.segs.renderMaskedSegRange(ds, ds.x1, ds.x2)
+        this.segs.renderMaskedSegRange(ds, ds.x1, ds.x2)
       }
     }
 
     // draw the psprites on top of everything
     //  but does not draw on side views
     if (!this.rendering.viewAngleOffset) {
-      await this.drawPlayerSprites()
+      this.drawPlayerSprites()
     }
   }
 }

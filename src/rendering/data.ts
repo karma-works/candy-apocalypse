@@ -131,7 +131,7 @@ export class Data {
   //  the composite texture is created from the patches,
   //  and each column is cached.
   //
-  async generateComposite(textNum: number): Promise<void> {
+  generateComposite(textNum: number): void {
 
     const texture = this.textures[textNum]
     const colLump = this.textureColumnLump[textNum]
@@ -149,7 +149,7 @@ export class Data {
     let patchCol: Column
     for (let i = 0; i < texture.patchCount; ++i) {
       patch = texture.patches[i]
-      realPatch = new Patch(await this.wad.cacheLumpNum(patch.patch))
+      realPatch = new Patch(this.wad.cacheLumpNum(patch.patch))
       x1 = patch.originX
       x2 = x1 + realPatch.width
 
@@ -184,7 +184,7 @@ export class Data {
   //
   // R_GenerateLookup
   //
-  private async generateLookup(textNum: number): Promise<void> {
+  private generateLookup(textNum: number): void {
     const texture = this.textures[textNum]
 
     // Composited texture not created yet.
@@ -205,7 +205,7 @@ export class Data {
     let x: number, x1: number, x2: number
     for (let i = 0; i < texture.patchCount; ++i) {
       patch = texture.patches[i]
-      realPatch = new Patch(await this.wad.cacheLumpNum(patch.patch))
+      realPatch = new Patch(this.wad.cacheLumpNum(patch.patch))
       x1 = patch.originX
       x2 = x1 + realPatch.width
 
@@ -249,7 +249,7 @@ export class Data {
   //
   // R_GetColumn
   //
-  async getColumn(tex: number, col: number, withHeader = false): Promise<ArrayBuffer> {
+  getColumn(tex: number, col: number, withHeader = false): ArrayBuffer {
     col &= this.textureWidthMask[tex]
     const lump = this.textureColumnLump[tex][col]
     let ofs = this.textureColumnOfs[tex][col]
@@ -258,13 +258,13 @@ export class Data {
     }
 
     if (lump > 0) {
-      return (await this.wad.cacheLumpNum(lump)).slice(ofs)
+      return this.wad.cacheLumpNum(lump).slice(ofs)
     }
 
     if (!this.textureComposite[tex] ||
       this.textureComposite[tex].byteLength === 0
     ) {
-      await this.generateComposite(tex)
+      this.generateComposite(tex)
     }
 
     return this.textureComposite[tex].slice(ofs)
@@ -275,10 +275,10 @@ export class Data {
   // Initializes the texture list
   //  with the textures from the world map.
   //
-  private async initTextures(): Promise<void> {
+  private initTextures(): void {
     // Load the patch names from pnames.lmp.
 
-    const names = await this.wad.cacheLumpName('PNAMES')
+    const names = this.wad.cacheLumpName('PNAMES')
     let int32 = new Int32Array(names, 0, 1)
     const numMapPatches = int32[0]
     const patchLoopkup = new Array<number>(numMapPatches)
@@ -295,7 +295,7 @@ export class Data {
     //  TEXTURE1 for shareware, plus TEXTURE2 for commercial.
     let mapTex: ArrayBuffer, mapTex2: ArrayBuffer | null
     let maxOff: number, maxOff2: number
-    mapTex = await this.wad.cacheLumpName('TEXTURE1')
+    mapTex = this.wad.cacheLumpName('TEXTURE1')
     int32 = new Int32Array(mapTex, 0, 1)
     const numTextures1 = int32[0]
     let numTextures2: number
@@ -304,7 +304,7 @@ export class Data {
     let directory = new Int32Array(mapTex, 4, numTextures1)
 
     if (this.wad.checkNumForName('TEXTURE2') !== -1) {
-      mapTex2 = await this.wad.cacheLumpName('TEXTURE2')
+      mapTex2 = this.wad.cacheLumpName('TEXTURE2')
       int32 = new Int32Array(mapTex2, 0, 1)
       numTextures2 = int32[0]
       maxOff2 =this.wad.lumpLength(this.wad.getNumForName('TEXTURE2'))
@@ -382,7 +382,7 @@ export class Data {
 
     // Precalculate whatever possible.
     for (let i = 0; i < this.numTextures; ++i) {
-      await this.generateLookup(i)
+      this.generateLookup(i)
     }
 
     // Create translation table for global animation.
@@ -415,7 +415,7 @@ export class Data {
   //  so the sprite does not need to be cached completely
   //  just for having the header info ready during rendering.
   //
-  private async initSpriteLumps(): Promise<void> {
+  private initSpriteLumps(): void {
 
     this.firstSpriteLump = this.wad.getNumForName('S_START') + 1
     this.lastSpriteLump = this.wad.getNumForName('S_END') - 1
@@ -427,7 +427,7 @@ export class Data {
 
     let patch: Patch
     for (let i = 0; i < this.numSpriteLumps; ++i) {
-      patch = new Patch(await this.wad.cacheLumpNum(this.firstSpriteLump + i))
+      patch = new Patch(this.wad.cacheLumpNum(this.firstSpriteLump + i))
 
       this.spriteWidth[i] = patch.width << FRACBITS
       this.spriteOffset[i] = patch.leftOffset << FRACBITS
@@ -438,14 +438,14 @@ export class Data {
   //
   // R_InitColormaps
   //
-  private async initColorMaps(): Promise<void> {
+  private initColorMaps(): void {
     // Load in the light tables,
     //  256 byte align tables.
 
     const lump = this.wad.getNumForName('COLORMAP')
 
     // const colorMaps
-    this.colorMaps = new Uint8ClampedArray(await this.wad.readLump(lump))
+    this.colorMaps = new Uint8ClampedArray(this.wad.readLump(lump))
   }
 
   //
@@ -454,14 +454,14 @@ export class Data {
   //  that will be used by all views
   // Must be called after W_Init.
   //
-  async initData(): Promise<void> {
-    await this.initTextures()
+  initData(): void {
+    this.initTextures()
     console.log('InitTextures')
     this.initFlats()
     console.log('InitFlats')
-    await this.initSpriteLumps()
+    this.initSpriteLumps()
     console.log('InitSprites')
-    await this.initColorMaps()
+    this.initColorMaps()
     console.log('InitColormaps')
   }
 
@@ -522,7 +522,7 @@ export class Data {
   private textureMemory = 0
   private spriteMemory = 0
 
-  async precacheLevel(): Promise<void> {
+  precacheLevel(): void {
     if (this.game.demoPlayback) {
       return
     }
@@ -541,7 +541,7 @@ export class Data {
       if (flatPresent[i]) {
         lump = this.firstFlat + i
         this.flatMemory += this.wad.lumpInfo[lump].size
-        await this.wad.cacheLumpNum(lump)
+        this.wad.cacheLumpNum(lump)
       }
     }
 
@@ -575,7 +575,7 @@ export class Data {
       for (j = 0; j < texture.patchCount; ++j) {
         lump = texture.patches[j].patch
         this.textureMemory += this.wad.lumpInfo[lump].size
-        await this.wad.cacheLumpNum(lump)
+        this.wad.cacheLumpNum(lump)
       }
     }
 
@@ -605,7 +605,7 @@ export class Data {
         for (k = 0; k < 8; ++k) {
           lump = this.firstSpriteLump + sf.lump[k]
           this.spriteMemory += this.wad.lumpInfo[lump].size
-          await this.wad.cacheLumpNum(lump)
+          this.wad.cacheLumpNum(lump)
         }
       }
     }

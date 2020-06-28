@@ -52,14 +52,14 @@ export const episodeDef: MenuStruct = {
 //
 let epi: number
 
-async function drawEpisode(menu: Menu): Promise<void> {
+function drawEpisode(menu: Menu): void {
   menu.rvideo.drawPatchDirect(
     54, 38, 0,
-    await menu.wad.cacheLumpName('M_EPISOD'),
+    menu.wad.cacheLumpName('M_EPISOD'),
   )
 }
 
-async function verifyNightmare(menu: Menu, ch: number): Promise<void> {
+function verifyNightmare(menu: Menu, ch: number): void {
   if (ch !== 'y'.charCodeAt(0)) {
     return
   }
@@ -67,7 +67,7 @@ async function verifyNightmare(menu: Menu, ch: number): Promise<void> {
   menu.clearMenus()
 }
 
-export async function chooseSkill(menu: Menu, choice: number): Promise<void> {
+export function chooseSkill(menu: Menu, choice: number): void {
   if (choice === NewGame.Nightmare) {
     menu.startMessage(menu.doom.strings.nightmare, verifyNightmare, true)
     return
@@ -76,7 +76,7 @@ export async function chooseSkill(menu: Menu, choice: number): Promise<void> {
   menu.clearMenus()
 }
 
-async function episode(menu: Menu, choice: number): Promise<void> {
+function episode(menu: Menu, choice: number): void {
   epi = choice
   menu.setupNextMenu(newDef)
 }
