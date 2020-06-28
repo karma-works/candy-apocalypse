@@ -164,6 +164,31 @@ export const enum MObjFlag {
 }
 
 
+export const enum DirType {
+  East,
+  NorthEast,
+  North,
+  NorthWest,
+  West,
+  SouthWest,
+  South,
+  SouthEast,
+  NoDir,
+  NUM_DIRS,
+}
+
+//
+// P_NewChaseDir related LUT.
+//
+export const opposite: readonly DirType[] = [
+  DirType.West, DirType.SouthWest, DirType.South, DirType.SouthEast,
+  DirType.East, DirType.NorthEast, DirType.North, DirType.NorthWest, DirType.NoDir,
+]
+
+export const diags: readonly DirType[] = [
+  DirType.NorthWest, DirType.NorthEast, DirType.SouthWest, DirType.SouthEast,
+]
+
 // Map Object definition.
 export class MObj extends Thinker<MObjHandler, MObj> {
   // More list: links in sector (if needed)
@@ -204,13 +229,13 @@ export class MObj extends Thinker<MObjHandler, MObj> {
 
   // state tic counter
   tics: number
-  state: State
+  state: State<unknown>
   flags: number
   health: number
 
   // Movement direction, movement generation (zig-zagging).
   // 0-7
-  moveDir = 0
+  moveDir: DirType = 0
   // when 0, select a new dir
   moveCount = 0
 

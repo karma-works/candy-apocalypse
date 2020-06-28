@@ -1,19 +1,34 @@
 import { ANG270, ANG90 } from '../misc/table'
-import { MObj, MObjFlag } from './mobj'
+import { DirType, MObj, MObjFlag, diags, opposite } from './mobj'
+import { FLOAT_SPEED, MELEE_RANGE } from './local'
+import { Doom } from '../doom/doom'
+import { FRACUNIT } from '../misc/fixed'
 import { Game } from '../game/game'
-import { MELEE_RANGE } from './local'
+import { Line } from '../rendering/line'
 import { MObjHandler } from './mobj-handler'
+import { Map } from './map'
 import { MapUtils } from './map-utils'
 import { Play } from './setup'
 import { Player } from '../doom/player'
 import { Rendering } from '../rendering/rendering'
 import { Sight } from './sight'
+import { Skill } from '../global/doomdef'
+import { Switch } from './switch'
+import { random } from '../misc/random'
 // import { PSpriteDef } from './sprite'
 
+const xSpeed: readonly number[] = [ FRACUNIT, 47000, 0, -47000, -FRACUNIT, -47000, 0, 47000 ]
+const ySpeed: readonly number[] = [ 0, 47000, FRACUNIT, 47000, 0, -47000, -FRACUNIT, -47000 ]
 export class Enemy {
 
+  private get doom(): Doom {
+    return this.play.doom
+  }
   private get game(): Game {
     return this.play.game
+  }
+  private get map(): Map {
+    return this.play.map
   }
   private get mapUtils(): MapUtils {
     return this.play.mapUtils
@@ -27,14 +42,241 @@ export class Enemy {
   private get sight(): Sight {
     return this.play.sight
   }
+  private get switch(): Switch {
+    return this.play.switch
+  }
+
   constructor(private play: Play) { }
+
+  //
+  // P_CheckMeleeRange
+  //
+  private checkMeleeRange(actor: MObj): boolean {
+    if (!actor.target) {
+      return false
+    }
+
+    const pl = actor.target
+    const dist = this.mapUtils.aproxDistance(pl.x - actor.x, pl.y - actor.y)
+
+    if (dist >= MELEE_RANGE - 20 * FRACUNIT + pl.info.radius) {
+      return false
+    }
+
+    if (!this.sight.checkSight(actor, actor.target)) {
+      return false
+    }
+
+    return true
+  }
+
+  private move(actor: MObj): boolean {
+    if (actor.moveDir === DirType.NoDir) {
+      return false
+    }
+
+    if (actor.moveDir >>> 0 >= 8) {
+      throw 'Weird actor->movedir!'
+    }
+
+    const tryX = actor.x + actor.info.speed * xSpeed[actor.moveDir]
+    const tryY = actor.y + actor.info.speed * ySpeed[actor.moveDir]
+
+    const tryOk = this.map.tryMove(actor, tryX, tryY)
+    let good: boolean
+    let ld: Line
+
+    if (!tryOk) {
+      // open any specials
+      if (actor.flags & MObjFlag.Float && this.map.floatOK) {
+        // must adjust height
+        if (actor.z < this.map.tmFloorZ) {
+          actor.z += FLOAT_SPEED
+        } else {
+          actor.z -= FLOAT_SPEED
+        }
+
+        actor.flags |= MObjFlag.InFloat
+        return true
+      }
+
+      if (!this.map.numSpecHit) {
+        return false
+      }
+
+      actor.moveDir = DirType.NoDir
+      good = false
+      while (this.map.numSpecHit--) {
+        ld = this.map.specHit[this.map.numSpecHit]
+        // if the special is not a door
+        // that can be opened,
+        // return false
+        if (this.switch.useSpecialLine(actor, ld, 0)) {
+          good = true
+        }
+      }
+
+      return good
+    } else {
+      actor.flags &= ~MObjFlag.InFloat
+    }
+
+    if (!(actor.flags & MObjFlag.Float)) {
+      actor.z = actor.floorZ
+    }
+    return true
+  }
+
+  //
+  // TryWalk
+  // Attempts to move actor on
+  // in its current (ob->moveangle) direction.
+  // If blocked by either a wall or an actor
+  // returns FALSE
+  // If move is either clear or blocked only by a door,
+  // returns TRUE and sets...
+  // If a door is in the way,
+  // an OpenDoor call is made to start it opening.
+  //
+  private tryWalk(actor: MObj): boolean {
+    if (!this.move(actor)) {
+      return false
+    }
+
+    actor.moveCount = random.pRandom() & 15
+    return true
+  }
+
+  private newChaseDir(actor: MObj): void {
+
+    if (!actor.target) {
+      throw 'P_NewChaseDir: called with no target'
+    }
+
+    const oldDir = actor.moveDir
+    const turnAround = opposite[oldDir]
+
+    const deltaX = actor.target.x - actor.x
+    const deltaY = actor.target.y - actor.y
+
+    const d: DirType[] = [ 0, 0, 0 ]
+
+    if (deltaX > 10 * FRACUNIT) {
+      d[1] = DirType.East
+    } else if (deltaX < -10 * FRACUNIT) {
+      d[1] = DirType.West
+    } else {
+      d[1] = DirType.NoDir
+    }
+
+    if (deltaY < -10 * FRACUNIT) {
+      d[2] = DirType.South
+    } else if (deltaY > 10 * FRACUNIT) {
+      d[2] = DirType.North
+    } else {
+      d[2] = DirType.NoDir
+    }
+
+    // try direct route
+    if (d[1] !== DirType.NoDir &&
+      d[2] !== DirType.NoDir
+    ) {
+      actor.moveDir = diags[((deltaY < 0 ? 1 : 0) << 1) + (deltaX > 0 ? 1 : 0)]
+      if (actor.moveDir !== turnAround && this.tryWalk(actor)) {
+        return
+      }
+    }
+
+    let tDir: number
+    // try other directions
+    if (random.pRandom() > 200 ||
+      Math.abs(deltaY) > Math.abs(deltaX)
+    ) {
+      tDir = d[1]
+      d[1] = d[2]
+      d[2] = tDir
+    }
+
+    if (d[1] === turnAround) {
+      d[1] = DirType.NoDir
+    }
+    if (d[2] === turnAround) {
+      d[2] = DirType.NoDir
+    }
+
+    if (d[1] !== DirType.NoDir) {
+      actor.moveDir = d[1]
+      if (this.tryWalk(actor)) {
+        // either moved forward or attacked
+        return
+      }
+    }
+
+    if (d[2] !== DirType.NoDir) {
+      actor.moveDir = d[2]
+
+      if (this.tryWalk(actor)) {
+        return
+      }
+    }
+
+    // there is no direct path to the player,
+    // so pick another direction.
+    if (oldDir !== DirType.NoDir) {
+      actor.moveDir = oldDir
+
+      if (this.tryWalk(actor)) {
+        return
+      }
+    }
+
+    // randomly determine direction of search
+    if (random.pRandom() & 1) {
+      for (tDir = DirType.East;
+        tDir <= DirType.SouthEast;
+        tDir++
+      ) {
+        if (tDir !== turnAround) {
+          actor.moveDir = tDir
+
+          if (this.tryWalk(actor)) {
+            return
+          }
+        }
+      }
+    } else {
+      for (tDir = DirType.SouthEast;
+        tDir !== DirType.East - 1;
+        tDir--
+      ) {
+        if (tDir !== turnAround) {
+          actor.moveDir = tDir
+
+          if (this.tryWalk(actor)) {
+            return
+          }
+        }
+      }
+    }
+
+    if (turnAround !== DirType.NoDir) {
+      actor.moveDir = turnAround
+      if (this.tryWalk(actor)) {
+        return
+      }
+    }
+
+    // can not move
+    actor.moveDir = DirType.NoDir
+
+  }
 
   //
   // P_LookForPlayers
   // If allaround is false, only look 180 degrees in front.
   // Returns true if a player is targeted.
   //
-  lookForPlayers(actor: MObj, allAround: boolean): boolean {
+  private lookForPlayers(actor: MObj, allAround: boolean): boolean {
     let c = 0
     const stop = actor.lastLook - 1 & 3
     let player: Player
@@ -144,8 +386,91 @@ export class Enemy {
     this.mObjHandler.setMObjState(actor, actor.info.seeState)
   }
 
-  chase(/* actor: MObj */): void {
-    debugger
+  //
+  // A_Chase
+  // Actor has a melee attack,
+  // so it tries to close as fast as possible
+  //
+  chase(actor: MObj): void {
+    if (actor.reactionTime) {
+      --actor.reactionTime
+    }
+
+    // modify target threshold
+    if (actor.threshold) {
+      if (!actor.target ||
+        actor.target.health <= 0
+      ) {
+        actor.threshold = 0
+      } else {
+        actor.threshold--
+      }
+    }
+
+    // turn towards movement direction if not there yet
+    if (actor.moveDir < 8) {
+      actor.angle = (actor.angle & 7 << 29) >>> 0
+      const delta = actor.angle - (actor.moveDir << 29)
+
+      if (delta > 0) {
+        actor.angle = actor.angle - ANG90 / 2 >>> 0
+      } else if (delta < 0) {
+        actor.angle = actor.angle + ANG90 / 2 >>> 0
+      }
+    }
+
+    if (!actor.target ||
+      !(actor.target.flags & MObjFlag.Shootable)
+    ) {
+      // look for a new target
+      if (this.lookForPlayers(actor, true)) {
+        // got a new target
+        return
+      }
+
+      this.mObjHandler.setMObjState(actor, actor.info.spawnState)
+      return
+    }
+
+    // do not attack twice in a row
+    if (actor.flags & MObjFlag.JustAttacked) {
+      actor.flags &= ~MObjFlag.JustAttacked
+      if (this.game.gameSkill !== Skill.Nightmare && this.doom.fastParam) {
+        this.newChaseDir(actor)
+      }
+      return
+    }
+
+    // check for melee attack
+    if (actor.info.meleeState &&
+      this.checkMeleeRange(actor)
+    ) {
+      this.mObjHandler.setMObjState(actor, actor.info.meleeState)
+      return
+    }
+
+    // check for missile attack
+    if (actor.info.missileState) {
+      debugger
+    }
+
+    // possibly choose another target
+    if (this.game.netGame &&
+      !actor.threshold &&
+      !this.sight.checkSight(actor, actor.target)
+    ) {
+      if (this.lookForPlayers(actor, true)) {
+        // got a new target
+        return
+      }
+    }
+
+    // chase towards player
+    if (--actor.moveCount < 0 ||
+      this.move(actor)
+    ) {
+      this.newChaseDir(actor)
+    }
   }
 
   faceTarget(/* actor: MObj */): void {

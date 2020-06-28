@@ -1,5 +1,7 @@
 import { FRACBITS, FRACUNIT } from '../misc/fixed'
 
+export const FLOAT_SPEED = FRACUNIT * 4
+
 export const MAX_HEALTH = 100
 export const VIEW_HEIGHT = 41*FRACUNIT
 
