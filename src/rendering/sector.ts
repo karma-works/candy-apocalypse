@@ -22,7 +22,7 @@ export class Sector {
   // 0 = untraversed, 1,2 = sndlines -1
   soundTraversed = 1
   // thing that made a sound (or null)
-  soundTarget = null
+  soundTarget: MObj | null = null
   // mapblock bounding box for height changes
   blockBox = new BBox()
   // origin for any sounds played by the sector

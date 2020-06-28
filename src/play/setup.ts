@@ -21,6 +21,7 @@ import { Rendering } from '../rendering/rendering'
 import { Sector } from '../rendering/sector'
 import { Seg } from '../rendering/seg'
 import { Side } from '../rendering/side'
+import { Sight } from './sight'
 import { Special } from './special'
 import { SubSector } from '../rendering/sub-sector'
 import { Switch } from './switch'
@@ -83,11 +84,11 @@ export class Play {
   // Without special effect, this could be
   //  used as a PVS lookup as well.
   //
-  private rejectMatrix: ArrayBuffer = new ArrayBuffer(0)
+  rejectMatrix: Uint8Array = new Uint8Array(0)
 
   public tick = new Tick(this)
   public doors = new Doors(this)
-  public enemy = new Enemy()
+  public enemy = new Enemy(this)
   public floor = new Floor(this)
   public inter = new Inter(this)
   public lights = new Lights(this)
@@ -95,6 +96,7 @@ export class Play {
   public mapUtils = new MapUtils(this)
   public mObjHandler = new MObjHandler(this)
   public plats = new Plats(this)
+  public sight = new Sight(this)
   public special = new Special(this)
   public switch = new Switch(this)
   public user = new User(this)
@@ -502,7 +504,9 @@ export class Play {
     this.loadNodes(lumpNum + MapLumpOrder.Nodes)
     this.loadSegs(lumpNum + MapLumpOrder.Segs)
 
-    this.rejectMatrix = this.wad.cacheLumpNum(lumpNum + MapLumpOrder.Reject)
+    this.rejectMatrix = new Uint8Array(
+      this.wad.cacheLumpNum(lumpNum + MapLumpOrder.Reject),
+    )
     this.groupLines()
 
     this.game.bodyQueSlot = 0
