@@ -12,6 +12,7 @@ import { Net } from '../doom/net'
 import { Play } from '../play/setup'
 import { Rendering } from '../rendering/rendering'
 import { SKY_FLAT_NAME } from '../rendering/sky'
+import { StatusBar } from '../status/stuff'
 import { Tick } from '../play/tick'
 import { TickCmd } from '../doom/tick-cmd'
 import { Win } from '../win/win'
@@ -159,6 +160,9 @@ export class Game {
   }
   private get rendering(): Rendering {
     return this.doom.rendering
+  }
+  private get statusBar(): StatusBar {
+    return this.doom.statusBar
   }
   private get tick(): Tick {
     return this.play.tick
@@ -475,6 +479,7 @@ export class Game {
     switch (this.gameState) {
     case GameState.Level:
       this.tick.ticker()
+      this.statusBar.ticker()
       this.headsUp.ticker()
       break
     case GameState.Intermission:

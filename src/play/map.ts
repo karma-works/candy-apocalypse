@@ -32,8 +32,8 @@ export class Map {
 
   // If "floatok" true, move would be ok
   // if within "tmfloorz - tmceilingz".
-  private floatOK = false
-  private tmFloorZ = 0
+  floatOK = false
+  tmFloorZ = 0
   private tmCeilingZ = 0
   private tmDropOffZ = 0
 
@@ -41,8 +41,8 @@ export class Map {
   // so missiles don't explode against sky hack walls
   private ceilingLine: Line | null = null
 
-  private specHit = new Array<Line>(MAX_SPECIAL_CROSS)
-  private numSpecHit = 0
+  specHit = new Array<Line>(MAX_SPECIAL_CROSS)
+  numSpecHit = 0
 
   private get inter(): Inter {
     return this.play.inter

@@ -18,6 +18,43 @@ export class Video {
   }
 
   //
+  // V_CopyRect
+  //
+  copyRect(srcX: number, srcY: number, srcScreen: number,
+    width: number, height: number,
+    destX: number, destY: number, destScreen: number,
+  ): void {
+    if (RANGE_CHECK) {
+      if (srcX < 0 ||
+        srcX + width > SCREENWIDTH ||
+        srcY < 0 ||
+        srcY + height > SCREENHEIGHT ||
+        destX < 0 ||
+        destX + width > SCREENWIDTH ||
+        destY < 0 ||
+        destY + height > SCREENHEIGHT ||
+        srcScreen > 4 ||
+        destScreen > 4
+      ) {
+        throw 'Bad V_CopyRect'
+      }
+    }
+
+    this.markRect(destX, destY, width, height)
+
+    let srcPtr = SCREENWIDTH * srcY + srcX
+    let destPtr = SCREENWIDTH * destY + destX
+
+    for (; height > 0; --height) {
+      this.screens[destScreen].set(
+        this.screens[srcScreen].slice(srcPtr, srcPtr + width), destPtr,
+      )
+      srcPtr += SCREENWIDTH
+      destPtr += SCREENWIDTH
+    }
+  }
+
+  //
   // V_DrawPatch
   // Masks a column based masked pic to the screen.
   //

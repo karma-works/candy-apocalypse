@@ -55,7 +55,7 @@ export class Player {
 
   // Power ups. invinc and invis are tic counters.
   powers = new Array<number>(PowerType.NUMPOWERS).fill(0)
-  cards = new Array<boolean>(Card.NUMCARDS).fill(false)
+  cards = new Array<boolean>(Card.NUM_CARDS).fill(false)
   backpack = false
 
   // Frags, kills of other players.

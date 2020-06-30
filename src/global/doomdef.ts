@@ -88,7 +88,7 @@ export const enum Card {
   YellowSkull,
   RedSkull,
 
-  NUMCARDS,
+  NUM_CARDS,
 }
 
 // The defined weapons,
