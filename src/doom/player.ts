@@ -1,6 +1,6 @@
 import { AmmoType, Card, MAX_PLAYERS, PowerType, WeaponType } from '../global/doomdef'
 import { PSpriteDef, PSpriteNum } from '../play/sprite'
-import { MObj } from '../play/mobj'
+import { MObj } from '../play/mobj/mobj'
 import { TickCmd } from './tick-cmd'
 
 //

@@ -1,6 +1,7 @@
 import { Column } from './column'
 import { FRACBITS } from '../misc/fixed'
 import { Game } from '../game/game'
+import { MObjHandler } from '../play/mobj-handler'
 import { MapPatch } from './map-patch'
 import { MapTexture } from './map-texture'
 import { Patch } from './patch'
@@ -15,7 +16,6 @@ import { Things } from './things'
 import { Thinker } from '../doom/think'
 import { Tick } from '../play/tick'
 import { Wad } from '../wad/wad'
-import { mObjThinker } from '../play/mobj'
 import { tostring } from '../c'
 
 //
@@ -29,6 +29,9 @@ import { tostring } from '../c'
 export class Data {
   private get game(): Game {
     return this.rendering.game
+  }
+  private get mObjHandler(): MObjHandler {
+    return this.play.mObjHandler
   }
   private get play(): Play {
     return this.rendering.play
@@ -581,12 +584,12 @@ export class Data {
 
     // Precache sprites.
     const spritePresent = new Array<boolean>(this.things.numSprites).fill(false)
-    let th: Thinker | null
+    let th: Thinker<unknown, [unknown]> | null
     for (th = this.tick.thinkerCap.next;
       th !== null && th !== this.tick.thinkerCap;
       th = th.next
     ) {
-      if (th.func === mObjThinker) {
+      if (th.func === this.mObjHandler.thinker) {
         debugger
         // spritepresent[((mobj_t *)th)->sprite] = 1;
       }

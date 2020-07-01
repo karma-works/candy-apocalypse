@@ -1,5 +1,5 @@
 import { Line } from '../../rendering/line'
-import { MObj } from '../mobj'
+import { MObj } from '../mobj/mobj'
 
 export type Intercept = {
   // along trace line

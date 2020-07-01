@@ -1,7 +1,7 @@
 import { BBox } from '../misc/bbox'
 import { FRACUNIT } from '../misc/fixed'
 import { Line } from './line'
-import { MObj } from '../play/mobj'
+import { MObj } from '../play/mobj/mobj'
 import { MapLineFlag } from '../doom/data'
 
 // 20 adjoining sectors max!

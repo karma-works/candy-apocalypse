@@ -2,7 +2,7 @@ import { ANG90, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, FINE_MASK, fineSine } from '..
 import { Cheat, Player, PlayerState } from '../doom/player'
 import { FRACUNIT, mul } from '../misc/fixed'
 import { ButtonCode } from '../doom/event'
-import { MObjFlag } from './mobj'
+import { MObjFlag } from './mobj/mobj-flag'
 import { MObjHandler } from './mobj-handler'
 import { Map } from './map'
 import { Play } from './setup'

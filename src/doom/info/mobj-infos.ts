@@ -1,5 +1,5 @@
 import { FRACUNIT } from '../../misc/fixed'
-import { MObjFlag } from '../../play/mobj'
+import { MObjFlag } from '../../play/mobj/mobj-flag'
 import { MObjInfo } from './mobj-info'
 import { Sfx } from '../sounds'
 import { StateNum } from './state-num'
