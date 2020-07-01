@@ -12,6 +12,7 @@ import { MObjType } from '../doom/info/mobj-type'
 import { Map } from './map'
 import { MapThing } from '../doom/data'
 import { MapUtils } from './map-utils'
+import { PSprite } from './p-sprite'
 import { Play } from './setup'
 import { PlayerState } from '../doom/player'
 import { State } from '../doom/info/state'
@@ -44,6 +45,9 @@ export class MObjHandler {
   }
   private get mapUtils(): MapUtils {
     return this.play.mapUtils
+  }
+  private get pSprite(): PSprite {
+    return this.play.pSprite
   }
   private get statusBar(): StatusBar {
     return this.doom.statusBar
@@ -371,8 +375,8 @@ export class MObjHandler {
     p.fixedColorMap = 0
     p.viewHeight = VIEW_HEIGHT
 
-    // // setup gun psprite
-    // P_SetupPsprites (p);
+    // setup gun psprite
+    this.pSprite.setupPSprites(p)
 
     // // give all cards in death match mode
     // if (deathmatch) {
@@ -387,12 +391,6 @@ export class MObjHandler {
       // wake up the heads up text
       this.headsUp.start()
     }
-    // if (mthing->type-1 == consoleplayer) {
-    //   // wake up the status bar
-    //   ST_Start ();
-    //   // wake up the heads up text
-    //   HU_Start ();
-    // }
   }
 
   //

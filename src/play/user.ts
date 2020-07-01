@@ -5,6 +5,7 @@ import { ButtonCode } from '../doom/event'
 import { MObjFlag } from './mobj/mobj-flag'
 import { MObjHandler } from './mobj-handler'
 import { Map } from './map'
+import { PSprite } from './p-sprite'
 import { Play } from './setup'
 import { PowerType } from '../global/doomdef'
 import { StateNum } from '../doom/info/state-num'
@@ -28,6 +29,9 @@ export class User {
   }
   private get mObjHandler(): MObjHandler {
     return this.play.mObjHandler
+  }
+  private get pSprite(): PSprite {
+    return this.play.pSprite
   }
   private get tick(): Tick {
     return this.play.tick
@@ -180,6 +184,9 @@ export class User {
     } else {
       player.useDown = false
     }
+
+    // cycle psprites
+    this.pSprite.movePSprites(player)
 
     // Counters, time dependend power ups.
 

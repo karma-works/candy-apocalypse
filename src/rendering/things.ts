@@ -239,7 +239,7 @@ export class Things {
   //
   initSprites(nameList: string[]): void {
     for (let i = 0; i < SCREENWIDTH; ++i) {
-      this.negoneArray[i] - 1
+      this.negoneArray[i] = -1
     }
     this.initSpriteDefs(nameList)
   }

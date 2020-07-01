@@ -11,11 +11,12 @@ import { Game } from '../game/game'
 import { Inter } from './inter'
 import { Lights } from './lights'
 import { Line } from '../rendering/line'
-import { MObj } from './mobj'
+import { MObj } from './mobj/mobj'
 import { MObjHandler } from './mobj-handler'
 import { Map } from './map'
 import { MapUtils } from './map-utils'
 import { Node } from '../rendering/node'
+import { PSprite } from './p-sprite'
 import { Plats } from './plats'
 import { Rendering } from '../rendering/rendering'
 import { Sector } from '../rendering/sector'
@@ -96,6 +97,7 @@ export class Play {
   public mapUtils = new MapUtils(this)
   public mObjHandler = new MObjHandler(this)
   public plats = new Plats(this)
+  public pSprite = new PSprite(this)
   public sight = new Sight(this)
   public special = new Special(this)
   public switch = new Switch(this)

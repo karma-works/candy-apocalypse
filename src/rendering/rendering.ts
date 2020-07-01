@@ -511,12 +511,12 @@ export class Rendering {
     this.initTextureMapping()
 
     // psprite scales
-    this.things.pSpriteScale = FRACUNIT * this.draw.viewWidth / SCREENWIDTH
-    this.things.pSpriteIScale = FRACUNIT * SCREENWIDTH / this.draw.viewWidth
+    this.things.pSpriteScale = FRACUNIT * this.draw.viewWidth / SCREENWIDTH >> 0
+    this.things.pSpriteIScale = FRACUNIT * SCREENWIDTH / this.draw.viewWidth >> 0
 
     // thing clipping
     for (let i = 0; i < this.draw.viewWidth; ++i) {
-      this.things.screenHeightArray[i] = this.draw.viewWidth
+      this.things.screenHeightArray[i] = this.draw.viewHeight
     }
 
     // planes
