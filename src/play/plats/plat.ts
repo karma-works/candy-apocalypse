@@ -8,7 +8,7 @@ import { Sector } from '../../rendering/sector'
 export const PLAT_WAIT = 3
 export const PLAT_SPEED = FRACUNIT
 
-export class Plat extends Thinker<Plats, Plat> {
+export class Plat extends Thinker<Plats, [Plat]> {
   speed = PLAT_SPEED
   low = 0
   high = 0
@@ -22,7 +22,7 @@ export class Plat extends Thinker<Plats, Plat> {
   constructor(
     public type: PlatType,
     public sector: Sector,
-    func: Action<Plats, Plat>,
+    func: Action<Plats, [Plat]>,
     plats: Plats,
   ) {
     super(func, plats)

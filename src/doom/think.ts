@@ -1,11 +1,13 @@
-export type Action<H, T> = (this: H, thinker: T) => void
+export type Action<T, A extends unknown[]> = (this: T, ...args: A) => void
 
 // Doubly linked list of actors.
-export class Thinker<H, T> {
-  constructor(public func: Action<H, T> | null = null,
-              public handler: H | null = null,
-              public prev: Thinker<unknown, unknown> | null = null,
-              public next: Thinker<unknown, unknown> | null = null) { }
+export class Thinker<T, A extends unknown[]> {
+  constructor(public func: Action<T, A> | null = null,
+    public handler: T | null = null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    public prev: Thinker<any, any> | null = null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    public next: Thinker<any, any> | null = null) { }
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types

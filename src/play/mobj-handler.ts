@@ -1,22 +1,26 @@
 import { FRACBITS, mul } from '../misc/fixed'
 import { GRAVITY, ITEM_QUE_SIZE, MAX_MOVE, ON_CEILING_Z, ON_FLOOR_Z, VIEW_HEIGHT } from './local'
 import { MObj, MObjFlag } from './mobj'
-import { MObjType, State, StateNum, mObjInfo, states } from '../doom/info'
 import { MTF_AMBUSH, Skill } from '../global/doomdef'
 import { ANG45 } from '../misc/table'
 import { Doom } from '../doom/doom'
 import { Enemy } from './enemy'
 import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
+import { MObjType } from '../doom/info/mobj-type'
 import { Map } from './map'
 import { MapThing } from '../doom/data'
 import { MapUtils } from './map-utils'
 import { Play } from './setup'
 import { PlayerState } from '../doom/player'
+import { State } from '../doom/info/state'
+import { StateNum } from '../doom/info/state-num'
 import { StatusBar } from '../status/stuff'
 import { Tick } from './tick'
+import { mObjInfos } from '../doom/info/mobj-infos'
 import { noopFunc } from '../doom/think'
 import { random } from '../misc/random'
+import { states } from '../doom/info/states'
 
 const STOP_SPEED = 0x1000
 const FRICTION = 0xe800
@@ -54,15 +58,15 @@ export class MObjHandler {
   // Returns true if the mobj is still present.
   //
   setMObjState(mobj: MObj, state: StateNum): boolean {
-    let st: State<unknown>
+    let st: State<unknown, [MObj]>
     do {
       if (state === StateNum.Null) {
-        mobj.state = states[StateNum.Null]
+        mobj.state = states[StateNum.Null] as State<unknown, [MObj]>
         this.removeMObj(mobj)
         return false
       }
 
-      st = states[state] as State<unknown>
+      st = states[state] as State<unknown, [MObj]>
       mobj.state = st
       mobj.tics = st.tics
       mobj.sprite = st.sprite
@@ -76,6 +80,8 @@ export class MObjHandler {
         case Enemy:
           handler = this.enemy
           break
+        default:
+          debugger
         }
         st.action.call(handler, mobj)
       }
@@ -157,10 +163,10 @@ export class MObjHandler {
         }
 
         // if in a walking frame, stop moving
-        if (states.indexOf(player.mo.state) - StateNum.PlayRun1 < 0) {
+        if (states.indexOf(player.mo.state as State<unknown, [unknown]>) - StateNum.PlayRun1 < 0) {
           debugger
         }
-        if (states.indexOf(player.mo.state) - StateNum.PlayRun1 < 4) {
+        if (states.indexOf(player.mo.state as State<unknown, [unknown]>) - StateNum.PlayRun1 < 4) {
           this.setMObjState(player.mo, StateNum.Play)
         }
       }
@@ -434,7 +440,7 @@ export class MObjHandler {
     // find which type to spawn
     let i: number
     for (i = 0; i < MObjType.NUMMOBJTYPES; ++i) {
-      if (mThing.type === mObjInfo[i].doomedNum) {
+      if (mThing.type === mObjInfos[i].doomedNum) {
         break
       }
     }
@@ -444,14 +450,14 @@ export class MObjHandler {
     }
 
     // don't spawn keycards and players in deathmatch
-    if (this.doom.game.deathMatch && mObjInfo[i].flags & MObjFlag.NotDMatch) {
+    if (this.doom.game.deathMatch && mObjInfos[i].flags & MObjFlag.NotDMatch) {
       return
     }
 
     // don't spawn any monsters if -nomonsters
     if (this.doom.noMonsters && (
       i === MObjType.Skull ||
-      mObjInfo[i].flags & MObjFlag.CountKill)
+      mObjInfos[i].flags & MObjFlag.CountKill)
     ) {
       return
     }
@@ -460,7 +466,7 @@ export class MObjHandler {
     const x = mThing.x << FRACBITS
     const y = mThing.y << FRACBITS
     let z = ON_FLOOR_Z
-    if (mObjInfo[i].flags & MObjFlag.SpawnCeiling) {
+    if (mObjInfos[i].flags & MObjFlag.SpawnCeiling) {
       z = ON_CEILING_Z
     }
 

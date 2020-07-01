@@ -1,15 +1,16 @@
 import { ANG90, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, FINE_MASK, fineSine } from '../misc/table'
 import { Cheat, Player, PlayerState } from '../doom/player'
 import { FRACUNIT, mul } from '../misc/fixed'
-import { StateNum, states } from '../doom/info'
 import { ButtonCode } from '../doom/event'
 import { MObjFlag } from './mobj'
 import { MObjHandler } from './mobj-handler'
 import { Map } from './map'
 import { Play } from './setup'
 import { PowerType } from '../global/doomdef'
+import { StateNum } from '../doom/info/state-num'
 import { Tick } from './tick'
 import { VIEW_HEIGHT } from './local'
+import { states } from '../doom/info/states'
 
 
 //

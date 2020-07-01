@@ -1,13 +1,18 @@
 import { Action, Thinker } from '../doom/think'
 import { MAX_PLAYERS, Skill } from '../global/doomdef'
-import { MObjInfo, MObjType, SpriteNum, State, mObjInfo, states } from '../doom/info'
 import { ON_CEILING_Z, ON_FLOOR_Z } from './local'
 import { MObjHandler } from './mobj-handler'
+import { MObjInfo } from '../doom/info/mobj-info'
+import { MObjType } from '../doom/info/mobj-type'
 import { MapThing } from '../doom/data'
 import { Play } from './setup'
 import { Player } from '../doom/player'
+import { SpriteNum } from '../doom/info/sprite-num'
+import { State } from '../doom/info/state'
 import { SubSector } from '../rendering/sub-sector'
+import { mObjInfos } from '../doom/info/mobj-infos'
 import { random } from '../misc/random'
+import { states } from '../doom/info/states'
 
 //
 // NOTES: mobj_t
@@ -190,7 +195,7 @@ export const diags: readonly DirType[] = [
 ]
 
 // Map Object definition.
-export class MObj extends Thinker<MObjHandler, MObj> {
+export class MObj extends Thinker<MObjHandler, [MObj]> {
   // More list: links in sector (if needed)
   sNext: MObj | null = null
   sPrev: MObj | null = null
@@ -229,7 +234,7 @@ export class MObj extends Thinker<MObjHandler, MObj> {
 
   // state tic counter
   tics: number
-  state: State<unknown>
+  state: State<unknown, [MObj]>
   flags: number
   health: number
 
@@ -266,7 +271,7 @@ export class MObj extends Thinker<MObjHandler, MObj> {
 
   constructor(
     play: Play,
-    func: Action<MObjHandler, MObj>,
+    func: Action<MObjHandler, [MObj]>,
 
     // Info for drawing: position.
     public x: number,
@@ -277,7 +282,7 @@ export class MObj extends Thinker<MObjHandler, MObj> {
   ) {
     super(func, play.mObjHandler)
 
-    const info = mObjInfo[type]
+    const info = mObjInfos[type]
     this.info = info
     this.radius = info.radius
     this.height = info.height
@@ -294,7 +299,7 @@ export class MObj extends Thinker<MObjHandler, MObj> {
 
     // do not set the state with P_SetMobjState,
     // because action routines can not be called yet
-    const st = states[info.spawnState]
+    const st = states[info.spawnState] as State<unknown, [MObj]>
     this.state = st
     this.tics = st.tics
     this.sprite = st.sprite

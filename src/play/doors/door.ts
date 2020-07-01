@@ -7,7 +7,7 @@ import { Sector } from '../../rendering/sector'
 export const DOOR_SPEED = FRACUNIT * 2
 export const DOOR_WAIT = 150
 
-export class Door extends Thinker<Doors, Door> {
+export class Door extends Thinker<Doors, [Door]> {
   topHeight = 0
   speed = DOOR_SPEED
 
@@ -24,7 +24,7 @@ export class Door extends Thinker<Doors, Door> {
   constructor(
     public type: DoorType,
     public sector: Sector,
-    func: Action<Doors, Door>,
+    func: Action<Doors, [Door]>,
     doors: Doors,
   ) {
     super(func, doors)

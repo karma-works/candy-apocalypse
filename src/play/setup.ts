@@ -29,7 +29,7 @@ import { Tick } from './tick'
 import { User } from './user'
 import { Vertex } from '../rendering/vertex'
 import { Wad } from '../wad/wad'
-import { sprNames } from '../doom/info'
+import { sprNames } from '../doom/info/spr-names'
 
 export class Play {
   //

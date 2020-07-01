@@ -3,7 +3,7 @@ import { Lights } from '../lights'
 import { Sector } from '../../rendering/sector'
 import { random } from '../../misc/random'
 
-export class Strobe extends Thinker<Lights, Strobe> {
+export class Strobe extends Thinker<Lights, [Strobe]> {
   count: number
   minLight: number
   maxLight: number
@@ -12,7 +12,7 @@ export class Strobe extends Thinker<Lights, Strobe> {
 
   constructor(
     public sector: Sector,
-    func: Action<Lights, Strobe>,
+    func: Action<Lights, [Strobe]>,
     lights: Lights,
     darkTime: number,
     brightTime: number,

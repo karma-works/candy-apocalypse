@@ -7,7 +7,7 @@ import { MAX_HEALTH } from './local'
 import { MObjHandler } from './mobj-handler'
 import { Play } from './setup'
 import { Player } from '../doom/player'
-import { SpriteNum } from '../doom/info'
+import { SpriteNum } from '../doom/info/sprite-num'
 import { Strings } from '../translation/strings'
 import { weaponInfo } from '../doom/items'
 

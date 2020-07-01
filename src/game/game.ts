@@ -1,6 +1,5 @@
 import { AmmoType, GameMission, GameMode, GameState, KEY_DOWNARROW, KEY_LEFTARROW, KEY_PAUSE, KEY_RALT, KEY_RCTRL, KEY_RIGHTARROW, KEY_RSHIFT, KEY_UPARROW, MAX_PLAYERS, Skill, WeaponType } from '../global/doomdef'
 import { ButtonCode, DEvent, EvType, GameAction } from '../doom/event'
-import { MObjType, StateNum, mObjInfo, states } from '../doom/info'
 import { Player, PlayerState, WbStart } from '../doom/player'
 import { BACKUP_TICS } from '../doom/net/doom-data'
 import { Doom } from '../doom/doom'
@@ -8,16 +7,20 @@ import { FRACUNIT } from '../misc/fixed'
 import { HeadsUp } from '../heads-up/stuff'
 import { MAX_HEALTH } from '../play/local'
 import { MObjFlag } from '../play/mobj'
+import { MObjType } from '../doom/info/mobj-type'
 import { Net } from '../doom/net'
 import { Play } from '../play/setup'
 import { Rendering } from '../rendering/rendering'
 import { SKY_FLAT_NAME } from '../rendering/sky'
+import { StateNum } from '../doom/info/state-num'
 import { StatusBar } from '../status/stuff'
 import { Tick } from '../play/tick'
 import { TickCmd } from '../doom/tick-cmd'
 import { Win } from '../win/win'
 import { getTime } from '../system/system'
+import { mObjInfos } from '../doom/info/mobj-infos'
 import { random } from '../misc/random'
+import { states } from '../doom/info/states'
 
 const MAX_PL_MOVE = 0x32
 
@@ -793,16 +796,16 @@ export class Game {
         skill === Skill.Nightmare && this.gameSkill !== Skill.Nightmare) {
       for (let i = StateNum.SargRun1; i <= StateNum.SargPain2; ++i) {
         states[i].tics >>= 1
-        mObjInfo[MObjType.Bruisershot].speed = 20 * FRACUNIT
-        mObjInfo[MObjType.Headshot].speed = 20 * FRACUNIT
-        mObjInfo[MObjType.Troopshot].speed = 20 * FRACUNIT
+        mObjInfos[MObjType.Bruisershot].speed = 20 * FRACUNIT
+        mObjInfos[MObjType.Headshot].speed = 20 * FRACUNIT
+        mObjInfos[MObjType.Troopshot].speed = 20 * FRACUNIT
       }
     } else if (skill !== Skill.Nightmare && this.gameSkill === Skill.Nightmare) {
       for (let i = StateNum.SargRun1; i <= StateNum.SargPain2; ++i) {
         states[i].tics <<= 1
-        mObjInfo[MObjType.Bruisershot].speed = 15 * FRACUNIT
-        mObjInfo[MObjType.Headshot].speed = 10 * FRACUNIT
-        mObjInfo[MObjType.Troopshot].speed = 10 * FRACUNIT
+        mObjInfos[MObjType.Bruisershot].speed = 15 * FRACUNIT
+        mObjInfos[MObjType.Headshot].speed = 10 * FRACUNIT
+        mObjInfos[MObjType.Troopshot].speed = 10 * FRACUNIT
       }
     }
 

@@ -6,7 +6,7 @@ import { Sector } from '../../rendering/sector'
 
 export const FLOOR_SPEED = FRACUNIT
 
-export class FloorMove extends Thinker<Floor, FloorMove> {
+export class FloorMove extends Thinker<Floor, [FloorMove]> {
   crush = false
   direction: -1 | 0 | 1 = 0
   newSpecial = 0
@@ -17,7 +17,7 @@ export class FloorMove extends Thinker<Floor, FloorMove> {
   constructor(
     public type: FloorType,
     public sector: Sector,
-    func: Action<Floor, FloorMove>,
+    func: Action<Floor, [FloorMove]>,
     floor: Floor,
   ) {
     super(func, floor)

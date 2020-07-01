@@ -1,5 +1,5 @@
 import { AmmoType } from '../global/doomdef'
-import { StateNum } from './info'
+import { StateNum } from './info/state-num'
 
 class WeaponInfo {
   constructor(

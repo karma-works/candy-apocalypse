@@ -15,7 +15,7 @@ import { Rendering } from '../rendering/rendering'
 import { Sector } from '../rendering/sector'
 import { SlopeType } from '../rendering/slope-type'
 import { Special } from './special'
-import { StateNum } from '../doom/info'
+import { StateNum } from '../doom/info/state-num'
 import { Switch } from './switch'
 import { Tick } from './tick'
 

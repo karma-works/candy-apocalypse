@@ -37,14 +37,14 @@ export class Tick {
   // P_AddThinker
   // Adds a new thinker at the end of the list.
   //
-  addThinker<H, T>(thinker: Thinker<H, T>): void {
+  addThinker<H, A extends unknown[]>(thinker: Thinker<H, A>): void {
     if (this.thinkerCap.prev === null) {
       throw 'this.thinkerCap.prev = null'
     }
-    this.thinkerCap.prev.next = thinker as Thinker<unknown, unknown>
+    this.thinkerCap.prev.next = thinker
     thinker.next = this.thinkerCap
     thinker.prev = this.thinkerCap.prev
-    this.thinkerCap.prev = thinker as Thinker<unknown, unknown>
+    this.thinkerCap.prev = thinker
   }
 
   //
@@ -52,7 +52,7 @@ export class Tick {
   // Deallocation is lazy -- it will not actually be freed
   // until its thinking turn comes up.
   //
-  removeThinker<H, T>(thinker: Thinker<H, T>): void {
+  removeThinker<H, A extends unknown[]>(thinker: Thinker<H, A>): void {
     thinker.func = noopFunc
   }
 

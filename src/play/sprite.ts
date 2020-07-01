@@ -1,4 +1,5 @@
-import { State } from '../doom/info'
+import { Player } from '../doom/player'
+import { State } from '../doom/info/state'
 
 //
 // Frame flags:
@@ -21,7 +22,7 @@ export const enum PSpriteNum {
 
 export class PSpriteDef {
   // a NULL state means not active
-  state: State | null = null
+  state: State<unknown, [Player, PSpriteDef]> | null = null
   tics = 0
   sX = 0
   sY = 0
