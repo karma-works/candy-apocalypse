@@ -74,7 +74,7 @@ export class Game {
   deathMatch = 0
   // only true if packets are broadcast
   netGame = false
-  playerInGame = new Array<boolean>(MAX_PLAYERS).fill(true)
+  playerInGame = new Array<boolean>(MAX_PLAYERS).fill(false)
   players = Array.from({ length: MAX_PLAYERS }, () => new Player())
 
   // player taking events and displaying

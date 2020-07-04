@@ -15,9 +15,9 @@ export class Sight {
   //
   // eye z of looker
   private sightZStart = 0
-  private topSlope = 0
+  topSlope = 0
   // slopes to top and bottom of target
-  private bottomSlope = 0
+  bottomSlope = 0
 
   // from t1 to t2
   private sTrace = new DivLine()
@@ -156,7 +156,7 @@ export class Sight {
       divLine.dX = v2.x - v1.x
       divLine.dY = v2.y - v1.y
       s1 = this.divLineSide(this.sTrace.x, this.sTrace.y, divLine)
-      s1 = this.divLineSide(this.t2x, this.t2y, divLine)
+      s2 = this.divLineSide(this.t2x, this.t2y, divLine)
 
       // line isn't crossed?
       if (s1 === s2) {

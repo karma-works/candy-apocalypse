@@ -421,7 +421,7 @@ export class MapUtils {
     () => <Intercept> { frac: 0, isALine: false, d: null })
   private interceptPtr = 0
 
-  private trace = new DivLine()
+  trace = new DivLine()
   private earlyOut = false
 
   //

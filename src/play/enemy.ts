@@ -8,16 +8,18 @@ import { Line } from '../rendering/line'
 import { MObj } from './mobj/mobj'
 import { MObjFlag } from './mobj/mobj-flag'
 import { MObjHandler } from './mobj-handler'
+import { MObjType } from '../doom/info/mobj-type'
 import { Map } from './map'
+import { MapLineFlag } from '../doom/data'
 import { MapUtils } from './map-utils'
 import { Play } from './setup'
 import { Player } from '../doom/player'
 import { Rendering } from '../rendering/rendering'
+import { Sector } from '../rendering/sector'
 import { Sight } from './sight'
 import { Skill } from '../global/doomdef'
 import { Switch } from './switch'
 import { random } from '../misc/random'
-// import { PSpriteDef } from './sprite'
 
 const xSpeed: readonly number[] = [ FRACUNIT, 47000, 0, -47000, -FRACUNIT, -47000, 0, 47000 ]
 const ySpeed: readonly number[] = [ 0, 47000, FRACUNIT, 47000, 0, -47000, -FRACUNIT, -47000 ]
@@ -51,6 +53,74 @@ export class Enemy {
   constructor(private play: Play) { }
 
   //
+  // Called by P_NoiseAlert.
+  // Recursively traverse adjacent sectors,
+  // sound blocking lines cut off traversal.
+  //
+  private soundTarget: MObj | null = null
+
+  private recursiveSound(sec: Sector, soundBlocks: number): void {
+    // wake up all monsters in this sector
+    if (sec.validCount === this.rendering.validCount &&
+      sec.soundTraversed <= soundBlocks + 1
+    ) {
+      // already flooded
+      return
+    }
+
+    sec.validCount = this.rendering.validCount
+    sec.soundTraversed = soundBlocks + 1
+    sec.soundTarget = this.soundTarget
+
+    let check: Line
+    let other: Sector
+    for (let i = 0; i < sec.lineCount; ++i) {
+      check = sec.lines[i]
+      if (!(check.flags & MapLineFlag.TwoSided)) {
+        continue
+      }
+
+      this.mapUtils.lineOpening(check)
+
+      if (this.mapUtils.openRange <= 0) {
+        // closed door
+        continue
+      }
+
+      if (this.play.sides[check.sideNum[0]].sector === sec) {
+        other = this.play.sides[check.sideNum[1]].sector
+      } else {
+        other = this.play.sides[check.sideNum[0]].sector
+      }
+
+      if (check.flags & MapLineFlag.SoundBlock) {
+        if (!soundBlocks) {
+          this.recursiveSound(other, 1)
+        }
+      } else {
+        this.recursiveSound(other, soundBlocks)
+      }
+    }
+  }
+
+  //
+  // P_NoiseAlert
+  // If a monster yells at a player,
+  // it will alert other monsters to the player.
+  //
+  noiseAlert(target: MObj, emmiter: MObj): void {
+    this.soundTarget = target
+    this.rendering.validCount++
+    if (emmiter.subSector === null) {
+      throw 'emmiter.subSector = null'
+    }
+    if (emmiter.subSector.sector === null) {
+      throw 'emmiter.subSector.sector = null'
+    }
+    this.recursiveSound(emmiter.subSector.sector, 0)
+  }
+
+  //
   // P_CheckMeleeRange
   //
   private checkMeleeRange(actor: MObj): boolean {
@@ -66,6 +136,77 @@ export class Enemy {
     }
 
     if (!this.sight.checkSight(actor, actor.target)) {
+      return false
+    }
+
+    return true
+  }
+
+  //
+  // P_CheckMissileRange
+  //
+  private checkMissileRange(actor: MObj): boolean {
+    if (actor.target === null) {
+      throw 'actor.target = null'
+    }
+    if (!this.sight.checkSight(actor, actor.target)) {
+      return false
+    }
+
+    if (actor.flags & MObjFlag.JustHit) {
+      // the target just hit the enemy,
+      // so fight back!
+      actor.flags &= ~MObjFlag.JustHit
+      return true
+    }
+
+    if (actor.reactionTime) {
+      // do not attack yet
+      return false
+    }
+
+    // OPTIMIZE: get this from a global checksight
+    let dist = this.mapUtils.aproxDistance(actor.x - actor.target.x,
+      actor.y - actor.target.y) - 64 * FRACUNIT
+
+    if (!actor.info.meleeState) {
+      // no melee attack, so fire more
+      dist -= 128 * FRACUNIT
+    }
+
+    dist >>= 16
+
+    if (actor.type === MObjType.Vile) {
+      if (dist > 14 * 64) {
+        // too far away
+        return false
+      }
+    }
+
+    if (actor.type === MObjType.Undead) {
+      if (dist < 196) {
+        // close for fist attack
+        return false
+      }
+      dist >>= 1
+    }
+
+    if (actor.type === MObjType.Cyborg ||
+      actor.type === MObjType.Spider ||
+      actor.type === MObjType.Skull
+    ) {
+      dist >>= 1
+    }
+
+    if (dist > 200) {
+      dist = 200
+    }
+
+    if (actor.type === MObjType.Cyborg && dist > 160) {
+      dist = 160
+    }
+
+    if (random.pRandom() < dist) {
       return false
     }
 
@@ -453,7 +594,16 @@ export class Enemy {
 
     // check for missile attack
     if (actor.info.missileState) {
-      debugger
+      if (this.game.gameSkill >= Skill.Nightmare ||
+        this.doom.fastParam || !actor.moveCount
+      ) {
+        if (this.checkMissileRange(actor)) {
+          this.mObjHandler.setMObjState(actor, actor.info.missileState)
+          actor.flags |= MObjFlag.JustAttacked
+
+          return
+        }
+      }
     }
 
     // possibly choose another target

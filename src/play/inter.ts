@@ -1,15 +1,22 @@
+import { ANG180, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table'
 import { AmmoType, Card, GameMode, PowerDuration, PowerType, Skill, WeaponType } from '../global/doomdef'
+import { BASE_THRESHOLD, MAX_HEALTH, ON_FLOOR_Z } from './local'
+import { Cheat, Player, PlayerState } from '../doom/player'
+import { FRACUNIT, mul } from '../misc/fixed'
 import { Doom } from '../doom/doom'
-import { FRACUNIT } from '../misc/fixed'
 import { Game } from '../game/game'
-import { MAX_HEALTH } from './local'
 import { MObj } from './mobj/mobj'
 import { MObjFlag } from './mobj/mobj-flag'
 import { MObjHandler } from './mobj-handler'
+import { MObjType } from '../doom/info/mobj-type'
+import { PSprite } from './p-sprite'
 import { Play } from './setup'
-import { Player } from '../doom/player'
+import { Rendering } from '../rendering/rendering'
 import { SpriteNum } from '../doom/info/sprite-num'
+import { StateNum } from '../doom/info/state-num'
 import { Strings } from '../translation/strings'
+import { random } from '../misc/random'
+import { states } from '../doom/info/states'
 import { weaponInfo } from '../doom/items'
 
 const BONUS_ADD = 6
@@ -29,6 +36,12 @@ export class Inter {
   }
   private get mObjHandler(): MObjHandler {
     return this.play.mObjHandler
+  }
+  private get pSprite(): PSprite {
+    return this.play.pSprite
+  }
+  private get rendering(): Rendering {
+    return this.play.rendering
   }
   private get strings(): Strings {
     return this.play.doom.strings
@@ -639,5 +652,239 @@ export class Inter {
 
     this.mObjHandler.removeMObj(special)
     player.bonusCount += BONUS_ADD
+  }
+
+  //
+  // KillMobj
+  //
+  private killMObj(source: MObj | null, target: MObj): void {
+    target.flags &= ~(MObjFlag.Shootable | MObjFlag.Float | MObjFlag.SkullFly)
+
+    if (target.type !== MObjType.Skull) {
+      target.flags &= ~MObjFlag.NoGravity
+    }
+
+    target.flags |= MObjFlag.Corpse | MObjFlag.DropOff
+    target.height >>= 2
+
+    if (source && source.player) {
+      // count for intermission
+      if (target.flags & MObjFlag.CountKill) {
+        source.player.killCount++
+      }
+
+      if (target.player) {
+        source.player.frags[this.game.players.indexOf(target.player)]++
+      }
+    } else if (!this.game.netGame && target.flags & MObjFlag.CountKill) {
+      // count all monster deaths,
+      // even those caused by other monsters
+      this.game.players[0].killCount++
+    }
+
+    if (target.player) {
+      // count environment kills against you
+      if (!source) {
+        target.player.frags[this.game.players.indexOf(target.player)]++
+      }
+
+      target.flags &= ~MObjFlag.Solid
+      target.player.playerState = PlayerState.Dead
+      this.pSprite.dropWeapon(target.player)
+    }
+
+    if (target.health < -target.info.spawnHealth &&
+      target.info.xdeathState
+    ) {
+      this.mObjHandler.setMObjState(target, target.info.xdeathState)
+    } else {
+      this.mObjHandler.setMObjState(target, target.info.deathState)
+    }
+    target.tics -= random.pRandom() & 3
+
+    if (target.tics < 1) {
+      target.tics = 1
+    }
+
+    // Drop stuff.
+    // This determines the kind of object spawned
+    // during the death frame of a thing.
+    let item: MObjType
+    switch (target.type) {
+    case MObjType.Wolfss:
+    case MObjType.Possessed:
+      item = MObjType.Clip
+      break
+
+    case MObjType.Shotguy:
+      item = MObjType.Shotgun
+      break
+
+    case MObjType.Chainguy:
+      item = MObjType.Chaingun
+      break
+
+    default:
+      return
+    }
+
+    const mo = this.mObjHandler.spawnMObj(target.x, target.y, ON_FLOOR_Z, item)
+    // special versions of items
+    mo.flags |= MObjFlag.Dropped
+  }
+
+  //
+  // P_DamageMobj
+  // Damages both enemies and players
+  // "inflictor" is the thing that caused the damage
+  //  creature or missile, can be NULL (slime, etc)
+  // "source" is the thing to target after taking damage
+  //  creature or NULL
+  // Source and inflictor are the same for melee attacks.
+  // Source can be NULL for slime, barrel explosions
+  // and other environmental stuff.
+  //
+  damageMObj(target: MObj, inflictor: MObj | null, source: MObj | null, damage: number): void {
+    if (!(target.flags & MObjFlag.Shootable)) {
+      // shouldn't happen...
+      return
+    }
+
+    if (target.health <= 0) {
+      return
+    }
+
+    if (target.flags & MObjFlag.SkullFly) {
+      target.momX = target.momY = target.momZ = 0
+    }
+
+    const player = target.player
+    if (player && this.game.gameSkill === Skill.Baby) {
+      // take half damage in trainer mode
+      damage >>= 1
+    }
+
+    // Some close combat weapons should not
+    // inflict thrust and push the victim out of reach,
+    // thus kick away unless using the chainsaw.
+    if (inflictor &&
+      !(target.flags & MObjFlag.NoClip) &&
+      (!source ||
+        !source.player ||
+        source.player.readyWeapon !== WeaponType.Chainsaw)
+    ) {
+      let ang = this.rendering.pointToAngle2(inflictor.x,
+        inflictor.y,
+        target.x,
+        target.y)
+
+      let thrust = damage * (FRACUNIT >> 3) * 100 / target.info.mass
+
+      // make fall forwards sometimes
+      if (damage < 40 &&
+        damage > target.health &&
+        target.z - inflictor.z > 64 * FRACUNIT &&
+        random.pRandom() & 1
+      ) {
+        ang = ang + ANG180 >>> 0
+        thrust *= 4
+      }
+
+      ang >>>= ANGLE_TO_FINE_SHIFT
+      target.momX += mul(thrust, fineSine[FINE_ANGLES / 4 + ang])
+      target.momY += mul(thrust, fineSine[ang])
+    }
+
+    // player specific
+    if (player) {
+      if (target.subSector === null) {
+        throw 'target.subSector = null'
+      }
+      if (target.subSector.sector === null) {
+        throw 'target.subSector.sector = null'
+      }
+
+      // end of game hell hack
+      if (target.subSector.sector.special === 11 &&
+        damage >= target.health
+      ) {
+        damage = target.health - 1
+      }
+
+      // Below certain threshold,
+      // ignore damage in GOD mode, or with INVUL power.
+      if (damage < 1000 &&
+        (player.cheats & Cheat.GodMode ||
+        player.powers[PowerType.Invulnerability])
+      ) {
+        return
+      }
+
+      if (player.armorType) {
+        let saved: number
+        if (player.armorType === 1) {
+          saved = damage / 3 >> 0
+        } else {
+          saved = damage / 2 >> 0
+        }
+
+        if (player.armorPoints <= saved) {
+          // armor is used up
+          saved = player.armorPoints
+          player.armorType = 0
+        }
+        player.armorPoints -= saved
+        damage -= saved
+      }
+      // mirror mobj health here for Dave
+      player.health -= damage
+      if (player.health < 0) {
+        player.health = 0
+      }
+
+      player.attacker = source
+      // add damage after armor / invuln
+      player.damageCount += damage
+
+      if (player.damageCount > 100) {
+      // teleport stomp does 10k points...
+        player.damageCount = 100
+      }
+    }
+
+    // do the damage
+    target.health -= damage
+    if (target.health <= 0) {
+      this.killMObj(source, target)
+      return
+    }
+
+    if (random.pRandom() < target.info.painChance &&
+      !(target.flags & MObjFlag.SkullFly)
+    ) {
+      // fight back!
+      target.flags |= MObjFlag.JustHit
+
+      this.mObjHandler.setMObjState(target, target.info.painState)
+    }
+
+    // we're awake now...
+    target.reactionTime = 0
+
+    if ((!target.threshold || target.type === MObjType.Vile)
+      && source && source !== target
+      && source.type !== MObjType.Vile
+    ) {
+      // if not intent on another player,
+      // chase after this one
+      target.target = source
+      target.threshold = BASE_THRESHOLD
+      if (target.state === states[target.info.spawnState] &&
+        target.info.seeState !== StateNum.Null
+      ) {
+        this.mObjHandler.setMObjState(target, target.info.seeState)
+      }
+    }
+
   }
 }

@@ -1,6 +1,6 @@
 import { ANG180, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table'
-import { FRACBITS, FRACUNIT, mul } from '../misc/fixed'
-import { MAP_BLOCK_SHIFT, MAX_RADIUS, PT_ADD_LINES, USE_RANGE } from './local'
+import { FRACBITS, FRACUNIT, div, mul } from '../misc/fixed'
+import { MAP_BLOCK_SHIFT, MAX_RADIUS, PT_ADD_LINES, PT_ADD_THINGS, USE_RANGE } from './local'
 import { BBox } from '../misc/bbox'
 import { Inter } from './inter'
 import { Intercept } from './map-utils/intercept'
@@ -14,6 +14,7 @@ import { Play } from './setup'
 import { Player } from '../doom/player'
 import { Rendering } from '../rendering/rendering'
 import { Sector } from '../rendering/sector'
+import { Sight } from './sight'
 import { SlopeType } from '../rendering/slope-type'
 import { Special } from './special'
 import { StateNum } from '../doom/info/state-num'
@@ -56,6 +57,9 @@ export class Map {
   }
   private get rendering(): Rendering {
     return this.play.rendering
+  }
+  private get sight(): Sight {
+    return this.play.sight
   }
   private get special(): Special {
     return this.play.special
@@ -645,6 +649,317 @@ export class Map {
       this.tryMove(mo, mo.x + mo.momX, mo.y)
     }
   }
+
+  //
+  // P_LineAttack
+  //
+  // who got hit (or NULL)
+  lineTarget: MObj | null = null
+  private shootThing: MObj | null = null
+
+  // Height if not aiming up or down
+  // ???: use slope for monsters?
+  private shootZ = 0
+
+  private laDamage = 0
+  attackRange = 0
+
+  private aimSlope = 0
+
+  //
+  // PTR_AimTraverse
+  // Sets linetaget and aimslope when a target is aimed at.
+  //
+  private aimTraverse(inter: Intercept): boolean {
+    if (inter.isALine) {
+      const li = inter.d
+
+      if (!(li.flags & MapLineFlag.TwoSided)) {
+        // stop
+        return false
+      }
+
+      // Crosses a two sided line.
+      // A two sided line will restrict
+      // the possible target ranges.
+      this.mapUtils.lineOpening(li)
+
+      if (this.mapUtils.openBottom >= this.mapUtils.openTop) {
+        // stop
+        return false
+      }
+
+      const dist = mul(this.attackRange, inter.frac)
+
+      if (li.frontSector === null) {
+        throw 'li.frontSector = null'
+      }
+      if (li.backSector === null) {
+        throw 'li.backSector = null'
+      }
+
+      if (li.frontSector.floorHeight !== li.backSector.floorHeight) {
+        const slope = div(this.mapUtils.openBottom - this.shootZ, dist)
+        if (slope > this.sight.bottomSlope) {
+          this.sight.bottomSlope = slope
+        }
+      }
+
+      if (li.frontSector.ceilingHeight !== li.backSector.ceilingHeight) {
+        const slope = div(this.mapUtils.openTop - this.shootZ, dist)
+        if (slope < this.sight.topSlope) {
+          this.sight.topSlope = slope
+        }
+      }
+
+      if (this.sight.topSlope <= this.sight.bottomSlope) {
+        // stop
+        return false
+      }
+
+      // shot continues
+      return true
+    }
+
+    if (inter.d === null) {
+      throw 'inter.d = null'
+    }
+
+    // shoot a thing
+    const th = inter.d
+    if (th === this.shootThing) {
+      // can't shoot self
+      return true
+    }
+
+    if (!(th.flags & MObjFlag.Shootable)) {
+      // corpse or something
+      return true
+    }
+
+    // check angles to see if the thing can be aimed at
+    const dist = mul(this.attackRange, inter.frac)
+    let thingTopSlope = div(th.z + th.height - this.shootZ, dist)
+
+    if (thingTopSlope < this.sight.bottomSlope) {
+      // shot over the thing
+      return true
+    }
+
+    let thingBottomSlope = div(th.z - this.shootZ, dist)
+
+    if (thingBottomSlope > this.sight.topSlope) {
+      // shot under the thing
+      return true
+    }
+
+    // this thing can be hit!
+    if (thingTopSlope > this.sight.topSlope) {
+      thingTopSlope = this.sight.topSlope
+    }
+
+    if (thingBottomSlope < this.sight.bottomSlope) {
+      thingBottomSlope = this.sight.bottomSlope
+    }
+
+    this.aimSlope = (thingTopSlope + thingBottomSlope) / 2 >> 0
+    this.lineTarget = th
+
+    // don't go any farther
+    return false
+  }
+
+  //
+  // PTR_ShootTraverse
+  //
+  private shootTraverse(inter: Intercept): boolean {
+    if (inter.isALine) {
+      const li = inter.d
+
+      if (li.special) {
+        if (this.shootThing === null) {
+          throw 'this.shootThing = null'
+        }
+        this.special.shootSpecialLine(this.shootThing, li)
+      }
+
+      if (!(li.flags & MapLineFlag.TwoSided)) {
+        return this.shootTraverseGoToHitLine(inter, li)
+      }
+
+      // Crosses a two sided line.
+      this.mapUtils.lineOpening(li)
+
+      const dist = mul(this.attackRange, inter.frac)
+
+      if (li.frontSector === null) {
+        throw 'li.frontSector = null'
+      }
+      if (li.backSector === null) {
+        throw 'li.backSector = null'
+      }
+
+      if (li.frontSector.floorHeight !== li.backSector.floorHeight) {
+        const slope = div(this.mapUtils.openBottom - this.shootZ, dist)
+        if (slope > this.aimSlope) {
+          return this.shootTraverseGoToHitLine(inter, li)
+        }
+      }
+
+      if (li.frontSector.ceilingHeight !== li.backSector.ceilingHeight) {
+        const slope = div(this.mapUtils.openTop - this.shootZ, dist)
+        if (slope < this.aimSlope) {
+          return this.shootTraverseGoToHitLine(inter, li)
+        }
+      }
+
+      // shot continues
+      return true
+    }
+
+    if (inter.d === null) {
+      throw 'inter.d = null'
+    }
+
+    // shoot a thing
+    const th = inter.d
+    if (th === this.shootThing) {
+      // can't shoot self
+      return true
+    }
+
+    if (!(th.flags & MObjFlag.Shootable)) {
+      // corpse or something
+      return true
+    }
+
+    // check angles to see if the thing can be aimed at
+    const dist = mul(this.attackRange, inter.frac)
+    const thingTopSlope = div(th.z + th.height - this.shootZ, dist)
+
+    if (thingTopSlope < this.sight.bottomSlope) {
+      // shot over the thing
+      return true
+    }
+
+    const thingBottomSlope = div(th.z - this.shootZ, dist)
+
+    if (thingBottomSlope > this.sight.topSlope) {
+      // shot under the thing
+      return true
+    }
+
+    // hit thing
+    // position a bit closer
+    const frac = inter.frac - div(10 * FRACUNIT, this.attackRange)
+    const trace = this.mapUtils.trace
+    const x = trace.x + mul(trace.dX, frac)
+    const y = trace.y + mul(trace.dY, frac)
+    const z = this.shootZ + mul(this.aimSlope, mul(frac, this.attackRange))
+
+    // Spawn bullet puffs or blod spots,
+    // depending on target type.
+    if (inter.d.flags & MObjFlag.NoBlood) {
+      this.mObjHandler.spawnPuff(x, y, z)
+    } else {
+      this.mObjHandler.spawnBlood(x, y, z, this.laDamage)
+    }
+
+    if (this.laDamage) {
+      this.inter.damageMObj(th, this.shootThing, this.shootThing, this.laDamage)
+    }
+
+    // don't go any farther
+    return false
+  }
+
+  private shootTraverseGoToHitLine(inter: Intercept, li: Line): boolean {
+    // hit line
+
+    const frac = inter.frac - div(4 * FRACUNIT, this.attackRange)
+    const trace = this.mapUtils.trace
+    const x = trace.x + mul(trace.dX, frac)
+    const y = trace.y + mul(trace.dY, frac)
+    const z = this.shootZ + mul(this.aimSlope, mul(frac, this.attackRange))
+
+    if (li.frontSector === null) {
+      throw 'li.frontSector = null'
+    }
+
+    if (li.frontSector.ceilingPic === this.rendering.sky.skyFlatNum) {
+      // don't shoot the sky!
+      if (z > li.frontSector.ceilingHeight) {
+        return false
+      }
+
+      // it's a sky hack wall
+      if (li.backSector && li.backSector.ceilingPic === this.rendering.sky.skyFlatNum) {
+        return false
+      }
+    }
+
+    // Spawn bullet puffs.
+    this.mObjHandler.spawnPuff(x, y, z)
+
+    // don't go any farther
+    return false
+  }
+
+  //
+  // P_AimLineAttack
+  //
+  aimLineAttack(t1: MObj, angle: number, distance: number): number {
+    angle >>>= ANGLE_TO_FINE_SHIFT
+    this.shootThing = t1
+
+    const x2 = t1.x + (distance >> FRACBITS) * fineSine[FINE_ANGLES / 4 + angle]
+    const y2 = t1.y + (distance >> FRACBITS) * fineSine[angle]
+    this.shootZ = t1.z + (t1.height >> 1) + 8 * FRACUNIT
+
+    // can't shoot outside view angles
+    this.sight.topSlope = 100 * FRACUNIT / 160
+    this.sight.bottomSlope = -100 * FRACUNIT / 160
+
+    this.attackRange = distance
+    this.lineTarget = null
+
+    this.mapUtils.pathTraverse(t1.x, t1.y,
+      x2, y2,
+      PT_ADD_LINES | PT_ADD_THINGS,
+      this.aimTraverse, this)
+
+    if (this.lineTarget) {
+      return this.aimSlope
+    }
+
+    return 0
+  }
+
+  //
+  // P_LineAttack
+  // If damage == 0, it is just a test trace
+  // that will leave linetarget set.
+  //
+  lineAttack(t1: MObj, angle: number, distance: number,
+    slope: number, damage: number,
+  ): void {
+    angle >>>= ANGLE_TO_FINE_SHIFT
+    this.shootThing = t1
+    this.laDamage = damage
+
+    const x2 = t1.x + (distance >> FRACBITS) * fineSine[FINE_ANGLES / 4 + angle]
+    const y2 = t1.y + (distance >> FRACBITS) * fineSine[angle]
+    this.shootZ = t1.z + (t1.height >> 1) + 8 * FRACUNIT
+
+    this.attackRange = distance
+    this.aimSlope = slope
+
+    this.mapUtils.pathTraverse(t1.x, t1.y,
+      x2, y2,
+      PT_ADD_LINES | PT_ADD_THINGS,
+      this.shootTraverse, this)
+  }
+
 
   //
   // USE LINES

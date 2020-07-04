@@ -1,5 +1,5 @@
-import { FRACBITS, mul } from '../misc/fixed'
-import { GRAVITY, ITEM_QUE_SIZE, MAX_MOVE, ON_CEILING_Z, ON_FLOOR_Z, VIEW_HEIGHT } from './local'
+import { FRACBITS, FRACUNIT, mul } from '../misc/fixed'
+import { GRAVITY, ITEM_QUE_SIZE, MAX_MOVE, MELEE_RANGE, ON_CEILING_Z, ON_FLOOR_Z, VIEW_HEIGHT } from './local'
 import { MTF_AMBUSH, Skill } from '../global/doomdef'
 import { ANG45 } from '../misc/table'
 import { Doom } from '../doom/doom'
@@ -292,7 +292,7 @@ export class MObjHandler {
   //
   // P_SpawnMobj
   //
-  private spawnMObj(x: number, y: number, z: number, type: MObjType): MObj {
+  spawnMObj(x: number, y: number, z: number, type: MObjType): MObj {
     const mObj = new MObj(this.play, this.thinker, x, y, z, type)
 
     this.tick.addThinker(mObj)
@@ -485,6 +485,52 @@ export class MObjHandler {
     mObj.angle = ANG45 * (mThing.angle / 45) >>> 0
     if (mThing.options & MTF_AMBUSH) {
       mObj.flags |= MObjFlag.Ambush
+    }
+  }
+
+
+  //
+  // GAME SPAWN FUNCTIONS
+  //
+
+  //
+  // P_SpawnPuff
+  //
+  spawnPuff(x: number, y: number, z: number): void {
+    z += random.pRandom() - random.pRandom() << 10
+
+    const th = this.spawnMObj(x, y, z, MObjType.Puff)
+    th.momZ = FRACUNIT
+    th.tics -= random.pRandom() & 3
+
+    if (th.tics < 1) {
+      th.tics = 1
+    }
+
+    // don't make punches spark on the wall
+    if (this.map.attackRange === MELEE_RANGE) {
+      this.setMObjState(th, StateNum.Puff3)
+    }
+  }
+
+  //
+  // P_SpawnBlood
+  //
+  spawnBlood(x: number, y: number, z: number, damage: number): void {
+    z += random.pRandom() - random.pRandom() << 10
+
+    const th = this.spawnMObj(x, y, z, MObjType.Blood)
+    th.momZ = FRACUNIT * 2
+    th.tics -= random.pRandom() & 3
+
+    if (th.tics < 1) {
+      th.tics = 1
+    }
+
+    if (damage <= 12 && damage >= 9) {
+      this.setMObjState(th, StateNum.Blood2)
+    } else if (damage < 9) {
+      this.setMObjState(th, StateNum.Blood3)
     }
   }
 

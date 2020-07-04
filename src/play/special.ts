@@ -13,6 +13,7 @@ import { Plats } from './plats'
 import { Play } from './setup'
 import { Sector } from '../rendering/sector'
 import { Side } from '../rendering/side'
+import { Switch } from './switch'
 
 export const GLOW_SPEED = 8
 export const STROBE_BRIGHT = 5
@@ -40,6 +41,9 @@ export class Special {
   }
   private get plats(): Plats {
     return this.play.plats
+  }
+  private get switch(): Switch {
+    return this.play.switch
   }
 
   constructor(private play: Play) { }
@@ -575,6 +579,45 @@ export class Special {
     case 129:
       // Raise Floor Turbo
       this.floor.evDoFloor(line, FloorType.RaiseFloorTurbo)
+      break
+    }
+  }
+
+  //
+  // P_ShootSpecialLine - IMPACT SPECIALS
+  // Called when a thing shoots a special line.
+  //
+  shootSpecialLine(thing: MObj, line: Line): void {
+    let ok: boolean
+    // Impacts that other things can activate.
+    if (!thing.player) {
+      ok = false
+      switch (line.special) {
+      case 46:
+      // OPEN DOOR IMPACT
+        ok = true
+        break
+      }
+      if (!ok) {
+        return
+      }
+    }
+
+    switch (line.special) {
+    case 24:
+      // RAISE FLOOR
+      this.floor.evDoFloor(line, FloorType.RaiseFloor)
+      this.switch.changeSwitchTexture(line, false)
+      break
+    case 46:
+      // OPEN DOOR
+      this.doors.evDoDoor(line, DoorType.Open)
+      this.switch.changeSwitchTexture(line, true)
+      break
+    case 47:
+      // RAISE FLOOR NEAR AND CHANGE
+      this.plats.evDoPlat(line, PlatType.RaiseToNearestAndChange, 0)
+      this.switch.changeSwitchTexture(line, false)
       break
     }
   }

@@ -51,7 +51,7 @@ export const SCREENWIDTH = 320
 export const SCREENHEIGHT = 200
 
 // The maximum number of players, multiplayer/networking.
-export const MAX_PLAYERS = 1
+export const MAX_PLAYERS = 4
 
 // State updates, number of tics / second.
 export const TICRATE = 35

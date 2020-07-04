@@ -22,6 +22,10 @@ export const MAX_MOVE = 30 * FRACUNIT
 
 export const USE_RANGE = 64 * FRACUNIT
 export const MELEE_RANGE = 64 * FRACUNIT
+export const MISSILE_RANGE = 32 * 64 * FRACUNIT
+
+// follow a player exlusively for 3 seconds
+export const BASE_THRESHOLD = 100
 
 //
 // P_MOBJ

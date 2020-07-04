@@ -1,14 +1,20 @@
+import { AmmoType, GameMode, WeaponType } from '../global/doomdef'
 import { FINE_ANGLES, FINE_MASK, fineSine } from '../misc/table'
 import { FRACBITS, FRACUNIT, mul } from '../misc/fixed'
 import { PSpriteDef, PSpriteNum } from './sprite'
 import { ButtonCode } from '../doom/event'
+import { Doom } from '../doom/doom'
+import { Enemy } from './enemy'
+import { MISSILE_RANGE } from './local'
+import { MObj } from './mobj/mobj'
 import { MObjHandler } from './mobj-handler'
+import { Map } from './map'
 import { Play } from './setup'
 import { Player } from '../doom/player'
 import { State } from '../doom/info/state'
 import { StateNum } from '../doom/info/state-num'
 import { Tick } from './tick'
-import { WeaponType } from '../global/doomdef'
+import { random } from '../misc/random'
 import { states } from '../doom/info/states'
 import { weaponInfo } from '../doom/items'
 
@@ -23,6 +29,15 @@ const BGF_CELLS = 40
 
 export class PSprite {
 
+  private get doom(): Doom {
+    return this.play.doom
+  }
+  private get enemy(): Enemy {
+    return this.play.enemy
+  }
+  private get map(): Map {
+    return this.play.map
+  }
   private get mObjHandler(): MObjHandler {
     return this.play.mObjHandler
   }
@@ -100,8 +115,93 @@ export class PSprite {
     this.setPSprite(player, PSpriteNum.Weapon, newState)
   }
 
+  //
+  // P_CheckAmmo
+  // Returns true if there is enough ammo to shoot.
+  // If not, selects the next weapon to use.
+  //
+  private checkAmmo(player: Player): boolean {
+    const ammo = weaponInfo[player.readyWeapon].ammo
+
+    // Minimal amount for one shot varies.
+    let count: number
+    if (player.readyWeapon === WeaponType.BFG) {
+      count = BGF_CELLS
+    } else if (player.readyWeapon === WeaponType.Supershotgun) {
+      // Double barrel.
+      count = 2
+    } else {
+      // Regular.
+      count = 1
+    }
+
+    // Some do not need ammunition anyway.
+    // Return if current ammunition sufficient.
+    if (ammo === AmmoType.NoAmmo || player.ammo[ammo] >= count) {
+      return true
+    }
+
+    // Out of ammo, pick a weapon to change to.
+    // Preferences are set here.
+    if (player.weaponOwned[WeaponType.Plasma] &&
+      player.ammo[AmmoType.Cell] &&
+      this.doom.gameMode !== GameMode.Shareware
+    ) {
+      player.pendingWeapon = WeaponType.Plasma
+    } else if (player.weaponOwned[WeaponType.Supershotgun] &&
+      player.ammo[AmmoType.Shell] > 2 &&
+      this.doom.gameMode === GameMode.Commercial
+    ) {
+      player.pendingWeapon = WeaponType.Supershotgun
+    } else if (player.weaponOwned[WeaponType.Chaingun] &&
+      player.ammo[AmmoType.Clip]
+    ) {
+      player.pendingWeapon = WeaponType.Chaingun
+    } else if (player.weaponOwned[WeaponType.Shotgun] &&
+      player.ammo[AmmoType.Shell]
+    ) {
+      player.pendingWeapon = WeaponType.Shotgun
+    } else if (player.ammo[AmmoType.Clip]) {
+      player.pendingWeapon = WeaponType.Pistol
+    } else if (player.weaponOwned[WeaponType.Chainsaw]) {
+      player.pendingWeapon = WeaponType.Chainsaw
+    } else if (player.weaponOwned[WeaponType.Missile] &&
+      player.ammo[AmmoType.Misl]) {
+      player.pendingWeapon = WeaponType.Missile
+    } else if (player.weaponOwned[WeaponType.BFG] &&
+      player.ammo[AmmoType.Cell] > 40 &&
+      this.doom.gameMode !== GameMode.Shareware
+    ) {
+      player.pendingWeapon = WeaponType.BFG
+    } else {
+      // If everything fails.
+      player.pendingWeapon = WeaponType.Fist
+    }
+
+    // Now set appropriate weapon overlay.
+    this.setPSprite(player,
+      PSpriteNum.Weapon,
+      weaponInfo[player.readyWeapon].downState)
+
+    return false
+  }
+
+  //
+  // P_FireWeapon.
+  //
   private fireWeapon(player: Player): void {
-    debugger
+    if (!this.checkAmmo(player)) {
+      return
+    }
+
+    if (player.mo === null) {
+      throw 'player.mo = null'
+    }
+
+    this.mObjHandler.setMObjState(player.mo, StateNum.PlayAtk1)
+    const newState = weaponInfo[player.readyWeapon].atkState
+    this.setPSprite(player, PSpriteNum.Weapon, newState)
+    this.enemy.noiseAlert(player.mo, player.mo)
   }
 
   //
@@ -161,15 +261,29 @@ export class PSprite {
     // bob the weapon based on movement speed
     let angle = 128 * this.tick.levelTime & FINE_MASK
 
-    console.log(angle)
-
     psp.sX = FRACUNIT + mul(player.bob, fineSine[FINE_ANGLES / 4 + angle])
     angle &= FINE_ANGLES / 2 - 1
     psp.sY = WEAPON_TOP + mul(player.bob, fineSine[angle])
   }
 
-  reFire(/* player: Player, psp: PSpriteDef */): void {
-    debugger
+  //
+  // A_ReFire
+  // The player can re-fire the weapon
+  // without lowering it entirely.
+  //
+  reFire(player: Player): void {
+    // check for fire
+    //  (if a weaponchange is pending, let it go through instead)
+    if (player.cmd.buttons & ButtonCode.Attack &&
+      player.pendingWeapon === WeaponType.NoChange &&
+      player.health
+    ) {
+      player.refire++
+      this.fireWeapon(player)
+    } else {
+      player.refire = 0
+      this.checkAmmo(player)
+    }
   }
 
   checkReload(/* player: Player, psp: PSpriteDef */): void {
@@ -223,8 +337,57 @@ export class PSprite {
     debugger
   }
 
-  firePistol(/* player: Player, psp: PSpriteDef */): void {
-    debugger
+  //
+  // P_BulletSlope
+  // Sets a slope so a near miss is at aproximately
+  // the height of the intended target
+  //
+  private bulletSlopeV = 0
+  private bulletSlope(mo: MObj) {
+    // see which target is to be aimed at
+    let an = mo.angle
+    this.bulletSlopeV = this.map.aimLineAttack(mo, an, 16 * 64 * FRACUNIT)
+
+    if (!this.map.lineTarget) {
+      an = an + (1 << 26) >>> 0
+      this.bulletSlopeV = this.map.aimLineAttack(mo, an, 16 * 64 * FRACUNIT)
+      if (!this.map.lineTarget) {
+        an = an - (2 << 26) >>> 0
+        this.bulletSlopeV = this.map.aimLineAttack(mo, an, 16 * 64 * FRACUNIT)
+      }
+    }
+  }
+
+  //
+  // P_GunShot
+  //
+  private gunShot(mo: MObj, accurate: boolean): void {
+    const damage = 5 * (random.pRandom() % 3 + 1)
+    let angle = mo.angle
+
+    if (!accurate) {
+      angle = angle + (random.pRandom() - random.pRandom() << 18) >>> 0
+    }
+
+    this.map.lineAttack(mo, angle, MISSILE_RANGE, this.bulletSlopeV, damage)
+  }
+
+  //
+  // A_FirePistol
+  //
+  firePistol(player: Player): void {
+    if (player.mo === null) {
+      throw 'player.mo = null'
+    }
+    this.mObjHandler.setMObjState(player.mo, StateNum.PlayAtk2)
+    player.ammo[weaponInfo[player.readyWeapon].ammo]--
+
+    this.setPSprite(player,
+      PSpriteNum.Flash,
+      weaponInfo[player.readyWeapon].flashState)
+
+    this.bulletSlope(player.mo)
+    this.gunShot(player.mo, !player.refire)
   }
 
   fireShotgun(/* player: Player, psp: PSpriteDef */): void {
@@ -239,16 +402,16 @@ export class PSprite {
     debugger
   }
 
-  light0(/* player: Player, psp: PSpriteDef */): void {
-    debugger
+  light0(player: Player): void {
+    player.extraLight = 0
   }
 
-  light1(/* player: Player, psp: PSpriteDef */): void {
-    debugger
+  light1(player: Player): void {
+    player.extraLight = 1
   }
 
-  light2(/* player: Player, psp: PSpriteDef */): void {
-    debugger
+  light2(player: Player): void {
+    player.extraLight = 2
   }
 
   bfgSpray(/* mo: MObj */): void {
