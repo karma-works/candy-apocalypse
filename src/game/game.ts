@@ -74,7 +74,7 @@ export class Game {
   // for comparative timing purposes
   private startTime = -1
 
-  private viewActive = false
+  viewActive = false
 
   // only if started as net death
   deathMatch = 0

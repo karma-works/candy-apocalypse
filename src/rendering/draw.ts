@@ -1,8 +1,11 @@
-import { RANGE_CHECK, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
+import { GameMode, RANGE_CHECK, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { Data } from './data'
+import { Doom } from '../doom/doom'
 import { FRACBITS } from '../misc/fixed'
+import { Patch } from './patch'
 import { Rendering } from './rendering'
 import { Video } from './video'
+import { Wad } from '../wad/wad'
 
 // ?
 export const MAX_WIDTH = 1120
@@ -72,8 +75,14 @@ export class Draw {
   private get data(): Data {
     return this.rendering.data
   }
+  private get doom(): Doom {
+    return this.rendering.doom
+  }
   private get video(): Video {
     return this.rendering.video
+  }
+  private get wad(): Wad {
+    return this.rendering.wad
   }
 
   constructor(private rendering: Rendering) { }
@@ -346,6 +355,95 @@ export class Draw {
   }
 
   //
+  // R_FillBackScreen
+  // Fills the back screen with a pattern
+  //  for variable screen sizes
+  // Also draws a beveled edge.
+  //
+  fillBackScreen(): void {
+    // DOOM border patch.
+    const name1 = 'FLOOR7_2'
+
+    // DOOM II border patch.
+    const name2 = 'GRNROCK'
+
+    if (this.scaledViewWidth === 320) {
+      return
+    }
+
+    let name: string
+    if (this.doom.gameMode === GameMode.Commercial) {
+      name = name2
+    } else {
+      name = name1
+    }
+
+    const src = new Uint8Array(this.wad.cacheLumpName(name))
+    const dest = this.video.screens[1]
+    let destOffset = 0
+
+    for (let y = 0; y < SCREENHEIGHT - SBAR_HEIGHT; ++y) {
+      for (let x = 0; x < SCREENWIDTH / 64; ++x) {
+        dest.set(
+          src.slice((y & 63) << 6, (y & 63) << 6 + 64),
+          destOffset,
+        )
+        destOffset += 64
+      }
+
+      if (SCREENWIDTH & 63) {
+        dest.set(
+          src.slice((y & 63) << 6, (y & 63) << 6 + SCREENWIDTH & 63),
+          destOffset,
+        )
+        destOffset += SCREENWIDTH & 63
+      }
+    }
+
+    let patch = new Patch(this.wad.cacheLumpName('brdr_t'))
+    for (let x = 0; x < this.scaledViewWidth; x += 8) {
+      this.video.drawPatch(this.viewWindowX + x, this.viewWindowY - 8, 1, patch)
+    }
+
+    patch = new Patch(this.wad.cacheLumpName('brdr_b'))
+    for (let x = 0; x < this.scaledViewWidth; x += 8) {
+      this.video.drawPatch(this.viewWindowX + x, this.viewWindowY + this.viewHeight, 1, patch)
+    }
+
+    patch = new Patch(this.wad.cacheLumpName('brdr_l'))
+    for (let y = 0; y < this.viewHeight; y += 8) {
+      this.video.drawPatch(this.viewWindowX - 8, this.viewWindowY + y, 1, patch)
+    }
+
+    patch = new Patch(this.wad.cacheLumpName('brdr_r'))
+    for (let y = 0; y < this.viewHeight; y += 8) {
+      this.video.drawPatch(this.viewWindowX + this.scaledViewWidth, this.viewWindowY + y, 1, patch)
+    }
+
+    // Draw beveled edge.
+    this.video.drawPatch(this.viewWindowX - 8,
+      this.viewWindowY - 8,
+      1,
+      this.wad.cacheLumpName('brdr_tl'))
+
+    this.video.drawPatch(this.viewWindowX + this.scaledViewWidth,
+      this.viewWindowY - 8,
+      1,
+      this.wad.cacheLumpName('brdr_tr'))
+
+    this.video.drawPatch(this.viewWindowX - 8,
+      this.viewWindowY + this.viewHeight,
+      1,
+      this.wad.cacheLumpName('brdr_bl'))
+
+    this.video.drawPatch(this.viewWindowX + this.scaledViewWidth,
+      this.viewWindowY + this.viewHeight,
+      1,
+      this.wad.cacheLumpName('brdr_br'))
+
+  }
+
+  //
   // Copy a screen buffer.
   //
   videoErase(ofs: number, count: number): void {
@@ -354,4 +452,38 @@ export class Draw {
       ofs,
     )
   }
+
+  //
+  // R_DrawViewBorder
+  // Draws the border around the view
+  //  for different size windows?
+  //
+  drawViewBorder(): void {
+    if (this.scaledViewWidth === SCREENWIDTH) {
+      return
+    }
+
+    const top = (SCREENHEIGHT - SBAR_HEIGHT - this.viewHeight) / 2 >> 0
+    let side = (SCREENWIDTH - this.scaledViewWidth) / 2 >> 0
+
+    // copy top and one line of left side
+    this.videoErase(0, top * SCREENWIDTH + side)
+
+    // copy one line of right side and bottom
+    let ofs = (this.viewHeight + top) * SCREENWIDTH - side
+    this.videoErase(ofs, top * SCREENWIDTH + side)
+
+    // copy sides using wraparound
+    ofs = top * SCREENWIDTH + SCREENWIDTH - side
+    side <<= 1
+
+    for (let i = 1; i < this.viewHeight; ++i) {
+      this.videoErase(ofs, side)
+      ofs += SCREENWIDTH
+    }
+
+    // ?
+    this.video.markRect(0, 0, SCREENWIDTH, SCREENHEIGHT - SBAR_HEIGHT)
+  }
+
 }

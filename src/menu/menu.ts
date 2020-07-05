@@ -46,7 +46,7 @@ export class Menu {
   saveOldString = ''
 
   inHelpScreens = false
-  private menuActive = false
+  menuActive = false
 
   saveGameStrings: string[] = new Array(10).fill('')
 

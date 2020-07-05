@@ -126,6 +126,9 @@ export class Doom {
 
   // wipegamestate can be set to -1 to force a wipe on the next draw
   wipeGameState = GameState.DemoScreen
+  private viewActiveState = false
+  private menuActiveState = false
+  private inHelpScreenState = false
   private oldGameState: GameState = -1
   private borderDrawCount = 0
   //
@@ -189,6 +192,31 @@ export class Doom {
       this.iVideo.setPalette(this.wad.cacheLumpName('PLAYPAL'))
     }
 
+    // see if the border needs to be initially drawn
+    if (this.game.gameState === GameState.Level && this.oldGameState !== GameState.Level) {
+      // view was not active
+      this.viewActiveState = false
+      // draw the pattern into the back screen
+      this.rendering.draw.fillBackScreen()
+    }
+
+    // see if the border needs to be updated to the screen
+    if (this.game.gameState === GameState.Level &&
+      this.rendering.draw.scaledViewWidth !== 320
+    ) {
+      if (this.menu.menuActive || this.menuActiveState || !this.viewActiveState) {
+        this.borderDrawCount = 3
+      }
+      if (this.borderDrawCount) {
+        // erase old menu stuff
+        this.rendering.draw.drawViewBorder()
+        this.borderDrawCount--
+      }
+    }
+
+    this.menuActiveState = this.menu.menuActive
+    this.viewActiveState = this.game.viewActive
+    this.inHelpScreenState = this.menu.inHelpScreens
     this.oldGameState = this.wipeGameState = this.game.gameState
 
     // menus go directly to the screen
