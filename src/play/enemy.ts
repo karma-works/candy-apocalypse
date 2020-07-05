@@ -1,6 +1,6 @@
 import { ANG270, ANG90 } from '../misc/table'
 import { DirType, diags, opposite } from './mobj/direction'
-import { FLOAT_SPEED, MELEE_RANGE } from './local'
+import { FLOAT_SPEED, MELEE_RANGE, MISSILE_RANGE } from './local'
 import { Doom } from '../doom/doom'
 import { FRACUNIT } from '../misc/fixed'
 import { Game } from '../game/game'
@@ -625,12 +625,41 @@ export class Enemy {
     }
   }
 
-  faceTarget(/* actor: MObj */): void {
-    debugger
+  //
+  // A_FaceTarget
+  //
+  faceTarget(actor: MObj): void {
+    if (!actor.target) {
+      return
+    }
+
+    actor.flags &= ~MObjFlag.Ambush
+
+    actor.angle = this.rendering.pointToAngle2(actor.x,
+      actor.y,
+      actor.target.x,
+      actor.target.y)
+
+    if (actor.target.flags & MObjFlag.Shadow) {
+      actor.angle = actor.angle + (random.pRandom() - random.pRandom() << 21) >>> 0
+    }
   }
 
-  posAttack(/* actor: MObj */): void {
-    debugger
+  //
+  // A_PosAttack
+  //
+  posAttack(actor: MObj): void {
+    if (!actor.target) {
+      return
+    }
+
+    this.faceTarget(actor)
+    let angle = actor.angle >> 0
+    const slope = this.map.aimLineAttack(actor, angle >>> 0, MISSILE_RANGE)
+
+    angle += random.pRandom() - random.pRandom() << 20
+    const damage = (random.pRandom() % 5 + 1) * 3
+    this.map.lineAttack(actor, angle >>> 0, MISSILE_RANGE, slope, damage)
   }
 
   sPosAttack(/* actor: MObj */): void {
