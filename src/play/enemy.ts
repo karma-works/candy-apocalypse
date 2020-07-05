@@ -553,7 +553,7 @@ export class Enemy {
     // turn towards movement direction if not there yet
     if (actor.moveDir < 8) {
       actor.angle = (actor.angle & 7 << 29) >>> 0
-      const delta = actor.angle - (actor.moveDir << 29)
+      const delta = actor.angle - (actor.moveDir << 29) >> 0
 
       if (delta > 0) {
         actor.angle = actor.angle - ANG90 / 2 >>> 0
