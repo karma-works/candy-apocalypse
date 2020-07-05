@@ -1,4 +1,4 @@
-import { AmmoType, GameMission, GameMode, GameState, KEY_DOWNARROW, KEY_LEFTARROW, KEY_PAUSE, KEY_RALT, KEY_RCTRL, KEY_RIGHTARROW, KEY_RSHIFT, KEY_UPARROW, MAX_PLAYERS, Skill, WeaponType } from '../global/doomdef'
+import { AmmoType, GameMission, GameMode, GameState, KEY_DOWNARROW, KEY_LEFTARROW, KEY_PAUSE, KEY_RALT, KEY_RCTRL, KEY_RIGHTARROW, KEY_RSHIFT, KEY_UPARROW, MAX_PLAYERS, Skill, VERSION, WeaponType } from '../global/doomdef'
 import { ButtonCode, DEvent, EvType, GameAction } from '../doom/event'
 import { Player, PlayerState, WbStart } from '../doom/player'
 import { BACKUP_TICS } from '../doom/net/doom-data'
@@ -16,6 +16,7 @@ import { StateNum } from '../doom/info/state-num'
 import { StatusBar } from '../status/stuff'
 import { Tick } from '../play/tick'
 import { TickCmd } from '../doom/tick-cmd'
+import { Wad } from '../wad/wad'
 import { Win } from '../win/win'
 import { getTime } from '../system/system'
 import { mObjInfos } from '../doom/info/mobj-infos'
@@ -48,6 +49,8 @@ const cPars = [
   120,30,
 ]
 
+const DEMO_MARKER = 0x80
+
 
 export class Game {
   gameAction = GameAction.Nothing
@@ -64,6 +67,9 @@ export class Game {
   private sendSave = false
   // ok to save / end game
   private userGame = false
+
+  // if true, exit with report on completion
+  private timingDemo = false
 
   // for comparative timing purposes
   private startTime = -1
@@ -89,7 +95,16 @@ export class Game {
   totalItems = 0
   totalSecret = 0
 
+  private demoName = ''
+  private demoRecording = false
   demoPlayback = false
+  private netDemo = false
+  private demoBuffer = new Uint8Array()
+  private demoP = new Uint8Array()
+  private demoPtr = 0
+  private demoEnd = new Uint8Array()
+  // quit after playing a demo from cmdline
+  private singleDemo = false
 
   // parms for world map / intermission
   private wmInfo = new WbStart()
@@ -169,6 +184,9 @@ export class Game {
   }
   private get tick(): Tick {
     return this.play.tick
+  }
+  private get wad(): Wad {
+    return this.doom.wad
   }
   private get win(): Win {
     return this.doom.win
@@ -457,6 +475,9 @@ export class Game {
       case GameAction.NewGame:
         this.doNewGame()
         break
+      case GameAction.PlayDemo:
+        this.doPlayDemo()
+        break
       case GameAction.Completed:
         this.doCompleted()
         break
@@ -475,6 +496,10 @@ export class Game {
       if (this.playerInGame[i]) {
         cmd = this.players[i].cmd
         cmd.copyFrom(this.net.netCmds[i][buf])
+
+        if (this.demoPlayback) {
+          this.readDemoTicCmd(cmd)
+        }
       }
     }
 
@@ -487,6 +512,9 @@ export class Game {
       break
     case GameState.Intermission:
       this.win.ticker()
+      break
+    case GameState.DemoScreen:
+      this.doom.pageTicker()
       break
     }
   }
@@ -854,5 +882,108 @@ export class Game {
     }
 
     this.doLoadLevel()
+  }
+
+  //
+  // DEMO RECORDING
+  //
+  private readDemoTicCmd(cmd: TickCmd): void {
+    if (this.demoP[this.demoPtr] === DEMO_MARKER) {
+      // end of demo data stream
+      this.checkDemoStatus()
+      return
+    }
+    cmd.forwardMove = this.demoP[this.demoPtr++]
+    cmd.sideMove = this.demoP[this.demoPtr++]
+    cmd.angleTurn = this.demoP[this.demoPtr++] << 8
+    cmd.buttons = this.demoP[this.demoPtr++]
+  }
+
+  //
+  // G_PlayDemo
+  //
+  private defDemoName = ''
+  deferedPlayDemo(name: string): void {
+    this.defDemoName = name
+    this.gameAction = GameAction.PlayDemo
+  }
+
+  private doPlayDemo(): void {
+    this.gameAction = GameAction.Nothing
+
+    const demoP = new Uint8Array(this.wad.cacheLumpName(this.defDemoName))
+    let demoPtr = 0
+
+    if (demoP[demoPtr++] !== VERSION) {
+    //   console.error('Demo is from a different game version!')
+    //   this.gameAction = GameAction.Nothing
+    //   return
+    }
+
+    this.skill = demoP[demoPtr++]
+    this.episode = demoP[demoPtr++]
+    this.map = demoP[demoPtr++]
+    this.deathMatch = demoP[demoPtr++]
+    this.doom.respawnParam = !!demoP[demoPtr++]
+    this.doom.fastParam = !!demoP[demoPtr++]
+    this.doom.noMonsters = !!demoP[demoPtr++]
+    this.consolePlayer = demoP[demoPtr++]
+
+    for (let i = 0; i < MAX_PLAYERS; ++i) {
+      this.playerInGame[i] = !!demoP[demoPtr++]
+    }
+    if (this.playerInGame[1]) {
+      this.netGame = true
+      this.netDemo = true
+    }
+
+    this.demoP = demoP
+    this.demoPtr = demoPtr
+
+    this.initNew(this.skill, this.episode, this.map)
+
+    this.userGame = false
+    this.demoPlayback = true
+  }
+
+  /*
+  ===================
+  =
+  = G_CheckDemoStatus
+  =
+  = Called after a death or level completion to allow demos to be cleaned up
+  = Returns true if a new demo loop action will take place
+  ===================
+  */
+  private checkDemoStatus(): boolean {
+    if (this.timingDemo) {
+      const endTime = getTime()
+
+      throw `timed ${this.gameTic} gametics in ${endTime - this.startTime} realtics`
+    }
+
+    if (this.demoPlayback) {
+      if (this.singleDemo) {
+        debugger
+      }
+
+      this.demoPlayback = false
+      this.netDemo = false
+      this.netGame = false
+      this.deathMatch = 0
+      this.playerInGame[1] = this.playerInGame[2] = this.playerInGame[3] = false
+      this.doom.respawnParam = false
+      this.doom.fastParam = false
+      this.doom.noMonsters = false
+      this.consolePlayer = 0
+      this.doom.advanceDemo()
+      return true
+    }
+
+    if (this.demoRecording) {
+      debugger
+    }
+
+    return false
   }
 }

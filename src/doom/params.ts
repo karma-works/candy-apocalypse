@@ -1,6 +1,9 @@
 import { Skill } from '../global/doomdef'
 
 export interface Params {
+  deathMatch?: boolean
+  altDeath?: boolean
+
   net?: boolean;
   extraTic?: boolean;
   dup?: number;

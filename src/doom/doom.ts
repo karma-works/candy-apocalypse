@@ -253,7 +253,7 @@ export class Doom {
   // D_PageTicker
   // Handles timing for warped projection
   //
-  private pageTicker(): void {
+  pageTicker(): void {
     if (--this.pageTic < 0) {
       this.advanceDemo()
     }
@@ -272,7 +272,7 @@ export class Doom {
   // D_AdvanceDemo
   // Called after each demo or intro demosequence finishes
   //
-  private advanceDemo(): void {
+  advanceDemo(): void {
     this.advancedemo = true
   }
 
@@ -301,7 +301,7 @@ export class Doom {
       this.pageName = 'TITLEPIC'
       break
     case 1:
-      // TODO
+      this.game.deferedPlayDemo('demo1')
       break
     case 2:
       this.pageTic = 200
@@ -309,7 +309,7 @@ export class Doom {
       this.pageName = 'CREDIT'
       break
     case 3:
-      // TODO
+      this.game.deferedPlayDemo('demo2')
       break
     case 4:
       this.game.gameState = GameState.DemoScreen
@@ -327,11 +327,11 @@ export class Doom {
       }
       break
     case 5:
-      // TODO
+      this.game.deferedPlayDemo('demo3')
       break
     case 6:
       // THE DEFINITIVE DOOM Special Edition demo
-      // TODO
+      this.game.deferedPlayDemo('demo4')
       break
     }
   }
@@ -435,6 +435,11 @@ export class Doom {
     this.respawnParam = !!param.respawm
     this.fastParam = !!param.fast
     this.devParam = !!param.dev
+    if (param.altDeath) {
+      this.game.deathMatch = 2
+    } else if (param.deathMatch) {
+      this.game.deathMatch = 1
+    }
 
     switch (this.gameMode) {
     case GameMode.Retail:
