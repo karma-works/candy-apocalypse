@@ -4,6 +4,7 @@ import { FLOAT_SPEED, MELEE_RANGE, MISSILE_RANGE } from './local'
 import { Doom } from '../doom/doom'
 import { FRACUNIT } from '../misc/fixed'
 import { Game } from '../game/game'
+import { Inter } from './inter'
 import { Line } from '../rendering/line'
 import { MObj } from './mobj/mobj'
 import { MObjFlag } from './mobj/mobj-flag'
@@ -30,6 +31,9 @@ export class Enemy {
   }
   private get game(): Game {
     return this.play.game
+  }
+  private get inter(): Inter {
+    return this.play.inter
   }
   private get map(): Map {
     return this.play.map
@@ -662,8 +666,22 @@ export class Enemy {
     this.map.lineAttack(actor, angle >>> 0, MISSILE_RANGE, slope, damage)
   }
 
-  sPosAttack(/* actor: MObj */): void {
-    debugger
+  sPosAttack(actor: MObj): void {
+    if (!actor.target) {
+      return
+    }
+
+    this.faceTarget(actor)
+    const bAngle = actor.angle >> 0
+    const slope = this.map.aimLineAttack(actor, bAngle >>> 0, MISSILE_RANGE)
+
+    let angle: number
+    let damage: number
+    for (let i = 0; i < 3; ++i) {
+      angle = bAngle + random.pRandom() - random.pRandom() << 20
+      damage = (random.pRandom() % 5 + 1) * 3
+      this.map.lineAttack(actor, angle >>> 0, MISSILE_RANGE, slope, damage)
+    }
   }
 
   cPosAttack(/* actor: MObj */): void {
@@ -682,12 +700,33 @@ export class Enemy {
     debugger
   }
 
-  troopAttack(/* actor: MObj */): void {
-    debugger
+  troopAttack(actor: MObj): void {
+    if (!actor.target) {
+      return
+    }
+
+    this.faceTarget(actor)
+
+    if (this.checkMeleeRange(actor)) {
+      const damage = (random.pRandom() % 8 + 1) * 3
+      this.inter.damageMObj(actor.target, actor, actor, damage)
+      return
+    }
+
+    // launch a missile
+    this.mObjHandler.spawnMissile(actor, actor.target, MObjType.Troopshot)
   }
 
-  sargAttack(/* actor: MObj */): void {
-    debugger
+  sargAttack(actor: MObj): void {
+    if (!actor.target) {
+      return
+    }
+
+    this.faceTarget(actor)
+    if (this.checkMeleeRange(actor)) {
+      const damage = (random.pRandom() % 10 + 1) * 4
+      this.inter.damageMObj(actor.target, actor, actor, damage)
+    }
   }
 
   headAttack(/* actor: MObj */): void {
@@ -783,7 +822,7 @@ export class Enemy {
   }
 
   pain(/* actor: MObj */): void {
-    debugger
+    // TODO sound
   }
 
   fall(/* actor: MObj */): void {

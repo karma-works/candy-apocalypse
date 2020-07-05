@@ -1,7 +1,8 @@
+import { ANG45, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table'
+import { Cheat, PlayerState } from '../doom/player'
+import { FLOAT_SPEED, GRAVITY, ITEM_QUE_SIZE, MAX_MOVE, MELEE_RANGE, ON_CEILING_Z, ON_FLOOR_Z, VIEW_HEIGHT } from './local'
 import { FRACBITS, FRACUNIT, mul } from '../misc/fixed'
-import { GRAVITY, ITEM_QUE_SIZE, MAX_MOVE, MELEE_RANGE, ON_CEILING_Z, ON_FLOOR_Z, VIEW_HEIGHT } from './local'
 import { MTF_AMBUSH, Skill } from '../global/doomdef'
-import { ANG45 } from '../misc/table'
 import { Doom } from '../doom/doom'
 import { Enemy } from './enemy'
 import { Game } from '../game/game'
@@ -14,7 +15,7 @@ import { MapThing } from '../doom/data'
 import { MapUtils } from './map-utils'
 import { PSprite } from './p-sprite'
 import { Play } from './setup'
-import { PlayerState } from '../doom/player'
+import { Rendering } from '../rendering/rendering'
 import { State } from '../doom/info/state'
 import { StateNum } from '../doom/info/state-num'
 import { StatusBar } from '../status/stuff'
@@ -48,6 +49,9 @@ export class MObjHandler {
   }
   private get pSprite(): PSprite {
     return this.play.pSprite
+  }
+  private get rendering(): Rendering {
+    return this.play.rendering
   }
   private get statusBar(): StatusBar {
     return this.doom.statusBar
@@ -95,6 +99,23 @@ export class MObjHandler {
     } while (!mobj.tics)
 
     return true
+  }
+
+  //
+  // P_ExplodeMissile
+  //
+  private explodeMissile(mo: MObj): void {
+    mo.momX = mo.momY = mo.momZ = 0
+
+    this.setMObjState(mo, mObjInfos[mo.type].deathState)
+
+    mo.tics -= random.pRandom() & 3
+
+    if (mo.tics < 1) {
+      mo.tics = 1
+    }
+
+    mo.flags &= ~MObjFlag.Missile
   }
 
   //
@@ -146,13 +167,62 @@ export class MObjHandler {
         if (mo.player) {
           // try to slide along it
           this.map.slideMove(mo)
+        } else if (mo.flags & MObjFlag.Missile) {
+          // explode a missile
+          if (this.map.ceilingLine &&
+            this.map.ceilingLine.backSector &&
+            this.map.ceilingLine.backSector.ceilingPic === this.rendering.sky.skyFlatNum
+          ) {
+            // Hack to prevent missiles exploding
+            // against the sky.
+            // Does not handle sky floors.
+            this.removeMObj(mo)
+            return
+          }
+          this.explodeMissile(mo)
         } else {
           mo.momX = mo.momY = 0
         }
       }
 
-
     } while (xMove || yMove)
+
+    // slow down
+    if (player && player.cheats & Cheat.NoMomentum) {
+      // debug option for no sliding at all
+      mo.momX = mo.momY = 0
+      return
+    }
+
+    if (mo.flags & (MObjFlag.Missile | MObjFlag.SkullFly)) {
+      // no friction for missiles ever
+      return
+    }
+
+    if (mo.z > mo.floorZ) {
+      // no friction when airborne
+      return
+    }
+
+    if (mo.flags & MObjFlag.Corpse) {
+      // do not stop sliding
+      //  if halfway off a step with some momentum
+      if (mo.momX > FRACUNIT / 4 ||
+        mo.momX > FRACUNIT / 4 ||
+        mo.momX > FRACUNIT / 4 ||
+        mo.momX > FRACUNIT / 4
+      ) {
+        if (mo.subSector === null) {
+          throw 'mo.subSector = null'
+        }
+        if (mo.subSector.sector === null) {
+          throw 'mo.subSector.sector = null'
+        }
+        if (mo.floorZ !== mo.subSector.sector.floorHeight) {
+          return
+        }
+      }
+    }
 
     if (mo.momX > -STOP_SPEED &&
       mo.momX < STOP_SPEED &&
@@ -168,9 +238,6 @@ export class MObjHandler {
         }
 
         // if in a walking frame, stop moving
-        if (states.indexOf(player.mo.state as State<unknown, [unknown]>) - StateNum.PlayRun1 < 0) {
-          debugger
-        }
         if (states.indexOf(player.mo.state as State<unknown, [unknown]>) - StateNum.PlayRun1 < 4) {
           this.setMObjState(player.mo, StateNum.Play)
         }
@@ -199,6 +266,27 @@ export class MObjHandler {
     // adjust height
     mo.z += mo.momZ
 
+    if (mo.flags & MObjFlag.Float &&
+      mo.target
+    ) {
+      // float down towards target if too close
+      if (!(mo.flags & MObjFlag.SkullFly) &&
+        !(mo.flags & MObjFlag.InFloat)
+      ) {
+        const dist = this.mapUtils.aproxDistance(
+          mo.x - mo.target.x,
+          mo.y - mo.target.y)
+
+        const delta = mo.target.z + (mo.height >> 1) - mo.z
+
+        if (delta < 0 && dist < -(delta * 3)) {
+          mo.z -= FLOAT_SPEED
+        } else if (delta > 0 && dist < delta * 3) {
+          mo.z += FLOAT_SPEED
+        }
+      }
+    }
+
     // clip movement
     if (mo.z <= mo.floorZ) {
       // hit the floor
@@ -224,6 +312,14 @@ export class MObjHandler {
         mo.momZ = 0
       }
       mo.z = mo.floorZ
+
+      if (mo.flags & MObjFlag.Missile &&
+        !(mo.flags & MObjFlag.NoClip)
+      ) {
+        this.explodeMissile(mo)
+        return
+      }
+
     } else if (!(mo.flags & MObjFlag.NoGravity)) {
       if (mo.momZ === 0) {
         mo.momZ = -GRAVITY * 2
@@ -242,6 +338,13 @@ export class MObjHandler {
       if (mo.flags & MObjFlag.SkullFly) {
         // the skull slammed into something
         mo.momZ = -mo.momZ
+      }
+
+      if (mo.flags & MObjFlag.Missile &&
+        !(mo.flags & MObjFlag.NoClip)
+      ) {
+        this.explodeMissile(mo)
+        return
       }
     }
   }
@@ -532,6 +635,64 @@ export class MObjHandler {
     } else if (damage < 9) {
       this.setMObjState(th, StateNum.Blood3)
     }
+  }
+
+  //
+  // P_CheckMissileSpawn
+  // Moves the missile forward a bit
+  //  and possibly explodes it right there.
+  //
+  private checkMissileSpawn(th: MObj): void {
+    th.tics -= random.pRandom() & 3
+    if (th.tics < 1) {
+      th.tics = 1
+    }
+
+    // move a little forward so an angle can
+    // be computed if it immediately explodes
+    th.x += th.momX >> 1
+    th.y += th.momY >> 1
+    th.z += th.momZ >> 1
+
+    if (!this.map.tryMove(th, th.x, th.y)) {
+      this.explodeMissile(th)
+    }
+  }
+
+  //
+  // P_SpawnMissile
+  //
+  spawnMissile(source: MObj, dest: MObj, type: MObjType): MObj {
+    const th = this.spawnMObj(source.x,
+      source.y,
+      source.z + 4 * 8 * FRACUNIT, type)
+
+    // where it came from
+    th.target = source
+
+    let an = this.rendering.pointToAngle2(source.x, source.y, dest.x, dest.y)
+
+    // fuzzy player
+    if (dest.flags & MObjFlag.Shadow) {
+      an = an + (random.pRandom() - random.pRandom() << 20) >>> 0
+    }
+
+    th.angle = an
+    an >>>= ANGLE_TO_FINE_SHIFT
+    th.momX = mul(th.info.speed, fineSine[FINE_ANGLES / 4 + an])
+    th.momY = mul(th.info.speed, fineSine[an])
+
+    let dist = this.mapUtils.aproxDistance(dest.x - source.x, dest.y - source.y)
+    dist = dist / th.info.speed >> 0
+
+    if (dist < 1) {
+      dist = 1
+    }
+
+    th.momZ = (dest.z - source.z) / dist >> 0
+    this.checkMissileSpawn(th)
+
+    return th
   }
 
 }

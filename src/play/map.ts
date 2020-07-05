@@ -8,6 +8,7 @@ import { Line } from '../rendering/line'
 import { MObj } from './mobj/mobj'
 import { MObjFlag } from './mobj/mobj-flag'
 import { MObjHandler } from './mobj-handler'
+import { MObjType } from '../doom/info/mobj-type'
 import { MapLineFlag } from '../doom/data'
 import { MapUtils } from './map-utils'
 import { Play } from './setup'
@@ -20,6 +21,7 @@ import { Special } from './special'
 import { StateNum } from '../doom/info/state-num'
 import { Switch } from './switch'
 import { Tick } from './tick'
+import { random } from '../misc/random'
 
 // keep track of special lines as they are hit,
 // but don't process them until the move is proven valid
@@ -41,7 +43,7 @@ export class Map {
 
   // keep track of the line that lowers the ceiling,
   // so missiles don't explode against sky hack walls
-  private ceilingLine: Line | null = null
+  ceilingLine: Line | null = null
 
   specHit = new Array<Line>(MAX_SPECIAL_CROSS)
   numSpecHit = 0
@@ -187,7 +189,44 @@ export class Map {
 
     // missiles can hit other things
     if (this.tmThing.flags & MObjFlag.Missile) {
-      debugger
+      // see if it went over / under
+      if (this.tmThing.z > thing.z + thing.height) {
+        // overhead
+        return true
+      }
+      if (this.tmThing.z + this.tmThing.height < thing.z) {
+        // underneath
+        return true
+      }
+
+      if (this.tmThing.target && (
+        this.tmThing.target.type === thing.type ||
+        this.tmThing.target.type === MObjType.Knight && thing.type === MObjType.Bruiser ||
+        this.tmThing.target.type === MObjType.Bruiser && thing.type === MObjType.Knight)
+      ) {
+        // Don't hit same species as originator.
+        if (thing === this.tmThing.target) {
+          return true
+        }
+
+        if (thing.type !== MObjType.Player) {
+          // Explode, but do no damage.
+          // Let players missile other players.
+          return false
+        }
+      }
+
+      if (!(thing.flags & MObjFlag.Shootable)) {
+        // didn't do any damage
+        return !(thing.flags & MObjFlag.Solid)
+      }
+
+      // damage / explode
+      const damage = (random.pRandom() % 8 + 1) * this.tmThing.info.damage
+      this.inter.damageMObj(thing, this.tmThing, this.tmThing.target, damage)
+
+      // don't traverse any more
+      return false
     }
 
     // check for special pickup
