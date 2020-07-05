@@ -1,4 +1,5 @@
 import { RANGE_CHECK, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
+import { Data } from './data'
 import { FRACBITS } from '../misc/fixed'
 import { Rendering } from './rendering'
 import { Video } from './video'
@@ -9,6 +10,22 @@ export const MAX_HEIGHT = 832
 
 // status bar height at bottom of screen
 const SBAR_HEIGHT = 32
+
+//
+// Spectre/Invisibility.
+//
+const FUZZ_TABLE = 50
+const FUZZ_OFF = SCREENWIDTH
+
+const fuzzOffset = [
+  FUZZ_OFF,-FUZZ_OFF,FUZZ_OFF,-FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,-FUZZ_OFF,
+  FUZZ_OFF,FUZZ_OFF,-FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,-FUZZ_OFF,
+  FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,-FUZZ_OFF,-FUZZ_OFF,-FUZZ_OFF,-FUZZ_OFF,
+  FUZZ_OFF,-FUZZ_OFF,-FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,-FUZZ_OFF,
+  FUZZ_OFF,-FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,-FUZZ_OFF,-FUZZ_OFF,FUZZ_OFF,
+  FUZZ_OFF,-FUZZ_OFF,-FUZZ_OFF,-FUZZ_OFF,-FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,
+  FUZZ_OFF,FUZZ_OFF,-FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,-FUZZ_OFF,FUZZ_OFF,
+]
 
 export class Draw {
   //
@@ -52,6 +69,9 @@ export class Draw {
   // just for profiling
   private dcCount = 0
 
+  private get data(): Data {
+    return this.rendering.data
+  }
   private get video(): Video {
     return this.rendering.video
   }
@@ -125,7 +145,55 @@ export class Draw {
   //  i.e. spectres and invisible players.
   //
   drawFuzzColumn(): void {
-    debugger
+    // Adjust borders. Low...
+    if (!this.dcYl) {
+      this.dcYl = 1
+    }
+
+    // .. and high.
+    if (this.dcYh === this.viewHeight - 1) {
+      this.dcYh = this.viewHeight - 2
+    }
+
+    let count = this.dcYh - this.dcYl
+
+    // Zero length.
+    if (count < 0) {
+      return
+    }
+
+    if (RANGE_CHECK) {
+      if (this.dcX >>> 0 >= SCREENWIDTH ||
+        this.dcYl < 0 || this.dcYh >= SCREENHEIGHT
+      ) {
+        throw `R_DrawFuzzColumn: ${this.dcYl} to ${this.dcYh} at ${this.dcX}`
+      }
+    }
+
+    // Does not work with blocky mode.
+    let destPtr = this.yLookupPtr[this.dcYl] +
+      this.columnOfs[this.dcX]
+    const dest = this.video.screens[0]
+
+    // Looks like an attempt at dithering,
+    //  using the colormap #6 (of 0-31, a bit
+    //  brighter than average).
+    do {
+      // Lookup framebuffer, and retrieve
+      //  a pixel that is either one column
+      //  left or right of the current one.
+      // Add index from colormap to index.
+      dest[destPtr] = this.data.colorMaps[6 * 256 +
+        dest[destPtr + fuzzOffset[this.fuzzPos]]
+      ]
+
+      // Clamp table lookup index.
+      if (++this.fuzzPos === FUZZ_TABLE) {
+        this.fuzzPos = 0
+      }
+
+      destPtr += SCREENWIDTH
+    } while (count--)
   }
 
 
