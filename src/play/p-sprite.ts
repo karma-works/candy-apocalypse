@@ -2,6 +2,7 @@ import { AmmoType, GameMode, WeaponType } from '../global/doomdef'
 import { FINE_ANGLES, FINE_MASK, fineSine } from '../misc/table'
 import { FRACBITS, FRACUNIT, mul } from '../misc/fixed'
 import { PSpriteDef, PSpriteNum } from './sprite'
+import { Player, PlayerState } from '../doom/player'
 import { ButtonCode } from '../doom/event'
 import { Doom } from '../doom/doom'
 import { Enemy } from './enemy'
@@ -10,7 +11,6 @@ import { MObj } from './mobj/mobj'
 import { MObjHandler } from './mobj-handler'
 import { Map } from './map'
 import { Play } from './setup'
-import { Player } from '../doom/player'
 import { State } from '../doom/info/state'
 import { StateNum } from '../doom/info/state-num'
 import { Tick } from './tick'
@@ -290,8 +290,38 @@ export class PSprite {
     debugger
   }
 
-  lower(/* player: Player, psp: PSpriteDef */): void {
-    debugger
+  //
+  // A_Lower
+  // Lowers current weapon,
+  //  and changes weapon at bottom.
+  //
+  lower(player: Player, psp: PSpriteDef): void {
+    psp.sY += LOWER_SPEED
+
+    // Is already down.
+    if (psp.sY < WEAPON_BOTTOM) {
+      return
+    }
+
+    // Player is dead.
+    if (player.playerState === PlayerState.Dead) {
+      psp.sY = WEAPON_BOTTOM
+
+      // don't bring weapon back up
+      return
+    }
+
+    // The old weapon has been lowered off the screen,
+    // so change the weapon and start raising it
+    if (!player.health) {
+      // Player is dead, so keep the weapon off screen.
+      this.setPSprite(player, PSpriteNum.Weapon, StateNum.Null)
+      return
+    }
+
+    player.readyWeapon = player.pendingWeapon
+
+    this.bringUpWeapon(player)
   }
 
   //
