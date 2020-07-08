@@ -1,8 +1,8 @@
-import { ANG270, ANG90 } from '../misc/table'
+import { ANG270, ANG90, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table'
 import { DirType, diags, opposite } from './mobj/direction'
 import { FLOAT_SPEED, MELEE_RANGE, MISSILE_RANGE } from './local'
+import { FRACUNIT, mul } from '../misc/fixed'
 import { Doom } from '../doom/doom'
-import { FRACUNIT } from '../misc/fixed'
 import { Game } from '../game/game'
 import { Inter } from './inter'
 import { Line } from '../rendering/line'
@@ -815,8 +815,35 @@ export class Enemy {
     debugger
   }
 
-  vileAttack(/* actor: MObj */): void {
-    debugger
+  //
+  // A_VileAttack
+  //
+  vileAttack(actor: MObj): void {
+    if (!actor.target) {
+      return
+    }
+
+    this.faceTarget(actor)
+
+    if (!this.sight.checkSight(actor, actor.target)) {
+      return
+    }
+
+    this.inter.damageMObj(actor.target, actor, actor, 20)
+    actor.target.momZ = 1000 * FRACUNIT / actor.target.info.mass
+
+    const an = actor.angle >> ANGLE_TO_FINE_SHIFT
+
+    const fire = actor.tracer
+
+    if (!fire) {
+      return
+    }
+
+    // move the fire between the vile and the player
+    fire.x = actor.target.x - mul(24 * FRACUNIT, fineSine[FINE_ANGLES / 4 + an])
+    fire.y = actor.target.y - mul(24 * FRACUNIT, fineSine[an])
+    this.map.radiusAttack(fire, actor, 70)
   }
 
   fatRaise(/* actor: MObj */): void {
@@ -898,8 +925,8 @@ export class Enemy {
   //
   // A_Explode
   //
-  explode(/* thingy: MObj */): void {
-    debugger
+  explode(thingy: MObj): void {
+    this.map.radiusAttack(thingy, thingy.target, 128)
   }
 
   bossDeath(/* mo: MObj */): void {

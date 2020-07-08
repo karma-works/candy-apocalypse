@@ -1064,6 +1064,82 @@ export class Map {
   }
 
   //
+  // RADIUS ATTACK
+  //
+  private bombSource: MObj | null = null
+  private bombSpot: MObj | null = null
+  private bombDamage = 0
+
+  //
+  // PIT_RadiusAttack
+  // "bombsource" is the creature
+  // that caused the explosion at "bombspot".
+  //
+  private pitRadiusAttack(thing: MObj): boolean {
+    if (!(thing.flags & MObjFlag.Shootable)) {
+      return false
+    }
+
+    // Boss spider and cyborg
+    // take no damage from concussion.
+    if (thing.type === MObjType.Cyborg ||
+      thing.type === MObjType.Spider
+    ) {
+      return true
+    }
+
+    if (this.bombSpot === null) {
+      throw 'this.bombSpot = null'
+    }
+
+    const dX = Math.abs(thing.x - this.bombSpot.x)
+    const dY = Math.abs(thing.y - this.bombSpot.y)
+
+    let dist = dX > dY ? dX : dY
+    dist = dist - thing.radius >> FRACBITS
+
+    if (dist < 0) {
+      dist = 0
+    }
+
+    if (dist >= this.bombDamage) {
+      // out of range
+      return true
+    }
+
+    if (this.sight.checkSight(thing, this.bombSpot)) {
+      // must be in direct path
+      this.inter.damageMObj(thing, this.bombSpot, this.bombSource,
+        this.bombDamage - dist)
+    }
+
+    return true
+  }
+
+  //
+  // P_RadiusAttack
+  // Source is the creature that caused the explosion at spot.
+  //
+  radiusAttack(spot: MObj, source: MObj | null, damage: number): void {
+    const dist = damage + MAX_RADIUS << FRACBITS
+
+    const yh = spot.y + dist - this.play.bMapOrgY >> MAP_BLOCK_SHIFT
+    const yl = spot.y - dist - this.play.bMapOrgY >> MAP_BLOCK_SHIFT
+    const xh = spot.x + dist - this.play.bMapOrgX >> MAP_BLOCK_SHIFT
+    const xl = spot.x - dist - this.play.bMapOrgX >> MAP_BLOCK_SHIFT
+
+    this.bombSpot = spot
+    this.bombSource = source
+    this.bombDamage = damage
+
+    for (let y = yl; y <= yh; ++y) {
+      for (let x = xl; x <= xh; ++x) {
+        this.mapUtils.blockThingsIterator(x, y, this.pitRadiusAttack, this)
+      }
+    }
+  }
+
+  //
   // SECTOR HEIGHT CHANGING
   // After modifying a sectors floor or ceiling height,
   // call this routine to adjust the positions
