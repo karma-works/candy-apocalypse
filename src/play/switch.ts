@@ -220,7 +220,6 @@ export class Switch {
       if (this.floor.evDoFloor(line, FloorType.RaiseFloorToNearest)) {
         this.changeSwitchTexture(line, false)
       }
-      debugger
       break
 
     case 20:
@@ -242,7 +241,6 @@ export class Switch {
       if (this.floor.evDoFloor(line, FloorType.LowerFloorToLowest)) {
         this.changeSwitchTexture(line, false)
       }
-      debugger
       break
 
     case 29:
@@ -265,7 +263,6 @@ export class Switch {
       if (this.floor.evDoFloor(line, FloorType.TurboLower)) {
         this.changeSwitchTexture(line, false)
       }
-      debugger
       break
 
     case 49:
@@ -295,7 +292,6 @@ export class Switch {
       if (this.floor.evDoFloor(line, FloorType.RaiseFloorCrush)) {
         this.changeSwitchTexture(line, false)
       }
-      debugger
       break
 
     case 101:
@@ -303,7 +299,6 @@ export class Switch {
       if (this.floor.evDoFloor(line, FloorType.RaiseFloor)) {
         this.changeSwitchTexture(line, false)
       }
-      debugger
       break
 
     case 102:
@@ -311,7 +306,6 @@ export class Switch {
       if (this.floor.evDoFloor(line, FloorType.LowerFloor)) {
         this.changeSwitchTexture(line, false)
       }
-      debugger
       break
 
     case 103:
@@ -362,7 +356,6 @@ export class Switch {
       if (this.floor.evDoFloor(line, FloorType.RaiseFloorTurbo)) {
         this.changeSwitchTexture(line, false)
       }
-      debugger
       break
 
     case 133: // BlzOpenDoor BLUE
@@ -378,7 +371,6 @@ export class Switch {
       if (this.floor.evDoFloor(line, FloorType.RaiseFloor512)) {
         this.changeSwitchTexture(line, false)
       }
-      debugger
       break
 
       // BUTTONS
@@ -402,7 +394,6 @@ export class Switch {
       if (this.floor.evDoFloor(line, FloorType.LowerFloor)) {
         this.changeSwitchTexture(line, true)
       }
-      debugger
       break
 
     case 60:
@@ -410,7 +401,6 @@ export class Switch {
       if (this.floor.evDoFloor(line, FloorType.LowerFloorToLowest)) {
         this.changeSwitchTexture(line, true)
       }
-      debugger
       break
 
     case 61:
@@ -439,7 +429,6 @@ export class Switch {
       if (this.floor.evDoFloor(line, FloorType.RaiseFloor)) {
         this.changeSwitchTexture(line, true)
       }
-      debugger
       break
 
     case 66:
@@ -461,7 +450,6 @@ export class Switch {
       if (this.floor.evDoFloor(line, FloorType.RaiseFloorCrush)) {
         this.changeSwitchTexture(line, true)
       }
-      debugger
       break
 
     case 68:
@@ -476,7 +464,6 @@ export class Switch {
       if (this.floor.evDoFloor(line, FloorType.RaiseFloorToNearest)) {
         this.changeSwitchTexture(line, true)
       }
-      debugger
       break
 
     case 70:
@@ -484,7 +471,6 @@ export class Switch {
       if (this.floor.evDoFloor(line, FloorType.TurboLower)) {
         this.changeSwitchTexture(line, true)
       }
-      debugger
       break
 
     case 114:
@@ -520,7 +506,6 @@ export class Switch {
       if (this.floor.evDoFloor(line, FloorType.RaiseFloorTurbo)) {
         this.changeSwitchTexture(line, true)
       }
-      debugger
       break
 
     case 99: // BlzOpenDoor BLUE
