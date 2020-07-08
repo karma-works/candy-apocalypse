@@ -695,4 +695,43 @@ export class MObjHandler {
     return th
   }
 
+  //
+  // P_SpawnPlayerMissile
+  // Tries to aim at a nearby monster
+  //
+  spawnPlayerMissile(source: MObj, type: MObjType): void {
+    // see which target is to be aimed at
+    let an = source.angle
+    let slope = this.map.aimLineAttack(source, an, 16 * 64 * FRACUNIT)
+
+    if (!this.map.lineTarget) {
+      an = an + (1 << 26) >>> 0
+      slope = this.map.aimLineAttack(source, an, 16 * 64 * FRACUNIT)
+      if (!this.map.lineTarget) {
+        an = an - (2 << 26) >>> 0
+        slope = this.map.aimLineAttack(source, an, 16 * 64 * FRACUNIT)
+      }
+
+      if (!this.map.lineTarget) {
+        an = source.angle
+        slope = 0
+      }
+    }
+
+    const x = source.x
+    const y = source.y
+    const z = source.z + 4 * 8 * FRACUNIT
+
+    const th = this.spawnMObj(x, y, z, type)
+
+    th.target = source
+    th.angle = an
+    th.momX = mul(th.info.speed,
+      fineSine[FINE_ANGLES / 4 + (an >>> ANGLE_TO_FINE_SHIFT)])
+    th.momY = mul(th.info.speed,
+      fineSine[an >>> ANGLE_TO_FINE_SHIFT])
+    th.momZ = mul(th.info.speed, slope)
+
+    this.checkMissileSpawn(th)
+  }
 }

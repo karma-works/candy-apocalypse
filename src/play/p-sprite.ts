@@ -1,12 +1,12 @@
-import { AmmoType, GameMode, WeaponType } from '../global/doomdef'
-import { FINE_ANGLES, FINE_MASK, fineSine } from '../misc/table'
+import { AmmoType, GameMode, PowerType, WeaponType } from '../global/doomdef'
+import { ANG180, ANG90, FINE_ANGLES, FINE_MASK, fineSine } from '../misc/table'
 import { FRACBITS, FRACUNIT, mul } from '../misc/fixed'
 import { PSpriteDef, PSpriteNum } from './sprite'
 import { Player, PlayerState } from '../doom/player'
 import { ButtonCode } from '../doom/event'
 import { Doom } from '../doom/doom'
 import { Enemy } from './enemy'
-import { MISSILE_RANGE } from './local'
+import { MELEE_RANGE, MISSILE_RANGE } from './local'
 import { MObj } from './mobj/mobj'
 import { MObjHandler } from './mobj-handler'
 import { Map } from './map'
@@ -17,6 +17,9 @@ import { Tick } from './tick'
 import { random } from '../misc/random'
 import { states } from '../doom/info/states'
 import { weaponInfo } from '../doom/items'
+import { Rendering } from '../rendering/rendering'
+import { MObjFlag } from './mobj/mobj-flag'
+import { MObjType } from '../doom/info/mobj-type'
 
 const LOWER_SPEED = FRACUNIT * 6
 const RAISE_SPEED = FRACUNIT * 6
@@ -40,6 +43,9 @@ export class PSprite {
   }
   private get mObjHandler(): MObjHandler {
     return this.play.mObjHandler
+  }
+  private get rendering(): Rendering {
+    return this.play.rendering
   }
   private get tick(): Tick {
     return this.play.tick
@@ -347,24 +353,119 @@ export class PSprite {
     debugger
   }
 
-  punch(/* player: Player, psp: PSpriteDef */): void {
-    debugger
+  //
+  // WEAPON ATTACKS
+  //
+
+  //
+  // A_Punch
+  //
+  punch(player: Player): void {
+    if (player.mo === null) {
+      throw 'player.mo = null'
+    }
+
+    let damage = random.pRandom() % 10 + 1 << 1
+
+    if (player.powers[PowerType.Strength]) {
+      damage *= 10
+    }
+
+    let angle = player.mo.angle
+    angle = angle + (random.pRandom() - random.pRandom() << 18) >>> 0
+
+    const slope = this.map.aimLineAttack(player.mo, angle, MELEE_RANGE)
+    this.map.lineAttack(player.mo, angle, MELEE_RANGE, slope, damage)
+
+    // turn to face target
+    if (this.map.lineTarget) {
+      player.mo.angle = this.rendering.pointToAngle2(player.mo.x,
+        player.mo.y,
+        this.map.lineTarget.x,
+        this.map.lineTarget.y)
+    }
   }
 
-  saw(/* player: Player, psp: PSpriteDef */): void {
+  //
+  // A_Saw
+  //
+  saw(player: Player): void {
+    if (player.mo === null) {
+      throw 'player.mo = null'
+    }
+
+    const damage = 2 * (random.pRandom() % 10 + 1)
+    let angle = player.mo.angle
+    angle = angle + (random.pRandom() - random.pRandom() << 18) >>> 0
+
+    // use meleerange + 1 se the puff doesn't skip the flash
+    const slope = this.map.aimLineAttack(player.mo, angle, MELEE_RANGE + 1)
+    this.map.lineAttack(player.mo, angle, MELEE_RANGE + 1, slope, damage)
+
+    if (!this.map.lineTarget) {
+      return
+    }
+
+    // turn to face target
+    angle = this.rendering.pointToAngle2(player.mo.x,
+      player.mo.y,
+      this.map.lineTarget.x, this.map.lineTarget.y)
+
     debugger
+
+    if (angle - player.mo.angle >>> 0 > ANG180) {
+      if (angle - player.mo.angle >>> 0 < -ANG90 / 20 >>> 0) {
+        player.mo.angle = angle + (ANG90 / 21 >>> 0) >>> 0
+      } else {
+        player.mo.angle = player.mo.angle - ANG90 / 20 >>> 0
+      }
+    } else {
+      if (angle - player.mo.angle >>> 0 > ANG90 / 20 >>> 0) {
+        player.mo.angle = angle - (ANG90 / 21 >>> 0) >>> 0
+      } else {
+        player.mo.angle = player.mo.angle + (ANG90 / 20 >>> 0) >>> 0
+      }
+    }
+
+    player.mo.flags |= MObjFlag.JustAttacked
   }
 
-  fireMissile(/* player: Player, psp: PSpriteDef */): void {
-    debugger
+  //
+  // A_FireMissile
+  //
+  fireMissile(player: Player): void {
+    if (player.mo === null) {
+      throw 'player.mo = null'
+    }
+    player.ammo[weaponInfo[player.readyWeapon].ammo]--
+    this.mObjHandler.spawnPlayerMissile(player.mo, MObjType.Rocket)
   }
 
-  fireBFG(/* player: Player, psp: PSpriteDef */): void {
-    debugger
+  //
+  // A_FireBFG
+  //
+  fireBFG(player: Player): void {
+    if (player.mo === null) {
+      throw 'player.mo = null'
+    }
+    player.ammo[weaponInfo[player.readyWeapon].ammo] -= BGF_CELLS
+    this.mObjHandler.spawnPlayerMissile(player.mo, MObjType.Bfg)
   }
 
-  firePlasma(/* player: Player, psp: PSpriteDef */): void {
-    debugger
+  //
+  // A_FirePlasma
+  //
+  firePlasma(player: Player): void {
+    if (player.mo === null) {
+      throw 'player.mo = null'
+    }
+    player.ammo[weaponInfo[player.readyWeapon].ammo]--
+
+    this.setPSprite(player,
+      PSpriteNum.Flash,
+      weaponInfo[player.readyWeapon].flashState + (random.pRandom() & 1))
+
+    this.mObjHandler.spawnPlayerMissile(player.mo, MObjType.Plasma)
   }
 
   //
@@ -420,16 +521,82 @@ export class PSprite {
     this.gunShot(player.mo, !player.refire)
   }
 
-  fireShotgun(/* player: Player, psp: PSpriteDef */): void {
-    debugger
+  //
+  // A_FireShotgun
+  //
+  fireShotgun(player: Player): void {
+    if (player.mo === null) {
+      throw 'player.mo = null'
+    }
+    this.mObjHandler.setMObjState(player.mo, StateNum.PlayAtk2)
+    player.ammo[weaponInfo[player.readyWeapon].ammo]--
+
+    this.setPSprite(player,
+      PSpriteNum.Flash,
+      weaponInfo[player.readyWeapon].flashState)
+
+    this.bulletSlope(player.mo)
+    for (let i = 0; i < 7; ++i) {
+      this.gunShot(player.mo, false)
+    }
   }
 
-  fireShotgun2(/* player: Player, psp: PSpriteDef */): void {
-    debugger
+  //
+  // A_FireShotgun2
+  //
+  fireShotgun2(player: Player): void {
+    if (player.mo === null) {
+      throw 'player.mo = null'
+    }
+    this.mObjHandler.setMObjState(player.mo, StateNum.PlayAtk2)
+    player.ammo[weaponInfo[player.readyWeapon].ammo] -= 2
+
+    this.setPSprite(player,
+      PSpriteNum.Flash,
+      weaponInfo[player.readyWeapon].flashState)
+
+    this.bulletSlope(player.mo)
+
+    let damage: number
+    let angle: number
+    for (let i = 0; i < 20; ++i) {
+      damage = 5 * (random.pRandom() % 3 + 1)
+      angle = player.mo.angle
+      angle = angle + (random.pRandom() - random.pRandom() << 19) >>> 0
+
+      this.map.lineAttack(player.mo,
+        angle,
+        MISSILE_RANGE,
+        this.bulletSlopeV + (random.pRandom() - random.pRandom() << 5),
+        damage)
+    }
   }
 
-  fireCGun(/* player: Player, psp: PSpriteDef */): void {
+  //
+  // A_FireCGun
+  //
+  fireCGun(player: Player, psp: PSpriteDef): void {
+    if (player.mo === null) {
+      throw 'player.mo = null'
+    }
+
+    if (!player.ammo[weaponInfo[player.readyWeapon].ammo]) {
+      return
+    }
+
+    this.mObjHandler.setMObjState(player.mo, StateNum.PlayAtk2)
+    player.ammo[weaponInfo[player.readyWeapon].ammo]--
+
     debugger
+    this.setPSprite(player,
+      PSpriteNum.Flash,
+      weaponInfo[player.readyWeapon].flashState +
+        states.indexOf(psp.state as State<unknown, [unknown]>) -
+        StateNum.Chain1)
+
+
+    this.bulletSlope(player.mo)
+    this.gunShot(player.mo, !player.refire)
   }
 
   light0(player: Player): void {
