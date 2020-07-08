@@ -8,6 +8,7 @@ import { Map } from './map'
 import { PSprite } from './p-sprite'
 import { Play } from './setup'
 import { PowerType } from '../global/doomdef'
+import { Special } from './special'
 import { StateNum } from '../doom/info/state-num'
 import { Tick } from './tick'
 import { VIEW_HEIGHT } from './local'
@@ -32,6 +33,9 @@ export class User {
   }
   private get pSprite(): PSprite {
     return this.play.pSprite
+  }
+  private get special(): Special {
+    return this.play.special
   }
   private get tick(): Tick {
     return this.play.tick
@@ -174,6 +178,16 @@ export class User {
     }
 
     this.calcHeight(player)
+
+    if (player.mo.subSector === null) {
+      throw 'player.mo.subSector'
+    }
+    if (player.mo.subSector.sector === null) {
+      throw 'player.mo.subSector.sector'
+    }
+    if (player.mo.subSector.sector.special) {
+      this.special.playerInSpecialSector(player)
+    }
 
     // check for use
     if (cmd.buttons & ButtonCode.Use) {

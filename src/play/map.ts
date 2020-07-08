@@ -876,14 +876,14 @@ export class Map {
     const dist = mul(this.attackRange, inter.frac)
     const thingTopSlope = div(th.z + th.height - this.shootZ, dist)
 
-    if (thingTopSlope < this.sight.bottomSlope) {
+    if (thingTopSlope < this.aimSlope) {
       // shot over the thing
       return true
     }
 
     const thingBottomSlope = div(th.z - this.shootZ, dist)
 
-    if (thingBottomSlope > this.sight.topSlope) {
+    if (thingBottomSlope > this.aimSlope) {
       // shot under the thing
       return true
     }

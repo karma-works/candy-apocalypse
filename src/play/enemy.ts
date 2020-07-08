@@ -17,6 +17,7 @@ import { Play } from './setup'
 import { Player } from '../doom/player'
 import { Rendering } from '../rendering/rendering'
 import { Sector } from '../rendering/sector'
+import { Sfx } from '../doom/sounds'
 import { Sight } from './sight'
 import { Skill } from '../global/doomdef'
 import { Switch } from './switch'
@@ -530,6 +531,32 @@ export class Enemy {
   }
 
   private lookGoToSeeYou(actor: MObj): void {
+    if (actor.info.seeSound) {
+      let sound: number
+
+      switch (actor.info.seeSound) {
+      case Sfx.Posit1:
+      case Sfx.Posit2:
+      case Sfx.Posit3:
+        sound = Sfx.Posit1 + random.pRandom() % 3
+        break
+      case Sfx.Bgsit1:
+      case Sfx.Bgsit2:
+        sound = Sfx.Bgsit1 + random.pRandom() % 2
+        break
+      default:
+        sound = actor.info.seeSound
+      }
+
+      if (actor.type === MObjType.Spider ||
+        actor.type === MObjType.Cyborg
+      ) {
+        // full volume
+        // S_StartSound (NULL, sound);
+      } else {
+        // S_StartSound (actor, sound);
+      }
+    }
     this.mObjHandler.setMObjState(actor, actor.info.seeState)
   }
 
@@ -582,7 +609,7 @@ export class Enemy {
     // do not attack twice in a row
     if (actor.flags & MObjFlag.JustAttacked) {
       actor.flags &= ~MObjFlag.JustAttacked
-      if (this.game.gameSkill !== Skill.Nightmare && this.doom.fastParam) {
+      if (this.game.gameSkill !== Skill.Nightmare && !this.doom.fastParam) {
         this.newChaseDir(actor)
       }
       return
@@ -623,9 +650,16 @@ export class Enemy {
 
     // chase towards player
     if (--actor.moveCount < 0 ||
-      this.move(actor)
+      !this.move(actor)
     ) {
       this.newChaseDir(actor)
+    }
+
+    // make active sound
+    if (actor.info.activeSound &&
+      random.pRandom() < 3
+    ) {
+      // S_StartSound (actor, actor->info->activesound);
     }
   }
 
@@ -678,7 +712,7 @@ export class Enemy {
     let angle: number
     let damage: number
     for (let i = 0; i < 3; ++i) {
-      angle = bAngle + random.pRandom() - random.pRandom() << 20
+      angle = bAngle + (random.pRandom() - random.pRandom() << 20)
       damage = (random.pRandom() % 5 + 1) * 3
       this.map.lineAttack(actor, angle >>> 0, MISSILE_RANGE, slope, damage)
     }
@@ -813,8 +847,36 @@ export class Enemy {
     debugger
   }
 
-  scream(/* actor: MObj */): void {
-    debugger
+  scream(actor: MObj): void {
+    if (actor.info.deathSound) {
+      let sound: number
+
+      switch (actor.info.deathSound) {
+      case 0:
+        return
+      case Sfx.Podth1:
+      case Sfx.Podth2:
+      case Sfx.Podth3:
+        sound = Sfx.Podth1 + random.pRandom() % 3
+        break
+      case Sfx.Bgdth1:
+      case Sfx.Bgdth2:
+        sound = Sfx.Bgdth1 + random.pRandom() % 2
+        break
+      default:
+        sound = actor.info.deathSound
+      }
+
+      // Check for bosses.
+      if (actor.type === MObjType.Spider ||
+        actor.type === MObjType.Cyborg
+      ) {
+        // full volume
+        // S_StartSound (NULL, sound);
+      } else {
+        // S_StartSound (actor, sound);
+      }
+    }
   }
 
   xScream(/* actor: MObj */): void {
@@ -825,10 +887,17 @@ export class Enemy {
     // TODO sound
   }
 
-  fall(/* actor: MObj */): void {
-    debugger
+  fall(actor: MObj): void {
+    // actor is on ground, it can be walked over
+    actor.flags &= ~MObjFlag.Solid
+
+    // So change this if corpse objects
+    // are meant to be obstacles.
   }
 
+  //
+  // A_Explode
+  //
   explode(/* thingy: MObj */): void {
     debugger
   }

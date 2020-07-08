@@ -23,7 +23,7 @@ const BONUS_ADD = 6
 
 // a weapon is found with two clip loads,
 // a big item has five clip loads
-const maxAmmo = [ 200, 50, 300, 50 ]
+export const maxAmmo = [ 200, 50, 300, 50 ]
 const clipAmmo = [ 10, 4, 20, 1 ]
 
 export class Inter {

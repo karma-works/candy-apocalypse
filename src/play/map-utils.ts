@@ -519,7 +519,7 @@ export class MapUtils {
 
     const dl = new DivLine
     dl.x = x1
-    dl.x = y1
+    dl.y = y1
     dl.dX = x2 - x1
     dl.dY = y2 - y1
 
@@ -653,11 +653,11 @@ export class MapUtils {
     if (yt2 > yt1) {
       mapYStep = 1
       partial = FRACUNIT - (y1 >> MAP_B_TO_FRAC & FRACUNIT - 1)
-      xStep = div(x2 - x1, Math.abs(x2 - y1))
+      xStep = div(x2 - x1, Math.abs(y2 - y1))
     } else if (yt2 < yt1) {
       mapYStep = -1
       partial = y1 >> MAP_B_TO_FRAC & FRACUNIT - 1
-      xStep = div(x2 - x1, Math.abs(x2 - y1))
+      xStep = div(x2 - x1, Math.abs(y2 - y1))
     } else {
       mapYStep = 0
       partial = FRACUNIT

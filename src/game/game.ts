@@ -20,6 +20,7 @@ import { Wad } from '../wad/wad'
 import { Win } from '../win/win'
 import { getTime } from '../system/system'
 import { mObjInfos } from '../doom/info/mobj-infos'
+import { maxAmmo } from '../play/inter'
 import { random } from '../misc/random'
 import { states } from '../doom/info/states'
 
@@ -588,7 +589,7 @@ export class Game {
     p.ammo[AmmoType.Clip] = 50
 
     for (let i = 0; i < AmmoType.NUM_AMMO; ++i) {
-      // p.maxAmmo[i] = maxammo[i]
+      p.maxAmmo[i] = maxAmmo[i]
     }
   }
 

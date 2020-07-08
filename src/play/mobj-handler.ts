@@ -153,8 +153,8 @@ export class MObjHandler {
     let pTryY: number
     do {
       if (xMove > MAX_MOVE / 2 || yMove > MAX_MOVE / 2) {
-        pTryX = mo.x + xMove / 2
-        pTryY = mo.y + yMove / 2
+        pTryX = mo.x + (xMove / 2 >> 0)
+        pTryY = mo.y + (yMove / 2 >> 0)
         xMove >>= 1
         yMove >>= 1
       } else {

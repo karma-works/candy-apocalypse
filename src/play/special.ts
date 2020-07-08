@@ -1,8 +1,10 @@
+import { Cheat, Player } from '../doom/player'
 import { DoorType } from './doors/door-type'
 import { Doors } from './doors'
 import { Floor } from './floor'
 import { FloorType } from './floor/floor-type'
 import { Game } from '../game/game'
+import { Inter } from './inter'
 import { Lights } from './lights'
 import { Line } from '../rendering/line'
 import { MObj } from './mobj/mobj'
@@ -11,9 +13,12 @@ import { MapLineFlag } from '../doom/data'
 import { PlatType } from './plats/plat-type'
 import { Plats } from './plats'
 import { Play } from './setup'
+import { PowerType } from '../global/doomdef'
 import { Sector } from '../rendering/sector'
 import { Side } from '../rendering/side'
 import { Switch } from './switch'
+import { Tick } from './tick'
+import { random } from '../misc/random'
 
 export const GLOW_SPEED = 8
 export const STROBE_BRIGHT = 5
@@ -36,6 +41,9 @@ export class Special {
   private get game(): Game {
     return this.play.game
   }
+  private get inter(): Inter {
+    return this.play.inter
+  }
   private get lights(): Lights {
     return this.play.lights
   }
@@ -44,6 +52,9 @@ export class Special {
   }
   private get switch(): Switch {
     return this.play.switch
+  }
+  private get tick(): Tick {
+    return this.play.tick
   }
 
   constructor(private play: Play) { }
@@ -619,6 +630,85 @@ export class Special {
       this.plats.evDoPlat(line, PlatType.RaiseToNearestAndChange, 0)
       this.switch.changeSwitchTexture(line, false)
       break
+    }
+  }
+
+  //
+  // P_PlayerInSpecialSector
+  // Called every tic frame
+  //  that the player origin is in a special sector
+  //
+  playerInSpecialSector(player: Player): void {
+    if (player.mo === null) {
+      throw 'player.mo'
+    }
+    if (player.mo.subSector === null) {
+      throw 'player.mo.subSector'
+    }
+    if (player.mo.subSector.sector === null) {
+      throw 'player.mo.subSector.sector'
+    }
+    const sector = player.mo.subSector.sector
+
+    // Falling, not all the way down yet?
+    if (player.mo.z !== sector.floorHeight) {
+      return
+    }
+
+    // Has hitten ground.
+    switch (sector.special) {
+    case 5:
+      // HELLSLIME DAMAGE
+      if (!player.powers[PowerType.Ironfeet]) {
+        if (!(this.tick.levelTime & 0x1f)) {
+          this.inter.damageMObj(player.mo, null, null, 10)
+        }
+      }
+      break
+    case 7:
+      // NUKAGE DAMAGE
+      if (!player.powers[PowerType.Ironfeet]) {
+        if (!(this.tick.levelTime & 0x1f)) {
+          this.inter.damageMObj(player.mo, null, null, 5)
+        }
+      }
+      break
+    case 16:
+      // SUPER HELLSLIME DAMAGE
+      // fallthrough
+    case 4:
+      // STROBE HURT
+      if (!player.powers[PowerType.Ironfeet] ||
+        random.pRandom() < 5
+      ) {
+        if (!(this.tick.levelTime & 0x1f)) {
+          this.inter.damageMObj(player.mo, null, null, 20)
+        }
+      }
+      break
+    case 9:
+      // SECRET SECTOR
+      player.secretCount++
+      sector.special = 0
+      break
+
+    case 11:
+      // EXIT SUPER DAMAGE! (for E1M8 finale)
+      player.cheats &= ~Cheat.GodMode
+
+      if (!(this.tick.levelTime & 0x1f)) {
+        this.inter.damageMObj(player.mo, null, null, 20)
+      }
+
+      if (player.health <= 10) {
+        this.game.exitLevel()
+      }
+      break
+
+    default:
+      throw `P_PlayerInSpecialSector: unknown special ${sector.special}`
+      break
+
     }
   }
 

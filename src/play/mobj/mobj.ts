@@ -81,6 +81,9 @@ import { states } from '../../doom/info/states'
 
 // Map Object definition.
 export class MObj extends Thinker<MObjHandler, [MObj]> {
+
+  public z = 0
+
   // More list: links in sector (if needed)
   sNext: MObj | null = null
   sPrev: MObj | null = null
@@ -161,7 +164,7 @@ export class MObj extends Thinker<MObjHandler, [MObj]> {
     // Info for drawing: position.
     public x: number,
     public y: number,
-    public z: number,
+    z: number,
 
     public type: MObjType,
   ) {
@@ -204,6 +207,8 @@ export class MObj extends Thinker<MObjHandler, [MObj]> {
       this.z = this.floorZ
     } else if (z === ON_CEILING_Z) {
       this.z = this.ceilingZ - this.info.height
+    } else {
+      this.z = z
     }
   }
 }
