@@ -118,10 +118,14 @@ export class Floor {
 
           return Result.PastDest
         } else {
+          // COULD GET CRUSHED
           lastPos = sector.ceilingHeight
           sector.ceilingHeight -= speed
           flag = this.map.changeSector(sector, crush)
           if (flag) {
+            if (crush) {
+              return Result.Crushed
+            }
             sector.ceilingHeight = lastPos
             this.map.changeSector(sector, crush)
             return Result.Crushed
@@ -142,18 +146,9 @@ export class Floor {
 
           return Result.PastDest
         } else {
-          // COULD GET CRUSHED
           lastPos = sector.ceilingHeight
           sector.ceilingHeight += speed
           flag = this.map.changeSector(sector, crush)
-          if (flag) {
-            if (crush) {
-              return Result.Crushed
-            }
-            sector.ceilingHeight = lastPos
-            this.map.changeSector(sector, crush)
-            return Result.Crushed
-          }
         }
         break
       }

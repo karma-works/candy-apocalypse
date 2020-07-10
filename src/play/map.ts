@@ -540,7 +540,7 @@ export class Map {
 
     const li = inter.d
 
-    if (!(li.flags && MapLineFlag.TwoSided)) {
+    if (!(li.flags & MapLineFlag.TwoSided)) {
       if (this.mapUtils.pointOnLineSide(this.slideMo.x, this.slideMo.y, li)) {
         // don't hit the back side
         return true

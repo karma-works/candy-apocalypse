@@ -208,9 +208,9 @@ export class MObjHandler {
       // do not stop sliding
       //  if halfway off a step with some momentum
       if (mo.momX > FRACUNIT / 4 ||
-        mo.momX > FRACUNIT / 4 ||
-        mo.momX > FRACUNIT / 4 ||
-        mo.momX > FRACUNIT / 4
+        mo.momX < -FRACUNIT / 4 ||
+        mo.momY > FRACUNIT / 4 ||
+        mo.momY < -FRACUNIT / 4
       ) {
         if (mo.subSector === null) {
           throw 'mo.subSector = null'
