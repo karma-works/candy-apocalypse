@@ -437,6 +437,61 @@ export class MObjHandler {
   }
 
   //
+  // P_RespawnSpecials
+  //
+  respawnSpecials(): void {
+    // only respawn items in deathmatch
+    if (this.game.deathMatch !== 2) {
+      return
+    }
+
+    // nothing left to respawn?
+    if (this.iQueHead === this.iQueTail) {
+      return
+    }
+
+    // wait at least 30 seconds
+    if (this.tick.levelTime - this.itemRespawnTime[this.iQueTail] < 30 * 35) {
+      return
+    }
+
+    const mThing = this.itemRespawnQue[this.iQueTail]
+
+    const x = mThing.x << FRACBITS
+    const y = mThing.y << FRACBITS
+
+    // spawn a teleport fog at the new spot
+    const ss = this.rendering.pointInSubSector(x, y)
+    if (ss.sector === null) {
+      throw 'ss.sector = null'
+    }
+    let mo = this.spawnMObj(x, y, ss.sector.floorHeight, MObjType.Ifog)
+
+    // find which type to spawn
+    let i: number
+    for (i = 0 ; i < MObjType.NUM_MOBJ_TYPES; i++) {
+      if (mThing.type === mObjInfos[i].doomedNum) {
+        break
+      }
+    }
+
+    // spawn it
+    let z: number
+    if (mObjInfos[i].flags & MObjFlag.SpawnCeiling) {
+      z = ON_CEILING_Z
+    } else {
+      z = ON_FLOOR_Z
+    }
+
+    mo = this.spawnMObj(x, y, z, i)
+    mo.spawnPoint = mThing
+    mo.angle = ANG45 * (mThing.angle / 45 >> 0) >>> 0
+
+    // pull it from the que
+    this.iQueTail = this.iQueTail + 1 & ITEM_QUE_SIZE - 1
+  }
+
+  //
   // P_SpawnPlayer
   // Called when a player is spawned on the level.
   // Most of the player structure stays unchanged
@@ -541,13 +596,13 @@ export class MObjHandler {
 
     // find which type to spawn
     let i: number
-    for (i = 0; i < MObjType.NUMMOBJTYPES; ++i) {
+    for (i = 0; i < MObjType.NUM_MOBJ_TYPES; ++i) {
       if (mThing.type === mObjInfos[i].doomedNum) {
         break
       }
     }
 
-    if (i === MObjType.NUMMOBJTYPES) {
+    if (i === MObjType.NUM_MOBJ_TYPES) {
       throw `P_SpawnMapThing: Unknown type ${mThing.type} at (${mThing.x}, ${mThing.y})`
     }
 

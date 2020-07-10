@@ -136,5 +136,5 @@ export const enum MObjType {
   Misc84,
   Misc85,
   Misc86,
-  NUMMOBJTYPES
+  NUM_MOBJ_TYPES
 }

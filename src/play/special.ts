@@ -1,6 +1,10 @@
+import { Anim, MAX_ANIMS, MAX_LINE_ANIMS, animDefs } from './specials/anim'
+import { Button, MAX_BUTTONS, Where } from './switch/button'
 import { Cheat, Player } from '../doom/player'
+import { Data } from '../rendering/data'
 import { DoorType } from './doors/door-type'
 import { Doors } from './doors'
+import { FRACUNIT } from '../misc/fixed'
 import { Floor } from './floor'
 import { FloorType } from './floor/floor-type'
 import { Game } from '../game/game'
@@ -18,6 +22,7 @@ import { Sector } from '../rendering/sector'
 import { Side } from '../rendering/side'
 import { Switch } from './switch'
 import { Tick } from './tick'
+import { Wad } from '../wad/wad'
 import { random } from '../misc/random'
 
 export const GLOW_SPEED = 8
@@ -25,13 +30,11 @@ export const STROBE_BRIGHT = 5
 const FAST_DARK = 15
 const SLOW_DARK = 35
 
-//
-//      Animating line specials
-//
-const MAX_LINE_ANIMS = 64
-
 export class Special {
 
+  private get data(): Data {
+    return this.play.rendering.data
+  }
   private get doors(): Doors {
     return this.play.doors
   }
@@ -56,8 +59,53 @@ export class Special {
   private get tick(): Tick {
     return this.play.tick
   }
+  private get wad(): Wad {
+    return this.play.wad
+  }
 
   constructor(private play: Play) { }
+
+  private anims = Array.from({ length: MAX_ANIMS }, () => new Anim())
+  private lastAnim = this.anims[0]
+
+  //
+  //      Animating line specials
+  //
+  initPicAnims(): void {
+
+    // Init animation
+    let animPtr = 0
+    this.lastAnim = this.anims[animPtr]
+
+    for (let i = 0; animDefs[i]; i++) {
+      if (animDefs[i].isTexture) {
+        // different episode ?
+        if (this.data.checkTextureNumForName(animDefs[i].startName) === -1) {
+          continue
+        }
+
+        this.lastAnim.picNum = this.data.textureNumForName(animDefs[i].endName)
+        this.lastAnim.basePic = this.data.textureNumForName(animDefs[i].startName)
+      } else {
+        if (this.wad.checkNumForName(animDefs[i].startName) === -1) {
+          continue
+        }
+
+        this.lastAnim.picNum = this.data.flatNumForName(animDefs[i].endName)
+        this.lastAnim.basePic = this.data.flatNumForName(animDefs[i].startName)
+      }
+
+      this.lastAnim.isTexture = animDefs[i].isTexture
+      this.lastAnim.numPics = this.lastAnim.picNum - this.lastAnim.basePic + 1
+
+      if (this.lastAnim.numPics < 2) {
+        throw `P_InitPicAnims: bad cycle from ${animDefs[i].startName} to ${animDefs[i].endName}`
+      }
+
+      this.lastAnim.speed = animDefs[i].speed
+      this.lastAnim = this.anims[animPtr++]
+    }
+  }
 
   //
   // UTILITIES
@@ -713,6 +761,88 @@ export class Special {
   }
 
   //
+  // P_UpdateSpecials
+  // Animate planes, scroll walls, etc.
+  //
+  private levelTimer = false
+  private levelTimeCount = 0
+
+  updateSpecials(): void {
+    // LEVEL TIMER
+    if (this.levelTimer) {
+      this.levelTimeCount--
+      if (!this.levelTimeCount) {
+        this.game.exitLevel()
+      }
+    }
+
+    // ANIMATE FLATS AND TEXTURES GLOBALLY
+    const lastAnim = this.anims.indexOf(this.lastAnim)
+    let i: number
+    let pic: number
+    for (let animPtr = 0, anim = this.anims[animPtr];
+      animPtr < lastAnim;
+      ++animPtr, anim = this.anims[animPtr]
+    ) {
+      for (i = anim.basePic; i < anim.basePic + anim.numPics; ++i) {
+        pic = anim.basePic +
+          ((this.tick.levelTime / anim.speed >> 0) + i) % anim.numPics
+        if (anim.isTexture) {
+          this.data.textureTranslation[i] = pic
+        } else {
+          this.data.flatTranslation[i] = pic
+        }
+      }
+    }
+
+    // ANIMATE LINE SPECIALS
+    let line: Line
+    for (i = 0; i < this.numLineSpecials; ++i) {
+      line = this.lineSpecialList[i]
+      switch (line.special) {
+      case 48:
+        // EFFECT FIRSTCOL SCROLL +
+        this.play.sides[line.sideNum[0]].textureOffset += FRACUNIT
+        break
+      }
+    }
+
+    // DO BUTTONS
+    let button: Button
+    for (i = 0; i < MAX_BUTTONS; ++i) {
+      button = this.switch.buttonList[i]
+      if (button.bTimer) {
+        button.bTimer--
+
+        if (!button.bTimer) {
+          if (button.line === null) {
+            throw 'button.line = null'
+          }
+
+          switch (button.where) {
+          case Where.Top:
+            this.play.sides[button.line.sideNum[0]].topTexture =
+                button.bTexture
+            break
+
+          case Where.Middle:
+            this.play.sides[button.line.sideNum[0]].midTexture =
+                button.bTexture
+            break
+
+          case Where.Bottom:
+            this.play.sides[button.line.sideNum[0]].bottomTexture =
+                button.bTexture
+            break
+          }
+
+          button.reset()
+        }
+      }
+    }
+  }
+
+  //
   // SPECIAL SPAWNING
   //
 
@@ -797,6 +927,9 @@ export class Special {
       }
     }
 
+    for (let i = 0; i < MAX_BUTTONS; ++i) {
+      this.switch.buttonList[i].reset()
+    }
   }
 
 }

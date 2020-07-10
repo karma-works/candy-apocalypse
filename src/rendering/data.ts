@@ -486,7 +486,7 @@ export class Data {
   // Check whether texture is available.
   // Filter out NoTexture indicator.
   //
-  private checkTextureNumForName(name: string): number {
+  checkTextureNumForName(name: string): number {
 
     // "NoTexture" marker.
     if (name.startsWith('-')) {

@@ -1,7 +1,9 @@
 import { Thinker, noopFunc } from '../doom/think'
 import { Game } from '../game/game'
 import { MAX_PLAYERS } from '../global/doomdef'
+import { MObjHandler } from './mobj-handler'
 import { Play } from './setup'
+import { Special } from './special'
 import { User } from './user'
 
 //
@@ -20,6 +22,12 @@ export class Tick {
 
   private get game(): Game {
     return this.play.game
+  }
+  private get mObjHandler(): MObjHandler {
+    return this.play.mObjHandler
+  }
+  private get special(): Special {
+    return this.play.special
   }
   private get user(): User {
     return this.play.user
@@ -100,6 +108,8 @@ export class Tick {
     }
 
     this.runThinkers()
+    this.special.updateSpecials()
+    this.mObjHandler.respawnSpecials()
 
     // for par times
     this.levelTime++

@@ -523,6 +523,7 @@ export class Play {
   //
   init(): void {
     this.switch.initSwitchList()
+    this.special.initPicAnims()
     this.rendering.things.initSprites(sprNames)
   }
 }

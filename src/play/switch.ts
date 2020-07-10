@@ -1,3 +1,4 @@
+import { BUTTON_TIME, Button, MAX_BUTTONS, Where } from './switch/button'
 import { Data } from '../rendering/data'
 import { Doom } from '../doom/doom'
 import { DoorType } from './doors/door-type'
@@ -21,6 +22,7 @@ export class Switch {
 
   private switchList = new Array<number>(MAX_SWITCHES * 2).fill(0)
   private numSwitches = 0
+  buttonList = Array.from({ length: MAX_BUTTONS }, () => new Button())
 
   private get data(): Data {
     return this.play.rendering.data
@@ -75,6 +77,37 @@ export class Switch {
   }
 
   //
+  // Start a button counting down till it turns off.
+  //
+  private startButton(line: Line, w: Where, texture: number, time: number): void {
+    // See if button is already pressed
+    for (let i = 0; i < MAX_BUTTONS; ++i) {
+      if (this.buttonList[i].bTimer &&
+        this.buttonList[i].line === line
+      ) {
+        return
+      }
+    }
+
+    if (line.frontSector === null) {
+      throw 'line.frontSector = null'
+    }
+
+    for (let i = 0; i < MAX_BUTTONS; i++) {
+      if (!this.buttonList[i].bTimer) {
+        this.buttonList[i].line = line
+        this.buttonList[i].where = w
+        this.buttonList[i].bTexture = texture
+        this.buttonList[i].bTimer = time
+        this.buttonList[i].soundOrg = line.frontSector.soundOrg
+        return
+      }
+    }
+
+    throw 'P_StartButton: no button slots left!'
+  }
+
+  //
   // Function that changes wall texture.
   // Tell it if switch is ok to use again (1=yes, it's a button).
   //
@@ -91,7 +124,7 @@ export class Switch {
           this.play.sides[line.sideNum[0]].topTexture = this.switchList[i ^ 1]
 
           if (useAgain) {
-            debugger
+            this.startButton(line, Where.Top, this.switchList[i], BUTTON_TIME)
           }
 
           return
@@ -99,7 +132,7 @@ export class Switch {
           this.play.sides[line.sideNum[0]].midTexture = this.switchList[i ^ 1]
 
           if (useAgain) {
-            debugger
+            this.startButton(line, Where.Middle, this.switchList[i], BUTTON_TIME)
           }
 
           return
@@ -107,7 +140,7 @@ export class Switch {
           this.play.sides[line.sideNum[0]].bottomTexture = this.switchList[i ^ 1]
 
           if (useAgain) {
-            debugger
+            this.startButton(line, Where.Bottom, this.switchList[i], BUTTON_TIME)
           }
 
           return
@@ -140,7 +173,7 @@ export class Switch {
     // Switches that other things can activate.
     if (!thing.player) {
       // never open secret doors
-      if (line.flags && MapLineFlag.Secret) {
+      if (line.flags & MapLineFlag.Secret) {
         return false
       }
 
