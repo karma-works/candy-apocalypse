@@ -770,7 +770,16 @@ export class Game {
   }
 
   private doNewGame(): void {
-    this.deferedInitNew(this.skill, this.episode, this.map)
+    this.demoPlayback = false
+    this.netDemo = false
+    this.netGame = false
+    this.deathMatch = 0
+    this.playerInGame[1] = this.playerInGame[2] = this.playerInGame[3] = false
+    this.doom.respawnParam = false
+    this.doom.fastParam = false
+    this.doom.noMonsters = false
+    this.consolePlayer = 0
+    this.initNew(this.skill, this.episode, this.map)
     this.gameAction = GameAction.Nothing
   }
 

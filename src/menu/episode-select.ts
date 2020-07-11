@@ -1,6 +1,7 @@
 import { MenuItem, MenuStruct } from './typedefs'
 import { NewGame, newDef } from './new-game'
 import { Menu } from './menu'
+import { Skill } from '../global/doomdef'
 import { mainDef } from './doom-menu'
 
 const enum Episodes {
@@ -64,6 +65,7 @@ function verifyNightmare(menu: Menu, ch: number): void {
     return
   }
 
+  menu.game.deferedInitNew(Skill.Nightmare, epi + 1, 1)
   menu.clearMenus()
 }
 
@@ -73,6 +75,7 @@ export function chooseSkill(menu: Menu, choice: number): void {
     return
   }
 
+  menu.game.deferedInitNew(choice, epi + 1, 1)
   menu.clearMenus()
 }
 

@@ -15,31 +15,31 @@ const newGameMenu: MenuItem[] = [
   {
     status: 1,
     name: 'M_JKILL',
-    routine: chooseSkill,
+    routine: (...args) => chooseSkill(...args),
     alphaKey: 'i',
   },
   {
     status: 1,
     name: 'M_ROUGH',
-    routine: chooseSkill,
+    routine: (...args) => chooseSkill(...args),
     alphaKey: 'h',
   },
   {
     status: 1,
     name: 'M_HURT',
-    routine: chooseSkill,
+    routine: (...args) => chooseSkill(...args),
     alphaKey: 'h',
   },
   {
     status: 1,
     name: 'M_ULTRA',
-    routine: chooseSkill,
+    routine: (...args) => chooseSkill(...args),
     alphaKey: 'u',
   },
   {
     status: 1,
     name: 'M_NMARE',
-    routine: chooseSkill,
+    routine: (...args) => chooseSkill(...args),
     alphaKey: 'n',
   },
 ]
