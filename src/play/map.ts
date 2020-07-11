@@ -1077,7 +1077,7 @@ export class Map {
   //
   private pitRadiusAttack(thing: MObj): boolean {
     if (!(thing.flags & MObjFlag.Shootable)) {
-      return false
+      return true
     }
 
     // Boss spider and cyborg
