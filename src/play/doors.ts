@@ -204,6 +204,7 @@ export class Doors {
         this,
       )
       this.tick.addThinker(door)
+      sec.specialData = door
 
       switch (type) {
       case DoorType.BlazeClose:
@@ -320,6 +321,7 @@ export class Doors {
     }
     door = new Door(0, sec, this.verticalDoor, this)
     this.tick.addThinker(door)
+    sec.specialData = door
 
     // new door thinker
     door.direction = 1
