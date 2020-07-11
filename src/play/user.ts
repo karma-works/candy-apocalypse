@@ -1,19 +1,23 @@
-import { ANG90, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, FINE_MASK, fineSine } from '../misc/table'
+import { ANG180, ANG90, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, FINE_MASK, fineSine } from '../misc/table'
 import { Cheat, Player, PlayerState } from '../doom/player'
 import { FRACUNIT, mul } from '../misc/fixed'
+import { GameMode, PowerType, WeaponType } from '../global/doomdef'
 import { ButtonCode } from '../doom/event'
+import { Doom } from '../doom/doom'
 import { MObjFlag } from './mobj/mobj-flag'
 import { MObjHandler } from './mobj-handler'
 import { Map } from './map'
 import { PSprite } from './p-sprite'
 import { Play } from './setup'
-import { PowerType } from '../global/doomdef'
+import { Rendering } from '../rendering/rendering'
 import { Special } from './special'
 import { StateNum } from '../doom/info/state-num'
 import { Tick } from './tick'
 import { VIEW_HEIGHT } from './local'
 import { states } from '../doom/info/states'
 
+// Index of the special effects (INVUL inverse) map.
+const INVERSE_COLOR_MAP = 32
 
 //
 // Movement.
@@ -25,6 +29,9 @@ const MAX_BOB = 0x100000
 export class User {
   private onGround = false
 
+  private get doom(): Doom {
+    return this.play.doom
+  }
   private get map(): Map {
     return this.play.map
   }
@@ -33,6 +40,9 @@ export class User {
   }
   private get pSprite(): PSprite {
     return this.play.pSprite
+  }
+  private get rendering(): Rendering {
+    return this.play.rendering
   }
   private get special(): Special {
     return this.play.special
@@ -159,6 +169,65 @@ export class User {
   }
 
   //
+  // P_DeathThink
+  // Fall on your face when dying.
+  // Decrease POV height to floor height.
+  //
+  private deathThink(player: Player): void {
+    this.pSprite.movePSprites(player)
+
+    // fall to the ground
+    if (player.viewHeight > 6 * FRACUNIT) {
+      player.viewHeight -= FRACUNIT
+    }
+
+    if (player.viewHeight < 6 * FRACUNIT) {
+      player.viewHeight = 6 * FRACUNIT
+    }
+
+    if (player.mo === null) {
+      throw 'player.mo = null'
+    }
+
+    player.deltaViewHeight = 0
+    this.onGround = player.mo.z <= player.mo.floorZ
+    this.calcHeight(player)
+
+    if (player.attacker && player.attacker !== player.mo) {
+      const angle = this.rendering.pointToAngle2(player.mo.x,
+        player.mo.y,
+        player.attacker.x,
+        player.attacker.y,
+      )
+
+      const delta = angle - player.mo.angle >>> 0
+
+      const ANG5 = ANG90 / 18 >>> 0
+
+      if (delta < ANG5 || delta > -ANG5 >>> 0) {
+        // Looking at killer,
+        //  so fade damage flash down.
+        player.mo.angle = angle
+
+        if (player.damageCount) {
+          player.damageCount--
+        }
+      } else if (delta < ANG180) {
+        player.mo.angle = player.mo.angle + ANG5 >>> 0
+      } else {
+        player.mo.angle = player.mo.angle - ANG5 >>> 0
+      }
+    } else if (player.damageCount) {
+      player.damageCount--
+    }
+
+    if (player.cmd.buttons & ButtonCode.Use) {
+      player.playerState = PlayerState.Reborn
+    }
+
+  }
+
+  //
   // P_PlayerThink
   //
   playerThink(player: Player): void {
@@ -166,7 +235,28 @@ export class User {
       throw 'player.mo = null'
     }
 
+    // fixme: do this in the cheat code
+    if (player.cheats & Cheat.NoClip) {
+      player.mo.flags |= MObjFlag.NoClip
+    } else {
+      player.mo.flags &= ~MObjFlag.NoClip
+    }
+
+    // chain saw run forward
     const cmd = player.cmd
+
+    if (player.mo.flags & MObjFlag.JustAttacked) {
+      debugger
+      cmd.angleTurn = 0
+      cmd.forwardMove = 0xc800/512
+      cmd.sideMove = 0
+      player.mo.flags &= ~MObjFlag.JustAttacked
+    }
+
+    if (player.playerState === PlayerState.Dead) {
+      this.deathThink(player)
+      return
+    }
 
     // Move around.
     // Reactiontime is used to prevent movement
@@ -188,6 +278,50 @@ export class User {
     if (player.mo.subSector.sector.special) {
       this.special.playerInSpecialSector(player)
     }
+
+    // Check for weapon change.
+
+    // A special event has no other buttons.
+    if (cmd.buttons & ButtonCode.Special) {
+      cmd.buttons = 0
+    }
+
+    if (cmd.buttons & ButtonCode.Change) {
+      // The actual changing of the weapon is done
+      //  when the weapon psprite can do it
+      //  (read: not in the middle of an attack).
+      let newWeapon = (cmd.buttons & ButtonCode.WeaponMask) >> ButtonCode.WeaponShift
+
+      if (newWeapon === WeaponType.Fist &&
+        player.weaponOwned[WeaponType.Chainsaw] &&
+        !(player.readyWeapon === WeaponType.Chainsaw &&
+        player.powers[PowerType.Strength])
+      ) {
+        newWeapon = WeaponType.Chainsaw
+      }
+
+      if (this.doom.gameMode === GameMode.Commercial &&
+        newWeapon === WeaponType.Shotgun &&
+        player.weaponOwned[WeaponType.Supershotgun] &&
+        player.readyWeapon !== WeaponType.Supershotgun
+      ) {
+        newWeapon = WeaponType.Supershotgun
+      }
+
+      if (player.weaponOwned[newWeapon] &&
+        newWeapon !== player.readyWeapon
+      ) {
+        // Do not go to plasma or BFG in shareware,
+        //  even if cheated.
+        if (newWeapon !== WeaponType.Plasma &&
+          newWeapon !== WeaponType.BFG ||
+          this.doom.gameMode !== GameMode.Shareware
+        ) {
+          player.pendingWeapon = newWeapon
+        }
+      }
+    }
+
 
     // check for use
     if (cmd.buttons & ButtonCode.Use) {
@@ -233,6 +367,28 @@ export class User {
 
     if (player.bonusCount) {
       player.bonusCount--
+    }
+
+    // Handling colormaps.
+    if (player.powers[PowerType.Invulnerability]) {
+      if (player.powers[PowerType.Invulnerability] > 4 * 32
+        || player.powers[PowerType.Invulnerability] & 8
+      ) {
+        player.fixedColorMap = INVERSE_COLOR_MAP
+      } else {
+        player.fixedColorMap = 0
+      }
+    } else if (player.powers[PowerType.Infrared]) {
+      if (player.powers[PowerType.Infrared] > 4 * 32 ||
+        player.powers[PowerType.Infrared] & 8
+      ) {
+        // almost full bright
+        player.fixedColorMap = 1
+      } else {
+        player.fixedColorMap = 0
+      }
+    } else {
+      player.fixedColorMap = 0
     }
   }
 }
