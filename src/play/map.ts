@@ -2,6 +2,7 @@ import { ANG180, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/tabl
 import { FRACBITS, FRACUNIT, div, mul } from '../misc/fixed'
 import { MAP_BLOCK_SHIFT, MAX_RADIUS, PT_ADD_LINES, PT_ADD_THINGS, USE_RANGE } from './local'
 import { BBox } from '../misc/bbox'
+import { Game } from '../game/game'
 import { Inter } from './inter'
 import { Intercept } from './map-utils/intercept'
 import { Line } from '../rendering/line'
@@ -48,6 +49,9 @@ export class Map {
   specHit = new Array<Line>(MAX_SPECIAL_CROSS)
   numSpecHit = 0
 
+  private get game(): Game {
+    return this.play.game
+  }
   private get inter(): Inter {
     return this.play.inter
   }
@@ -73,6 +77,110 @@ export class Map {
     return this.play.tick
   }
   constructor(private play: Play) { }
+
+  //
+  // TELEPORT MOVE
+  //
+
+  //
+  // PIT_StompThing
+  //
+  private stompThing(thing: MObj): boolean {
+    if (!(thing.flags & MObjFlag.Shootable)) {
+      return true
+    }
+
+    if (this.tmThing === null) {
+      throw 'this.tmThing = null'
+    }
+
+    const blockdist = thing.radius + this.tmThing.radius
+
+    if (Math.abs(thing.x - this.tmX) >= blockdist ||
+      Math.abs(thing.y - this.tmY) >= blockdist
+    ) {
+      // didn't hit it
+      return true
+    }
+
+    // don't clip against self
+    if (thing === this.tmThing) {
+      return true
+    }
+
+    // monsters don't stomp things except on boss level
+    if (!this.tmThing.player && this.game.gameMap !== 30) {
+      return false
+    }
+
+    this.inter.damageMObj(thing, this.tmThing, this.tmThing, 10000)
+
+    return true
+  }
+
+  //
+  // P_TeleportMove
+  //
+  teleportMove(thing: MObj, x: number, y: number): boolean {
+
+    // kill anything occupying the position
+    this.tmThing = thing
+    this.tmFlags = thing.flags
+
+    this.tmX = x
+    this.tmY = y
+
+    this.tmBBox
+
+    this.tmBBox.top = y + this.tmThing.radius
+    this.tmBBox.bottom = y - this.tmThing.radius
+    this.tmBBox.right = x + this.tmThing.radius
+    this.tmBBox.left = x - this.tmThing.radius
+
+    const newsubsec = this.rendering.pointInSubSector(x, y)
+    this.ceilingLine = null
+
+    if (newsubsec.sector === null) {
+      throw 'newsubsec.sector = null'
+    }
+
+    // The base floor/ceiling is from the subsector
+    // that contains the point.
+    // Any contacted lines the step closer together
+    // will adjust them.
+    this.tmFloorZ = this.tmDropOffZ = newsubsec.sector.floorHeight
+    this.tmCeilingZ = newsubsec.sector.ceilingHeight
+
+    this.rendering.validCount++
+    this.numSpecHit = 0
+
+    // stomp on any things contacted
+    const xl = this.tmBBox.left - this.play.bMapOrgX - MAX_RADIUS >> MAP_BLOCK_SHIFT
+    const xh = this.tmBBox.right - this.play.bMapOrgX + MAX_RADIUS >> MAP_BLOCK_SHIFT
+    const yl = this.tmBBox.bottom - this.play.bMapOrgY - MAX_RADIUS >> MAP_BLOCK_SHIFT
+    const yh = this.tmBBox.top - this.play.bMapOrgY + MAX_RADIUS >> MAP_BLOCK_SHIFT
+
+    for (let bx = xl; bx <= xh; bx++) {
+      for (let by = yl; by <= yh; by++) {
+        if (!this.mapUtils.blockThingsIterator(bx, by, this.stompThing, this)) {
+          return false
+        }
+      }
+    }
+
+    // the move is ok,
+    // so link the thing into its new position
+    this.mapUtils.unsetThingPosition(thing)
+
+    thing.floorZ = this.tmFloorZ
+    thing.ceilingZ = this.tmCeilingZ
+    thing.x = x
+    thing.y = y
+
+    this.mapUtils.setThingPosition(thing)
+
+    return true
+  }
 
   //
   // MOVEMENT ITERATOR FUNCTIONS
@@ -395,8 +503,8 @@ export class Map {
 
     this.mapUtils.setThingPosition(thing)
 
-    let side: number
-    let oldSide: number
+    let side: 0 | 1
+    let oldSide: 0 | 1
     let ld: Line
     // if any special lines were hit, do the effect
     if (!(thing.flags & (MObjFlag.Teleport | MObjFlag.NoClip))) {

@@ -985,8 +985,62 @@ export class Enemy {
     debugger
   }
 
-  spawnFly(/* mo: MObj */): void {
-    debugger
+  spawnFly(mo: MObj): void {
+    if (--mo.reactionTime) {
+      // still flying
+      return
+    }
+
+    const targ = mo.target
+
+    if (targ === null) {
+      throw 'targ = null'
+    }
+
+    // First spawn teleport fog.
+    this.mObjHandler.spawnMObj(targ.x, targ.y, targ.z, MObjType.Spawnfire)
+
+    // Randomly select monster to spawn.
+    const r = random.pRandom()
+
+    // Probability distribution (kind of :),
+    // decreasing likelihood.
+    let type: MObjType
+    if (r < 50) {
+      type = MObjType.Troop
+    } else if (r < 90) {
+      type = MObjType.Sergeant
+    } else if (r < 120) {
+      type = MObjType.Shadows
+    } else if (r < 130) {
+      type = MObjType.Pain
+    } else if (r < 160) {
+      type = MObjType.Head
+    } else if (r < 162) {
+      type = MObjType.Vile
+    } else if (r < 172) {
+      type = MObjType.Undead
+    } else if (r < 192) {
+      type = MObjType.Baby
+    } else if (r < 222) {
+      type = MObjType.Fatso
+    } else if (r < 246) {
+      type = MObjType.Knight
+    } else {
+      type = MObjType.Bruiser
+    }
+
+    const newmobj = this.mObjHandler.spawnMObj(targ.x, targ.y, targ.z, type)
+
+    if (this.lookForPlayers(newmobj, true)) {
+      this.mObjHandler.setMObjState(newmobj, newmobj.info.seeState)
+    }
+
+    // telefrag anything in this spot
+    this.map.teleportMove(newmobj, newmobj.x, newmobj.y)
+
+    // remove self (i.e., cube).
+    this.mObjHandler.removeMObj(mo)
   }
 
   playerScream(/* mo: MObj */): void {

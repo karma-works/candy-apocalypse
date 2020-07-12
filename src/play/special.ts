@@ -21,6 +21,7 @@ import { PowerType } from '../global/doomdef'
 import { Sector } from '../rendering/sector'
 import { Side } from '../rendering/side'
 import { Switch } from './switch'
+import { Teleport } from './teleport'
 import { Tick } from './tick'
 import { Wad } from '../wad/wad'
 import { random } from '../misc/random'
@@ -55,6 +56,9 @@ export class Special {
   }
   private get switch(): Switch {
     return this.play.switch
+  }
+  private get teleport(): Teleport {
+    return this.play.teleport
   }
   private get tick(): Tick {
     return this.play.tick
@@ -168,7 +172,7 @@ export class Special {
   // Called every time a thing origin is about
   //  to cross a line with a non 0 special.
   //
-  crossSpecialLine(lineNum: number, side: number, thing: MObj): void {
+  crossSpecialLine(lineNum: number, side: 0 | 1, thing: MObj): void {
     let ok = false
 
     const line = this.play.lines[lineNum]
@@ -333,8 +337,7 @@ export class Special {
 
     case 39:
       // TELEPORT!
-      // EV_Teleport(line, side, thing);
-      debugger
+      this.teleport.evTeleport(line, side, thing)
       line.special = 0
       break
 
@@ -447,8 +450,7 @@ export class Special {
     case 125:
       // TELEPORT MonsterONLY
       if (!thing.player) {
-        // EV_Teleport(line, side, thing);
-        debugger
+        this.teleport.evTeleport(line, side, thing)
         line.special = 0
       }
       break
@@ -593,8 +595,7 @@ export class Special {
 
     case 97:
       // TELEPORT!
-      // EV_Teleport(line, side, thing);
-      debugger
+      this.teleport.evTeleport(line, side, thing)
       break
 
     case 98:
@@ -625,8 +626,7 @@ export class Special {
     case 126:
       // TELEPORT MonsterONLY.
       if (!thing.player) {
-        // EV_Teleport(line, side, thing);
-        debugger
+        this.teleport.evTeleport(line, side, thing)
       }
       break
 

@@ -26,6 +26,7 @@ import { Sight } from './sight'
 import { Special } from './special'
 import { SubSector } from '../rendering/sub-sector'
 import { Switch } from './switch'
+import { Teleport } from './teleport'
 import { Tick } from './tick'
 import { User } from './user'
 import { Vertex } from '../rendering/vertex'
@@ -101,6 +102,7 @@ export class Play {
   public sight = new Sight(this)
   public special = new Special(this)
   public switch = new Switch(this)
+  public teleport = new Teleport(this)
   public user = new User(this)
 
   get rendering(): Rendering {
