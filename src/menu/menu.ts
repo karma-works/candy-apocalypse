@@ -7,6 +7,7 @@ import { Sound, soundDef } from './sound-volume'
 import { changeDetail, changeMessages, endGame, sizeDisplay } from './options'
 import { doSave, quickSave } from './save-game'
 import { drawReadThis1, finishReadThis, readDef1, readDef2, readMenu1 } from './read-this'
+import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom/doom'
 import { Game } from '../game/game'
 import { Video as IVideo } from '../interfaces/video'
@@ -66,6 +67,9 @@ export class Menu {
 
   quickSaveSlot = 0
 
+  get dSound(): DSound {
+    return this.doom.dSound
+  }
   get rendering(): Rendering {
     return this.doom.rendering
   }

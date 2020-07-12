@@ -54,20 +54,46 @@ function drawSound(menu: Menu): void {
     soundDef.x,
     soundDef.y + LINEHEIGHT * (Sound.SfxVol + 1),
     16,
-    0, // TODO
+    menu.dSound.sfxVolume,
   )
   menu.drawThermo(
     soundDef.x,
     soundDef.y + LINEHEIGHT * (Sound.MusicVol + 1),
     16,
-    0, // TODO
+    menu.dSound.musicVolume,
   )
 }
 
-function sfxVol(/* menu: Menu, choice: number */): void {
-  // TODO
+function sfxVol(menu: Menu, choice: number): void {
+  switch (choice) {
+  case 0:
+    if (menu.dSound.sfxVolume) {
+      --menu.dSound.sfxVolume
+    }
+    break
+  case 1:
+    if (menu.dSound.sfxVolume < 15) {
+      ++menu.dSound.sfxVolume
+    }
+    break
+  }
+
+  menu.dSound.setSfxVolume(menu.dSound.sfxVolume)
 }
-function musicVol(/* menu: Menu, choice: number */): void {
-  // TODO
+function musicVol(menu: Menu, choice: number): void {
+  switch (choice) {
+  case 0:
+    if (menu.dSound.musicVolume) {
+      --menu.dSound.musicVolume
+    }
+    break
+  case 1:
+    if (menu.dSound.musicVolume < 15) {
+      ++menu.dSound.musicVolume
+    }
+    break
+  }
+
+  menu.dSound.setMusicVolume(menu.dSound.musicVolume)
 }
 

@@ -2,6 +2,7 @@ import { AmmoType, GameMission, GameMode, GameState, KEY_DOWNARROW, KEY_LEFTARRO
 import { ButtonCode, DEvent, EvType, GameAction } from '../doom/event'
 import { Player, PlayerState, WbStart } from '../doom/player'
 import { BACKUP_TICS } from '../doom/net/doom-data'
+import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom/doom'
 import { FRACUNIT } from '../misc/fixed'
 import { HeadsUp } from '../heads-up/stuff'
@@ -168,6 +169,9 @@ export class Game {
 
   mouseSensitivity = 5
 
+  private get dSound(): DSound {
+    return this.doom.dSound
+  }
   private get headsUp(): HeadsUp {
     return this.doom.headsUp
   }
@@ -504,6 +508,28 @@ export class Game {
       }
     }
 
+    // check for special buttons
+    for (let i = 0; i < MAX_PLAYERS; i++) {
+      if (this.playerInGame[i]) {
+        if (this.players[i].cmd.buttons & ButtonCode.Special) {
+          switch (this.players[i].cmd.buttons & ButtonCode.SpecialMask) {
+          case ButtonCode.Pause:
+            this.paused = !this.paused
+            if (this.paused) {
+              this.dSound.pauseSound()
+            } else {
+              this.dSound.resumeSound()
+            }
+            break
+
+          case ButtonCode.SaveGame:
+            debugger
+            break
+          }
+        }
+      }
+    }
+
     // do main actions
     switch (this.gameState) {
     case GameState.Level:
@@ -786,6 +812,7 @@ export class Game {
   initNew(skill: Skill, episode: number, map: number): void {
     if (this.paused) {
       this.paused = false
+      this.dSound.resumeSound()
     }
 
     if (skill > Skill.Nightmare) {

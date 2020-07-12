@@ -3,6 +3,7 @@ import { Cheat, PlayerState } from '../doom/player'
 import { FLOAT_SPEED, GRAVITY, ITEM_QUE_SIZE, MAX_MOVE, MELEE_RANGE, ON_CEILING_Z, ON_FLOOR_Z, VIEW_HEIGHT } from './local'
 import { FRACBITS, FRACUNIT, mul } from '../misc/fixed'
 import { MTF_AMBUSH, Skill } from '../global/doomdef'
+import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom/doom'
 import { Enemy } from './enemy'
 import { Game } from '../game/game'
@@ -31,6 +32,9 @@ const FRICTION = 0xe800
 export class MObjHandler {
   private get doom(): Doom {
     return this.play.doom
+  }
+  private get dSound(): DSound {
+    return this.play.dSound
   }
   private get enemy(): Enemy {
     return this.play.enemy
@@ -431,6 +435,9 @@ export class MObjHandler {
 
     // unlink from sector and block lists
     this.mapUtils.unsetThingPosition(mobj)
+
+    // stop any playing sound
+    this.dSound.stopSound(mobj)
 
     // free block
     this.tick.removeThinker(mobj)

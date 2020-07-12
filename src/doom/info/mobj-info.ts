@@ -1,4 +1,4 @@
-import { Sfx } from '../sounds'
+import { Sfx } from '../sounds/sfx'
 import { StateNum } from './state-num'
 
 export class MObjInfo {

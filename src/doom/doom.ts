@@ -1,10 +1,12 @@
 import { DEvent, GameAction, MAX_EVENTS } from './event'
 import { GameMission, GameMode, GameState, Language, Skill, VERSION } from '../global/doomdef'
+import { Sound as DSound } from './sound'
 import { EnglishStrings } from '../translation/english'
 import { FrenchStrings } from '../translation/french'
 import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
 import { Net as INet } from '../interfaces/net'
+import { Sound as ISound } from '../interfaces/sound'
 import { Video as IVideo } from '../interfaces/video'
 import { Menu } from '../menu/menu'
 import { Net } from './net'
@@ -61,6 +63,8 @@ export class Doom {
   public wad = new Wad()
   public net = new Net(this)
   public iNet = new INet(this)
+  public dSound = new DSound(this)
+  public iSound = new ISound(this)
   public headsUp = new HeadsUp(this)
   public statusBar = new StatusBar(this)
   public play = new Play(this)
@@ -264,7 +268,16 @@ export class Doom {
         // will run at least one tic
         this.net.tryRunTics()
       }
+
+      // move positional sounds
+      this.dSound.updateSounds(this.game.players[this.game.consolePlayer].mo)
+
+      // Update display, next frame, with current state.
       this.display()
+
+      // Sound mixing for the buffer is snychronous.
+      this.iSound.updateSound()
+
       requestAnimationFrame(w.bind(this))
     }
     w()
@@ -559,8 +572,14 @@ export class Doom {
     console.log('P_Init: Init Playloop state.')
     this.play.init()
 
+    console.log('I_Init: Setting up machine state.')
+    this.iSound.init()
+
     console.log('D_CheckNetGame: Checking network game status.')
     this.net.checkNetGame()
+
+    console.log('S_Init: Setting up sound')
+    this.dSound.init(this.dSound.sfxVolume, this.dSound.musicVolume)
 
     console.log('HU_Init: Setting up heads up display.')
     this.headsUp.init()

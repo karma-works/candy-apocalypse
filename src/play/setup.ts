@@ -2,6 +2,7 @@ import { GameMode, MAX_PLAYERS, Skill } from '../global/doomdef'
 import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
 import { MapLineDef, MapLineFlag, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef, MapSubSector, MapThing, MapVertex } from '../doom/data'
 import { BBox } from '../misc/bbox'
+import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom/doom'
 import { Doors } from './doors'
 import { Enemy } from './enemy'
@@ -105,6 +106,9 @@ export class Play {
   public teleport = new Teleport(this)
   public user = new User(this)
 
+  get dSound(): DSound {
+    return this.doom.dSound
+  }
   get rendering(): Rendering {
     return this.doom.rendering
   }
@@ -478,6 +482,9 @@ export class Play {
     // Initial height of PointOfView
     // will be set by player think.
     this.doom.game.players[this.doom.game.consolePlayer].viewZ = 1
+
+    // Make sure all sounds are stopped before Z_FreeTags.
+    this.dSound.start()
 
     // UNUSED W_Profile ();
     this.tick.initThinkers()
