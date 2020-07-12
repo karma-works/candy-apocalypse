@@ -2,7 +2,12 @@ import { ANG270, ANG90, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../mi
 import { DirType, diags, opposite } from './mobj/direction'
 import { FLOAT_SPEED, MELEE_RANGE, MISSILE_RANGE } from './local'
 import { FRACUNIT, mul } from '../misc/fixed'
+import { GameMode, MAX_PLAYERS, Skill } from '../global/doomdef'
 import { Doom } from '../doom/doom'
+import { DoorType } from './doors/door-type'
+import { Doors } from './doors'
+import { Floor } from './floor'
+import { FloorType } from './floor/floor-type'
 import { Game } from '../game/game'
 import { Inter } from './inter'
 import { Line } from '../rendering/line'
@@ -19,8 +24,9 @@ import { Rendering } from '../rendering/rendering'
 import { Sector } from '../rendering/sector'
 import { Sfx } from '../doom/sounds'
 import { Sight } from './sight'
-import { Skill } from '../global/doomdef'
 import { Switch } from './switch'
+import { Thinker } from '../doom/think'
+import { Tick } from './tick'
 import { random } from '../misc/random'
 
 const xSpeed: readonly number[] = [ FRACUNIT, 47000, 0, -47000, -FRACUNIT, -47000, 0, 47000 ]
@@ -29,6 +35,12 @@ export class Enemy {
 
   private get doom(): Doom {
     return this.play.doom
+  }
+  private get doors(): Doors {
+    return this.play.doors
+  }
+  private get floor(): Floor {
+    return this.play.floor
   }
   private get game(): Game {
     return this.play.game
@@ -53,6 +65,9 @@ export class Enemy {
   }
   private get switch(): Switch {
     return this.play.switch
+  }
+  private get tick(): Tick {
+    return this.play.tick
   }
 
   constructor(private play: Play) { }
@@ -979,7 +994,7 @@ export class Enemy {
   }
 
   xScream(/* actor: MObj */): void {
-    debugger
+    // TODO sound
   }
 
   pain(/* actor: MObj */): void {
@@ -1001,8 +1016,158 @@ export class Enemy {
     this.map.radiusAttack(thingy, thingy.target, 128)
   }
 
-  bossDeath(/* mo: MObj */): void {
-    debugger
+  //
+  // A_BossDeath
+  // Possibly trigger special effects
+  // if on first boss level
+  //
+  bossDeath(mo: MObj): void {
+    if (this.doom.gameMode === GameMode.Commercial) {
+      if (this.game.gameMap !== 7) {
+        return
+      }
+
+      if (mo.type !== MObjType.Fatso &&
+        mo.type !== MObjType.Baby
+      ) {
+        return
+      }
+    } else {
+      switch (this.game.gameEpisode) {
+      case 1:
+        if (this.game.gameMap !== 8) {
+          return
+        }
+
+        if (mo.type !== MObjType.Bruiser) {
+          return
+        }
+        break
+
+      case 2:
+        if (this.game.gameMap !== 8) {
+          return
+        }
+
+        if (mo.type !== MObjType.Cyborg) {
+          return
+        }
+        break
+
+      case 3:
+        if (this.game.gameMap !== 8) {
+          return
+        }
+
+        if (mo.type !== MObjType.Spider) {
+          return
+        }
+
+        break
+
+      case 4:
+        switch (this.game.gameMap) {
+        case 6:
+          if (mo.type !== MObjType.Cyborg) {
+            return
+          }
+          break
+
+        case 8:
+          if (mo.type !== MObjType.Spider) {
+            return
+          }
+          break
+
+        default:
+          return
+        }
+        break
+
+      default:
+        if (this.game.gameMap !== 8) {
+          return
+        }
+        break
+      }
+
+    }
+
+
+    // make sure there is a player alive for victory
+    let i: number
+    for (i = 0; i < MAX_PLAYERS; i++) {
+      if (this.game.playerInGame[i] && this.game.players[i].health > 0) {
+        break
+      }
+    }
+
+    if (i === MAX_PLAYERS) {
+      // no one left alive, so do not end game
+      return
+    }
+
+    // scan the remaining thinkers to see
+    // if all bosses are dead
+    let th: Thinker<unknown, [unknown]> | null
+    let mo2: MObj
+    for (th = this.tick.thinkerCap.next;
+      th !== null && th !== this.tick.thinkerCap;
+      th = th.next
+    ) {
+      if (th.func !== this.mObjHandler.thinker) {
+        continue
+      }
+
+      mo2 = th as MObj
+      if (mo2 !== mo &&
+        mo2.type === mo.type &&
+        mo2.health > 0
+      ) {
+        // other boss not dead
+        return
+      }
+    }
+
+    // victory!
+    const junk = new Line()
+    if (this.doom.gameMode === GameMode.Commercial) {
+      if (this.game.gameMap === 7) {
+        if (mo.type === MObjType.Fatso) {
+          junk.tag = 666
+          this.floor.evDoFloor(junk, FloorType.LowerFloorToLowest)
+          return
+        }
+
+        if (mo.type === MObjType.Baby) {
+          junk.tag = 667
+          this.floor.evDoFloor(junk, FloorType.RaiseToTexture)
+          return
+        }
+      }
+    } else {
+      switch (this.game.gameEpisode) {
+      case 1:
+        junk.tag = 666
+        this.floor.evDoFloor(junk, FloorType.LowerFloorToLowest)
+        return
+
+      case 4:
+        switch (this.game.gameMap) {
+        case 6:
+          junk.tag = 666
+          this.doors.evDoDoor(junk, DoorType.BlazeOpen)
+          return
+
+        case 8:
+          junk.tag = 666
+          this.floor.evDoFloor(junk, FloorType.LowerFloorToLowest)
+          return
+        }
+      }
+    }
+
+    this.game.exitLevel()
   }
 
   hoof(/* mo: MObj */): void {
@@ -1116,6 +1281,6 @@ export class Enemy {
   }
 
   playerScream(/* mo: MObj */): void {
-    debugger
+    // TODO: sound
   }
 }
