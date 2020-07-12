@@ -1,6 +1,6 @@
-import { ANG270, ANG90, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table'
+import { ANG180, ANG270, ANG90, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table'
 import { DirType, diags, opposite } from './mobj/direction'
-import { FLOAT_SPEED, MELEE_RANGE, MISSILE_RANGE } from './local'
+import { FLOAT_SPEED, MAP_BLOCK_SHIFT, MAX_RADIUS, MELEE_RANGE, MISSILE_RANGE } from './local'
 import { FRACUNIT, mul } from '../misc/fixed'
 import { GameMode, MAX_PLAYERS, Skill } from '../global/doomdef'
 import { Doom } from '../doom/doom'
@@ -14,23 +14,34 @@ import { Line } from '../rendering/line'
 import { MObj } from './mobj/mobj'
 import { MObjFlag } from './mobj/mobj-flag'
 import { MObjHandler } from './mobj-handler'
+import { MObjInfo } from '../doom/info/mobj-info'
 import { MObjType } from '../doom/info/mobj-type'
 import { Map } from './map'
 import { MapLineFlag } from '../doom/data'
 import { MapUtils } from './map-utils'
+import { PSprite } from './p-sprite'
 import { Play } from './setup'
 import { Player } from '../doom/player'
 import { Rendering } from '../rendering/rendering'
 import { Sector } from '../rendering/sector'
 import { Sfx } from '../doom/sounds'
 import { Sight } from './sight'
+import { StateNum } from '../doom/info/state-num'
 import { Switch } from './switch'
 import { Thinker } from '../doom/think'
 import { Tick } from './tick'
+import { mObjInfos } from '../doom/info/mobj-infos'
 import { random } from '../misc/random'
 
 const xSpeed: readonly number[] = [ FRACUNIT, 47000, 0, -47000, -FRACUNIT, -47000, 0, 47000 ]
 const ySpeed: readonly number[] = [ 0, 47000, FRACUNIT, 47000, 0, -47000, -FRACUNIT, -47000 ]
+
+const TRACE_ANGLE = 0xc000000
+
+const FAT_SPREAD = ANG90 / 8
+
+const SKULL_SPEED = 20 * FRACUNIT
+
 export class Enemy {
 
   private get doom(): Doom {
@@ -59,6 +70,9 @@ export class Enemy {
   }
   private get rendering(): Rendering {
     return this.play.rendering
+  }
+  private get pSprite(): PSprite {
+    return this.play.pSprite
   }
   private get sight(): Sight {
     return this.play.sight
@@ -503,8 +517,37 @@ export class Enemy {
     return false
   }
 
-  keenDie(/* mo: MObj */): void {
-    debugger
+  //
+  // A_KeenDie
+  // DOOM II special, map 32.
+  // Uses special tag 666.
+  //
+  keenDie(mo: MObj): void {
+    this.fall(mo)
+
+    let th: Thinker<unknown, [unknown]> | null
+    let mo2: MObj
+    for (th = this.tick.thinkerCap.next;
+      th !== null && th !== this.tick.thinkerCap;
+      th = th.next
+    ) {
+      if (th.func !== this.mObjHandler.thinker) {
+        continue
+      }
+
+      mo2 = th as MObj
+      if (mo2 !== mo &&
+        mo2.type === mo.type &&
+        mo2.health > 0
+      ) {
+        // other Keen not dead
+        return
+      }
+    }
+
+    const junk = new Line()
+    junk.tag = 666
+    this.doors.evDoDoor(junk, DoorType.Open)
   }
 
   //
@@ -862,44 +905,274 @@ export class Enemy {
     this.mObjHandler.spawnMissile(actor, actor.target, MObjType.Bruisershot)
   }
 
-  skelMissile(/* actor: MObj */): void {
-    debugger
+  //
+  // A_SkelMissile
+  //
+  skelMissile(actor: MObj): void {
+    if (!actor.target) {
+      return
+    }
+
+    this.faceTarget(actor)
+    // so missile spawns higher
+    actor.z += 16 * FRACUNIT
+    const mo = this.mObjHandler.spawnMissile(actor, actor.target, MObjType.Tracer)
+    // back to normal
+    actor.z -= 16 * FRACUNIT
+
+    mo.x += mo.momX
+    mo.y += mo.momY
+    mo.tracer = actor.target
   }
 
-  tracer(/* actor: MObj */): void {
-    debugger
+  tracer(actor: MObj): void {
+    if (this.game.gameTic & 3) {
+      return
+    }
+
+    // spawn a puff of smoke behind the rocket
+    this.mObjHandler.spawnPuff(actor.x, actor.y, actor.z)
+
+    const th = this.mObjHandler.spawnMObj(actor.x - actor.momX,
+      actor.y - actor.momY,
+      actor.z, MObjType.Smoke)
+
+    th.momZ = FRACUNIT
+    th.tics -= random.pRandom() & 3
+    if (th.tics < 1) {
+      th.tics = 1
+    }
+
+    // adjust direction
+    const dest = actor.tracer
+
+    if (!dest || dest.health <= 0) {
+      return
+    }
+
+    // change angle
+    let exact = this.rendering.pointToAngle2(actor.x, actor.y,
+      dest.x, dest.y)
+
+    if (exact !== actor.angle) {
+      if (exact - actor.angle >>> 0 > 0x80000000) {
+        actor.angle = actor.angle - TRACE_ANGLE >>> 0
+        if (exact - actor.angle >>> 0 < 0x80000000) {
+          actor.angle = exact
+        }
+      } else {
+        actor.angle = actor.angle + TRACE_ANGLE >>> 0
+        if (exact - actor.angle >>> 0 > 0x80000000) {
+          actor.angle = exact
+        }
+      }
+    }
+
+    exact = actor.angle >>> ANGLE_TO_FINE_SHIFT
+    actor.momX = mul(actor.info.speed, fineSine[FINE_ANGLES / 4 + exact])
+    actor.momY = mul(actor.info.speed, fineSine[exact])
+
+    // change slope
+    let dist = this.mapUtils.aproxDistance(dest.x - actor.x,
+      dest.y - actor.y)
+
+    dist = dist / actor.info.speed >> 0
+
+    if (dist < 1) {
+      dist = 1
+    }
+    const slope = (dest.z + 40 * FRACUNIT - actor.z) / dist >> 0
+
+    if (slope < actor.momZ) {
+      actor.momZ -= FRACUNIT / 8
+    } else {
+      actor.momZ += FRACUNIT / 8
+    }
   }
 
-  skelWhoosh(/* actor: MObj */): void {
-    debugger
+  skelWhoosh(actor: MObj): void {
+    if (!actor.target) {
+      return
+    }
+    this.faceTarget(actor)
   }
 
-  skelFist(/* actor: MObj */): void {
-    debugger
+  skelFist(actor: MObj): void {
+    if (!actor.target) {
+      return
+    }
+
+    this.faceTarget(actor)
+
+    if (this.checkMeleeRange(actor)) {
+      const damage = (random.pRandom() % 10 + 1) * 6
+      this.inter.damageMObj(actor.target, actor, actor, damage)
+    }
   }
 
-  vileChase(/* actor: MObj */): void {
-    debugger
+  //
+  // PIT_VileCheck
+  // Detect a corpse that could be raised.
+  //
+  private corpseHit: MObj | null = null
+  private vileTryX = 0
+  private vileTryY = 0
+  private vileCheck(thing: MObj): boolean {
+    if (!(thing.flags & MObjFlag.Corpse)) {
+    // not a monster
+      return true
+    }
+
+    if (thing.tics !== -1) {
+      // not lying still yet
+      return true
+    }
+
+    if (thing.info.raiseState === StateNum.Null) {
+      // monster doesn't have a raise state
+      return true
+    }
+
+    const maxDist = thing.info.radius + mObjInfos[MObjType.Vile].radius
+
+    if (Math.abs(thing.x - this.vileTryX) > maxDist ||
+    Math.abs(thing.y - this.vileTryY) > maxDist
+    ) {
+      // not actually touching
+      return true
+    }
+
+    this.corpseHit = thing
+    this.corpseHit.momX = this.corpseHit.momY = 0
+    this.corpseHit.height <<= 2
+    const check = this.map.checkPosition(this.corpseHit, this.corpseHit.x, this.corpseHit.y)
+    this.corpseHit.height >>= 2
+
+    if (!check) {
+      // doesn't fit here
+      return true
+    }
+
+    // got one, so stop checking
+    return false
   }
 
+  //
+  // A_VileChase
+  // Check for ressurecting a body
+  //
+  vileChase(actor: MObj): void {
+
+    if (actor.moveDir !== DirType.NoDir) {
+      // check for corpses to raise
+      this.vileTryX =
+        actor.x + actor.info.speed * xSpeed[actor.moveDir]
+      this.vileTryY =
+        actor.y + actor.info.speed * ySpeed[actor.moveDir]
+
+      const xl = this.vileTryX - this.play.bMapOrgX - MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
+      const xh = this.vileTryX - this.play.bMapOrgX + MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
+      const yl = this.vileTryY - this.play.bMapOrgY - MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
+      const yh = this.vileTryY - this.play.bMapOrgY + MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
+
+      let temp: MObj | null
+      let info: MObjInfo
+      for (let bx = xl; bx <= xh; bx++) {
+        for (let by = yl; by <= yh; by++) {
+          // Call PIT_VileCheck to check
+          // whether object is a corpse
+          // that canbe raised.
+          if (!this.mapUtils.blockThingsIterator(bx, by, this.vileCheck, this)) {
+            // got one!
+            temp = actor.target
+            actor.target = this.corpseHit
+            this.faceTarget(actor)
+            actor.target = temp
+
+            this.mObjHandler.setMObjState(actor, StateNum.VileHeal1)
+            if (this.corpseHit === null) {
+              throw 'this.corpseHit = null'
+            }
+            info = this.corpseHit.info
+
+            this.mObjHandler.setMObjState(this.corpseHit, info.raiseState)
+            this.corpseHit.height <<= 2
+            this.corpseHit.flags = info.flags
+            this.corpseHit.health = info.spawnHealth
+            this.corpseHit.target = null
+
+            return
+          }
+        }
+      }
+    }
+
+    // Return to normal attack.
+    this.chase(actor)
+  }
+
+  //
+  // A_VileStart
+  //
   vileStart(/* actor: MObj */): void {
-    debugger
+    // TODO sound
   }
 
-  startFire(/* actor: MObj */): void {
-    debugger
+  //
+  // A_Fire
+  // Keep fire in front of player unless out of sight
+  //
+  startFire(actor: MObj): void {
+    this.fire(actor)
   }
 
-  fireCrackle(/* actor: MObj */): void {
-    debugger
+  fireCrackle(actor: MObj): void {
+    this.fire(actor)
   }
 
-  fire(/* actor: MObj */): void {
-    debugger
+  fire(actor: MObj): void {
+    const dest = actor.tracer
+    if (!dest) {
+      return
+    }
+
+    if (actor.target === null) {
+      throw 'actor.target = null'
+    }
+
+    // don't move it if the vile lost sight
+    if (!this.sight.checkSight(actor.target, dest)) {
+      return
+    }
+
+    const an = dest.angle >>> ANGLE_TO_FINE_SHIFT
+
+    this.mapUtils.unsetThingPosition(actor)
+    actor.x = dest.x + mul(24 * FRACUNIT, fineSine[FINE_ANGLES / 4 + an])
+    actor.y = dest.y + mul(24 * FRACUNIT, fineSine[an])
+    actor.z = dest.z
+    this.mapUtils.setThingPosition(actor)
   }
 
-  vileTarget(/* actor: MObj */): void {
-    debugger
+  //
+  // A_VileTarget
+  // Spawn the hellfire
+  //
+  vileTarget(actor: MObj): void {
+    if (!actor.target) {
+      return
+    }
+
+    this.faceTarget(actor)
+
+    const fog = this.mObjHandler.spawnMObj(actor.target.x,
+      actor.target.x,
+      actor.target.z, MObjType.Fire)
+
+    actor.tracer = fog
+    fog.target = actor
+    fog.tracer = actor.target
+    this.fire(fog)
   }
 
   //
@@ -933,32 +1206,164 @@ export class Enemy {
     this.map.radiusAttack(fire, actor, 70)
   }
 
-  fatRaise(/* actor: MObj */): void {
-    debugger
+  //
+  // Mancubus attack,
+  // firing three missiles (bruisers)
+  // in three different directions?
+  // Doesn't look like it.
+  //
+
+  fatRaise(actor: MObj): void {
+    this.faceTarget(actor)
   }
 
-  fatAttack1(/* actor: MObj */): void {
-    debugger
+  fatAttack1(actor: MObj): void {
+    if (actor.target === null) {
+      throw 'actor.target = null'
+    }
+
+    this.faceTarget(actor)
+    // Change direction  to ...
+    actor.angle = actor.angle + FAT_SPREAD >>> 0
+    this.mObjHandler.spawnMissile(actor, actor.target, MObjType.Fatshot)
+
+    const mo = this.mObjHandler.spawnMissile(actor, actor.target, MObjType.Fatshot)
+    mo.angle = mo.angle + FAT_SPREAD >>> 0
+    const an = mo.angle >>> ANGLE_TO_FINE_SHIFT
+    mo.momX = mul(mo.info.speed, fineSine[FINE_ANGLES / 4 + an])
+    mo.momY = mul(mo.info.speed, fineSine[an])
   }
 
-  fatAttack2(/* actor: MObj */): void {
-    debugger
+  fatAttack2(actor: MObj): void {
+    if (actor.target === null) {
+      throw 'actor.target = null'
+    }
+
+    this.faceTarget(actor)
+    // Now here choose opposite deviation.
+    actor.angle = actor.angle - FAT_SPREAD >>> 0
+    this.mObjHandler.spawnMissile(actor, actor.target, MObjType.Fatshot)
+
+    const mo = this.mObjHandler.spawnMissile(actor, actor.target, MObjType.Fatshot)
+    mo.angle = mo.angle - FAT_SPREAD * 2 >>> 0
+    const an = mo.angle >>> ANGLE_TO_FINE_SHIFT
+    mo.momX = mul(mo.info.speed, fineSine[FINE_ANGLES / 4 + an])
+    mo.momY = mul(mo.info.speed, fineSine[an])
   }
 
-  fatAttack3(/* actor: MObj */): void {
-    debugger
+  fatAttack3(actor: MObj): void {
+    if (actor.target === null) {
+      throw 'actor.target = null'
+    }
+
+    this.faceTarget(actor)
+
+    let mo = this.mObjHandler.spawnMissile(actor, actor.target, MObjType.Fatshot)
+    mo.angle = mo.angle - FAT_SPREAD / 2 >>> 0
+    let an = mo.angle >>> ANGLE_TO_FINE_SHIFT
+    mo.momX = mul(mo.info.speed, fineSine[FINE_ANGLES / 4 + an])
+    mo.momY = mul(mo.info.speed, fineSine[an])
+
+    mo = this.mObjHandler.spawnMissile(actor, actor.target, MObjType.Fatshot)
+    mo.angle = mo.angle + FAT_SPREAD / 2 >>> 0
+    an = mo.angle >>> ANGLE_TO_FINE_SHIFT
+    mo.momX = mul(mo.info.speed, fineSine[FINE_ANGLES / 4 + an])
+    mo.momY = mul(mo.info.speed, fineSine[an])
   }
 
-  skullAttack(/* actor: MObj */): void {
-    debugger
+  //
+  // SkullAttack
+  // Fly at the player like a missile.
+  //
+  skullAttack(actor: MObj): void {
+    if (!actor.target) {
+      return
+    }
+
+    const dest = actor.target
+    actor.flags |= MObjFlag.SkullFly
+
+    this.faceTarget(actor)
+    const an = actor.angle >>> ANGLE_TO_FINE_SHIFT
+    actor.momX = mul(SKULL_SPEED, fineSine[FINE_ANGLES / 4 + an])
+    actor.momY = mul(SKULL_SPEED, fineSine[an])
+    let dist = this.mapUtils.aproxDistance(dest.x - actor.x, dest.y - actor.y)
+    dist = dist / SKULL_SPEED >> 0
+
+    if (dist < 1) {
+      dist = 1
+    }
+    actor.momZ = (dest.z + (dest.height >> 1) - actor.z) / dist
   }
 
-  painAttack(/* actor: MObj */): void {
-    debugger
+  //
+  // A_PainShootSkull
+  // Spawn a lost soul and launch it at the target
+  //
+  private painShootSkull(actor: MObj, angle: number): void {
+
+    // count total number of skull currently on the level
+    let count = 0
+
+    let currentTinker = this.tick.thinkerCap.next
+    while (currentTinker && currentTinker !== this.tick.thinkerCap) {
+      if (currentTinker.func === this.mObjHandler.thinker &&
+        // eslint-disable-next-line no-extra-parens
+        (currentTinker as MObj).type === MObjType.Skull
+      ) {
+        count++
+        currentTinker = currentTinker.next
+      }
+    }
+
+    // if there are allready 20 skulls on the level,
+    // don't spit another one
+    if (count > 20) {
+      return
+    }
+
+
+    // okay, there's playe for another one
+    const an = angle >>> ANGLE_TO_FINE_SHIFT
+
+    const preStep = 4 * FRACUNIT +
+        (3 * (actor.info.radius + mObjInfos[MObjType.Skull].radius) / 2 >> 0)
+
+    const x = actor.x + mul(preStep, fineSine[FINE_ANGLES / 4 + an])
+    const y = actor.y + mul(preStep, fineSine[an])
+    const z = actor.z + 8 * FRACUNIT
+
+    const newMObj = this.mObjHandler.spawnMObj(x, y, z, MObjType.Skull)
+
+    // Check for movements.
+    if (!this.map.tryMove(newMObj, newMObj.x, newMObj.y)) {
+      // kill it immediately
+      this.inter.damageMObj(newMObj, actor, actor, 10000)
+      return
+    }
+
+    newMObj.target = actor.target
+    this.skullAttack(newMObj)
   }
 
-  painDie(/* actor: MObj */): void {
-    debugger
+  //
+  // A_PainAttack
+  // Spawn a lost soul and launch it at the target
+  //
+  painAttack(actor: MObj): void {
+    if (!actor.target) {
+      return
+    }
+
+    this.faceTarget(actor)
+    this.painShootSkull(actor, actor.angle)
+  }
+
+  painDie(actor: MObj): void {
+    this.fall(actor)
+    this.painShootSkull(actor, actor.angle + ANG90 >>> 0)
+    this.painShootSkull(actor, actor.angle + ANG180 >>> 0)
+    this.painShootSkull(actor, actor.angle + ANG270 >>> 0)
   }
 
   scream(actor: MObj): void {
@@ -1170,56 +1575,126 @@ export class Enemy {
     this.game.exitLevel()
   }
 
-  hoof(/* mo: MObj */): void {
-    debugger
+  hoof(mo: MObj): void {
+    this.chase(mo)
   }
 
-  metal(/* mo: MObj */): void {
-    debugger
+  metal(mo: MObj): void {
+    this.chase(mo)
   }
 
-  babyMetal(/* mo: MObj */): void {
-    debugger
+  babyMetal(mo: MObj): void {
+    this.chase(mo)
   }
 
   openShotgun2(/* player: Player, psp: PSpriteDef */): void {
-    debugger
+    // TODO sound
   }
 
   loadShotgun2(/* player: Player, psp: PSpriteDef */): void {
-    debugger
+    // TODO sound
   }
 
-  closeShotgun2(/* player: Player, psp: PSpriteDef */): void {
-    debugger
+  closeShotgun2(player: Player): void {
+    this.pSprite.reFire(player)
   }
 
-  brainAwake(/* mo: MObj */): void {
-    debugger
+  private brainTargets = new Array<MObj>(32)
+  private numBrainTargets = 0
+  private brainTargetOn = 0
+  brainAwake(): void {
+    // find all the target spots
+    this.numBrainTargets = 0
+    this.brainTargetOn = 0
+
+
+    let thinker: Thinker<unknown, [unknown]> | null
+    let m: MObj
+    for (thinker = this.tick.thinkerCap.next;
+      thinker !== null && thinker !== this.tick.thinkerCap;
+      thinker = thinker.next
+    ) {
+      if (thinker.func !== this.mObjHandler.thinker) {
+        // not a mobj
+        continue
+      }
+
+      m = thinker as MObj
+
+      if (m.type === MObjType.Bosstarget) {
+        this.brainTargets[this.numBrainTargets] = m
+        this.numBrainTargets++
+      }
+    }
   }
 
   brainPain(/* mo: MObj */): void {
-    debugger
+    // TODO sound
   }
 
-  brainScream(/* mo: MObj */): void {
-    debugger
+  brainScream(mo: MObj): void {
+    let x: number
+    let y: number
+    let z: number
+    let th: MObj
+    for (x = mo.x - 196 * FRACUNIT;
+      x < mo.x + 320 * FRACUNIT;
+      x += FRACUNIT * 8
+    ) {
+      y = mo.y - 320 * FRACUNIT
+      z = 128 + random.pRandom() * 2 * FRACUNIT
+      th = this.mObjHandler.spawnMObj(x, y, z, MObjType.Rocket)
+      th.momZ = random.pRandom() * 512
+
+      this.mObjHandler.setMObjState(th, StateNum.Brainexplode1)
+
+      th.tics -= random.pRandom() & 7
+      if (th.tics < 1) {
+        th.tics = 1
+      }
+    }
   }
 
-  brainExplode(/* mo: MObj */): void {
-    debugger
+  brainExplode(mo: MObj): void {
+    const x = mo.x + (random.pRandom() - random.pRandom()) * 2048
+    const y = mo.y
+    const z = 128 + random.pRandom() * 2 * FRACUNIT
+    const th = this.mObjHandler.spawnMObj(x, y, z, MObjType.Rocket)
+    th.momZ = random.pRandom() * 512
+
+    this.mObjHandler.setMObjState(th, StateNum.Brainexplode1)
+
+    th.tics -= random.pRandom() & 7
+    if (th.tics < 1) {
+      th.tics = 1
+    }
   }
 
-  brainDie(/* mo: MObj */): void {
-    debugger
+  brainDie(): void {
+    this.game.exitLevel()
   }
 
-  brainSpit(/* mo: MObj */): void {
-    debugger
+  private easy = 0
+  brainSpit(mo: MObj): void {
+    this.easy ^= 1
+    if (this.game.gameSkill <= Skill.Easy && !this.easy) {
+      return
+    }
+
+    // shoot a cube at current target
+    const targ = this.brainTargets[this.brainTargetOn]
+    this.brainTargetOn = (this.brainTargetOn + 1) % this.numBrainTargets
+
+    // spawn brain missile
+    const newMObj = this.mObjHandler.spawnMissile(mo, targ, MObjType.Spawnshot)
+    newMObj.target = targ
+    newMObj.reactionTime = ((targ.y - mo.y) / newMObj.momY >> 0) /
+      newMObj.state.tics >> 0
   }
 
-  spawnSound(/* mo: MObj */): void {
-    debugger
+  // travelling cube sound
+  spawnSound(mo: MObj): void {
+    this.spawnFly(mo)
   }
 
   spawnFly(mo: MObj): void {
@@ -1267,14 +1742,14 @@ export class Enemy {
       type = MObjType.Bruiser
     }
 
-    const newmobj = this.mObjHandler.spawnMObj(targ.x, targ.y, targ.z, type)
+    const newMObj = this.mObjHandler.spawnMObj(targ.x, targ.y, targ.z, type)
 
-    if (this.lookForPlayers(newmobj, true)) {
-      this.mObjHandler.setMObjState(newmobj, newmobj.info.seeState)
+    if (this.lookForPlayers(newMObj, true)) {
+      this.mObjHandler.setMObjState(newMObj, newMObj.info.seeState)
     }
 
     // telefrag anything in this spot
-    this.map.teleportMove(newmobj, newmobj.x, newmobj.y)
+    this.map.teleportMove(newMObj, newMObj.x, newMObj.y)
 
     // remove self (i.e., cube).
     this.mObjHandler.removeMObj(mo)

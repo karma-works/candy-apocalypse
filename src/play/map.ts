@@ -379,7 +379,7 @@ export class Map {
   //  speciallines[]
   //  numspeciallines
   //
-  private checkPosition(thing: MObj, x: number, y: number): boolean {
+  checkPosition(thing: MObj, x: number, y: number): boolean {
     this.tmThing = thing
     this.tmFlags = thing.flags
 
