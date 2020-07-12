@@ -718,22 +718,66 @@ export class Enemy {
     }
   }
 
-  cPosAttack(/* actor: MObj */): void {
-    debugger
+  cPosAttack(actor: MObj): void {
+    if (!actor.target) {
+      return
+    }
+
+    this.faceTarget(actor)
+    const bAngle = actor.angle >> 0
+    const slope = this.map.aimLineAttack(actor, bAngle >>> 0, MISSILE_RANGE)
+
+    const angle = bAngle + (random.pRandom() - random.pRandom() << 20)
+    const damage = (random.pRandom() % 5 + 1) * 3
+    this.map.lineAttack(actor, angle >>> 0, MISSILE_RANGE, slope, damage)
   }
 
-  cPosRefire(/* actor: MObj */): void {
-    debugger
+  cPosRefire(actor: MObj): void {
+    // keep firing unless target got out of sight
+    this.faceTarget(actor)
+
+    if (random.pRandom() < 40) {
+      return
+    }
+
+    if (!actor.target ||
+      actor.target.health <= 0 ||
+      !this.sight.checkSight(actor, actor.target)
+    ) {
+      this.mObjHandler.setMObjState(actor, actor.info.seeState)
+    }
   }
 
-  spidRefire(/* actor: MObj */): void {
-    debugger
+  spidRefire(actor: MObj): void {
+    // keep firing unless target got out of sight
+    this.faceTarget(actor)
+
+    if (random.pRandom() < 10) {
+      return
+    }
+
+    if (!actor.target ||
+      actor.target.health <= 0 ||
+      !this.sight.checkSight(actor, actor.target)
+    ) {
+      this.mObjHandler.setMObjState(actor, actor.info.seeState)
+    }
   }
 
-  bspiAttack(/* actor: MObj */): void {
-    debugger
+  bspiAttack(actor: MObj): void {
+    if (!actor.target) {
+      return
+    }
+
+    this.faceTarget(actor)
+
+    // launch a missile
+    this.mObjHandler.spawnMissile(actor, actor.target, MObjType.Arachplaz)
   }
 
+  //
+  // A_TroopAttack
+  //
   troopAttack(actor: MObj): void {
     if (!actor.target) {
       return
@@ -763,16 +807,44 @@ export class Enemy {
     }
   }
 
-  headAttack(/* actor: MObj */): void {
-    debugger
+  headAttack(actor: MObj): void {
+    if (!actor.target) {
+      return
+    }
+
+    this.faceTarget(actor)
+    if (this.checkMeleeRange(actor)) {
+      const damage = (random.pRandom() % 6 + 1) * 10
+      this.inter.damageMObj(actor.target, actor, actor, damage)
+      return
+    }
+
+    // launch a missile
+    this.mObjHandler.spawnMissile(actor, actor.target, MObjType.Headshot)
   }
 
-  cyberAttack(/* actor: MObj */): void {
-    debugger
+  cyberAttack(actor: MObj): void {
+    if (!actor.target) {
+      return
+    }
+
+    this.faceTarget(actor)
+    this.mObjHandler.spawnMissile(actor, actor.target, MObjType.Rocket)
   }
 
-  bruisAttack(/* actor: MObj */): void {
-    debugger
+  bruisAttack(actor: MObj): void {
+    if (!actor.target) {
+      return
+    }
+
+    if (this.checkMeleeRange(actor)) {
+      const damage = (random.pRandom() % 8 + 1) * 10
+      this.inter.damageMObj(actor.target, actor, actor, damage)
+      return
+    }
+
+    // launch a missile
+    this.mObjHandler.spawnMissile(actor, actor.target, MObjType.Bruisershot)
   }
 
   skelMissile(/* actor: MObj */): void {
