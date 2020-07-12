@@ -629,16 +629,9 @@ export class Rendering {
     this.ssCount = 0
 
     if (player.fixedColorMap) {
-      debugger
-      /* fixedcolormap =
-          colormaps
-          + player->fixedcolormap*256*sizeof(lighttable_t);
-      */
+      this.fixedColorMap = this.data.colorMaps.subarray(player.fixedColorMap * 256)
+
       this.segsHandler.wallLights = this.scaleLightFixed
-      if (this.fixedColorMap === null) {
-        debugger // remove me
-        throw 'this.fixedColorMap'
-      }
       for (let i = 0; i < MAX_LIGHT_SCALE; ++i) {
         this.scaleLightFixed[i] = this.fixedColorMap
       }
