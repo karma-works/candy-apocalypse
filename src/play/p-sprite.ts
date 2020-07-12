@@ -1,25 +1,26 @@
-import { AmmoType, GameMode, PowerType, WeaponType } from '../global/doomdef'
 import { ANG180, ANG90, FINE_ANGLES, FINE_MASK, fineSine } from '../misc/table'
+import { AmmoType, GameMode, PowerType, WeaponType } from '../global/doomdef'
 import { FRACBITS, FRACUNIT, mul } from '../misc/fixed'
+import { MELEE_RANGE, MISSILE_RANGE } from './local'
 import { PSpriteDef, PSpriteNum } from './sprite'
 import { Player, PlayerState } from '../doom/player'
 import { ButtonCode } from '../doom/event'
 import { Doom } from '../doom/doom'
 import { Enemy } from './enemy'
-import { MELEE_RANGE, MISSILE_RANGE } from './local'
+import { Inter } from './inter'
 import { MObj } from './mobj/mobj'
+import { MObjFlag } from './mobj/mobj-flag'
 import { MObjHandler } from './mobj-handler'
+import { MObjType } from '../doom/info/mobj-type'
 import { Map } from './map'
 import { Play } from './setup'
+import { Rendering } from '../rendering/rendering'
 import { State } from '../doom/info/state'
 import { StateNum } from '../doom/info/state-num'
 import { Tick } from './tick'
 import { random } from '../misc/random'
 import { states } from '../doom/info/states'
 import { weaponInfo } from '../doom/items'
-import { Rendering } from '../rendering/rendering'
-import { MObjFlag } from './mobj/mobj-flag'
-import { MObjType } from '../doom/info/mobj-type'
 
 const LOWER_SPEED = FRACUNIT * 6
 const RAISE_SPEED = FRACUNIT * 6
@@ -37,6 +38,9 @@ export class PSprite {
   }
   private get enemy(): Enemy {
     return this.play.enemy
+  }
+  private get inter(): Inter {
+    return this.play.inter
   }
   private get map(): Map {
     return this.play.map
@@ -292,8 +296,8 @@ export class PSprite {
     }
   }
 
-  checkReload(/* player: Player, psp: PSpriteDef */): void {
-    debugger
+  checkReload(player: Player): void {
+    this.checkAmmo(player)
   }
 
   //
@@ -349,8 +353,16 @@ export class PSprite {
     this.setPSprite(player, PSpriteNum.Weapon, newState)
   }
 
-  gunFlash(/* player: Player, psp: PSpriteDef */): void {
-    debugger
+  //
+  // A_GunFlash
+  //
+  gunFlash(player: Player): void {
+    if (player.mo === null) {
+      throw 'player.mo = null'
+    }
+    this.mObjHandler.setMObjState(player.mo, StateNum.PlayAtk2)
+    this.setPSprite(player, PSpriteNum.Flash,
+      weaponInfo[player.readyWeapon].flashState)
   }
 
   //
@@ -611,12 +623,54 @@ export class PSprite {
     player.extraLight = 2
   }
 
-  bfgSpray(/* mo: MObj */): void {
+  //
+  // A_BFGSpray
+  // Spawn a BFG explosion on every monster in view
+  //
+  bfgSpray(mo: MObj): void {
+    if (mo.target === null) {
+      throw 'mo.target = null'
+    }
+
+    // offset angles from its attack angle
+    let an: number
+    let damage: number
+    let lineTarget: MObj | null
+    let i: number
+    let j: number
     debugger
+    for (i = 0; i < 40; ++i) {
+      an = mo.angle - ANG90 / 2 + ANG90 / 40 * i
+
+      // mo->target is the originator (player)
+      //  of the missile
+      this.map.aimLineAttack(mo.target, an, 16 * 64 * FRACUNIT)
+
+      lineTarget = this.map.lineTarget
+
+      if (!lineTarget) {
+        continue
+      }
+
+      this.mObjHandler.spawnMObj(lineTarget.x,
+        lineTarget.y,
+        lineTarget.z + (lineTarget.height >> 2),
+        MObjType.Extrabfg)
+
+      damage = 0
+      for (j = 0; j < 15; j++) {
+        damage += (random.pRandom() & 7) + 1
+      }
+
+      this.inter.damageMObj(lineTarget, mo.target, mo.target, damage)
+    }
   }
 
+  //
+  // A_BFGsound
+  //
   bFGsound(/* player: Player, psp: PSpriteDef */): void {
-    debugger
+    // TODO sound
   }
 
   //
