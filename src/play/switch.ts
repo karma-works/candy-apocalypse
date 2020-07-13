@@ -1,4 +1,5 @@
 import { BUTTON_TIME, Button, MAX_BUTTONS, Where } from './switch/button'
+import { Sound as DSound } from '../doom/sound'
 import { Data } from '../rendering/data'
 import { Doom } from '../doom/doom'
 import { DoorType } from './doors/door-type'
@@ -13,6 +14,7 @@ import { MapLineFlag } from '../doom/data'
 import { PlatType } from './plats/plat-type'
 import { Plats } from './plats'
 import { Play } from './setup'
+import { Sfx } from '../doom/sounds/sfx'
 import { alphSwitchList } from './switch/switch-list'
 
 // max # of wall switches in a level
@@ -32,6 +34,9 @@ export class Switch {
   }
   private get doors(): Doors {
     return this.play.doors
+  }
+  private get dSound(): DSound {
+    return this.play.dSound
   }
   private get floor(): Floor {
     return this.play.floor
@@ -119,8 +124,16 @@ export class Switch {
       const texMid = this.play.sides[line.sideNum[0]].midTexture
       const texBot = this.play.sides[line.sideNum[0]].bottomTexture
 
+      let sound = Sfx.Swtchn
+
+      // EXIT SWITCH?
+      if (line.special === 11) {
+        sound = Sfx.Swtchx
+      }
+
       for (let i = 0; i < this.numSwitches * 2; ++i) {
         if (this.switchList[i] === texTop) {
+          this.dSound.startSound(this.buttonList[0].soundOrg, sound)
           this.play.sides[line.sideNum[0]].topTexture = this.switchList[i ^ 1]
 
           if (useAgain) {
@@ -129,6 +142,7 @@ export class Switch {
 
           return
         } else if (this.switchList[i] === texMid) {
+          this.dSound.startSound(this.buttonList[0].soundOrg, sound)
           this.play.sides[line.sideNum[0]].midTexture = this.switchList[i ^ 1]
 
           if (useAgain) {
@@ -137,6 +151,7 @@ export class Switch {
 
           return
         } else if (this.switchList[i] === texBot) {
+          this.dSound.startSound(this.buttonList[0].soundOrg, sound)
           this.play.sides[line.sideNum[0]].bottomTexture = this.switchList[i ^ 1]
 
           if (useAgain) {

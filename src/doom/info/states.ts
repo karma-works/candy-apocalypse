@@ -174,7 +174,7 @@ export const states = [
   // S_BFGUP
   new State(SpriteNum.Bfgg, 0, 1, PSprite, PSprite.prototype.raise, StateNum.BFGUp, 0, 0),
   // S_BFG1
-  new State(SpriteNum.Bfgg, 0, 20, PSprite, PSprite.prototype.bFGsound, StateNum.Bfg2, 0, 0),
+  new State(SpriteNum.Bfgg, 0, 20, PSprite, PSprite.prototype.bfgSound, StateNum.Bfg2, 0, 0),
   // S_BFG2
   new State(SpriteNum.Bfgg, 1, 10, PSprite, PSprite.prototype.gunFlash, StateNum.Bfg3, 0, 0),
   // S_BFG3

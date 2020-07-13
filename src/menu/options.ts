@@ -1,5 +1,6 @@
 import { LINEHEIGHT, Menu } from './menu'
 import { MenuItem, MenuStruct } from './typedefs'
+import { Sfx } from '../doom/sounds/sfx'
 import { mainDef } from './doom-menu'
 import { soundDef } from './sound-volume'
 
@@ -93,6 +94,14 @@ function endGameResponse(menu: Menu, ch: number): void {
   menu.doom.startTitle()
 }
 export function endGame(menu: Menu): void {
+  if (!menu.game.userGame) {
+    menu.dSound.startSound(null, Sfx.Oof)
+    return
+  }
+  if (menu.game.netGame) {
+    menu.startMessage(menu.doom.strings.netend, void 0, false)
+    return
+  }
   menu.startMessage(menu.doom.strings.endgame, endGameResponse, true)
 }
 

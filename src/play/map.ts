@@ -2,6 +2,7 @@ import { ANG180, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/tabl
 import { FRACBITS, FRACUNIT, div, mul } from '../misc/fixed'
 import { MAP_BLOCK_SHIFT, MAX_RADIUS, PT_ADD_LINES, PT_ADD_THINGS, USE_RANGE } from './local'
 import { BBox } from '../misc/bbox'
+import { Sound as DSound } from '../doom/sound'
 import { Game } from '../game/game'
 import { Inter } from './inter'
 import { Intercept } from './map-utils/intercept'
@@ -16,6 +17,7 @@ import { Play } from './setup'
 import { Player } from '../doom/player'
 import { Rendering } from '../rendering/rendering'
 import { Sector } from '../rendering/sector'
+import { Sfx } from '../doom/sounds/sfx'
 import { Sight } from './sight'
 import { SlopeType } from '../rendering/slope-type'
 import { Special } from './special'
@@ -49,6 +51,9 @@ export class Map {
   specHit = new Array<Line>(MAX_SPECIAL_CROSS)
   numSpecHit = 0
 
+  private get dSound(): DSound {
+    return this.play.dSound
+  }
   private get game(): Game {
     return this.play.game
   }
@@ -1119,6 +1124,7 @@ export class Map {
     }
     if (!inter.d.special) {
       if (this.mapUtils.openRange <= 0) {
+        this.dSound.startSound(this.useThing, Sfx.Noway)
         // can't use through a wall
         return false
       }

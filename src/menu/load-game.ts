@@ -1,5 +1,6 @@
 import { LINEHEIGHT, Menu } from './menu'
 import { MenuItem, MenuStruct } from './typedefs'
+import { Sfx } from '../doom/sounds/sfx'
 import { mainDef } from './doom-menu'
 
 export const enum Load {
@@ -92,6 +93,7 @@ function loadSelect(menu: Menu/* , choice: number */): void {
 function quickLoadResponse(menu: Menu, choice: number): void {
   if (choice === 'y'.charCodeAt(0)) {
     loadSelect(menu/* , menu.quickSaveSlot */)
+    menu.dSound.startSound(null, Sfx.Swtchx)
   }
 }
 export function quickLoad(menu: Menu): void {

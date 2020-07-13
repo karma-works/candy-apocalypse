@@ -1,4 +1,5 @@
 import { PLAT_SPEED, PLAT_WAIT, Plat } from './plats/plat'
+import { Sound as DSound } from '../doom/sound'
 import { FRACUNIT } from '../misc/fixed'
 import { Floor } from './floor'
 import { Line } from '../rendering/line'
@@ -7,6 +8,7 @@ import { PlatType } from './plats/plat-type'
 import { Play } from './setup'
 import { Result } from './specials/result'
 import { Sector } from '../rendering/sector'
+import { Sfx } from '../doom/sounds/sfx'
 import { Special } from './special'
 import { Tick } from './tick'
 import { random } from '../misc/random'
@@ -16,6 +18,9 @@ const MAX_PLATS = 30
 export class Plats {
   private activePlats = new Array<Plat>(MAX_PLATS)
 
+  private get dSound(): DSound {
+    return this.play.dSound
+  }
   private get floor(): Floor {
     return this.play.floor
   }
@@ -44,13 +49,22 @@ export class Plats {
         0, 1,
       )
 
+      if (plat.type === PlatType.RaiseAndChange ||
+          plat.type === PlatType.RaiseToNearestAndChange) {
+        if (!(this.tick.levelTime & 7)) {
+          this.dSound.startSound(plat.sector.soundOrg, Sfx.Stnmov)
+        }
+      }
+
       if (res === Result.Crushed && !plat.crush) {
         plat.count = plat.wait
         plat.status = PlatStatus.Down
+        this.dSound.startSound(plat.sector.soundOrg, Sfx.Pstart)
       } else {
         if (res === Result.PastDest) {
           plat.count = plat.wait
           plat.status = PlatStatus.Waiting
+          this.dSound.startSound(plat.sector.soundOrg, Sfx.Pstop)
 
           switch (plat.type) {
           case PlatType.BlazeDWUS:
@@ -76,6 +90,7 @@ export class Plats {
       if (res === Result.PastDest) {
         plat.count = plat.wait
         plat.status = PlatStatus.Waiting
+        this.dSound.startSound(plat.sector.soundOrg, Sfx.Pstop)
       }
       break
 
@@ -85,6 +100,7 @@ export class Plats {
           plat.status = PlatStatus.Up
         } else {
           plat.status = PlatStatus.Down
+          this.dSound.startSound(plat.sector.soundOrg, Sfx.Pstart)
         }
       }
       break
@@ -138,6 +154,7 @@ export class Plats {
         // NO MORE DAMAGE, IF APPLICABLE
         sec.special = 0
 
+        this.dSound.startSound(sec.soundOrg, Sfx.Stnmov)
         break
 
       case PlatType.RaiseAndChange:
@@ -147,6 +164,7 @@ export class Plats {
         plat.wait = 0
         plat.status = PlatStatus.Up
 
+        this.dSound.startSound(sec.soundOrg, Sfx.Stnmov)
         break
 
       case PlatType.DownWaitUpStay:
@@ -160,6 +178,7 @@ export class Plats {
         plat.high = sec.floorHeight
         plat.wait = 35 * PLAT_WAIT
         plat.status = PlatStatus.Down
+        this.dSound.startSound(sec.soundOrg, Sfx.Pstart)
         break
 
       case PlatType.BlazeDWUS:
@@ -173,6 +192,7 @@ export class Plats {
         plat.high = sec.floorHeight
         plat.wait = 35 * PLAT_WAIT
         plat.status = PlatStatus.Down
+        this.dSound.startSound(sec.soundOrg, Sfx.Pstart)
         break
 
       case PlatType.PerpetualRaise:
@@ -192,6 +212,7 @@ export class Plats {
         plat.wait = 35 * PLAT_WAIT
         plat.status = random.pRandom() & 1
 
+        this.dSound.startSound(sec.soundOrg, Sfx.Pstart)
         break
       }
       this.addActivePlat(plat)

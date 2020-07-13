@@ -1,12 +1,40 @@
 import { GameMode, Language } from '../global/doomdef'
 import { MenuItem, MenuStruct } from './typedefs'
 import { Menu } from './menu'
+import { Sfx } from '../doom/sounds/sfx'
 import { episodeDef } from './episode-select'
 import { loadDef } from './load-game'
 import { newDef } from './new-game'
 import { optionsDef } from './options'
 import { readDef1 } from './read-this'
 import { saveDef } from './save-game'
+
+
+//
+// M_QuitDOOM
+//
+const quitSounds: readonly Sfx[] = [
+  Sfx.Pldeth,
+  Sfx.Dmpain,
+  Sfx.Popain,
+  Sfx.Slop,
+  Sfx.Telept,
+  Sfx.Posit1,
+  Sfx.Posit3,
+  Sfx.Sgtatk,
+]
+
+const quitSounds2: readonly Sfx[] = [
+  Sfx.Vilact,
+  Sfx.Getpow,
+  Sfx.Boscub,
+  Sfx.Slop,
+  Sfx.Skeswg,
+  Sfx.Kntdth,
+  Sfx.Bspact,
+  Sfx.Sgtatk,
+]
+
 
 export const enum MainEnum {
   NewGame,
@@ -119,6 +147,15 @@ function readThis(menu: Menu): void {
 function quitResponse(menu: Menu, ch: number): void {
   if (ch !== 'y'.charCodeAt(0)) {
     return
+  }
+  if (!menu.game.netGame) {
+    if (menu.doom.gameMode === GameMode.Commercial) {
+      menu.dSound.startSound(null,
+        quitSounds2[menu.game.gameTic >> 2 & 7])
+    } else {
+      menu.dSound.startSound(null,
+        quitSounds[menu.game.gameTic >> 2 & 7])
+    }
   }
   // TODO
 }

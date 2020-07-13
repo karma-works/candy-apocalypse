@@ -14,6 +14,7 @@ import { Video as IVideo } from '../interfaces/video'
 import { MenuStruct } from './typedefs'
 import { Video as RVideo } from '../rendering/video'
 import { Rendering } from '../rendering/rendering'
+import { Sfx } from '../doom/sounds/sfx'
 import { Wad } from '../wad/wad'
 import { episodeDef as epiDef } from './episode-select'
 import { getTime } from '../system/system'
@@ -374,6 +375,7 @@ export class Menu {
       return true
     }
 
+    // Take care of any messages that need input
     if (this.messageToPrint) {
       if (this.messageNeedsInput &&
         !(ch === ' '.charCodeAt(0) ||
@@ -390,6 +392,7 @@ export class Menu {
       }
 
       this.menuActive = false
+      this.dSound.startSound(null, Sfx.Swtchx)
       return true
     }
 
@@ -398,11 +401,13 @@ export class Menu {
       // Screen size down
       case KEY_MINUS:
         sizeDisplay(this, 0)
+        this.dSound.startSound(null, Sfx.Stnmov)
         return true
 
       // Screen size up
       case KEY_EQUALS:
         sizeDisplay(this, 1)
+        this.dSound.startSound(null, Sfx.Stnmov)
         return true
 
       // Help key
@@ -416,17 +421,20 @@ export class Menu {
         }
 
         this.itemOn = 0
+        this.dSound.startSound(null, Sfx.Swtchn)
         return true
 
       // Save
       case KEY_F2:
         this.startControlPanel()
+        this.dSound.startSound(null, Sfx.Swtchn)
         saveGame(this)
         return true
 
       // Load
       case KEY_F3:
         this.startControlPanel()
+        this.dSound.startSound(null, Sfx.Swtchn)
         loadGame(this)
         return true
 
@@ -435,35 +443,42 @@ export class Menu {
         this.startControlPanel()
         this.currentMenu = soundDef
         this.itemOn = Sound.SfxVol
+        this.dSound.startSound(null, Sfx.Swtchn)
         return true
 
       // Detail toggle
       case KEY_F5:
         changeDetail()
+        this.dSound.startSound(null, Sfx.Swtchn)
         return true
 
       // Quicksave
       case KEY_F6:
+        this.dSound.startSound(null, Sfx.Swtchn)
         quickSave(this)
         return true
 
       // End game
       case KEY_F7:
+        this.dSound.startSound(null, Sfx.Swtchn)
         endGame(this)
         return true
 
       // Toggle messages
       case KEY_F8:
         changeMessages(this)
+        this.dSound.startSound(null, Sfx.Swtchn)
         return true
 
       // Quickload
       case KEY_F9:
+        this.dSound.startSound(null, Sfx.Swtchn)
         quickLoad(this)
         return true
 
       // Quit DOOM
       case KEY_F10:
+        this.dSound.startSound(null, Sfx.Swtchn)
         quitDOOM(this)
         return true
 
@@ -482,6 +497,7 @@ export class Menu {
     if (!this.menuActive) {
       if (ch === KEY_ESCAPE) {
         this.startControlPanel()
+        this.dSound.startSound(null, Sfx.Swtchn)
         return true
       }
       return false
@@ -496,6 +512,7 @@ export class Menu {
         } else {
           this.itemOn++
         }
+        this.dSound.startSound(null, Sfx.Pstop)
       } while (this.currentMenu.menuItems[this.itemOn].status === -1)
       return true
 
@@ -506,12 +523,14 @@ export class Menu {
         } else {
           this.itemOn--
         }
+        this.dSound.startSound(null, Sfx.Pstop)
       } while (this.currentMenu.menuItems[this.itemOn].status === -1)
       return true
 
     case KEY_LEFTARROW: {
       const item = this.currentMenu.menuItems[this.itemOn]
       if (item.routine && item.status === 2) {
+        this.dSound.startSound(null, Sfx.Stnmov)
         item.routine(this, 0)
       }
       return true
@@ -520,6 +539,7 @@ export class Menu {
     case KEY_RIGHTARROW: {
       const item = this.currentMenu.menuItems[this.itemOn]
       if (item.routine && item.status === 2) {
+        this.dSound.startSound(null, Sfx.Stnmov)
         item.routine(this, 1)
       }
       return true
@@ -532,8 +552,10 @@ export class Menu {
         if (item.status === 2) {
           // right arrow
           item.routine(this, 1)
+          this.dSound.startSound(null, Sfx.Stnmov)
         } else {
           item.routine(this, this.itemOn)
+          this.dSound.startSound(null, Sfx.Pistol)
         }
       }
       return true
@@ -542,6 +564,7 @@ export class Menu {
     case KEY_ESCAPE:
       this.currentMenu.lastOn = this.itemOn
       this.clearMenus()
+      this.dSound.startSound(null, Sfx.Swtchx)
       return true
 
     case KEY_BACKSPACE:
@@ -549,20 +572,22 @@ export class Menu {
       if (this.currentMenu.prevMenu) {
         this.currentMenu = this.currentMenu.prevMenu
         this.itemOn = this.currentMenu.lastOn
+        this.dSound.startSound(null, Sfx.Swtchn)
       }
       return true
 
     default:
-      debugger
       for (let i = this.itemOn + 1; i < this.currentMenu.numItems; ++i) {
         if (this.currentMenu.menuItems[i].alphaKey === String.fromCharCode(ch)) {
           this.itemOn = i
+          this.dSound.startSound(null, Sfx.Pstop)
           return true
         }
       }
       for (let i = 0; i <= this.itemOn; ++i) {
         if (this.currentMenu.menuItems[i].alphaKey === String.fromCharCode(ch)) {
           this.itemOn = i
+          this.dSound.startSound(null, Sfx.Pstop)
           return true
         }
       }

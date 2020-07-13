@@ -5,6 +5,7 @@ import { MELEE_RANGE, MISSILE_RANGE } from './local'
 import { PSpriteDef, PSpriteNum } from './sprite'
 import { Player, PlayerState } from '../doom/player'
 import { ButtonCode } from '../doom/event'
+import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom/doom'
 import { Enemy } from './enemy'
 import { Inter } from './inter'
@@ -15,6 +16,7 @@ import { MObjType } from '../doom/info/mobj-type'
 import { Map } from './map'
 import { Play } from './setup'
 import { Rendering } from '../rendering/rendering'
+import { Sfx } from '../doom/sounds/sfx'
 import { State } from '../doom/info/state'
 import { StateNum } from '../doom/info/state-num'
 import { Tick } from './tick'
@@ -35,6 +37,9 @@ export class PSprite {
 
   private get doom(): Doom {
     return this.play.doom
+  }
+  private get dSound(): DSound {
+    return this.play.dSound
   }
   private get enemy(): Enemy {
     return this.play.enemy
@@ -115,6 +120,10 @@ export class PSprite {
   private bringUpWeapon(player: Player): void {
     if (player.pendingWeapon === WeaponType.NoChange) {
       player.pendingWeapon = player.readyWeapon
+    }
+
+    if (player.pendingWeapon === WeaponType.Chainsaw) {
+      this.dSound.startSound(player.mo, Sfx.Sawup)
     }
 
     const newState = weaponInfo[player.pendingWeapon].upState
@@ -242,6 +251,12 @@ export class PSprite {
       player.mo.state === states[StateNum.PlayAtk2]
     ) {
       this.mObjHandler.setMObjState(player.mo, StateNum.Play)
+    }
+
+    if (player.readyWeapon === WeaponType.Chainsaw &&
+      psp.state === states[StateNum.Saw]
+    ) {
+      this.dSound.startSound(player.mo, Sfx.Sawidl)
     }
 
     // check for change
@@ -391,6 +406,7 @@ export class PSprite {
 
     // turn to face target
     if (this.map.lineTarget) {
+      this.dSound.startSound(player.mo, Sfx.Punch)
       player.mo.angle = this.rendering.pointToAngle2(player.mo.x,
         player.mo.y,
         this.map.lineTarget.x,
@@ -415,8 +431,10 @@ export class PSprite {
     this.map.lineAttack(player.mo, angle, MELEE_RANGE + 1, slope, damage)
 
     if (!this.map.lineTarget) {
+      this.dSound.startSound(player.mo, Sfx.Sawful)
       return
     }
+    this.dSound.startSound(player.mo, Sfx.Sawhit)
 
     // turn to face target
     angle = this.rendering.pointToAngle2(player.mo.x,
@@ -522,6 +540,7 @@ export class PSprite {
     if (player.mo === null) {
       throw 'player.mo = null'
     }
+    this.dSound.startSound(player.mo, Sfx.Pistol)
     this.mObjHandler.setMObjState(player.mo, StateNum.PlayAtk2)
     player.ammo[weaponInfo[player.readyWeapon].ammo]--
 
@@ -540,6 +559,7 @@ export class PSprite {
     if (player.mo === null) {
       throw 'player.mo = null'
     }
+    this.dSound.startSound(player.mo, Sfx.Shotgn)
     this.mObjHandler.setMObjState(player.mo, StateNum.PlayAtk2)
     player.ammo[weaponInfo[player.readyWeapon].ammo]--
 
@@ -560,6 +580,7 @@ export class PSprite {
     if (player.mo === null) {
       throw 'player.mo = null'
     }
+    this.dSound.startSound(player.mo, Sfx.Dshtgn)
     this.mObjHandler.setMObjState(player.mo, StateNum.PlayAtk2)
     player.ammo[weaponInfo[player.readyWeapon].ammo] -= 2
 
@@ -591,6 +612,8 @@ export class PSprite {
     if (player.mo === null) {
       throw 'player.mo = null'
     }
+
+    this.dSound.startSound(player.mo, Sfx.Pistol)
 
     if (!player.ammo[weaponInfo[player.readyWeapon].ammo]) {
       return
@@ -669,8 +692,8 @@ export class PSprite {
   //
   // A_BFGsound
   //
-  bFGsound(/* player: Player, psp: PSpriteDef */): void {
-    // TODO sound
+  bfgSound(player: Player): void {
+    this.dSound.startSound(player.mo, Sfx.Bfg)
   }
 
   //

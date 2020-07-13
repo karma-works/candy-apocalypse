@@ -1,5 +1,6 @@
 import { DOOR_SPEED, DOOR_WAIT, Door } from './doors/door'
 import { Card } from '../global/doomdef'
+import { Sound as DSound } from '../doom/sound'
 import { DoorType } from './doors/door-type'
 import { FRACUNIT } from '../misc/fixed'
 import { Floor } from './floor'
@@ -8,12 +9,15 @@ import { MObj } from './mobj/mobj'
 import { Play } from './setup'
 import { Result } from './specials/result'
 import { Sector } from '../rendering/sector'
+import { Sfx } from '../doom/sounds/sfx'
 import { Special } from './special'
 import { Strings } from '../translation/strings'
 import { Tick } from './tick'
 
 export class Doors {
-
+  private get dSound(): DSound {
+    return this.play.dSound
+  }
   private get floor(): Floor {
     return this.play.floor
   }
@@ -45,13 +49,16 @@ export class Doors {
         case DoorType.BlazeRaise:
           // time to go back down
           door.direction = -1
+          this.dSound.startSound(door.sector.soundOrg, Sfx.Bdcls)
           break
         case DoorType.Normal:
           // time to go back down
           door.direction = -1
+          this.dSound.startSound(door.sector.soundOrg, Sfx.Dorcls)
           break
         case DoorType.Close30ThenOpen:
           door.direction = 1
+          this.dSound.startSound(door.sector.soundOrg, Sfx.Doropn)
           break
         }
       }
@@ -64,6 +71,7 @@ export class Doors {
         case DoorType.RaiseIn5Mins:
           door.direction = 1
           door.type = DoorType.Normal
+          this.dSound.startSound(door.sector.soundOrg, Sfx.Doropn)
           break
         }
       }
@@ -86,6 +94,7 @@ export class Doors {
           door.sector.specialData = null
           // unlink and free
           this.tick.removeThinker(door)
+          this.dSound.startSound(door.sector.soundOrg, Sfx.Bdcls)
           break
         case DoorType.Normal:
         case DoorType.Close:
@@ -106,6 +115,7 @@ export class Doors {
           break
         default:
           door.direction = 1
+          this.dSound.startSound(door.sector.soundOrg, Sfx.Doropn)
           break
         }
       }
@@ -158,6 +168,7 @@ export class Doors {
       // Blue Lock
       if (!p.cards[Card.BlueCard] && !p.cards[Card.BlueSkull]) {
         p.message = this.strings.pdBlueo
+        this.dSound.startSound(null, Sfx.Oof)
         return 0
       }
       break
@@ -166,6 +177,7 @@ export class Doors {
       // Red Lock
       if (!p.cards[Card.RedCard] && !p.cards[Card.RedSkull]) {
         p.message = this.strings.pdRedo
+        this.dSound.startSound(null, Sfx.Oof)
         return 0
       }
       break
@@ -174,6 +186,7 @@ export class Doors {
       // Yellow Lock
       if (!p.cards[Card.YellowCard] && !p.cards[Card.YellowSkull]) {
         p.message = this.strings.pdYellowo
+        this.dSound.startSound(null, Sfx.Oof)
         return 0
       }
       break
@@ -212,17 +225,20 @@ export class Doors {
         door.topHeight -= 4 * FRACUNIT
         door.direction = -1
         door.speed = DOOR_SPEED * 4
+        this.dSound.startSound(door.sector.soundOrg, Sfx.Bdcls)
         break
 
       case DoorType.Close:
         door.topHeight = sec.findLowestCeilingSurrounding()
         door.topHeight -= 4 * FRACUNIT
         door.direction = -1
+        this.dSound.startSound(door.sector.soundOrg, Sfx.Dorcls)
         break
 
       case DoorType.Close30ThenOpen:
         door.topHeight = sec.ceilingHeight
         door.direction = -1
+        this.dSound.startSound(door.sector.soundOrg, Sfx.Dorcls)
         break
 
       case DoorType.BlazeRaise:
@@ -231,6 +247,9 @@ export class Doors {
         door.topHeight = sec.findLowestCeilingSurrounding()
         door.topHeight -= 4 * FRACUNIT
         door.speed = DOOR_SPEED * 4
+        if (door.topHeight !== sec.ceilingHeight) {
+          this.dSound.startSound(door.sector.soundOrg, Sfx.Bdopn)
+        }
         break
 
       case DoorType.Normal:
@@ -238,6 +257,9 @@ export class Doors {
         door.direction = 1
         door.topHeight = sec.findLowestCeilingSurrounding()
         door.topHeight -= 4 * FRACUNIT
+        if (door.topHeight !== sec.ceilingHeight) {
+          this.dSound.startSound(door.sector.soundOrg, Sfx.Doropn)
+        }
         break
 
       }
@@ -265,6 +287,7 @@ export class Doors {
       }
       if (!player.cards[Card.BlueCard] && !player.cards[Card.BlueSkull]) {
         player.message = this.strings.pdBluek
+        this.dSound.startSound(null, Sfx.Oof)
         return
       }
       break
@@ -276,6 +299,7 @@ export class Doors {
       }
       if (!player.cards[Card.YellowCard] && !player.cards[Card.YellowSkull]) {
         player.message = this.strings.pdYellowk
+        this.dSound.startSound(null, Sfx.Oof)
         return
       }
       break
@@ -287,6 +311,7 @@ export class Doors {
       }
       if (!player.cards[Card.RedCard] && !player.cards[Card.RedSkull]) {
         player.message = this.strings.pdRedk
+        this.dSound.startSound(null, Sfx.Oof)
         return
       }
       break
@@ -319,6 +344,28 @@ export class Doors {
         return
       }
     }
+
+    // for proper sound
+    switch (line.special) {
+    // BLAZING DOOR RAISE/OPEN
+    case 117:
+    case 118:
+      this.dSound.startSound(sec.soundOrg, Sfx.Bdopn)
+      break
+
+    // NORMAL DOOR SOUND
+    case 1:
+    case 31:
+      this.dSound.startSound(sec.soundOrg, Sfx.Doropn)
+      break
+
+    // LOCKED DOOR SOUND
+    default:
+      this.dSound.startSound(sec.soundOrg, Sfx.Doropn)
+      break
+    }
+
+    // new door thinker
     door = new Door(0, sec, this.verticalDoor, this)
     this.tick.addThinker(door)
     sec.specialData = door

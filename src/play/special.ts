@@ -1,6 +1,7 @@
 import { Anim, MAX_ANIMS, MAX_LINE_ANIMS, animDefs } from './specials/anim'
 import { Button, MAX_BUTTONS, Where } from './switch/button'
 import { Cheat, Player } from '../doom/player'
+import { Sound as DSound } from '../doom/sound'
 import { Data } from '../rendering/data'
 import { DoorType } from './doors/door-type'
 import { Doors } from './doors'
@@ -19,6 +20,7 @@ import { Plats } from './plats'
 import { Play } from './setup'
 import { PowerType } from '../global/doomdef'
 import { Sector } from '../rendering/sector'
+import { Sfx } from '../doom/sounds/sfx'
 import { Side } from '../rendering/side'
 import { Switch } from './switch'
 import { Teleport } from './teleport'
@@ -38,6 +40,9 @@ export class Special {
   }
   private get doors(): Doors {
     return this.play.doors
+  }
+  private get dSound(): DSound {
+    return this.play.dSound
   }
   private get floor(): Floor {
     return this.play.floor
@@ -836,6 +841,7 @@ export class Special {
             break
           }
 
+          this.dSound.startSound(button.soundOrg, Sfx.Swtchn)
           button.reset()
         }
       }

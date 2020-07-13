@@ -17,6 +17,7 @@ import { MapUtils } from './map-utils'
 import { PSprite } from './p-sprite'
 import { Play } from './setup'
 import { Rendering } from '../rendering/rendering'
+import { Sfx } from '../doom/sounds/sfx'
 import { State } from '../doom/info/state'
 import { StateNum } from '../doom/info/state-num'
 import { StatusBar } from '../status/stuff'
@@ -120,6 +121,10 @@ export class MObjHandler {
     }
 
     mo.flags &= ~MObjFlag.Missile
+
+    if (mo.info.deathSound) {
+      this.dSound.startSound(mo, mo.info.deathSound)
+    }
   }
 
   //
@@ -312,6 +317,7 @@ export class MObjHandler {
           // after hitting the ground (hard),
           // and utter appropriate sound.
           mo.player.deltaViewHeight = mo.momZ >> 3
+          this.dSound.startSound(mo, Sfx.Oof)
         }
         mo.momZ = 0
       }
@@ -393,6 +399,31 @@ export class MObjHandler {
           return
         }
       }
+    } else {
+      // check for nightmare respawn
+      if (!(mObj.flags & MObjFlag.CountKill)) {
+        return
+      }
+
+      if (!this.game.respawnMonsters) {
+        return
+      }
+
+      mObj.moveCount++
+
+      if (mObj.moveCount < 12 * 35) {
+        return
+      }
+
+      if (this.tick.levelTime & 31) {
+        return
+      }
+
+      if (random.pRandom() > 4) {
+        return
+      }
+
+      debugger
     }
   }
 
@@ -473,6 +504,7 @@ export class MObjHandler {
       throw 'ss.sector = null'
     }
     let mo = this.spawnMObj(x, y, ss.sector.floorHeight, MObjType.Ifog)
+    this.dSound.startSound(mo, Sfx.Itmbk)
 
     // find which type to spawn
     let i: number
@@ -729,6 +761,10 @@ export class MObjHandler {
       source.y,
       source.z + 4 * 8 * FRACUNIT, type)
 
+    if (th.info.seeSound) {
+      this.dSound.startSound(th, th.info.seeSound)
+    }
+
     // where it came from
     th.target = source
 
@@ -785,6 +821,10 @@ export class MObjHandler {
     const z = source.z + 4 * 8 * FRACUNIT
 
     const th = this.spawnMObj(x, y, z, type)
+
+    if (th.info.seeSound) {
+      this.dSound.startSound(th, th.info.seeSound)
+    }
 
     th.target = source
     th.angle = an

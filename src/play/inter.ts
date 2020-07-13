@@ -3,6 +3,7 @@ import { AmmoType, Card, GameMode, PowerDuration, PowerType, Skill, WeaponType }
 import { BASE_THRESHOLD, MAX_HEALTH, ON_FLOOR_Z } from './local'
 import { Cheat, Player, PlayerState } from '../doom/player'
 import { FRACUNIT, mul } from '../misc/fixed'
+import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom/doom'
 import { Game } from '../game/game'
 import { MObj } from './mobj/mobj'
@@ -12,6 +13,7 @@ import { MObjType } from '../doom/info/mobj-type'
 import { PSprite } from './p-sprite'
 import { Play } from './setup'
 import { Rendering } from '../rendering/rendering'
+import { Sfx } from '../doom/sounds/sfx'
 import { SpriteNum } from '../doom/info/sprite-num'
 import { StateNum } from '../doom/info/state-num'
 import { Strings } from '../translation/strings'
@@ -30,6 +32,9 @@ export class Inter {
 
   private get doom(): Doom {
     return this.play.doom
+  }
+  private get dSound(): DSound {
+    return this.play.dSound
   }
   private get game(): Game {
     return this.play.game
@@ -167,6 +172,7 @@ export class Inter {
       player.pendingWeapon = weapon
 
       if (player === this.game.players[this.game.consolePlayer]) {
+        this.dSound.startSound(null, Sfx.Wpnup)
         return false
       }
     }
@@ -298,6 +304,7 @@ export class Inter {
       return
     }
 
+    let sound = Sfx.Itemup
     const player = toucher.player
 
     // Dead thing touching.
@@ -360,7 +367,7 @@ export class Inter {
       }
       player.mo.health = player.health
       player.message = this.strings.gotsuper
-      // sound = sfx_getpow;
+      sound = Sfx.Getpow
       break
 
     case SpriteNum.Mega:
@@ -371,7 +378,7 @@ export class Inter {
       player.mo.health = player.health
       this.giveArmor(player, 2)
       player.message = this.strings.gotmsphere
-      // sound = sfx_getpow;
+      sound = Sfx.Getpow
       break
 
       // cards
@@ -463,7 +470,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotinvul
-      // sound = sfx_getpow;
+      sound = Sfx.Getpow
       break
 
     case SpriteNum.Pstr:
@@ -474,7 +481,7 @@ export class Inter {
       if (player.readyWeapon !== WeaponType.Fist) {
         player.pendingWeapon = WeaponType.Fist
       }
-      // sound = sfx_getpow;
+      sound = Sfx.Getpow
       break
 
     case SpriteNum.Pins:
@@ -482,7 +489,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotinvis
-      // sound = sfx_getpow;
+      sound = Sfx.Getpow
       break
 
     case SpriteNum.Suit:
@@ -490,7 +497,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotsuit
-      // sound = sfx_getpow;
+      sound = Sfx.Getpow
       break
 
     case SpriteNum.Pmap:
@@ -498,7 +505,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotmap
-      // sound = sfx_getpow;
+      sound = Sfx.Getpow
       break
 
     case SpriteNum.Pvis:
@@ -506,7 +513,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotvisor
-      // sound = sfx_getpow;
+      sound = Sfx.Getpow
       break
 
       // ammo
@@ -591,7 +598,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotbfg9000
-      // sound = sfx_wpnup;
+      sound = Sfx.Wpnup
       break
 
     case SpriteNum.Mgun:
@@ -599,7 +606,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotchaingun
-      // sound = sfx_wpnup;
+      sound = Sfx.Wpnup
       break
 
     case SpriteNum.Csaw:
@@ -607,7 +614,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotchainsaw
-      // sound = sfx_wpnup;
+      sound = Sfx.Wpnup
       break
 
     case SpriteNum.Laun:
@@ -615,7 +622,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotlauncher
-      // sound = sfx_wpnup;
+      sound = Sfx.Wpnup
       break
 
     case SpriteNum.Plas:
@@ -623,7 +630,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotplasma
-      // sound = sfx_wpnup;
+      sound = Sfx.Wpnup
       break
 
     case SpriteNum.Shot:
@@ -631,7 +638,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotshotgun
-      // sound = sfx_wpnup;
+      sound = Sfx.Wpnup
       break
 
     case SpriteNum.Sgn2:
@@ -639,7 +646,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotshotgun2
-      // sound = sfx_wpnup;
+      sound = Sfx.Wpnup
       break
 
     default:
@@ -652,6 +659,10 @@ export class Inter {
 
     this.mObjHandler.removeMObj(special)
     player.bonusCount += BONUS_ADD
+
+    if (player === this.game.players[this.game.consolePlayer]) {
+      this.dSound.startSound(null, sound)
+    }
   }
 
   //

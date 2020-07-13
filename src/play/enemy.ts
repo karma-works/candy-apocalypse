@@ -3,6 +3,7 @@ import { DirType, diags, opposite } from './mobj/direction'
 import { FLOAT_SPEED, MAP_BLOCK_SHIFT, MAX_RADIUS, MELEE_RANGE, MISSILE_RANGE } from './local'
 import { FRACUNIT, mul } from '../misc/fixed'
 import { GameMode, MAX_PLAYERS, Skill } from '../global/doomdef'
+import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom/doom'
 import { DoorType } from './doors/door-type'
 import { Doors } from './doors'
@@ -49,6 +50,9 @@ export class Enemy {
   }
   private get doors(): Doors {
     return this.play.doors
+  }
+  private get dSound(): DSound {
+    return this.play.dSound
   }
   private get floor(): Floor {
     return this.play.floor
@@ -610,9 +614,9 @@ export class Enemy {
         actor.type === MObjType.Cyborg
       ) {
         // full volume
-        // S_StartSound (NULL, sound);
+        this.dSound.startSound(null, sound)
       } else {
-        // S_StartSound (actor, sound);
+        this.dSound.startSound(actor, sound)
       }
     }
     this.mObjHandler.setMObjState(actor, actor.info.seeState)
@@ -677,6 +681,9 @@ export class Enemy {
     if (actor.info.meleeState &&
       this.checkMeleeRange(actor)
     ) {
+      if (actor.info.attackSound) {
+        this.dSound.startSound(actor, actor.info.attackSound)
+      }
       this.mObjHandler.setMObjState(actor, actor.info.meleeState)
       return
     }
@@ -717,7 +724,7 @@ export class Enemy {
     if (actor.info.activeSound &&
       random.pRandom() < 3
     ) {
-      // S_StartSound (actor, actor->info->activesound);
+      this.dSound.startSound(actor, actor.info.activeSound)
     }
   }
 
@@ -749,6 +756,7 @@ export class Enemy {
       return
     }
 
+    this.dSound.startSound(actor, Sfx.Pistol)
     this.faceTarget(actor)
     let angle = actor.angle >> 0
     const slope = this.map.aimLineAttack(actor, angle >>> 0, MISSILE_RANGE)
@@ -763,6 +771,7 @@ export class Enemy {
       return
     }
 
+    this.dSound.startSound(actor, Sfx.Shotgn)
     this.faceTarget(actor)
     const bAngle = actor.angle >> 0
     const slope = this.map.aimLineAttack(actor, bAngle >>> 0, MISSILE_RANGE)
@@ -844,6 +853,7 @@ export class Enemy {
     this.faceTarget(actor)
 
     if (this.checkMeleeRange(actor)) {
+      this.dSound.startSound(actor, Sfx.Claw)
       const damage = (random.pRandom() % 8 + 1) * 3
       this.inter.damageMObj(actor.target, actor, actor, damage)
       return
@@ -896,6 +906,7 @@ export class Enemy {
     }
 
     if (this.checkMeleeRange(actor)) {
+      this.dSound.startSound(actor, Sfx.Claw)
       const damage = (random.pRandom() % 8 + 1) * 10
       this.inter.damageMObj(actor.target, actor, actor, damage)
       return
@@ -995,6 +1006,7 @@ export class Enemy {
       return
     }
     this.faceTarget(actor)
+    this.dSound.startSound(actor, Sfx.Skeswg)
   }
 
   skelFist(actor: MObj): void {
@@ -1006,6 +1018,7 @@ export class Enemy {
 
     if (this.checkMeleeRange(actor)) {
       const damage = (random.pRandom() % 10 + 1) * 6
+      this.dSound.startSound(actor, Sfx.Skepch)
       this.inter.damageMObj(actor.target, actor, actor, damage)
     }
   }
@@ -1093,6 +1106,7 @@ export class Enemy {
             if (this.corpseHit === null) {
               throw 'this.corpseHit = null'
             }
+            this.dSound.startSound(this.corpseHit, Sfx.Slop)
             info = this.corpseHit.info
 
             this.mObjHandler.setMObjState(this.corpseHit, info.raiseState)
@@ -1114,8 +1128,8 @@ export class Enemy {
   //
   // A_VileStart
   //
-  vileStart(/* actor: MObj */): void {
-    // TODO sound
+  vileStart(actor: MObj): void {
+    this.dSound.startSound(actor, Sfx.Vilatk)
   }
 
   //
@@ -1123,10 +1137,12 @@ export class Enemy {
   // Keep fire in front of player unless out of sight
   //
   startFire(actor: MObj): void {
+    this.dSound.startSound(actor, Sfx.Flamst)
     this.fire(actor)
   }
 
   fireCrackle(actor: MObj): void {
+    this.dSound.startSound(actor, Sfx.Flame)
     this.fire(actor)
   }
 
@@ -1189,6 +1205,7 @@ export class Enemy {
       return
     }
 
+    this.dSound.startSound(actor, Sfx.Barexp)
     this.inter.damageMObj(actor.target, actor, actor, 20)
     actor.target.momZ = 1000 * FRACUNIT / actor.target.info.mass
 
@@ -1215,6 +1232,7 @@ export class Enemy {
 
   fatRaise(actor: MObj): void {
     this.faceTarget(actor)
+    this.dSound.startSound(actor, Sfx.Manatk)
   }
 
   fatAttack1(actor: MObj): void {
@@ -1283,6 +1301,7 @@ export class Enemy {
     const dest = actor.target
     actor.flags |= MObjFlag.SkullFly
 
+    this.dSound.startSound(actor, actor.info.attackSound)
     this.faceTarget(actor)
     const an = actor.angle >>> ANGLE_TO_FINE_SHIFT
     actor.momX = mul(SKULL_SPEED, fineSine[FINE_ANGLES / 4 + an])
@@ -1391,19 +1410,21 @@ export class Enemy {
         actor.type === MObjType.Cyborg
       ) {
         // full volume
-        // S_StartSound (NULL, sound);
+        this.dSound.startSound(null, sound)
       } else {
-        // S_StartSound (actor, sound);
+        this.dSound.startSound(actor, sound)
       }
     }
   }
 
-  xScream(/* actor: MObj */): void {
-    // TODO sound
+  xScream(actor: MObj): void {
+    this.dSound.startSound(actor, Sfx.Slop)
   }
 
-  pain(/* actor: MObj */): void {
-    // TODO sound
+  pain(actor: MObj): void {
+    if (actor.info.painSound) {
+      this.dSound.startSound(actor, actor.info.painSound)
+    }
   }
 
   fall(actor: MObj): void {
@@ -1576,26 +1597,30 @@ export class Enemy {
   }
 
   hoof(mo: MObj): void {
+    this.dSound.startSound(mo, Sfx.Hoof)
     this.chase(mo)
   }
 
   metal(mo: MObj): void {
+    this.dSound.startSound(mo, Sfx.Metal)
     this.chase(mo)
   }
 
   babyMetal(mo: MObj): void {
+    this.dSound.startSound(mo, Sfx.Bspwlk)
     this.chase(mo)
   }
 
-  openShotgun2(/* player: Player, psp: PSpriteDef */): void {
-    // TODO sound
+  openShotgun2(player: Player): void {
+    this.dSound.startSound(player.mo, Sfx.Dbopn)
   }
 
-  loadShotgun2(/* player: Player, psp: PSpriteDef */): void {
-    // TODO sound
+  loadShotgun2(player: Player): void {
+    this.dSound.startSound(player.mo, Sfx.Dbload)
   }
 
   closeShotgun2(player: Player): void {
+    this.dSound.startSound(player.mo, Sfx.Dbcls)
     this.pSprite.reFire(player)
   }
 
@@ -1626,10 +1651,11 @@ export class Enemy {
         this.numBrainTargets++
       }
     }
+    this.dSound.startSound(null, Sfx.Bossit)
   }
 
-  brainPain(/* mo: MObj */): void {
-    // TODO sound
+  brainPain(): void {
+    this.dSound.startSound(null, Sfx.Bospn)
   }
 
   brainScream(mo: MObj): void {
@@ -1653,6 +1679,8 @@ export class Enemy {
         th.tics = 1
       }
     }
+
+    this.dSound.startSound(mo, Sfx.Bosdth)
   }
 
   brainExplode(mo: MObj): void {
@@ -1690,10 +1718,13 @@ export class Enemy {
     newMObj.target = targ
     newMObj.reactionTime = ((targ.y - mo.y) / newMObj.momY >> 0) /
       newMObj.state.tics >> 0
+
+    this.dSound.startSound(null, Sfx.Bospit)
   }
 
   // travelling cube sound
   spawnSound(mo: MObj): void {
+    this.dSound.startSound(mo, Sfx.Boscub)
     this.spawnFly(mo)
   }
 
@@ -1711,6 +1742,7 @@ export class Enemy {
 
     // First spawn teleport fog.
     this.mObjHandler.spawnMObj(targ.x, targ.y, targ.z, MObjType.Spawnfire)
+    this.dSound.startSound(mo, Sfx.Telept)
 
     // Randomly select monster to spawn.
     const r = random.pRandom()
@@ -1755,7 +1787,18 @@ export class Enemy {
     this.mObjHandler.removeMObj(mo)
   }
 
-  playerScream(/* mo: MObj */): void {
-    // TODO: sound
+  playerScream(mo: MObj): void {
+    // Default death sound.
+    let sound = Sfx.Pldeth
+
+    if (this.doom.gameMode === GameMode.Commercial &&
+      mo.health < -50
+    ) {
+      // IF THE PLAYER DIES
+      // LESS THAN -50% WITHOUT GIBBING
+      sound = Sfx.Pdiehi
+    }
+
+    this.dSound.startSound(mo, sound)
   }
 }

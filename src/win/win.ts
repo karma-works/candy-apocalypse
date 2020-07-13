@@ -2,9 +2,11 @@ import { Anim, AnimType, NUM_ANIMS, anims } from './anim'
 import { GameMode, Language, MAX_PLAYERS, SCREENHEIGHT, SCREENWIDTH, TICRATE } from '../global/doomdef'
 import { WbPlayer, WbStart } from '../doom/player'
 import { ButtonCode } from '../doom/event'
+import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom/doom'
 import { Game } from '../game/game'
 import { Patch } from '../rendering/patch'
+import { Sfx } from '../doom/sounds/sfx'
 import { Video } from '../rendering/video'
 import { Wad } from '../wad/wad'
 import { lNodes } from './point'
@@ -140,6 +142,9 @@ export class Win {
   // Name graphics of each level (centered)
   private lNames = new Array<Patch>()
 
+  private get dSound(): DSound {
+    return this.doom.dSound
+  }
   private get game(): Game {
     return this.doom.game
   }
@@ -544,32 +549,52 @@ export class Win {
       this.cntSecret[0] = this.players[this.me].sSecret * 100 / this.wbs.maxSecret
       this.cntTime = this.players[this.me].sTime / TICRATE
       this.cntPar = this.wbs.parTime / TICRATE
+      this.dSound.startSound(null, Sfx.Barexp)
       this.spState = 10
     }
 
     if (this.spState === 2) {
       this.cntKills[0] += 2
 
+      if (!(this.bCnt & 3)) {
+        this.dSound.startSound(null, Sfx.Pistol)
+      }
+
       if (this.cntKills[0] >= this.players[this.me].sKills * 100 / this.wbs.maxKills) {
         this.cntKills[0] = this.players[this.me].sKills * 100 / this.wbs.maxKills
+        this.dSound.startSound(null, Sfx.Barexp)
         this.spState++
       }
     } else if (this.spState === 4) {
       this.cntItems[0] += 2
 
+      if (!(this.bCnt & 3)) {
+        this.dSound.startSound(null, Sfx.Pistol)
+      }
+
       if (this.cntItems[0] >= this.players[this.me].sItems * 100 / this.wbs.maxItems) {
         this.cntItems[0] = this.players[this.me].sItems * 100 / this.wbs.maxItems
+        this.dSound.startSound(null, Sfx.Barexp)
         this.spState++
       }
     } else if (this.spState === 6) {
       this.cntSecret[0] += 2
 
+      if (!(this.bCnt & 3)) {
+        this.dSound.startSound(null, Sfx.Pistol)
+      }
+
       if (this.cntSecret[0] >= this.players[this.me].sSecret * 100 / this.wbs.maxSecret) {
         this.cntSecret[0] = this.players[this.me].sSecret * 100 / this.wbs.maxSecret
+        this.dSound.startSound(null, Sfx.Barexp)
         this.spState++
       }
     } else if (this.spState === 8) {
       this.cntTime += 3
+
+      if (!(this.bCnt & 3)) {
+        this.dSound.startSound(null, Sfx.Pistol)
+      }
 
       if (this.cntTime >= this.players[this.me].sTime / TICRATE) {
         this.cntTime = this.players[this.me].sTime / TICRATE
@@ -581,11 +606,13 @@ export class Win {
         this.cntPar = this.wbs.parTime / TICRATE
 
         if (this.cntTime >= this.players[this.me].sTime / TICRATE) {
+          this.dSound.startSound(null, Sfx.Barexp)
           this.spState++
         }
       }
     } else if (this.spState === 10) {
       if (this.accelerateStage) {
+        this.dSound.startSound(null, Sfx.Sgcock)
         if (this.doom.gameMode === GameMode.Commercial) {
           this.initNoState()
         } else {

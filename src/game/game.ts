@@ -58,7 +58,7 @@ export class Game {
   gameAction = GameAction.Nothing
   gameState: GameState = -1
   gameSkill: Skill = -1
-  private respawnMonsters = false
+  respawnMonsters = false
   gameEpisode = -1
   gameMap = -1
 
@@ -68,7 +68,7 @@ export class Game {
   // send a save event next tic
   private sendSave = false
   // ok to save / end game
-  private userGame = false
+  userGame = false
 
   // if true, exit with report on completion
   private timingDemo = false

@@ -1,4 +1,5 @@
 import { FLOOR_SPEED, FloorMove } from './floor/floor-move'
+import { Sound as DSound } from '../doom/sound'
 import { Data } from '../rendering/data'
 import { FRACUNIT } from '../misc/fixed'
 import { FloorType } from './floor/floor-type'
@@ -7,6 +8,7 @@ import { Map } from './map'
 import { Play } from './setup'
 import { Result } from './specials/result'
 import { Sector } from '../rendering/sector'
+import { Sfx } from '../doom/sounds/sfx'
 import { Side } from '../rendering/side'
 import { Special } from './special'
 import { Tick } from './tick'
@@ -18,6 +20,9 @@ export class Floor {
 
   private get data(): Data {
     return this.play.rendering.data
+  }
+  private get dSound(): DSound {
+    return this.play.dSound
   }
   private get map(): Map {
     return this.play.map
@@ -171,6 +176,10 @@ export class Floor {
       floor.direction,
     )
 
+    if (!(this.tick.levelTime & 7)) {
+      this.dSound.startSound(floor.sector.soundOrg, Sfx.Stnmov)
+    }
+
     if (res === Result.PastDest) {
       floor.sector.specialData = null
 
@@ -188,6 +197,8 @@ export class Floor {
         }
       }
       this.tick.removeThinker(floor)
+
+      this.dSound.startSound(floor.sector.soundOrg, Sfx.Pstop)
     }
   }
 

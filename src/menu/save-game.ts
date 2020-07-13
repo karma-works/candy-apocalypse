@@ -1,5 +1,7 @@
 import { LINEHEIGHT, Menu } from './menu'
 import { MenuItem, MenuStruct } from './typedefs'
+import { GameState } from '../global/doomdef'
+import { Sfx } from '../doom/sounds/sfx'
 import { mainDef } from './doom-menu'
 
 const enum Save {
@@ -118,10 +120,19 @@ function saveSelect(menu: Menu, choice: number): void {
 function quickSaveResponse(menu: Menu, ch: number): void {
   if (ch === 'y'.charCodeAt(0)) {
     doSave(menu, menu.quickSaveSlot)
+    menu.dSound.startSound(null, Sfx.Swtchx)
   }
 }
 
 export function quickSave(menu: Menu): void {
+  if (!menu.game.userGame) {
+    menu.dSound.startSound(null, Sfx.Oof)
+    return
+  }
+  if (menu.game.gameState !== GameState.Level) {
+    return
+  }
+
   if (menu.quickSaveSlot < 0) {
     menu.startControlPanel()
     menu.readSaveStrings()

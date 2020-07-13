@@ -1,4 +1,5 @@
 import { ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table'
+import { Sound as DSound } from '../doom/sound'
 import { Line } from '../rendering/line'
 import { MObj } from './mobj/mobj'
 import { MObjFlag } from './mobj/mobj-flag'
@@ -7,11 +8,15 @@ import { MObjType } from '../doom/info/mobj-type'
 import { Map } from './map'
 import { Play } from './setup'
 import { Sector } from '../rendering/sector'
+import { Sfx } from '../doom/sounds/sfx'
 import { Thinker } from '../doom/think'
 import { Tick } from './tick'
 
 export class Teleport {
 
+  private get dSound(): DSound {
+    return this.play.dSound
+  }
   private get map(): Map {
     return this.play.map
   }
@@ -89,13 +94,16 @@ export class Teleport {
           }
 
           // spawn teleport fog at source and destination
-          this.mObjHandler.spawnMObj(oldX, oldY, oldZ, MObjType.Tfog)
+          let fog = this.mObjHandler.spawnMObj(oldX, oldY, oldZ, MObjType.Tfog)
+          this.dSound.startSound(fog, Sfx.Telept)
           an = m.angle >>> ANGLE_TO_FINE_SHIFT
-          this.mObjHandler.spawnMObj(m.x + 20 * fineSine[FINE_ANGLES / 4 + an],
+          fog = this.mObjHandler.spawnMObj(m.x + 20 * fineSine[FINE_ANGLES / 4 + an],
             m.y + 20 * fineSine[an],
             thing.z,
             MObjType.Tfog)
 
+          // emit sound, where?
+          this.dSound.startSound(fog, Sfx.Telept)
 
           // don't move for a bit
           if (thing.player) {
