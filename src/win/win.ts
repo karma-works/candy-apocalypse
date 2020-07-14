@@ -544,11 +544,11 @@ export class Win {
 
     if (this.accelerateStage && this.spState !== 10) {
       this.accelerateStage = 0
-      this.cntKills[0] = this.players[this.me].sKills * 100 / this.wbs.maxKills
-      this.cntItems[0] = this.players[this.me].sItems * 100 / this.wbs.maxItems
-      this.cntSecret[0] = this.players[this.me].sSecret * 100 / this.wbs.maxSecret
-      this.cntTime = this.players[this.me].sTime / TICRATE
-      this.cntPar = this.wbs.parTime / TICRATE
+      this.cntKills[0] = this.players[this.me].sKills * 100 / this.wbs.maxKills >> 0
+      this.cntItems[0] = this.players[this.me].sItems * 100 / this.wbs.maxItems >> 0
+      this.cntSecret[0] = this.players[this.me].sSecret * 100 / this.wbs.maxSecret >> 0
+      this.cntTime = this.players[this.me].sTime / TICRATE >> 0
+      this.cntPar = this.wbs.parTime / TICRATE >> 0
       this.dSound.startSound(null, Sfx.Barexp)
       this.spState = 10
     }
@@ -560,8 +560,8 @@ export class Win {
         this.dSound.startSound(null, Sfx.Pistol)
       }
 
-      if (this.cntKills[0] >= this.players[this.me].sKills * 100 / this.wbs.maxKills) {
-        this.cntKills[0] = this.players[this.me].sKills * 100 / this.wbs.maxKills
+      if (this.cntKills[0] >= this.players[this.me].sKills * 100 / this.wbs.maxKills >> 0) {
+        this.cntKills[0] = this.players[this.me].sKills * 100 / this.wbs.maxKills >> 0
         this.dSound.startSound(null, Sfx.Barexp)
         this.spState++
       }
@@ -572,8 +572,8 @@ export class Win {
         this.dSound.startSound(null, Sfx.Pistol)
       }
 
-      if (this.cntItems[0] >= this.players[this.me].sItems * 100 / this.wbs.maxItems) {
-        this.cntItems[0] = this.players[this.me].sItems * 100 / this.wbs.maxItems
+      if (this.cntItems[0] >= this.players[this.me].sItems * 100 / this.wbs.maxItems >> 0) {
+        this.cntItems[0] = this.players[this.me].sItems * 100 / this.wbs.maxItems >> 0
         this.dSound.startSound(null, Sfx.Barexp)
         this.spState++
       }
@@ -584,8 +584,8 @@ export class Win {
         this.dSound.startSound(null, Sfx.Pistol)
       }
 
-      if (this.cntSecret[0] >= this.players[this.me].sSecret * 100 / this.wbs.maxSecret) {
-        this.cntSecret[0] = this.players[this.me].sSecret * 100 / this.wbs.maxSecret
+      if (this.cntSecret[0] >= this.players[this.me].sSecret * 100 / this.wbs.maxSecret >> 0) {
+        this.cntSecret[0] = this.players[this.me].sSecret * 100 / this.wbs.maxSecret >> 0
         this.dSound.startSound(null, Sfx.Barexp)
         this.spState++
       }
@@ -596,16 +596,16 @@ export class Win {
         this.dSound.startSound(null, Sfx.Pistol)
       }
 
-      if (this.cntTime >= this.players[this.me].sTime / TICRATE) {
-        this.cntTime = this.players[this.me].sTime / TICRATE
+      if (this.cntTime >= this.players[this.me].sTime / TICRATE >> 0) {
+        this.cntTime = this.players[this.me].sTime / TICRATE >> 0
       }
 
       this.cntPar += 3
 
-      if (this.cntPar >= this.wbs.parTime / TICRATE) {
-        this.cntPar = this.wbs.parTime / TICRATE
+      if (this.cntPar >= this.wbs.parTime / TICRATE >> 0) {
+        this.cntPar = this.wbs.parTime / TICRATE >> 0
 
-        if (this.cntTime >= this.players[this.me].sTime / TICRATE) {
+        if (this.cntTime >= this.players[this.me].sTime / TICRATE >> 0) {
           this.dSound.startSound(null, Sfx.Barexp)
           this.spState++
         }
@@ -631,7 +631,7 @@ export class Win {
 
   private drawStats(): void {
     // line height
-    const lh = 3 * this.num[0].height / 2
+    const lh = 3 * this.num[0].height / 2 >> 0
 
     this.slamBackground()
 
