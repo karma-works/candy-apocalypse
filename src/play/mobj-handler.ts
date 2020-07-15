@@ -310,7 +310,7 @@ export class MObjHandler {
 
       if (mo.momZ < 0) {
         if (mo.player &&
-          mo.momZ < GRAVITY * 8
+          mo.momZ < -GRAVITY * 8
         ) {
           // Squat down.
           // Decrease viewheight for a moment
