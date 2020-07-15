@@ -7,6 +7,7 @@ import { Sound, soundDef } from './sound-volume'
 import { changeDetail, changeMessages, endGame, sizeDisplay } from './options'
 import { doSave, quickSave } from './save-game'
 import { drawReadThis1, finishReadThis, readDef1, readDef2, readMenu1 } from './read-this'
+import { AutoMap } from '../auto-map/auto-map'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom/doom'
 import { Game } from '../game/game'
@@ -68,6 +69,9 @@ export class Menu {
 
   quickSaveSlot = 0
 
+  private get autoMap(): AutoMap {
+    return this.doom.autoMap
+  }
   get dSound(): DSound {
     return this.doom.dSound
   }
@@ -396,16 +400,23 @@ export class Menu {
       return true
     }
 
+    // F-Keys
     if (!this.menuActive) {
       switch (ch) {
       // Screen size down
       case KEY_MINUS:
+        if (this.autoMap.active || this.headsUp.chatOn) {
+          return false
+        }
         sizeDisplay(this, 0)
         this.dSound.startSound(null, Sfx.Stnmov)
         return true
 
       // Screen size up
       case KEY_EQUALS:
+        if (this.autoMap.active || this.headsUp.chatOn) {
+          return false
+        }
         sizeDisplay(this, 1)
         this.dSound.startSound(null, Sfx.Stnmov)
         return true

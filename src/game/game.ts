@@ -1,6 +1,7 @@
-import { AmmoType, GameMission, GameMode, GameState, KEY_DOWNARROW, KEY_LEFTARROW, KEY_PAUSE, KEY_RALT, KEY_RCTRL, KEY_RIGHTARROW, KEY_RSHIFT, KEY_UPARROW, MAX_PLAYERS, Skill, VERSION, WeaponType } from '../global/doomdef'
+import { AmmoType, GameMission, GameMode, GameState, KEY_DOWNARROW, KEY_F12, KEY_LEFTARROW, KEY_PAUSE, KEY_RALT, KEY_RCTRL, KEY_RIGHTARROW, KEY_RSHIFT, KEY_UPARROW, MAX_PLAYERS, Skill, VERSION, WeaponType } from '../global/doomdef'
 import { ButtonCode, DEvent, EvType, GameAction } from '../doom/event'
 import { Player, PlayerState, WbStart } from '../doom/player'
+import { AutoMap } from '../auto-map/auto-map'
 import { BACKUP_TICS } from '../doom/net/doom-data'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom/doom'
@@ -9,6 +10,7 @@ import { HeadsUp } from '../heads-up/stuff'
 import { MAX_HEALTH } from '../play/local'
 import { MObjFlag } from '../play/mobj/mobj-flag'
 import { MObjType } from '../doom/info/mobj-type'
+import { Menu } from '../menu/menu'
 import { Net } from '../doom/net'
 import { Play } from '../play/setup'
 import { Rendering } from '../rendering/rendering'
@@ -108,7 +110,7 @@ export class Game {
   private demoPtr = 0
   private demoEnd = new Uint8Array()
   // quit after playing a demo from cmdline
-  private singleDemo = false
+  singleDemo = false
 
   // parms for world map / intermission
   private wmInfo = new WbStart()
@@ -171,11 +173,17 @@ export class Game {
 
   mouseSensitivity = 5
 
+  private get autoMap(): AutoMap {
+    return this.doom.autoMap
+  }
   private get dSound(): DSound {
     return this.doom.dSound
   }
   private get headsUp(): HeadsUp {
     return this.doom.headsUp
+  }
+  private get menu(): Menu {
+    return this.doom.menu
   }
   private get net(): Net {
     return this.doom.net
@@ -424,6 +432,51 @@ export class Game {
   // Get info needed to make ticcmd_ts for the players.
   //
   responder(ev: DEvent): boolean {
+    // allow spy mode changes even during the demo
+    if (this.gameState === GameState.Level && ev.type === EvType.KeyDown &&
+      ev.data1 === KEY_F12 && (this.singleDemo || !this.deathMatch)
+    ) {
+      // spy mode
+      do {
+        this.displayPlayer++
+        if (this.displayPlayer === MAX_PLAYERS) {
+          this.displayPlayer = 0
+        }
+      } while (!this.playerInGame[this.displayPlayer] &&
+        this.displayPlayer !== this.consolePlayer)
+
+      return true
+    }
+
+    // any other key pops up menu if in demos
+    if (this.gameAction === GameAction.Nothing && !this.singleDemo &&
+      (this.demoPlayback || this.gameState === GameState.DemoScreen)
+    ) {
+      if (ev.type === EvType.KeyDown ||
+        ev.type === EvType.Mouse && ev.data1 ||
+        ev.type === EvType.Joystick && ev.data1
+      ) {
+        this.menu.startControlPanel()
+        return true
+      }
+      return false
+    }
+
+    if (this.gameState === GameState.Level) {
+      if (this.headsUp.responder(ev)) {
+        // chat ate the event
+        return true
+      }
+      if (this.statusBar.responder(ev)) {
+        // status window ate it
+        return true
+      }
+      if (this.autoMap.responder(ev)) {
+        // automap ate it
+        return true
+      }
+    }
+
     switch (ev.type) {
     case EvType.KeyDown:
       if (ev.data1 === KEY_PAUSE) {
@@ -537,6 +590,7 @@ export class Game {
     case GameState.Level:
       this.tick.ticker()
       this.statusBar.ticker()
+      this.autoMap.ticker()
       this.headsUp.ticker()
       break
     case GameState.Intermission:
@@ -654,6 +708,10 @@ export class Game {
       }
     }
 
+    if (this.autoMap.active) {
+      this.autoMap.stop()
+    }
+
     if (this.doom.gameMode !== GameMode.Commercial) {
       switch (this.gameMap) {
       case 8:
@@ -741,6 +799,7 @@ export class Game {
 
     this.gameState = GameState.Intermission
     this.viewActive = false
+    this.autoMap.active = false
 
     this.win.start(this.wmInfo)
   }
@@ -885,7 +944,7 @@ export class Game {
     this.userGame = true
     this.paused = false
     this.demoPlayback = false
-    // this.autoMapActive = false
+    this.autoMap.active = false
     this.viewActive = true
     this.gameEpisode = episode
     this.gameMap = map

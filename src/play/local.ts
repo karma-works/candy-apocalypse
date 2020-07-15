@@ -12,6 +12,10 @@ export const MAP_BLOCK_SIZE = MAP_BLOCK_UNITS * FRACUNIT
 export const MAP_BLOCK_SHIFT = FRACBITS + 7
 export const MAP_B_TO_FRAC = MAP_BLOCK_SHIFT - FRACBITS
 
+// player radius for movement checking
+export const PLAYER_RADIUS = 16 * FRACUNIT
+
+
 // MAXRADIUS is for precalculated sector block boxes
 // the spider demon is larger,
 // but we do not have any moving sectors nearby

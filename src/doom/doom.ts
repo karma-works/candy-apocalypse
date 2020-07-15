@@ -1,5 +1,6 @@
 import { DEvent, GameAction, MAX_EVENTS } from './event'
 import { GameMission, GameMode, GameState, Language, SCREENHEIGHT, SCREENWIDTH, Skill, VERSION } from '../global/doomdef'
+import { AutoMap } from '../auto-map/auto-map'
 import { Sound as DSound } from './sound'
 import { EnglishStrings } from '../translation/english'
 import { FrenchStrings } from '../translation/french'
@@ -80,6 +81,7 @@ export class Doom {
     this.game,
   )
   private wipe = new Wipe(this)
+  public autoMap = new AutoMap(this)
   public win = new Win(this)
 
   private get rVideo(): RVIdeo {
@@ -178,6 +180,9 @@ export class Doom {
       if (!this.game.gameTic) {
         break
       }
+      if (this.autoMap.active) {
+        this.autoMap.drawer()
+      }
       if (wipe ||
         this.rendering.draw.viewHeight !== 200 && this.fullScreen
       ) {
@@ -200,7 +205,7 @@ export class Doom {
 
     // draw the view directly
     if (this.game.gameState === GameState.Level &&
-    /* !this.autoMapActive &&  */this.game.gameTic
+      !this.autoMap.active && this.game.gameTic
     ) {
       this.rendering.renderPlayerView(
         this.game.players[this.game.displayPlayer],
@@ -230,6 +235,7 @@ export class Doom {
 
     // see if the border needs to be updated to the screen
     if (this.game.gameState === GameState.Level &&
+      !this.autoMap.active &&
       this.rendering.draw.scaledViewWidth !== 320
     ) {
       if (this.menu.menuActive || this.menuActiveState || !this.viewActiveState) {
@@ -249,9 +255,14 @@ export class Doom {
 
     // draw pause pic
     if (this.game.paused) {
+      let y: number
+      if (this.autoMap.active) {
+        y = 4
+      } else {
+        y = this.rendering.draw.viewWindowY + 4
+      }
       const x = this.rendering.draw.viewWindowX +
         (this.rendering.draw.scaledViewWidth - 68) / 2
-      const y = this.rendering.draw.viewWindowY + 4
       this.rVideo.drawPatchDirect(x, y, 0, this.wad.cacheLumpName('M_PAUSE'))
     }
 

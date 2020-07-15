@@ -2,7 +2,9 @@ import { ANG180, ANG45 } from '../misc/table'
 import { AmmoType, Card, MAX_PLAYERS, PowerType, TICRATE, WeaponType } from '../global/doomdef'
 import { BG, FG, Lib, ST_HEIGHT, ST_WIDTH, ST_Y } from './lib'
 import { Cheat, Player } from '../doom/player'
+import { AutoMap } from '../auto-map/auto-map'
 import { BinIcon } from './bin-icon'
+import { DEvent } from '../doom/event'
 import { Doom } from '../doom/doom'
 import { Game } from '../game/game'
 import { Video as IVideo } from '../interfaces/video'
@@ -298,6 +300,9 @@ export class StatusBar {
   // a random number per tick
   private randomNumber = 0
 
+  private get autoMap(): AutoMap {
+    return this.doom.autoMap
+  }
   public get rendering(): Rendering {
     return this.doom.rendering
   }
@@ -329,6 +334,15 @@ export class StatusBar {
       this.rVideo.copyRect(ST_X, 0, BG, ST_WIDTH, ST_HEIGHT, ST_X, ST_Y, FG)
     }
   }
+
+  // Respond to keyboard input events,
+  //  intercept cheats.
+  responder(ev: DEvent): boolean {
+    // TODO
+
+    return false
+  }
+
 
   private lastCalc = 0
   private oldHealthCalc = -1
@@ -656,7 +670,7 @@ export class StatusBar {
 
   // 1108
   drawer(fullScreen: boolean, refresh: boolean): void {
-    this.statusBarOn = !fullScreen
+    this.statusBarOn = !fullScreen || this.autoMap.active
     this.firstTime = this.firstTime || refresh
 
     // Do red-/gold-shifts from damage/items

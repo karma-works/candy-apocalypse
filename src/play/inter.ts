@@ -3,6 +3,7 @@ import { AmmoType, Card, GameMode, PowerDuration, PowerType, Skill, WeaponType }
 import { BASE_THRESHOLD, MAX_HEALTH, ON_FLOOR_Z } from './local'
 import { Cheat, Player, PlayerState } from '../doom/player'
 import { FRACUNIT, mul } from '../misc/fixed'
+import { AutoMap } from '../auto-map/auto-map'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom/doom'
 import { Game } from '../game/game'
@@ -30,6 +31,9 @@ const clipAmmo = [ 10, 4, 20, 1 ]
 
 export class Inter {
 
+  private get autoMap(): AutoMap {
+    return this.play.autoMap
+  }
   private get doom(): Doom {
     return this.play.doom
   }
@@ -501,7 +505,7 @@ export class Inter {
       break
 
     case SpriteNum.Pmap:
-      if (!this.givePower(player, PowerType.Allmap)) {
+      if (!this.givePower(player, PowerType.AllMap)) {
         return
       }
       player.message = this.strings.gotmap
@@ -702,6 +706,14 @@ export class Inter {
       target.flags &= ~MObjFlag.Solid
       target.player.playerState = PlayerState.Dead
       this.pSprite.dropWeapon(target.player)
+
+      if (target.player === this.game.players[this.game.consolePlayer] &&
+        this.autoMap.active
+      ) {
+        // don't die in auto map,
+        // switch view prior to dying
+        this.autoMap.stop()
+      }
     }
 
     if (target.health < -target.info.spawnHealth &&

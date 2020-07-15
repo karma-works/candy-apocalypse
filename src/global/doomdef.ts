@@ -134,7 +134,7 @@ export const enum PowerType {
   Strength,
   Invisibility,
   Ironfeet,
-  Allmap,
+  AllMap,
   Infrared,
 
   NUMPOWERS,

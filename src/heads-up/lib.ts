@@ -1,3 +1,4 @@
+import { AutoMap } from '../auto-map/auto-map'
 import { Draw } from '../rendering/draw'
 import { HeadsUp } from './stuff'
 import { SCREENWIDTH } from '../global/doomdef'
@@ -13,6 +14,9 @@ const SP = ' '.charCodeAt(0)
 const US = '_'.charCodeAt(0)
 
 export class Lib {
+  private get autoMap(): AutoMap {
+    return this.headsUp.autoMap
+  }
   private get draw(): Draw {
     return this.headsUp.doom.rendering.draw
   }
@@ -59,12 +63,15 @@ export class Lib {
 
 
   // sorta called by HU_Erase and just better darn get things straight
+  private lastAutoMapActive = true
   eraseTextLine(l: TextLine): void {
 
     // Only erases when NOT in automap and the screen is reduced,
     // and the text must either need updating or refreshing
     // (because of a recent change back from the automap)
-    if (this.draw.viewWindowX && l.needsUpdate) {
+    if (!this.autoMap.active &&
+      this.draw.viewWindowX && l.needsUpdate
+    ) {
       const lh = l.font[0].height + 1
       for (let y = l.y, yOffset = y * SCREENWIDTH;
         y < l.y + lh;
@@ -87,6 +94,7 @@ export class Lib {
       }
     }
 
+    this.lastAutoMapActive = this.autoMap.active
     if (l.needsUpdate) {
       --l.needsUpdate
     }

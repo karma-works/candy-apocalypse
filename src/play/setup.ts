@@ -1,6 +1,7 @@
 import { GameMode, MAX_PLAYERS, Skill } from '../global/doomdef'
 import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
 import { MapLineDef, MapLineFlag, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef, MapSubSector, MapThing, MapVertex } from '../doom/data'
+import { AutoMap } from '../auto-map/auto-map'
 import { BBox } from '../misc/bbox'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom/doom'
@@ -106,6 +107,9 @@ export class Play {
   public teleport = new Teleport(this)
   public user = new User(this)
 
+  get autoMap(): AutoMap {
+    return this.doom.autoMap
+  }
   get dSound(): DSound {
     return this.doom.dSound
   }

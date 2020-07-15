@@ -1,4 +1,6 @@
 import { GameMode, TICRATE } from '../global/doomdef'
+import { AutoMap } from '../auto-map/auto-map'
+import { DEvent } from '../doom/event'
 import { Doom } from '../doom/doom'
 import { Game } from '../game/game'
 import { Lib } from './lib'
@@ -226,7 +228,7 @@ export class HeadsUp {
   private plr: Player | null = null
   private title: TextLine | null = null
   font: Patch[] = []
-  private chatOn = false
+  chatOn = false
 
   messageOn = false
   messageDontFuckWithMe = false
@@ -239,6 +241,9 @@ export class HeadsUp {
 
   private headsUpActive = false
 
+  public get autoMap(): AutoMap {
+    return this.doom.autoMap
+  }
   private get game(): Game {
     return this.doom.game
   }
@@ -327,7 +332,9 @@ export class HeadsUp {
       throw 'this.title = null'
     }
     this.lib.drawSText(this.message)
-    this.lib.drawTextLine(this.title, false)
+    if (this.autoMap.active) {
+      this.lib.drawTextLine(this.title, false)
+    }
   }
 
   erase(): void {
@@ -374,5 +381,11 @@ export class HeadsUp {
     if (this.game.netGame) {
       debugger
     }
+  }
+
+  responder(ev: DEvent): boolean {
+    // TODO
+
+    return false
   }
 }
