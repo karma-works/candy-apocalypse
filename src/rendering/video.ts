@@ -121,6 +121,38 @@ export class Video {
   }
 
   //
+  // V_DrawBlock
+  // Draw a linear block of pixels into the view buffer.
+  //
+  drawBlock(x: number, y: number, scrn: number, width: number, height: number, src: Uint8ClampedArray): void {
+
+    if (RANGE_CHECK) {
+      if (x < 0 ||
+        x + width > SCREENWIDTH ||
+        y < 0 ||
+        y + height > SCREENHEIGHT ||
+        scrn > 4
+      ) {
+        throw 'Bad V_DrawBlock'
+      }
+    }
+
+    this.markRect(x, y, width, height)
+
+    let srcPtr = 0
+    let destPtr = y * SCREENWIDTH + x
+
+    while (height--) {
+      this.screens[scrn].set(
+        src.slice(srcPtr, srcPtr + width), destPtr,
+      )
+
+      srcPtr += width
+      destPtr += SCREENWIDTH
+    }
+  }
+
+  //
   // V_Init
   //
   init(): void {

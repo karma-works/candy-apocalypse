@@ -72,6 +72,8 @@ export class Game {
 
   // if true, exit with report on completion
   private timingDemo = false
+  // for comparative timing purposes
+  noDrawers = false
 
   // for comparative timing purposes
   private startTime = -1

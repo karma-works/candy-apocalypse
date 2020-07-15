@@ -1,5 +1,5 @@
 import { DEvent, GameAction, MAX_EVENTS } from './event'
-import { GameMission, GameMode, GameState, Language, Skill, VERSION } from '../global/doomdef'
+import { GameMission, GameMode, GameState, Language, SCREENHEIGHT, SCREENWIDTH, Skill, VERSION } from '../global/doomdef'
 import { Sound as DSound } from './sound'
 import { EnglishStrings } from '../translation/english'
 import { FrenchStrings } from '../translation/french'
@@ -18,6 +18,8 @@ import { StatusBar } from '../status/stuff'
 import { Strings } from '../translation/strings'
 import { Wad } from '../wad/wad'
 import { Win } from '../win/win'
+import { Wipe } from '../wipe'
+import { getTime } from '../system/system'
 
 async function access(file: string): Promise<boolean> {
   return (await fetch(file)).ok
@@ -77,6 +79,7 @@ export class Doom {
     this.wad,
     this.game,
   )
+  private wipe = new Wipe(this)
   public win = new Win(this)
 
   private get rVideo(): RVIdeo {
@@ -133,6 +136,7 @@ export class Doom {
   private viewActiveState = false
   private menuActiveState = false
   private inHelpScreenState = false
+  private fullScreen = false
   private oldGameState: GameState = -1
   private borderDrawCount = 0
   //
@@ -140,7 +144,13 @@ export class Doom {
   //  draw current display, possibly wiping it from the previous
   //
   private display(): void {
+    // for comparative timing / profiling
+    if (this.game.noDrawers) {
+      return
+    }
+
     let wipe: boolean
+    let redrawsBar = false
 
     // change the view size if needed
     if (this.rendering.setSizeNeeded) {
@@ -153,6 +163,7 @@ export class Doom {
     // save the current screen if about to wipe
     if (this.game.gameState !== this.wipeGameState) {
       wipe = true
+      this.wipe.startScreen()
     } else {
       wipe = false
     }
@@ -167,7 +178,17 @@ export class Doom {
       if (!this.game.gameTic) {
         break
       }
-      this.statusBar.drawer(this.rendering.draw.viewHeight === 200, false)
+      if (wipe ||
+        this.rendering.draw.viewHeight !== 200 && this.fullScreen
+      ) {
+        redrawsBar = true
+      }
+      // just put away the help screen
+      if (this.inHelpScreenState && !this.menu.inHelpScreens) {
+        redrawsBar = true
+      }
+      this.statusBar.drawer(this.rendering.draw.viewHeight === 200, redrawsBar)
+      this.fullScreen = this.rendering.draw.viewHeight === 200
       break
     case GameState.Intermission:
       this.win.drawer()
@@ -192,12 +213,15 @@ export class Doom {
 
     // clean up border stuff
     if (this.game.gameState !== this.oldGameState &&
-        this.game.gameState !== GameState.Level) {
+      this.game.gameState !== GameState.Level
+    ) {
       this.iVideo.setPalette(this.wad.cacheLumpName('PLAYPAL'))
     }
 
     // see if the border needs to be initially drawn
-    if (this.game.gameState === GameState.Level && this.oldGameState !== GameState.Level) {
+    if (this.game.gameState === GameState.Level &&
+      this.oldGameState !== GameState.Level
+    ) {
       // view was not active
       this.viewActiveState = false
       // draw the pattern into the back screen
@@ -223,6 +247,14 @@ export class Doom {
     this.inHelpScreenState = this.menu.inHelpScreens
     this.oldGameState = this.wipeGameState = this.game.gameState
 
+    // draw pause pic
+    if (this.game.paused) {
+      const x = this.rendering.draw.viewWindowX +
+        (this.rendering.draw.scaledViewWidth - 68) / 2
+      const y = this.rendering.draw.viewWindowY + 4
+      this.rVideo.drawPatchDirect(x, y, 0, this.wad.cacheLumpName('M_PAUSE'))
+    }
+
     // menus go directly to the screen
     // menu is drawn even on top of everything
     this.menu.drawer()
@@ -234,6 +266,38 @@ export class Doom {
       // page flip or blit buffer
       this.iVideo.finishUpdate()
       return
+    }
+
+    // wipe update
+    this.wipe.endScreen(0, 0, SCREENWIDTH, SCREENHEIGHT)
+
+    this.wipeActive = true
+    this.wipeStart = getTime() - 1
+  }
+
+  private wipeActive = false
+  private wipeStart = 0
+
+  private displayWipe(): void {
+    let nowTime = getTime()
+    let tics = 0
+
+    let done = false
+
+    do {
+      nowTime = getTime()
+      tics = nowTime - this.wipeStart
+    } while (!tics)
+    this.wipeStart = nowTime
+
+    done = this.wipe.screenWipe(0, 0, SCREENWIDTH, SCREENHEIGHT, tics)
+
+    // menu is drawn even on top of wipes
+    this.menu.drawer()
+    this.iVideo.finishUpdate()
+
+    if (done) {
+      this.wipeActive = false
     }
   }
 
@@ -250,6 +314,12 @@ export class Doom {
     this.iVideo.initGraphics()
 
     const w = () => {
+      if (this.wipeActive) {
+        this.displayWipe()
+        requestAnimationFrame(w.bind(this))
+        return
+      }
+
       // process one or more tics
       if (this.singleTics) {
         this.iVideo.startTic()
