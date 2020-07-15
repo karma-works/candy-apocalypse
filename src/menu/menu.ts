@@ -497,7 +497,7 @@ export class Menu {
       case KEY_F11:
         this.ivideo.useGamma++
         if (this.ivideo.useGamma > 4) {
-          this.ivideo.useGamma = 4
+          this.ivideo.useGamma = 0
         }
         this.ivideo.setPalette(this.wad.cacheLumpName('PLAYPAL'))
         return true
