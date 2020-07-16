@@ -297,7 +297,17 @@ export class Map {
 
     // check for skulls slamming into things
     if (this.tmThing.flags & MObjFlag.SkullFly) {
-      debugger
+      const damage = (random.pRandom() % 8 + 1) * this.tmThing.info.damage
+
+      this.inter.damageMObj(thing, this.tmThing, this.tmThing, damage)
+
+      this.tmThing.flags &= ~MObjFlag.SkullFly
+      this.tmThing.momX = this.tmThing.momY = this.tmThing.momZ = 0
+
+      this.mObjHandler.setMObjState(this.tmThing, this.tmThing.info.spawnState)
+
+      // stop moving
+      return false
     }
 
     // missiles can hit other things
