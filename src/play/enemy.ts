@@ -1312,7 +1312,7 @@ export class Enemy {
     if (dist < 1) {
       dist = 1
     }
-    actor.momZ = (dest.z + (dest.height >> 1) - actor.z) / dist
+    actor.momZ = (dest.z + (dest.height >> 1) - actor.z) / dist >> 0
   }
 
   //
