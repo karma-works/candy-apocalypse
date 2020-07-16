@@ -21,7 +21,7 @@ export class SText {
     font: Patch[],
     startChar: number,
     // pointer to boolean stating whether to update window
-    public on: { messageOn: boolean },
+    public on: () => boolean,
   ) {
     this.lines = Array.from({ length: height },
       (_, i) => new TextLine(x, y - i * (font[0].height + 1), font, startChar))

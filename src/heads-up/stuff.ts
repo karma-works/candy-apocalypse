@@ -1,14 +1,15 @@
 import { GameMission, GameVersion, logicalGameMission } from '../doom/mode'
+import { MAX_PLAYERS, TICRATE } from '../global/doomdef'
 import { AutoMap } from '../auto-map/auto-map'
 import { DEvent } from '../doom/event'
 import { Doom } from '../doom/doom'
 import { Game } from '../game/game'
+import { IText } from './i-text'
 import { Lib } from './lib'
 import { Patch } from '../rendering/patch'
 import { Player } from '../doom/player'
 import { SText } from './s-text'
 import { Strings } from '../translation/strings'
-import { TICRATE } from '../global/doomdef'
 import { TextLine } from './text-line'
 import { Wad } from '../wad/wad'
 
@@ -48,6 +49,13 @@ export class HeadsUp {
   private get TITLE_Y(): number {
     return 167 - this.font[0].height
   }
+
+  private readonly INPUT_X = MSG_X
+  private get INPUT_Y(): number {
+    return MSG_Y + MSG_HEIGHT * (this.font[0].height + 1)
+  }
+  private readonly INPUT_WIDTH = 64
+  private readonly INPUT_HEIGHT = 1
 
   //
   // Builtin map names.
@@ -230,6 +238,8 @@ export class HeadsUp {
   private title: TextLine | null = null
   font: Patch[] = []
   chatOn = false
+  private chat: IText | null = null
+  private inputBuffer = new Array<IText>()
 
   messageOn = false
   messageDontFuckWithMe = false
@@ -291,7 +301,7 @@ export class HeadsUp {
     this.message = new SText(
       MSG_X, MSG_Y, MSG_HEIGHT,
       this.font,
-      HU_FONTSTART, this,
+      HU_FONTSTART, () => this.messageOn,
     )
 
     // create the map title widget
@@ -333,6 +343,17 @@ export class HeadsUp {
       this.title.addChar(c)
     }
 
+    // create the chat widget
+    this.chat = new IText(
+      this.INPUT_X, this.INPUT_Y,
+      this.font,
+      HU_FONTSTART, () => this.chatOn,
+    )
+    // create the inputbuffer widgets
+    for (let i = 0; i < MAX_PLAYERS; ++i) {
+      this.inputBuffer[i] = new IText(0, 0, [], 0, () => false)
+    }
+
     this.headsUpActive = true
 
   }
@@ -341,10 +362,14 @@ export class HeadsUp {
     if (this.message === null) {
       throw 'this.message = null'
     }
+    if (this.chat === null) {
+      throw 'this.chat = null'
+    }
     if (this.title === null) {
       throw 'this.title = null'
     }
     this.lib.drawSText(this.message)
+    this.lib.drawIText(this.chat)
     if (this.autoMap.active) {
       this.lib.drawTextLine(this.title, false)
     }
@@ -354,10 +379,14 @@ export class HeadsUp {
     if (this.message === null) {
       throw 'this.message = null'
     }
+    if (this.chat === null) {
+      throw 'this.chat = null'
+    }
     if (this.title === null) {
       throw 'this.title = null'
     }
     this.lib.eraseSText(this.message)
+    this.lib.eraseIText(this.chat)
     this.lib.eraseTextLine(this.title)
   }
 

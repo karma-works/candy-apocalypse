@@ -1,6 +1,7 @@
 import { AutoMap } from '../auto-map/auto-map'
 import { Draw } from '../rendering/draw'
 import { HeadsUp } from './stuff'
+import { IText } from './i-text'
 import { SCREENWIDTH } from '../global/doomdef'
 import { SText } from './s-text'
 import { TextLine } from './text-line'
@@ -101,7 +102,7 @@ export class Lib {
   }
 
   drawSText(s: SText): void {
-    if (!s.on.messageOn) {
+    if (!s.on()) {
       // if not on, don't draw
       return
     }
@@ -125,12 +126,27 @@ export class Lib {
 
   eraseSText(s: SText): void {
     for (let i = 0; i < s.height; ++i) {
-      if (s.lastOn && !s.on.messageOn) {
+      if (s.lastOn && !s.on()) {
         s.lines[i].needsUpdate = 4
       }
       this.eraseTextLine(s.lines[i])
     }
 
-    s.lastOn = s.on.messageOn
+    s.lastOn = s.on()
+  }
+
+  drawIText(it: IText): void {
+    if (!it.on()) {
+      return
+    }
+    // draw the line w/ cursor
+    this.drawTextLine(it.line, true)
+  }
+  eraseIText(it: IText): void {
+    if (it.lastOn && !it.on()) {
+      it.line.needsUpdate = 4
+    }
+    this.eraseTextLine(it.line)
+    it.lastOn = it.on()
   }
 }
