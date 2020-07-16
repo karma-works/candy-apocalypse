@@ -1,9 +1,9 @@
 import { DEvent, GameAction, MAX_EVENTS } from './event'
-import { GameMission, GameMode, GameState, Language, SCREENHEIGHT, SCREENWIDTH, Skill, VERSION } from '../global/doomdef'
+import { GameMission, GameMode, GameVersion, Language, Skill, logicalGameMission, wads } from './mode'
+import { GameState, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { AutoMap } from '../auto-map/auto-map'
 import { Sound as DSound } from './sound'
 import { EnglishStrings } from '../translation/english'
-import { FrenchStrings } from '../translation/french'
 import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
 import { Net as INet } from '../interfaces/net'
@@ -22,15 +22,12 @@ import { Win } from '../win/win'
 import { Wipe } from '../wipe'
 import { getTime } from '../system/system'
 
-async function access(file: string): Promise<boolean> {
-  return (await fetch(file)).ok
-}
-
 export class Doom {
 
   // Game Mode - identify IWAD as shareware, retail etc.
   gameMode: GameMode = GameMode.Indetermined
   gameMission: GameMission = GameMission.Doom
+  gameVersion: GameVersion = GameVersion.Final2
 
   // Language
   language: Language = Language.English
@@ -88,7 +85,7 @@ export class Doom {
     return this.rendering.video
   }
 
-  public params: Params = {}
+  constructor(public params: Params) { }
 
   //
   // EVENT HANDLING
@@ -406,7 +403,8 @@ export class Doom {
     this.advancedemo = false
     this.game.gameAction = GameAction.Nothing
 
-    if (this.gameMode === GameMode.Retail) {
+    if (this.gameVersion === GameVersion.Ultimate ||
+      this.gameVersion === GameVersion.Final) {
       this.demoSequence = (this.demoSequence + 1) % 7
     } else {
       this.demoSequence = (this.demoSequence + 1) % 6
@@ -441,7 +439,7 @@ export class Doom {
       } else {
         this.pageTic = 200
 
-        if (this.gameMode === GameMode.Retail) {
+        if (this.gameVersion >= GameVersion.Ultimate) {
           this.pageName = 'CREDIT'
         } else {
           this.pageName = 'HELP2'
@@ -474,128 +472,235 @@ export class Doom {
     this.wadfiles.push(file)
   }
 
-  //
-  // IdentifyVersion
-  // Checks availability of IWAD files by name,
-  // to determine whether registered/commercial features
-  // should be executed (notably loading PWAD's).
-  //
-  private async identifyVersion(): Promise<void> {
-    const doomWadDir = './data'
-    // Commercial.
-    const doom2wad = `${doomWadDir}/doom2.wad`
-
-    // Retail.
-    const doomuwad = `${doomWadDir}/doomu.wad`
-
-    // Registered.
-    const doomwad = `${doomWadDir}/doom.wad`
-
-    // Shareware.
-    const doom1wad = `${doomWadDir}/doom1.wad`
-
-    const plutoniawad = `${doomWadDir}/plutonia.wad`
-
-    const tntwad = `${doomWadDir}/tnt.wad`
-
-    // French stuff.
-    const doom2fwad = `${doomWadDir}/doom2f.wad`
-
-    if (await access(doom2fwad)) {
-      this.gameMode = GameMode.Commercial
-      // C'est ridicule!
-      // Let's handle languages in config files, okay?
-      this.language = Language.French
-      this.strings = new FrenchStrings()
-      console.log('French version')
-      this.addFile(doom2fwad)
-      return
-    }
-    if (await access(doom2wad)) {
-      this.gameMode = GameMode.Commercial
-      this.addFile(doom2wad)
-      return
-    }
-    if (await access(plutoniawad)) {
-      this.gameMode = GameMode.Commercial
-      this.addFile(plutoniawad)
-      return
-    }
-    if (await access(tntwad)) {
-      this.gameMode = GameMode.Commercial
-      this.addFile(tntwad)
-      return
-    }
-    if (await access(doomuwad)) {
-      this.gameMode = GameMode.Retail
-      this.addFile(doomuwad)
-      return
-    }
-    if (await access(doomwad)) {
-      this.gameMode = GameMode.Registered
-      this.addFile(doomwad)
-      return
-    }
-    if (await access(doom1wad)) {
-      this.gameMode = GameMode.Shareware
-      this.addFile(doom1wad)
-      return
+  private identifyWadByName(name: string): GameMission {
+    const lastSlash = name.lastIndexOf('/')
+    if (lastSlash >= 0) {
+      name = name.slice(lastSlash + 1)
     }
 
-    console.log('Game mode indeterminate')
-    this.gameMode = GameMode.Indetermined
+    let mission = GameMission.None
 
-    // We don't abort. Let's see what the PWAD contains.
+    const wad = wads.find(([ wadFileName ]) =>
+      wadFileName.toUpperCase() === name.toUpperCase())
+
+    if (wad !== undefined) {
+      mission = wad[1]
+    }
+
+    return mission
   }
 
-  async init(param: Params): Promise<void> {
-    this.params = param
+  private setMissionForPackName(packName: string): GameMission {
+    const packs: { [k: string]: GameMission } = {
+      'doom2': GameMission.Doom2,
+      'tnt': GameMission.PackTNT,
+      'plutonia': GameMission.PackPlut,
+    }
 
-    await this.identifyVersion()
+    if (packName.toLowerCase() in packs) {
+      return packs[packName.toLowerCase()]
+    }
 
-    this.noMonsters = !!param.noMonsters
-    this.respawnParam = !!param.respawm
-    this.fastParam = !!param.fast
-    this.devParam = !!param.dev
-    if (param.altDeath) {
-      this.game.deathMatch = 2
-    } else if (param.deathMatch) {
+    console.log('Valid mission packs are:')
+    Object.keys(packs).forEach(s => console.log(`  ${s}`))
+
+    throw `Unknown mission pack name: ${packName}`
+  }
+
+  //
+  // Find out what version of Doom is playing.
+  //
+  private identifyVersion(): void {
+    // gamemission is set up by the D_FindIWAD function.  But if
+    // we specify '-iwad', we have to identify using
+    // IdentifyIWADByName.  However, if the iwad does not match
+    // any known IWAD name, we may have a dilemma.  Try to
+    // identify by its contents.
+
+    if (this.gameMission === GameMission.None) {
+      for (let i = 0; i < this.wad.numLumps; ++i) {
+        if (this.wad.lumpInfo[i].name.toUpperCase() === 'MAP01') {
+          this.gameMission = GameMission.Doom2
+          break
+
+        } else if (this.wad.lumpInfo[i].name.toUpperCase() === 'E1M1') {
+          this.gameMission = GameMission.Doom
+          break
+        }
+      }
+
+      if (this.gameMission === GameMission.None) {
+        // Still no idea.  I don't think this is going to work.
+
+        throw 'Unknown or invalid IWAD file.'
+      }
+    }
+
+    // Make sure gamemode is set up correctly
+
+    if (logicalGameMission(this.gameMission) === GameMission.Doom) {
+      // Doom 1.  But which version?
+
+      if (this.wad.checkNumForName('E4M1') > 0) {
+        // Ultimate Doom
+
+        this.gameMode = GameMode.Retail
+      } else if (this.wad.checkNumForName('E3M1') > 0) {
+        this.gameMode = GameMode.Registered
+      } else {
+        this.gameMode = GameMode.Shareware
+      }
+    } else {
+      // Doom 2 of some kind.
+      this.gameMode = GameMode.Commercial
+
+      // We can manually override the gamemission that we got from the
+      // IWAD detection code. This allows us to eg. play Plutonia 2
+      // with Freedoom and get the right level names.
+
+      //!
+      // @category compat
+      // @arg <pack>
+      //
+      // Explicitly specify a Doom II "mission pack" to run as, instead of
+      // detecting it based on the filename. Valid values are: "doom2",
+      // "tnt" and "plutonia".
+      //
+      if (this.params.pack) {
+        this.gameMission = this.setMissionForPackName(this.params.pack)
+      }
+    }
+  }
+
+  private initGameVersion(): void {
+    if (this.params.gameVersion !== undefined) {
+      this.gameVersion = this.params.gameVersion
+    } else {
+      // Determine automatically
+
+      if (this.gameMission === GameMission.PackChex) {
+        // chex.exe - identified by iwad filename
+
+        this.gameVersion = GameVersion.Chex
+      } else if (this.gameMission === GameMission.PackHacx) {
+        // hacx.exe: identified by iwad filename
+
+        this.gameVersion = GameVersion.Hacx
+      } else if (this.gameMode === GameMode.Shareware ||
+        this.gameMode === GameMode.Registered ||
+        this.gameMode === GameMode.Commercial &&
+        this.gameMission === GameMission.Doom2
+      ) {
+        // original
+        this.gameVersion = GameVersion.Doom19
+
+        // Detect version from demo lump
+        let demoLumpName: string
+        let demoLump: Uint8Array
+        let demoVersion: number
+        let status: boolean
+        for (let i = 1; i <= 3; ++i) {
+          demoLumpName = `demo${i}`
+          if (this.wad.checkNumForName(demoLumpName) > 0) {
+            demoLump = new Uint8Array(this.wad.cacheLumpName(demoLumpName))
+            demoVersion = demoLump[0]
+            status = true
+            switch (demoVersion) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+              this.gameVersion = GameVersion.Doom12
+              break
+            case 106:
+              this.gameVersion = GameVersion.Doom1666
+              break
+            case 107:
+              this.gameVersion = GameVersion.Doom17
+              break
+            case 108:
+              this.gameVersion = GameVersion.Doom18
+              break
+            case 109:
+              this.gameVersion = GameVersion.Doom19
+              break
+            default:
+              status = false
+              break
+            }
+            if (status) {
+              break
+            }
+          }
+        }
+      } else if (this.gameMode === GameMode.Retail) {
+        this.gameVersion = GameVersion.Ultimate
+      } else if (this.gameMode === GameMode.Commercial) {
+        // Final Doom: tnt or plutonia
+        // Defaults to emulating the first Final Doom executable,
+        // which has the crash in the demo loop; however, having
+        // this as the default should mean that it plays back
+        // most demos correctly.
+
+        this.gameVersion = GameVersion.Final
+      }
+    }
+
+
+    // Deathmatch 2.0 did not exist until Doom v1.4
+    if (this.gameVersion <= GameVersion.Doom12 && this.game.deathMatch === 2) {
       this.game.deathMatch = 1
     }
 
-    switch (this.gameMode) {
-    case GameMode.Retail:
-      this.title = '                         ' +
-        `The Ultimate DOOM Startup v${Math.floor(VERSION / 100)}.${VERSION % 100}` +
-        '                           '
-      break
-    case GameMode.Shareware:
-      this.title = '                            ' +
-        `DOOM Shareware Startup v${Math.floor(VERSION / 100)}.${VERSION % 100}` +
-        '                           '
-      break
-    case GameMode.Registered:
-      this.title = '                            ' +
-        `DOOM Registered Startup v${Math.floor(VERSION / 100)}.${VERSION % 100}` +
-        '                           '
-      break
-    case GameMode.Commercial:
-      this.title = '                         ' +
-        `DOOM 2: Hell on Earth v${Math.floor(VERSION / 100)}.${VERSION % 100}` +
-        '                           '
-      break
-    default:
-      this.title = '                     ' +
-        `Public DOOM - v${Math.floor(VERSION / 100)}.${VERSION % 100}` +
-        '                           '
-      break
+    // The original exe does not support retail - 4th episode not supported
+
+    if (this.gameVersion < GameVersion.Ultimate &&
+      this.gameMode === GameMode.Retail
+    ) {
+      this.gameMode = GameMode.Registered
     }
 
-    console.log(this.title)
+    // EXEs prior to the Final Doom exes do not support Final Doom.
+
+    if (this.gameVersion < GameVersion.Final &&
+      this.gameMode === GameMode.Commercial &&
+      (this.gameMission === GameMission.PackTNT ||
+        this.gameMission === GameMission.PackPlut)
+    ) {
+      this.gameMission = GameMission.Doom2
+    }
+  }
+
+  async init(): Promise<void> {
+    this.noMonsters = !!this.params.noMonsters
+    this.respawnParam = !!this.params.respawm
+    this.fastParam = !!this.params.fast
+    this.devParam = !!this.params.dev
+    if (this.params.altDeath) {
+      this.game.deathMatch = 2
+    } else if (this.params.deathMatch) {
+      this.game.deathMatch = 1
+    }
 
     if (this.devParam) {
       console.log(this.strings.dDevstr)
     }
+
+    // init subsystems
+    console.log('V_Init: allocate screens.')
+    this.rVideo.init()
+
+    this.addFile(this.params.wad)
+    this.gameMission = this.identifyWadByName(this.params.wad)
+
+    console.log('W_Init: Init WADfiles.')
+    await this.wad.initMultipleFiles(this.wadfiles)
+
+    // Now that we've loaded the IWAD, we can figure out what gamemission
+    // we're playing and which version of Vanilla Doom we need to emulate.
+    this.identifyVersion()
+    this.initGameVersion()
 
     // get skill / episode / map from parms
     this.startSkill = Skill.Medium
@@ -603,25 +708,19 @@ export class Doom {
     this.startMap = 1
     this.autoStart = false
 
-    if (param.skill !== undefined) {
-      this.startSkill = param.skill
+    if (this.params.skill !== undefined) {
+      this.startSkill = this.params.skill
       this.autoStart = true
     }
-    if (param.episode !== undefined) {
-      this.startEpisode = param.episode
+    if (this.params.episode !== undefined) {
+      this.startEpisode = this.params.episode
       this.autoStart = true
     }
-    if (param.map !== undefined) {
-      this.startMap = param.map
+    if (this.params.map !== undefined) {
+      this.startMap = this.params.map
       this.autoStart = true
     }
 
-    // init subsystems
-    console.log('V_Init: allocate screens.')
-    this.rVideo.init()
-
-    console.log('W_Init: Init WADfiles.')
-    await this.wad.initMultipleFiles(this.wadfiles)
 
     // Check and print which version is executed.
     switch (this.gameMode) {

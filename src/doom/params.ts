@@ -1,6 +1,10 @@
-import { Skill } from '../global/doomdef'
+import { GameVersion, Skill } from './mode'
 
 export interface Params {
+  wad: string,
+  gameVersion?: GameVersion
+  pack?: string
+
   deathMatch?: boolean
   altDeath?: boolean
 

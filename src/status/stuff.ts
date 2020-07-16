@@ -7,6 +7,7 @@ import { BinIcon } from './bin-icon'
 import { DEvent } from '../doom/event'
 import { Doom } from '../doom/doom'
 import { Game } from '../game/game'
+import { GameVersion } from '../doom/mode'
 import { Video as IVideo } from '../interfaces/video'
 import { MultiIcon } from './multi-icon'
 import { NumberWidget } from './number-widget'
@@ -338,7 +339,7 @@ export class StatusBar {
   // Respond to keyboard input events,
   //  intercept cheats.
   responder(ev: DEvent): boolean {
-    // TODO
+    // TODO see chocolate
 
     return false
   }
@@ -595,6 +596,12 @@ export class StatusBar {
       palette = RADIATION_PAL
     } else {
       palette = 0
+    }
+
+    if (this.doom.gameVersion === GameVersion.Chex &&
+      palette >= START_RED_PALS && palette < START_RED_PALS + NUM_RED_PALS
+    ) {
+      palette = RADIATION_PAL
     }
 
     if (palette !== this.palette) {

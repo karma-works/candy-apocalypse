@@ -1,12 +1,13 @@
 import { DEvent, EvType } from '../doom/event'
-import { GameMode, KEY_BACKSPACE, KEY_DOWNARROW, KEY_ENTER, KEY_EQUALS, KEY_ESCAPE, KEY_F1, KEY_F10, KEY_F11, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_LEFTARROW, KEY_MINUS, KEY_RIGHTARROW, KEY_UPARROW, SCREENWIDTH } from '../global/doomdef'
+import { GameMode, GameVersion } from '../doom/mode'
 import { HU_FONTSIZE, HU_FONTSTART, HeadsUp } from '../heads-up/stuff'
+import { KEY_BACKSPACE, KEY_DOWNARROW, KEY_ENTER, KEY_EQUALS, KEY_ESCAPE, KEY_F1, KEY_F10, KEY_F11, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_LEFTARROW, KEY_MINUS, KEY_RIGHTARROW, KEY_UPARROW, SCREENWIDTH } from '../global/doomdef'
 import { Load, loadMenu, quickLoad } from './load-game'
 import { MainEnum, loadGame, mainDef, mainMenu, quitDOOM, saveGame } from './doom-menu'
 import { Sound, soundDef } from './sound-volume'
 import { changeDetail, changeMessages, endGame, sizeDisplay } from './options'
 import { doSave, quickSave } from './save-game'
-import { drawReadThis1, finishReadThis, readDef1, readDef2, readMenu1 } from './read-this'
+import { drawReadThisCommercial, finishReadThis, readDef1, readDef2, readMenu1, readThis2 } from './read-this'
 import { AutoMap } from '../auto-map/auto-map'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom/doom'
@@ -425,7 +426,7 @@ export class Menu {
       case KEY_F1:
         this.startControlPanel()
 
-        if (this.doom.gameMode === GameMode.Retail) {
+        if (this.doom.gameVersion >= GameVersion.Ultimate) {
           this.currentMenu = readDef2
         } else {
           this.currentMenu = readDef1
@@ -730,39 +731,40 @@ export class Menu {
     this.messageLastMenuActive = this.menuActive
     this.quickSaveSlot = -1
 
-
     // Here we could catch other version dependencies,
     //  like HELP1/2, and four episodes.
 
-    switch (this.doom.gameMode) {
-    case GameMode.Commercial:
-      // This is used because DOOM 2 had only one HELP
-      //  page. I use CREDIT as second page now, but
-      //  kept this hack for educational purposes.
+    // The same hacks were used in the original Doom EXEs.
 
+    if (this.doom.gameVersion >= GameVersion.Ultimate) {
+      mainMenu[MainEnum.ReadThis].routine = readThis2
+      readDef2.prevMenu = null
+    }
+
+    if (this.doom.gameVersion >= GameVersion.Final && this.doom.gameVersion <= GameVersion.Final2) {
+      readDef2.routine = drawReadThisCommercial
+    }
+
+    if (this.doom.gameMode === GameMode.Commercial) {
       mainMenu[MainEnum.ReadThis] = mainMenu[MainEnum.QuitDoom]
       mainDef.numItems--
       mainDef.y += 8
       newDef.prevMenu = mainDef
-      readDef1.routine = drawReadThis1
+      readDef1.routine = drawReadThisCommercial
       readDef1.x = 330
       readDef1.y = 165
       readMenu1[0].routine = finishReadThis
-      break
+    }
 
-    case GameMode.Shareware:
-      // Episode 2 and 3 are handled,
-      //  branching to an ad screen.
-      // fallthrough
-    case GameMode.Registered:
-      // We need to remove the fourth episode.
+    // Versions of doom.exe before the Ultimate Doom release only had
+    // three episodes; if we're emulating one of those then don't try
+    // to show episode four. If we are, then do show episode four
+    // (should crash if missing).
+    if (this.doom.gameVersion < GameVersion.Ultimate) {
       epiDef.numItems--
-      break
-    case GameMode.Retail:
-      // We are fine.
-      break
-    default:
-      break
+    } else if (this.doom.gameVersion === GameVersion.Chex) {
+      // chex.exe shows only one episode.
+      epiDef.numItems = 1
     }
   }
 }

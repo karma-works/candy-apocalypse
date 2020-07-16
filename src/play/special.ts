@@ -3,12 +3,14 @@ import { Button, MAX_BUTTONS, Where } from './switch/button'
 import { Cheat, Player } from '../doom/player'
 import { Sound as DSound } from '../doom/sound'
 import { Data } from '../rendering/data'
+import { Doom } from '../doom/doom'
 import { DoorType } from './doors/door-type'
 import { Doors } from './doors'
 import { FRACUNIT } from '../misc/fixed'
 import { Floor } from './floor'
 import { FloorType } from './floor/floor-type'
 import { Game } from '../game/game'
+import { GameVersion } from '../doom/mode'
 import { Inter } from './inter'
 import { Lights } from './lights'
 import { Line } from '../rendering/line'
@@ -37,6 +39,9 @@ export class Special {
 
   private get data(): Data {
     return this.play.rendering.data
+  }
+  private get doom(): Doom {
+    return this.play.doom
   }
   private get doors(): Doors {
     return this.play.doors
@@ -182,19 +187,28 @@ export class Special {
 
     const line = this.play.lines[lineNum]
 
-    // Triggers that other things can activate
-    if (!thing.player) {
-      // Things that should NOT trigger specials...
-      switch (thing.type) {
-      case MObjType.Rocket:
-      case MObjType.Plasma:
-      case MObjType.Bfg:
-      case MObjType.Troopshot:
-      case MObjType.Headshot:
-      case MObjType.Bruisershot:
+    if (this.doom.gameVersion <= GameVersion.Doom12) {
+      if (line.special > 98 && line.special !== 104) {
         return
       }
+    } else {
+      // Triggers that other things can activate
+      if (!thing.player) {
+        // Things that should NOT trigger specials...
+        switch (thing.type) {
+        case MObjType.Rocket:
+        case MObjType.Plasma:
+        case MObjType.Bfg:
+        case MObjType.Troopshot:
+        case MObjType.Headshot:
+        case MObjType.Bruisershot:
+          return
+        }
+      }
+    }
 
+    // Triggers that other things can activate
+    if (!thing.player) {
       ok = false
       /* eslint-disable line-comment-position */
       switch (line.special) {

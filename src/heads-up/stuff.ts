@@ -1,4 +1,4 @@
-import { GameMode, TICRATE } from '../global/doomdef'
+import { GameMission, GameVersion, logicalGameMission } from '../doom/mode'
 import { AutoMap } from '../auto-map/auto-map'
 import { DEvent } from '../doom/event'
 import { Doom } from '../doom/doom'
@@ -8,6 +8,7 @@ import { Patch } from '../rendering/patch'
 import { Player } from '../doom/player'
 import { SText } from './s-text'
 import { Strings } from '../translation/strings'
+import { TICRATE } from '../global/doomdef'
 import { TextLine } from './text-line'
 import { Wad } from '../wad/wad'
 
@@ -303,15 +304,27 @@ export class HeadsUp {
     this.title
 
     let s: string
-    switch (this.doom.gameMode) {
-    case GameMode.Shareware:
-    case GameMode.Registered:
-    case GameMode.Retail:
+    switch (logicalGameMission(this.doom.gameMission)) {
+    case GameMission.Doom:
       s = this.TITLE
       break
-    case GameMode.Commercial:
-    default:
+    case GameMission.Doom2:
       s = this.TITLE2
+      // Pre-Final Doom compatibility: map33-map35 names don't spill over
+      if (this.doom.gameVersion <= GameVersion.Doom19 &&
+        this.game.gameMap >= 33
+      ) {
+        s = ''
+      }
+      break
+    case GameMission.PackPlut:
+      s = this.TITLEP
+      break
+    case GameMission.PackTNT:
+      s = this.TITLET
+      break
+    default:
+      s = 'Unknown level'
       break
     }
 

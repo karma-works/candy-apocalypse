@@ -1,4 +1,4 @@
-import { GameMode, Language } from '../global/doomdef'
+import { GameMode, GameVersion, Language } from '../doom/mode'
 import { MenuItem, MenuStruct } from './typedefs'
 import { Menu } from './menu'
 import { Sfx } from '../doom/sounds/sfx'
@@ -126,7 +126,8 @@ function drawMainMenu(menu: Menu): void {
 // M_NewGame
 //
 function newGame(menu: Menu): void {
-  if (menu.doom.gameMode === GameMode.Commercial) {
+  if (menu.doom.gameMode === GameMode.Commercial ||
+    menu.doom.gameVersion === GameVersion.Chex) {
     menu.setupNextMenu(newDef)
   } else {
     menu.setupNextMenu(episodeDef)

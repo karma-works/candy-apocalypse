@@ -2,7 +2,7 @@ import { ANG45, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table
 import { Cheat, PlayerState } from '../doom/player'
 import { FLOAT_SPEED, GRAVITY, ITEM_QUE_SIZE, MAX_MOVE, MELEE_RANGE, ON_CEILING_Z, ON_FLOOR_Z, VIEW_HEIGHT } from './local'
 import { FRACBITS, FRACUNIT, mul } from '../misc/fixed'
-import { MTF_AMBUSH, Skill } from '../global/doomdef'
+import { GameVersion, Skill } from '../doom/mode'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom/doom'
 import { Enemy } from './enemy'
@@ -11,6 +11,7 @@ import { HeadsUp } from '../heads-up/stuff'
 import { MObj } from './mobj/mobj'
 import { MObjFlag } from './mobj/mobj-flag'
 import { MObjType } from '../doom/info/mobj-type'
+import { MTF_AMBUSH } from '../global/doomdef'
 import { Map } from './map'
 import { MapThing } from '../doom/data'
 import { MapUtils } from './map-utils'
@@ -303,7 +304,12 @@ export class MObjHandler {
       // Note (id):
       //  somebody left this after the setting momz to 0,
       //  kinda useless there.
-      if (mo.flags & MObjFlag.SkullFly) {
+
+      const correctLostSoulBounce = this.doom.gameVersion >= GameVersion.Ultimate
+
+      if (correctLostSoulBounce &&
+        mo.flags & MObjFlag.SkullFly
+      ) {
         // the skull slammed into something
         mo.momZ = -mo.momZ
       }
@@ -322,6 +328,13 @@ export class MObjHandler {
         mo.momZ = 0
       }
       mo.z = mo.floorZ
+
+      if (!correctLostSoulBounce &&
+        mo.flags & MObjFlag.SkullFly
+      ) {
+        // the skull slammed into something
+        mo.momZ = -mo.momZ
+      }
 
       if (mo.flags & MObjFlag.Missile &&
         !(mo.flags & MObjFlag.NoClip)

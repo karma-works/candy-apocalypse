@@ -3,7 +3,9 @@ import { FRACBITS, FRACUNIT, div, mul } from '../misc/fixed'
 import { MAP_BLOCK_SHIFT, MAX_RADIUS, PT_ADD_LINES, PT_ADD_THINGS, USE_RANGE } from './local'
 import { BBox } from '../misc/bbox'
 import { Sound as DSound } from '../doom/sound'
+import { Doom } from '../doom/doom'
 import { Game } from '../game/game'
+import { GameVersion } from '../doom/mode'
 import { Inter } from './inter'
 import { Intercept } from './map-utils/intercept'
 import { Line } from '../rendering/line'
@@ -51,6 +53,9 @@ export class Map {
   specHit = new Array<Line>(MAX_SPECIAL_CROSS)
   numSpecHit = 0
 
+  private get doom(): Doom {
+    return this.play.doom
+  }
   private get dSound(): DSound {
     return this.play.dSound
   }
@@ -1292,7 +1297,9 @@ export class Map {
     if (thing.health <= 0) {
       this.mObjHandler.setMObjState(thing, StateNum.Gibs)
 
-      thing.flags &= ~MObjFlag.Solid
+      if (this.doom.gameVersion > GameVersion.Doom12) {
+        thing.flags &= ~MObjFlag.Solid
+      }
       thing.height = 0
       thing.radius = 0
 

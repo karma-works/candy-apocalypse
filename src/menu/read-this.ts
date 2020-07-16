@@ -1,5 +1,4 @@
 import { MenuItem, MenuStruct } from './typedefs'
-import { GameMode } from '../global/doomdef'
 import { Menu } from './menu'
 import { mainDef } from './doom-menu'
 
@@ -51,24 +50,11 @@ export const readDef2: MenuStruct = {
 // Read This Menus
 // Had a "quick hack to fix romero bug"
 //
-export function drawReadThis1(menu: Menu): void {
+function drawReadThis1(menu: Menu): void {
   menu.inHelpScreens = true
-  switch (menu.doom.gameMode) {
-  case GameMode.Commercial:
-    menu.rvideo.drawPatchDirect(0, 0, 0,
-      menu.wad.cacheLumpName('HELP'),
-    )
-    break
-  case GameMode.Shareware:
-  case GameMode.Registered:
-  case GameMode.Retail:
-    menu.rvideo.drawPatchDirect(0, 0, 0,
-      menu.wad.cacheLumpName('HELP1'),
-    )
-    break
-  default:
-    break
-  }
+  menu.rvideo.drawPatchDirect(0, 0, 0,
+    menu.wad.cacheLumpName('HELP2'),
+  )
 }
 
 //
@@ -76,26 +62,19 @@ export function drawReadThis1(menu: Menu): void {
 //
 function drawReadThis2(menu: Menu): void {
   menu.inHelpScreens = true
-  switch (menu.doom.gameMode) {
-  case GameMode.Retail:
-  case GameMode.Commercial:
-    // This hack keeps us from having to change menus.
-    menu.rvideo.drawPatchDirect(0, 0, 0,
-      menu.wad.cacheLumpName('CREDIT'),
-    )
-    break
-  case GameMode.Shareware:
-  case GameMode.Registered:
-    menu.rvideo.drawPatchDirect(0, 0, 0,
-      menu.wad.cacheLumpName('HELP2'),
-    )
-    break
-  default:
-    break
-  }
+  menu.rvideo.drawPatchDirect(0, 0, 0,
+    menu.wad.cacheLumpName('HELP1'),
+  )
 }
 
-function readThis2(menu: Menu): void {
+export function drawReadThisCommercial(menu: Menu): void {
+  menu.inHelpScreens = true
+  menu.rvideo.drawPatchDirect(0, 0, 0,
+    menu.wad.cacheLumpName('HELP'),
+  )
+}
+
+export function readThis2(menu: Menu): void {
   menu.setupNextMenu(readDef2)
 }
 export function finishReadThis(menu: Menu): void {

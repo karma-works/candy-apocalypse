@@ -1,8 +1,11 @@
 import { FRACBITS, div, mul } from '../misc/fixed'
 import { MapLineFlag, NF_SUBSECTOR } from '../doom/data'
 import { DivLine } from './map-utils/div-line'
+import { Doom } from '../doom/doom'
+import { GameVersion } from '../doom/mode'
 import { Line } from '../rendering/line'
 import { MObj } from './mobj/mobj'
+import { MapUtils } from './map-utils'
 import { Play } from './setup'
 import { RANGE_CHECK } from '../global/doomdef'
 import { Rendering } from '../rendering/rendering'
@@ -26,6 +29,12 @@ export class Sight {
 
   private sightCounts = [ 0, 0 ]
 
+  private get doom(): Doom {
+    return this.play.doom
+  }
+  private get mapUtils(): MapUtils {
+    return this.play.mapUtils
+  }
   private get rendering(): Rendering {
     return this.play.rendering
   }
@@ -315,6 +324,12 @@ export class Sight {
     this.sightZStart = t1.z + t1.height - (t1.height >> 2)
     this.topSlope = t2.z + t2.height - this.sightZStart
     this.bottomSlope = t2.z - this.sightZStart
+
+    if (this.doom.gameVersion <= GameVersion.Doom12) {
+      debugger
+      // return this.mapUtils.pathTraverse(t1.x, t1.y, t2.x, t2.y,
+      //   PT_EARLY_OUT | PT_ADD_LINES, this.sightTraverse, this)
+    }
 
     this.sTrace.x = t1.x
     this.sTrace.y = t1.y

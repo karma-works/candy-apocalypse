@@ -1,5 +1,6 @@
 import { Anim, AnimType, NUM_ANIMS, anims } from './anim'
-import { GameMode, Language, MAX_PLAYERS, SCREENHEIGHT, SCREENWIDTH, TICRATE } from '../global/doomdef'
+import { GameMode, GameVersion, Language } from '../doom/mode'
+import { MAX_PLAYERS, SCREENHEIGHT, SCREENWIDTH, TICRATE } from '../global/doomdef'
 import { WbPlayer, WbStart } from '../doom/player'
 import { ButtonCode } from '../doom/event'
 import { Sound as DSound } from '../doom/sound'
@@ -715,6 +716,10 @@ export class Win {
     let name: string
     if (this.doom.gameMode === GameMode.Commercial) {
       name = 'INTERPIC'
+    } else if (this.doom.gameVersion >= GameVersion.Ultimate &&
+      this.wbs.episode === 3
+    ) {
+      name = 'INTERPIC'
     } else {
       name = `WIMAP${this.wbs.episode}`
     }
@@ -891,7 +896,7 @@ export class Win {
       this.wbs.maxSecret = 1
     }
 
-    if (this.doom.gameMode !== GameMode.Retail) {
+    if (this.doom.gameVersion < GameVersion.Ultimate) {
       if (this.wbs.episode > 2) {
         this.wbs.episode -= 3
       }

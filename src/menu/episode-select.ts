@@ -1,7 +1,7 @@
 import { MenuItem, MenuStruct } from './typedefs'
 import { NewGame, newDef } from './new-game'
 import { Menu } from './menu'
-import { Skill } from '../global/doomdef'
+import { Skill } from '../doom/mode'
 import { mainDef } from './doom-menu'
 
 const enum Episodes {

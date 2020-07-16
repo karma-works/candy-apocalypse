@@ -1,5 +1,5 @@
-import { SfxInfo } from "./sfx-infos";
-import { MObj } from "../../play/mobj/mobj";
+import { MObj } from '../../play/mobj/mobj'
+import { SfxInfo } from './sfx-infos'
 
 export class Channel {
   // sound information (if null, channel avail.)

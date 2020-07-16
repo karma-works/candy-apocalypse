@@ -2,7 +2,7 @@ import { ANG180, ANG270, ANG90, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } fro
 import { DirType, diags, opposite } from './mobj/direction'
 import { FLOAT_SPEED, MAP_BLOCK_SHIFT, MAX_RADIUS, MELEE_RANGE, MISSILE_RANGE } from './local'
 import { FRACUNIT, mul } from '../misc/fixed'
-import { GameMode, MAX_PLAYERS, Skill } from '../global/doomdef'
+import { GameMode, GameVersion, Skill } from '../doom/mode'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom/doom'
 import { DoorType } from './doors/door-type'
@@ -12,6 +12,7 @@ import { FloorType } from './floor/floor-type'
 import { Game } from '../game/game'
 import { Inter } from './inter'
 import { Line } from '../rendering/line'
+import { MAX_PLAYERS } from '../global/doomdef'
 import { MObj } from './mobj/mobj'
 import { MObjFlag } from './mobj/mobj-flag'
 import { MObjHandler } from './mobj-handler'
@@ -169,7 +170,12 @@ export class Enemy {
     const pl = actor.target
     const dist = this.mapUtils.aproxDistance(pl.x - actor.x, pl.y - actor.y)
 
-    if (dist >= MELEE_RANGE - 20 * FRACUNIT + pl.info.radius) {
+    let range = MELEE_RANGE - 20 * FRACUNIT + pl.info.radius
+    if (this.doom.gameVersion <= GameVersion.Doom12) {
+      range = MELEE_RANGE
+    }
+
+    if (dist >= range) {
       return false
     }
 
@@ -634,8 +640,9 @@ export class Enemy {
 
     // modify target threshold
     if (actor.threshold) {
-      if (!actor.target ||
-        actor.target.health <= 0
+      if (this.doom.gameVersion > GameVersion.Doom12 &&
+        (!actor.target ||
+        actor.target.health <= 0)
       ) {
         actor.threshold = 0
       } else {
@@ -869,8 +876,18 @@ export class Enemy {
     }
 
     this.faceTarget(actor)
-    if (this.checkMeleeRange(actor)) {
-      const damage = (random.pRandom() % 10 + 1) * 4
+
+    if (this.doom.gameVersion > GameVersion.Doom12) {
+      if (!this.checkMeleeRange(actor)) {
+        return
+      }
+    }
+
+    const damage = (random.pRandom() % 10 + 1) * 4
+
+    if (this.doom.gameVersion <= GameVersion.Doom12) {
+      this.map.lineAttack(actor, actor.angle, MELEE_RANGE, 0, damage)
+    } else {
       this.inter.damageMObj(actor.target, actor, actor, damage)
     }
   }

@@ -1,8 +1,9 @@
 import { ANG180, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table'
-import { AmmoType, Card, GameMode, PowerDuration, PowerType, Skill, WeaponType } from '../global/doomdef'
+import { AmmoType, Card, PowerDuration, PowerType, WeaponType } from '../global/doomdef'
 import { BASE_THRESHOLD, MAX_HEALTH, ON_FLOOR_Z } from './local'
 import { Cheat, Player, PlayerState } from '../doom/player'
 import { FRACUNIT, mul } from '../misc/fixed'
+import { GameMode, GameVersion, Skill } from '../doom/mode'
 import { AutoMap } from '../auto-map/auto-map'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom/doom'
@@ -355,7 +356,9 @@ export class Inter {
     case SpriteNum.Bon2:
       // can go over 100%
       player.armorPoints++
-      if (player.armorPoints > 200) {
+      if (player.armorPoints > 200 &&
+        this.doom.gameVersion > GameVersion.Doom12
+      ) {
         player.armorPoints = 200
       }
       if (!player.armorType) {
@@ -371,7 +374,9 @@ export class Inter {
       }
       player.mo.health = player.health
       player.message = this.strings.gotsuper
-      sound = Sfx.Getpow
+      if (this.doom.gameVersion > GameVersion.Doom12) {
+        sound = Sfx.Getpow
+      }
       break
 
     case SpriteNum.Mega:
@@ -382,7 +387,9 @@ export class Inter {
       player.mo.health = player.health
       this.giveArmor(player, 2)
       player.message = this.strings.gotmsphere
-      sound = Sfx.Getpow
+      if (this.doom.gameVersion > GameVersion.Doom12) {
+        sound = Sfx.Getpow
+      }
       break
 
       // cards
@@ -474,7 +481,9 @@ export class Inter {
         return
       }
       player.message = this.strings.gotinvul
-      sound = Sfx.Getpow
+      if (this.doom.gameVersion > GameVersion.Doom12) {
+        sound = Sfx.Getpow
+      }
       break
 
     case SpriteNum.Pstr:
@@ -485,7 +494,9 @@ export class Inter {
       if (player.readyWeapon !== WeaponType.Fist) {
         player.pendingWeapon = WeaponType.Fist
       }
-      sound = Sfx.Getpow
+      if (this.doom.gameVersion > GameVersion.Doom12) {
+        sound = Sfx.Getpow
+      }
       break
 
     case SpriteNum.Pins:
@@ -493,7 +504,9 @@ export class Inter {
         return
       }
       player.message = this.strings.gotinvis
-      sound = Sfx.Getpow
+      if (this.doom.gameVersion > GameVersion.Doom12) {
+        sound = Sfx.Getpow
+      }
       break
 
     case SpriteNum.Suit:
@@ -501,7 +514,9 @@ export class Inter {
         return
       }
       player.message = this.strings.gotsuit
-      sound = Sfx.Getpow
+      if (this.doom.gameVersion > GameVersion.Doom12) {
+        sound = Sfx.Getpow
+      }
       break
 
     case SpriteNum.Pmap:
@@ -509,7 +524,9 @@ export class Inter {
         return
       }
       player.message = this.strings.gotmap
-      sound = Sfx.Getpow
+      if (this.doom.gameVersion > GameVersion.Doom12) {
+        sound = Sfx.Getpow
+      }
       break
 
     case SpriteNum.Pvis:
@@ -517,7 +534,9 @@ export class Inter {
         return
       }
       player.message = this.strings.gotvisor
-      sound = Sfx.Getpow
+      if (this.doom.gameVersion > GameVersion.Doom12) {
+        sound = Sfx.Getpow
+      }
       break
 
       // ammo
@@ -729,6 +748,10 @@ export class Inter {
       target.tics = 1
     }
 
+    if (this.doom.gameVersion === GameVersion.Chex) {
+      return
+    }
+
     // Drop stuff.
     // This determines the kind of object spawned
     // during the death frame of a thing.
@@ -895,7 +918,7 @@ export class Inter {
     target.reactionTime = 0
 
     if ((!target.threshold || target.type === MObjType.Vile)
-      && source && source !== target
+      && source && (source !== target || this.doom.gameVersion <= GameVersion.Doom12)
       && source.type !== MObjType.Vile
     ) {
       // if not intent on another player,

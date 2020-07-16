@@ -1,5 +1,7 @@
 import { ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table'
 import { Sound as DSound } from '../doom/sound'
+import { Doom } from '../doom/doom'
+import { GameVersion } from '../doom/mode'
 import { Line } from '../rendering/line'
 import { MObj } from './mobj/mobj'
 import { MObjFlag } from './mobj/mobj-flag'
@@ -14,6 +16,9 @@ import { Tick } from './tick'
 
 export class Teleport {
 
+  private get doom(): Doom {
+    return this.play.doom
+  }
   private get dSound(): DSound {
     return this.play.dSound
   }
@@ -87,8 +92,10 @@ export class Teleport {
             return false
           }
 
-          //fixme: not needed?
-          thing.z = thing.floorZ
+          if (this.doom.gameVersion !== GameVersion.Final) {
+            thing.z = thing.floorZ
+          }
+
           if (thing.player) {
             thing.player.viewZ = thing.z + thing.player.viewHeight
           }

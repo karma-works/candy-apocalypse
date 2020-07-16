@@ -1,8 +1,10 @@
 import { FLOOR_SPEED, FloorMove } from './floor/floor-move'
 import { Sound as DSound } from '../doom/sound'
 import { Data } from '../rendering/data'
+import { Doom } from '../doom/doom'
 import { FRACUNIT } from '../misc/fixed'
 import { FloorType } from './floor/floor-type'
+import { GameVersion } from '../doom/mode'
 import { Line } from '../rendering/line'
 import { Map } from './map'
 import { Play } from './setup'
@@ -20,6 +22,9 @@ export class Floor {
 
   private get data(): Data {
     return this.play.rendering.data
+  }
+  private get doom(): Doom {
+    return this.play.doom
   }
   private get dSound(): DSound {
     return this.play.dSound
@@ -240,7 +245,9 @@ export class Floor {
         floor.direction = -1
         floor.speed = FLOOR_SPEED * 4
         floor.floorDestHeight = sec.findHighestFloorSurrounding()
-        if (floor.floorDestHeight !== sec.floorHeight) {
+        if (this.doom.gameVersion <= GameVersion.Doom12 ||
+          floor.floorDestHeight !== sec.floorHeight
+        ) {
           floor.floorDestHeight += 8 * FRACUNIT
         }
         break

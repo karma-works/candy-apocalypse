@@ -1,5 +1,6 @@
-import { AmmoType, GameMission, GameMode, GameState, KEY_DOWNARROW, KEY_F12, KEY_LEFTARROW, KEY_PAUSE, KEY_RALT, KEY_RCTRL, KEY_RIGHTARROW, KEY_RSHIFT, KEY_UPARROW, MAX_PLAYERS, Skill, VERSION, WeaponType } from '../global/doomdef'
+import { AmmoType, GameState, KEY_DOWNARROW, KEY_F12, KEY_LEFTARROW, KEY_PAUSE, KEY_RALT, KEY_RCTRL, KEY_RIGHTARROW, KEY_RSHIFT, KEY_UPARROW, MAX_PLAYERS, WeaponType } from '../global/doomdef'
 import { ButtonCode, DEvent, EvType, GameAction } from '../doom/event'
+import { GameMode, GameVersion, Skill } from '../doom/mode'
 import { Player, PlayerState, WbStart } from '../doom/player'
 import { AutoMap } from '../auto-map/auto-map'
 import { BACKUP_TICS } from '../doom/net/doom-data'
@@ -381,10 +382,10 @@ export class Game {
 
     // DOOM determines the sky texture to be used
     // depending on the current episode, and the game version.
-    const gameMode = this.doom.gameMode as unknown
-    if (gameMode as GameMode === GameMode.Commercial ||
-        gameMode as GameMission === GameMission.PackTNT ||
-        gameMode as GameMission === GameMission.PackPlut) {
+    const gameMode = this.doom.gameMode
+    const gameVersion = this.doom.gameVersion
+    if (gameMode as GameMode === GameMode.Commercial &&
+        (gameVersion === GameVersion.Final2 || gameVersion === GameVersion.Chex)) {
       rendering.sky.skyTexture = rendering.data.textureNumForName('SKY3')
       if (this.gameMap < 12) {
         rendering.sky.skyTexture = rendering.data.textureNumForName('SKY1')
@@ -713,15 +714,22 @@ export class Game {
     }
 
     if (this.doom.gameMode !== GameMode.Commercial) {
-      switch (this.gameMap) {
-      case 8:
-        this.gameAction = GameAction.Victory
-        return
-      case 9:
-        for (let i = 0; i < MAX_PLAYERS; ++i) {
-          this.players[i].didSecret = true
+      if (this.doom.gameVersion === GameVersion.Chex) {
+        if (this.gameMap === 5) {
+          this.gameAction = GameAction.Victory
+          return
         }
-        break
+      } else {
+        switch (this.gameMap) {
+        case 8:
+          this.gameAction = GameAction.Victory
+          return
+        case 9:
+          for (let i = 0; i < MAX_PLAYERS; ++i) {
+            this.players[i].didSecret = true
+          }
+          break
+        }
       }
     }
 
@@ -880,26 +888,21 @@ export class Game {
       skill = Skill.Nightmare
     }
 
-    // This was quite messy with SPECIAL and commented parts.
-    // Supposedly hacks to make the latest edition work.
-    // It might not work properly.
-    if (episode < 1) {
-      episode = 1
-    }
-
-    if (this.doom.gameMode === GameMode.Retail) {
-      if (episode > 4) {
+    if (this.doom.gameVersion >= GameVersion.Ultimate) {
+      if (episode === 0) {
         episode = 4
       }
-    } else if (this.doom.gameMode === GameMode.Shareware) {
-      if (episode > 1) {
-        // only start episode 1 on shareware
+    } else {
+      if (episode < 1) {
         episode = 1
       }
-    } else {
       if (episode > 3) {
         episode = 3
       }
+    }
+
+    if (episode > 1 && this.doom.gameMode === GameMode.Shareware) {
+      episode = 1
     }
 
     if (map < 1) {
@@ -997,6 +1000,22 @@ export class Game {
     cmd.buttons = this.demoP[this.demoPtr++]
   }
 
+  private vanillaVersionCode(): number {
+    // Get the demo version code appropriate for the version set in gameversion.
+    switch (this.doom.gameVersion) {
+    case GameVersion.Doom1666:
+      return 106
+    case GameVersion.Doom17:
+      return 107
+    case GameVersion.Doom18:
+      return 108
+    case GameVersion.Doom19:
+    default:
+      // All other versions are variants on v1.9:
+      return 109
+    }
+  }
+
   //
   // G_PlayDemo
   //
@@ -1012,20 +1031,35 @@ export class Game {
     const demoP = new Uint8Array(this.wad.cacheLumpName(this.defDemoName))
     let demoPtr = 0
 
-    if (demoP[demoPtr++] !== VERSION) {
-    //   console.error('Demo is from a different game version!')
-    //   this.gameAction = GameAction.Nothing
-    //   return
+    const demoVersion = demoP[demoPtr++]
+    let oldDemo = false
+    if (demoVersion >= 0 && demoVersion <= 4) {
+      oldDemo = true
+      demoPtr--
+    }
+
+    if (demoVersion !== this.vanillaVersionCode() &&
+      !(this.doom.gameVersion <= GameVersion.Doom12 && oldDemo)
+    ) {
+      throw `Demo is from a different game version (read ${demoVersion}, should be ${this.vanillaVersionCode()})`
     }
 
     this.skill = demoP[demoPtr++]
     this.episode = demoP[demoPtr++]
     this.map = demoP[demoPtr++]
-    this.deathMatch = demoP[demoPtr++]
-    this.doom.respawnParam = !!demoP[demoPtr++]
-    this.doom.fastParam = !!demoP[demoPtr++]
-    this.doom.noMonsters = !!demoP[demoPtr++]
-    this.consolePlayer = demoP[demoPtr++]
+    if (!oldDemo) {
+      this.deathMatch = demoP[demoPtr++]
+      this.doom.respawnParam = !!demoP[demoPtr++]
+      this.doom.fastParam = !!demoP[demoPtr++]
+      this.doom.noMonsters = !!demoP[demoPtr++]
+      this.consolePlayer = demoP[demoPtr++]
+    } else {
+      this.deathMatch = 0
+      this.doom.respawnParam = false
+      this.doom.fastParam = false
+      this.doom.noMonsters = false
+      this.consolePlayer = 0
+    }
 
     for (let i = 0; i < MAX_PLAYERS; ++i) {
       this.playerInGame[i] = !!demoP[demoPtr++]
