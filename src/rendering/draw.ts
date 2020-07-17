@@ -386,7 +386,7 @@ export class Draw {
     for (let y = 0; y < SCREENHEIGHT - SBAR_HEIGHT; ++y) {
       for (let x = 0; x < SCREENWIDTH / 64; ++x) {
         dest.set(
-          src.slice((y & 63) << 6, (y & 63) << 6 + 64),
+          src.slice((y & 63) << 6, ((y & 63) << 6) + 64),
           destOffset,
         )
         destOffset += 64
@@ -394,7 +394,7 @@ export class Draw {
 
       if (SCREENWIDTH & 63) {
         dest.set(
-          src.slice((y & 63) << 6, (y & 63) << 6 + SCREENWIDTH & 63),
+          src.slice((y & 63) << 6, ((y & 63) << 6) + (SCREENWIDTH & 63)),
           destOffset,
         )
         destOffset += SCREENWIDTH & 63
