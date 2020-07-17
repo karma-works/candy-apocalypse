@@ -3,6 +3,7 @@ import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
 import { MapLineDef, MapLineFlag, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef, MapSubSector, MapThing, MapVertex } from '../doom/data'
 import { AutoMap } from '../auto-map/auto-map'
 import { BBox } from '../misc/bbox'
+import { Ceilings } from './ceilings'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom/doom'
 import { Doors } from './doors'
@@ -92,6 +93,7 @@ export class Play {
   rejectMatrix: Uint8Array = new Uint8Array(0)
 
   public tick = new Tick(this)
+  public ceilings = new Ceilings(this)
   public doors = new Doors(this)
   public enemy = new Enemy(this)
   public floor = new Floor(this)

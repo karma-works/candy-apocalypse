@@ -195,6 +195,31 @@ export class Sector {
   }
 
   //
+  // FIND HIGHEST CEILING IN THE SURROUNDING SECTORS
+  //
+  findHighestCeilingSurrounding(): number {
+    let check: Line
+    let other: Sector | null
+    let height = 0
+
+    for (let i = 0; i < this.lineCount; ++i) {
+      check = this.lines[i]
+      other = this.getNextSector(check)
+
+      if (!other) {
+        continue
+      }
+
+      if (other.ceilingHeight > height) {
+        height = other.ceilingHeight
+      }
+    }
+
+    return height
+  }
+
+
+  //
   // Find minimum light from an adjacent sector
   //
   findMinSurroundingLight(max: number = this.lightLevel): number {

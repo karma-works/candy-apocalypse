@@ -1,6 +1,8 @@
 import { Anim, MAX_ANIMS, MAX_LINE_ANIMS, animDefs } from './specials/anim'
 import { Button, MAX_BUTTONS, Where } from './switch/button'
 import { Cheat, Player } from '../doom/player'
+import { CeilingType } from './ceiling/ceiling-type'
+import { Ceilings } from './ceilings'
 import { Sound as DSound } from '../doom/sound'
 import { Data } from '../rendering/data'
 import { Doom } from '../doom/doom'
@@ -37,6 +39,9 @@ export const SLOW_DARK = 35
 
 export class Special {
 
+  private get ceilings(): Ceilings {
+    return this.play.ceilings
+  }
   private get data(): Data {
     return this.play.rendering.data
   }
@@ -258,8 +263,7 @@ export class Special {
 
     case 6:
       // Fast Ceiling Crush & Raise
-      // EV_DoCeiling(line, fastCrushAndRaise);
-      debugger
+      this.ceilings.evDoCeiling(line, CeilingType.FastCrushAndRaise)
       line.special = 0
       break
 
@@ -314,8 +318,7 @@ export class Special {
 
     case 25:
       // Ceiling Crush and Raise
-      // EV_DoCeiling(line, crushAndRaise);
-      debugger
+      this.ceilings.evDoCeiling(line, CeilingType.CrushAndRaise)
       line.special = 0
       break
 
@@ -358,15 +361,14 @@ export class Special {
 
     case 40:
       // RaiseCeilingLowerFloor
-      // EV_DoCeiling(line, raiseToHighest);
+      this.ceilings.evDoCeiling(line, CeilingType.RaiseToHighest)
       this.floor.evDoFloor(line, FloorType.LowerFloorToLowest)
       line.special = 0
       break
 
     case 44:
       // Ceiling Crush
-      // EV_DoCeiling(line, lowerAndCrush);
-      debugger
+      this.ceilings.evDoCeiling(line, CeilingType.LowerAndCrush)
       line.special = 0
       break
 
@@ -395,8 +397,7 @@ export class Special {
 
     case 57:
       // Ceiling Crush Stop
-      // EV_CeilingCrushStop(line);
-      debugger
+      this.ceilings.evCeilingCrushStop(line)
       line.special = 0
       break
 
@@ -477,28 +478,24 @@ export class Special {
 
     case 141:
       // Silent Ceiling Crush & Raise
-      // EV_DoCeiling(line, silentCrushAndRaise);
-      debugger
+      this.ceilings.evDoCeiling(line, CeilingType.SilentCrushAndRaise)
       line.special = 0
       break
 
     // RETRIGGERS.  All from here till end.
     case 72:
       // Ceiling Crush
-      // EV_DoCeiling(line, lowerAndCrush);
-      debugger
+      this.ceilings.evDoCeiling(line, CeilingType.LowerAndCrush)
       break
 
     case 73:
       // Ceiling Crush and Raise
-      // EV_DoCeiling(line, crushAndRaise);
-      debugger
+      this.ceilings.evDoCeiling(line, CeilingType.CrushAndRaise)
       break
 
     case 74:
       // Ceiling Crush Stop
-      // EV_CeilingCrushStop(line);
-      debugger
+      this.ceilings.evCeilingCrushStop(line)
       break
 
     case 75:
@@ -513,8 +510,7 @@ export class Special {
 
     case 77:
       // Fast Ceiling Crush & Raise
-      // EV_DoCeiling(line, fastCrushAndRaise);
-      debugger
+      this.ceilings.evDoCeiling(line, CeilingType.FastCrushAndRaise)
       break
 
     case 79:

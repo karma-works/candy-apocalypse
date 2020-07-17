@@ -1,4 +1,6 @@
 import { BUTTON_TIME, Button, MAX_BUTTONS, Where } from './switch/button'
+import { CeilingType } from './ceiling/ceiling-type'
+import { Ceilings } from './ceilings'
 import { Sound as DSound } from '../doom/sound'
 import { Data } from '../rendering/data'
 import { Doom } from '../doom/doom'
@@ -27,6 +29,9 @@ export class Switch {
   private numSwitches = 0
   buttonList = Array.from({ length: MAX_BUTTONS }, () => new Button())
 
+  private get ceilings(): Ceilings {
+    return this.play.ceilings
+  }
   private get data(): Data {
     return this.play.rendering.data
   }
@@ -304,10 +309,9 @@ export class Switch {
 
     case 41:
       // Lower Ceiling to Floor
-      // if (EV_DoCeiling(line, lowerToFloor)) {
-      //   P_ChangeSwitchTexture(line, 0)
-      // }
-      debugger
+      if (this.ceilings.evDoCeiling(line, CeilingType.LowerToFloor)) {
+        this.changeSwitchTexture(line, false)
+      }
       break
 
     case 71:
@@ -319,10 +323,9 @@ export class Switch {
 
     case 49:
       // Ceiling Crush And Raise
-      // if (EV_DoCeiling(line, crushAndRaise)) {
-      //   P_ChangeSwitchTexture(line, 0)
-      // }
-      debugger
+      if (this.ceilings.evDoCeiling(line, CeilingType.CrushAndRaise)) {
+        this.changeSwitchTexture(line, false)
+      }
       break
 
     case 50:
@@ -435,10 +438,9 @@ export class Switch {
 
     case 43:
       // Lower Ceiling to Floor
-      // if (EV_DoCeiling(line, lowerToFloor)) {
-      //   P_ChangeSwitchTexture(line, 1)
-      // }
-      debugger
+      if (this.ceilings.evDoCeiling(line, CeilingType.LowerToFloor)) {
+        this.changeSwitchTexture(line, true)
+      }
       break
 
     case 45:
