@@ -33,7 +33,7 @@ import { random } from '../misc/random'
 export const GLOW_SPEED = 8
 export const STROBE_BRIGHT = 5
 const FAST_DARK = 15
-const SLOW_DARK = 35
+export const SLOW_DARK = 35
 
 export class Special {
 
@@ -278,15 +278,13 @@ export class Special {
 
     case 12:
       // Light Turn On - brightest near
-      // EV_LightTurnOn(line, 0);
-      debugger
+      this.lights.evLightTurnOn(line, 0)
       line.special = 0
       break
 
     case 13:
       // Light Turn On 255
-      // EV_LightTurnOn(line, 255);
-      debugger
+      this.lights.evLightTurnOn(line, 255)
       line.special = 0
       break
 
@@ -298,8 +296,7 @@ export class Special {
 
     case 17:
       // Start Light Strobing
-      // EV_StartLightStrobing(line);
-      debugger
+      this.lights.evStartLightStrobing(line)
       line.special = 0
       break
 
@@ -331,8 +328,7 @@ export class Special {
 
     case 35:
       // Lights Very Dark
-      // EV_LightTurnOn(line, 35);
-      debugger
+      this.lights.evLightTurnOn(line, 35)
       line.special = 0
       break
 
@@ -418,8 +414,7 @@ export class Special {
 
     case 104:
       // Turn lights off in sector(tag)
-      // EV_TurnTagLightsOff(line);
-      debugger
+      this.lights.evTurnTagLightsOff(line)
       line.special = 0
       break
 
@@ -524,20 +519,17 @@ export class Special {
 
     case 79:
       // Lights Very Dark
-      // EV_LightTurnOn(line, 35);
-      debugger
+      this.lights.evLightTurnOn(line, 35)
       break
 
     case 80:
       // Light Turn On - brightest near
-      // EV_LightTurnOn(line, 0);
-      debugger
+      this.lights.evLightTurnOn(line, 0)
       break
 
     case 81:
       // Light Turn On 255
-      // EV_LightTurnOn(line, 255);
-      debugger
+      this.lights.evLightTurnOn(line, 255)
       break
 
     case 82:
@@ -929,7 +921,7 @@ export class Special {
         this.doors.spawnDoorRaiseIn5mins(sector)
         break
       case 17:
-        debugger
+        this.lights.spawnFireFlicker(sector)
         break
       }
     }

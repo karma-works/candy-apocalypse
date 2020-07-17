@@ -62,7 +62,7 @@ export class Sector {
   // Return sector_t * of sector next to current.
   // NULL if not two-sided line
   //
-  private getNextSector(line: Line): Sector | null {
+  getNextSector(line: Line): Sector | null {
     if (!(line.flags & MapLineFlag.TwoSided)) {
       return null
     }

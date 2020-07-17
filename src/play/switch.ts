@@ -8,6 +8,7 @@ import { Floor } from './floor'
 import { FloorType } from './floor/floor-type'
 import { Game } from '../game/game'
 import { GameMode } from '../doom/mode'
+import { Lights } from './lights'
 import { Line } from '../rendering/line'
 import { MObj } from './mobj/mobj'
 import { MapLineFlag } from '../doom/data'
@@ -43,6 +44,9 @@ export class Switch {
   }
   private get game(): Game {
     return this.play.game
+  }
+  private get lights(): Lights {
+    return this.play.lights
   }
   private get plats(): Plats {
     return this.play.plats
@@ -566,16 +570,14 @@ export class Switch {
 
     case 138:
       // Light Turn On
-      // EV_LightTurnOn(line, 255)
-      // P_ChangeSwitchTexture(line, 1)
-      debugger
+      this.lights.evLightTurnOn(line, 255)
+      this.changeSwitchTexture(line, true)
       break
 
     case 139:
       // Light Turn Off
-      // EV_LightTurnOn(line, 35)
-      // P_ChangeSwitchTexture(line, 1)
-      debugger
+      this.lights.evLightTurnOn(line, 35)
+      this.changeSwitchTexture(line, true)
       break
     }
     /* eslint-enable line-comment-position */

@@ -1,6 +1,8 @@
-import { GLOW_SPEED, STROBE_BRIGHT } from './special'
+import { GLOW_SPEED, SLOW_DARK, STROBE_BRIGHT, Special } from './special'
+import { FireFlicker } from './lights/fire-flicker'
 import { Glow } from './lights/glow'
 import { LightFlash } from './lights/light-flash'
+import { Line } from '../rendering/line'
 import { Play } from './setup'
 import { Sector } from '../rendering/sector'
 import { Strobe } from './lights/strobe'
@@ -9,12 +11,43 @@ import { random } from '../misc/random'
 
 export class Lights {
 
-
+  private get special(): Special {
+    return this.play.special
+  }
   private get tick(): Tick {
     return this.play.tick
   }
 
   constructor(private play: Play) { }
+
+  //
+  // T_FireFlicker
+  //
+  private fireFlicker(flick: FireFlicker): void {
+    if (--flick.count) {
+      return
+    }
+
+    const amount = (random.pRandom() & 3) * 16
+
+    if (flick.sector.lightLevel - amount < flick.minLight) {
+      flick.sector.lightLevel = flick.minLight
+    } else {
+      flick.sector.lightLevel = flick.maxLight - amount
+    }
+
+    flick.count = 4
+  }
+
+  spawnFireFlicker(sector: Sector): void {
+    const flick = new FireFlicker(
+      sector,
+      this.fireFlicker,
+      this,
+    )
+
+    this.tick.addThinker(flick)
+  }
 
   //
   // BROKEN LIGHT FLASHING
@@ -97,7 +130,83 @@ export class Lights {
 
     // nothing special about it during gameplay
     sector.special = 0
+  }
 
+  //
+  // Start strobing lights (usually from a trigger)
+  //
+  evStartLightStrobing(line: Line): void {
+    let secNum = -1
+    let sec: Sector
+    while ((secNum = this.special.findSectorFromLineTag(line, secNum)) >= 0) {
+      sec = this.play.sectors[secNum]
+      if (sec.specialData) {
+        continue
+      }
+
+      this.spawnStrobeFlash(sec, SLOW_DARK, 0)
+    }
+  }
+
+  //
+  // TURN LINE'S TAG LIGHTS OFF
+  //
+  evTurnTagLightsOff(line: Line): void {
+    let min: number
+    let tSec: Sector | null
+    let tempLine: Line
+
+    for (let i = 0, sector = this.play.sectors[i];
+      i < this.play.numSectors;
+      i++, sector = this.play.sectors[i]) {
+      if (sector.tag === line.tag) {
+        min = sector.lightLevel
+        for (i = 0; i < sector.lineCount; i++) {
+          tempLine = sector.lines[i]
+          tSec = sector.getNextSector(tempLine)
+          if (!tSec) {
+            continue
+          }
+          if (tSec.lightLevel < min) {
+            min = tSec.lightLevel
+          }
+        }
+        sector.lightLevel = min
+      }
+    }
+  }
+
+  //
+  // TURN LINE'S TAG LIGHTS ON
+  //
+  evLightTurnOn(line: Line, bright: number): void {
+    let tempLine: Line
+    let temp: Sector | null
+
+    for (let i = 0, sector = this.play.sectors[i];
+      i < this.play.numSectors;
+      i++, sector = this.play.sectors[i]) {
+      if (sector.tag === line.tag) {
+        // bright = 0 means to search
+        // for highest light level
+        // surrounding sector
+        if (!bright) {
+          for (let j = 0; j < sector.lineCount; j++) {
+            tempLine = sector.lines[j]
+            temp = sector.getNextSector(tempLine)
+
+            if (!temp) {
+              continue
+            }
+
+            if (temp.lightLevel > bright) {
+              bright = temp.lightLevel
+            }
+          }
+        }
+        sector.lightLevel = bright
+      }
+    }
   }
 
   //
