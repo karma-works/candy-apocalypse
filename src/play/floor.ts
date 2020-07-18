@@ -471,4 +471,66 @@ export class Floor {
     }
     return rtn
   }
+
+  //
+  // Special Stuff that can not be categorized
+  //
+  evDoDonut(line: Line): boolean {
+    let s1: Sector
+    let s2: Sector | null
+    let s3: Sector | null
+    let secNum = -1
+    let rtn = false
+    let i: number
+    let floor: FloorMove
+
+    while ((secNum = this.special.findSectorFromLineTag(line, secNum)) >= 0) {
+      s1 = this.play.sectors[secNum]
+
+      // ALREADY MOVING?  IF SO, KEEP GOING...
+      if (s1.specialData) {
+        continue
+      }
+
+      rtn = true
+      s2 = s1.getNextSector(s1.lines[0])
+      if (s2 === null) {
+        continue
+      }
+
+      for (i = 0; i < s2.lineCount; i++) {
+        if (!(s2.lines[i].flags & MapLineFlag.TwoSided) ||
+          s2.lines[i].backSector === s1
+        ) {
+          continue
+        }
+        s3 = s2.lines[i].backSector
+
+        if (s3 === null) {
+          continue
+        }
+
+        // Spawn rising slime
+        floor = new FloorMove(FloorType.DonutRaise, s2, this.moveFloor, this)
+        this.tick.addThinker(floor)
+        s2.specialData = floor
+        floor.direction = 1
+        floor.speed = FLOOR_SPEED / 2
+        floor.texture = s3.floorPic
+        floor.newSpecial = 0
+        floor.floorDestHeight = s3.floorHeight
+
+        // Spawn lowering donut-hole
+        floor = new FloorMove(FloorType.LowerFloor, s1, this.moveFloor, this)
+        this.tick.addThinker(floor)
+        s1.specialData = floor
+        floor.direction = -1
+        floor.speed = FLOOR_SPEED / 2
+        floor.floorDestHeight = s3.floorHeight
+        break
+      }
+    }
+    return rtn
+  }
+
 }

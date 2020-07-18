@@ -246,10 +246,9 @@ export class Switch {
 
     case 9:
       // Change Donut
-      // if (EV_DoDonut(line)) {
-      //   P_ChangeSwitchTexture(line, 0)
-      // }
-      debugger
+      if (this.floor.evDoDonut(line)) {
+        this.changeSwitchTexture(line, false)
+      }
       break
 
     case 11:
