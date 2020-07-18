@@ -26,6 +26,7 @@ import { PowerType } from '../global/doomdef'
 import { Sector } from '../rendering/sector'
 import { Sfx } from '../doom/sounds/sfx'
 import { Side } from '../rendering/side'
+import { StairType } from './floor/stair-type'
 import { Switch } from './switch'
 import { Teleport } from './teleport'
 import { Tick } from './tick'
@@ -269,8 +270,7 @@ export class Special {
 
     case 8:
       // Build Stairs
-      // EV_BuildStairs(line, build8);
-      debugger
+      this.floor.evBuildStairs(line, StairType.Build8)
       line.special = 0
       break
 
@@ -433,8 +433,7 @@ export class Special {
 
     case 100:
       // Build Stairs Turbo 16
-      // EV_BuildStairs(line, turbo16);
-      debugger
+      this.floor.evBuildStairs(line, StairType.Turbo16)
       line.special = 0
       break
 

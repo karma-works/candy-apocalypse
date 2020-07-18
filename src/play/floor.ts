@@ -7,12 +7,14 @@ import { FloorType } from './floor/floor-type'
 import { GameVersion } from '../doom/mode'
 import { Line } from '../rendering/line'
 import { Map } from './map'
+import { MapLineFlag } from '../doom/data'
 import { Play } from './setup'
 import { Result } from './specials/result'
 import { Sector } from '../rendering/sector'
 import { Sfx } from '../doom/sounds/sfx'
 import { Side } from '../rendering/side'
 import { Special } from './special'
+import { StairType } from './floor/stair-type'
 import { Tick } from './tick'
 
 //
@@ -361,6 +363,112 @@ export class Floor {
 
     }
 
+    return rtn
+  }
+
+
+  //
+  // BUILD A STAIRCASE!
+  //
+  evBuildStairs(line: Line, type: StairType): boolean {
+    let secNum = -1
+    let height: number
+    let i: number
+    let newSecNum: number
+    let texture: number
+    let ok: boolean
+    let rtn = false
+
+    let sec: Sector
+    let tsec: Sector | null
+
+    let floor: FloorMove
+
+    let stairSize: number
+    let speed: number
+
+    while ((secNum = this.special.findSectorFromLineTag(line, secNum)) >= 0) {
+      sec = this.play.sectors[secNum]
+
+      // ALREADY MOVING?  IF SO, KEEP GOING...
+      if (sec.specialData) {
+        continue
+      }
+
+      // new floor thinker
+      rtn = true
+      floor = new FloorMove(FloorType.LowerFloor, sec, this.moveFloor, this)
+      this.tick.addThinker(floor)
+      sec.specialData = floor
+      floor.direction = 1
+      switch (type) {
+      case StairType.Build8:
+        speed = FLOOR_SPEED / 4
+        stairSize = 8 * FRACUNIT
+        break
+      case StairType.Turbo16:
+        speed = FLOOR_SPEED * 4
+        stairSize = 16 * FRACUNIT
+        break
+      }
+      floor.speed = speed
+      height = sec.floorHeight + stairSize
+      floor.floorDestHeight = height
+
+      texture = sec.floorPic
+
+      // Find next sector to raise
+      // 1. Find 2-sided line with same sector side[0]
+      // 2. Other side is the next sector to raise
+      do {
+        ok = false
+        for (i = 0; i < sec.lineCount; i++) {
+          if (!(sec.lines[i].flags & MapLineFlag.TwoSided)) {
+            continue
+          }
+
+          tsec = sec.lines[i].frontSector
+          if (tsec === null) {
+            continue
+          }
+
+          newSecNum = this.play.sectors.indexOf(tsec)
+
+          if (secNum !== newSecNum) {
+            continue
+          }
+
+          tsec = sec.lines[i].backSector
+          if (tsec === null) {
+            continue
+          }
+          newSecNum = this.play.sectors.indexOf(tsec)
+
+          if (tsec.floorPic !== texture) {
+            continue
+          }
+
+          height += stairSize
+
+          if (tsec.specialData) {
+            continue
+          }
+
+          sec = tsec
+          secNum = newSecNum
+
+          floor = new FloorMove(FloorType.LowerFloor, sec, this.moveFloor, this)
+          this.tick.addThinker(floor)
+
+          sec.specialData = floor
+          floor.direction = 1
+          floor.speed = speed
+          floor.floorDestHeight = height
+          ok = true
+          break
+        }
+      } while (ok)
+    }
     return rtn
   }
 }

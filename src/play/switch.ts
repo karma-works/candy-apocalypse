@@ -18,6 +18,7 @@ import { PlatType } from './plats/plat-type'
 import { Plats } from './plats'
 import { Play } from './setup'
 import { Sfx } from '../doom/sounds/sfx'
+import { StairType } from './floor/stair-type'
 import { alphSwitchList } from './switch/switch-list'
 
 // max # of wall switches in a level
@@ -238,10 +239,9 @@ export class Switch {
       // SWITCHES
     case 7:
       // Build Stairs
-      // if (EV_BuildStairs(line, build8)) {
-      //   P_ChangeSwitchTexture(line, 0)
-      // }
-      debugger
+      if (this.floor.evBuildStairs(line, StairType.Build8)) {
+        this.changeSwitchTexture(line, false)
+      }
       break
 
     case 9:
@@ -400,10 +400,9 @@ export class Switch {
 
     case 127:
       // Build Stairs Turbo 16
-      // if (EV_BuildStairs(line, turbo16)) {
-      //   P_ChangeSwitchTexture(line, 0)
-      // }
-      debugger
+      if (this.floor.evBuildStairs(line, StairType.Turbo16)) {
+        this.changeSwitchTexture(line, false)
+      }
       break
 
     case 131:
