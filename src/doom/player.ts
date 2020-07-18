@@ -31,6 +31,8 @@ export const enum Cheat {
 // Extended player object info: player_t
 //
 export class Player {
+  static sizeOf = 308
+
   mo: MObj | null = null
   playerState: PlayerState = 0
   cmd = new TickCmd()
@@ -112,6 +114,12 @@ export class Player {
   // True if secret level has been done.
   didSecret = false
 
+  constructor(buffer?: ArrayBuffer) {
+    if (buffer) {
+      this.unArchive(buffer)
+    }
+  }
+
   reset(): void {
     this.mo = null
     this.playerState = 0
@@ -148,6 +156,151 @@ export class Player {
     this.colorMap = 0
     this.pSprites.forEach(p => p.reset())
     this.didSecret = false
+  }
+
+  unArchive(buffer: ArrayBuffer): void {
+    const int32 = new Int32Array(buffer, 0, Player.sizeOf / Int32Array.BYTES_PER_ELEMENT)
+    let int32Ptr = 0
+    int32Ptr++; this.mo = null
+    this.playerState = int32[int32Ptr++]
+
+    this.cmd.unArchive(buffer.slice(
+      int32Ptr * Int32Array.BYTES_PER_ELEMENT,
+      int32Ptr * Int32Array.BYTES_PER_ELEMENT + TickCmd.sizeOf,
+    ))
+    int32Ptr += TickCmd.sizeOf / Int32Array.BYTES_PER_ELEMENT
+
+    this.viewZ = int32[int32Ptr++]
+    this.viewHeight = int32[int32Ptr++]
+    this.deltaViewHeight = int32[int32Ptr++]
+    this.bob = int32[int32Ptr++]
+    this.health = int32[int32Ptr++]
+    this.armorPoints = int32[int32Ptr++]
+    this.armorType = int32[int32Ptr++]
+    for (let i = 0; i < PowerType.NUMPOWERS; ++i) {
+      this.powers[i] = int32[int32Ptr++]
+    }
+    for (let i = 0; i < Card.NUM_CARDS; ++i) {
+      this.cards[i] = !!int32[int32Ptr++]
+    }
+    this.backpack = !!int32[int32Ptr++]
+    for (let i = 0; i < MAX_PLAYERS; ++i) {
+      this.frags[i] = int32[int32Ptr++]
+    }
+    this.readyWeapon = int32[int32Ptr++]
+    this.pendingWeapon = int32[int32Ptr++]
+
+    for (let i = 0; i < WeaponType.NUMWEAPONS; ++i) {
+      this.weaponOwned[i] = !!int32[int32Ptr++]
+    }
+    for (let i = 0; i < AmmoType.NUM_AMMO; ++i) {
+      this.ammo[i] = int32[int32Ptr++]
+    }
+    for (let i = 0; i < AmmoType.NUM_AMMO; ++i) {
+      this.maxAmmo[i] = int32[int32Ptr++]
+    }
+    this.attackDown = !!int32[int32Ptr++]
+    this.useDown = !!int32[int32Ptr++]
+    this.cheats = int32[int32Ptr++]
+    this.refire = int32[int32Ptr++]
+    this.killCount = int32[int32Ptr++]
+    this.itemCount = int32[int32Ptr++]
+    this.secretCount = int32[int32Ptr++]
+    int32Ptr++; this.message = null
+    this.damageCount = int32[int32Ptr++]
+    this.bonusCount = int32[int32Ptr++]
+    int32Ptr++; this.attacker = null
+    this.extraLight = int32[int32Ptr++]
+    this.fixedColorMap = int32[int32Ptr++]
+    this.colorMap = int32[int32Ptr++]
+    for (let i = 0; i < AmmoType.NUM_AMMO; ++i) {
+      this.maxAmmo[i] = int32[int32Ptr++]
+    }
+
+    // let pSprite: Int32Array
+    for (let i = 0; i < PSpriteNum.NUM_PSPRITES; ++i) {
+      this.pSprites[i].unArchive(buffer.slice(
+        int32Ptr * Int32Array.BYTES_PER_ELEMENT,
+        int32Ptr * Int32Array.BYTES_PER_ELEMENT + PSpriteDef.sizeOf,
+      ))
+      int32Ptr += PSpriteDef.sizeOf / Int32Array.BYTES_PER_ELEMENT
+    }
+    this.didSecret = !!int32[int32Ptr++]
+  }
+
+  archive(): ArrayBuffer {
+    let n: number
+
+    const buffer = new ArrayBuffer(Player.sizeOf)
+    const int32 = new Int32Array(buffer)
+
+    let int32Ptr = 0
+
+    int32[int32Ptr++] = 0
+    int32[int32Ptr++] = this.playerState
+
+    const cmd = new Int32Array(this.cmd.archive())
+    for (n of cmd) {
+      int32[int32Ptr++] = n
+    }
+
+    int32[int32Ptr++] = this.viewZ
+    int32[int32Ptr++] = this.viewHeight
+    int32[int32Ptr++] = this.deltaViewHeight
+    int32[int32Ptr++] = this.bob
+    int32[int32Ptr++] = this.health
+    int32[int32Ptr++] = this.armorPoints
+    int32[int32Ptr++] = this.armorType
+    for (let i = 0; i < PowerType.NUMPOWERS; ++i) {
+      int32[int32Ptr++] = this.powers[i]
+    }
+    for (let i = 0; i < Card.NUM_CARDS; ++i) {
+      int32[int32Ptr++] = this.cards[i] ? 1 : 0
+    }
+    int32[int32Ptr++] = this.backpack ? 1 : 0
+    for (let i = 0; i < MAX_PLAYERS; ++i) {
+      int32[int32Ptr++] = this.frags[i] ? 1 : 0
+    }
+    int32[int32Ptr++] = this.readyWeapon
+    int32[int32Ptr++] = this.pendingWeapon
+
+    for (let i = 0; i < WeaponType.NUMWEAPONS; ++i) {
+      int32[int32Ptr++] = this.weaponOwned[i] ? 1 : 0
+    }
+    for (let i = 0; i < AmmoType.NUM_AMMO; ++i) {
+      int32[int32Ptr++] = this.ammo[i]
+    }
+    for (let i = 0; i < AmmoType.NUM_AMMO; ++i) {
+      int32[int32Ptr++] = this.maxAmmo[i]
+    }
+    int32[int32Ptr++] = this.attackDown ? 1 : 0
+    int32[int32Ptr++] = this.useDown ? 1 : 0
+    int32[int32Ptr++] = this.cheats
+    int32[int32Ptr++] = this.refire
+    int32[int32Ptr++] = this.killCount
+    int32[int32Ptr++] = this.itemCount
+    int32[int32Ptr++] = this.secretCount
+    int32[int32Ptr++] = 0
+    int32[int32Ptr++] = this.damageCount
+    int32[int32Ptr++] = this.bonusCount
+    int32[int32Ptr++] = 0
+    int32[int32Ptr++] = this.extraLight
+    int32[int32Ptr++] = this.fixedColorMap
+    int32[int32Ptr++] = this.colorMap
+    for (let i = 0; i < AmmoType.NUM_AMMO; ++i) {
+      int32[int32Ptr++] = this.maxAmmo[i]
+    }
+
+    let pSprite: Int32Array
+    for (let i = 0; i < PSpriteNum.NUM_PSPRITES; ++i) {
+      pSprite = new Int32Array(this.pSprites[i].archive())
+      for (n of pSprite) {
+        int32[int32Ptr++] = n
+      }
+    }
+    int32[int32Ptr++] = this.didSecret ? 1 : 0
+
+    return int32.buffer
   }
 }
 

@@ -1,5 +1,5 @@
 import { ANG45, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table'
-import { Cheat, PlayerState } from '../doom/player'
+import { Cheat, Player, PlayerState } from '../doom/player'
 import { FLOAT_SPEED, GRAVITY, ITEM_QUE_SIZE, MAX_MOVE, MELEE_RANGE, ON_CEILING_Z, ON_FLOOR_Z, VIEW_HEIGHT } from './local'
 import { FRACBITS, FRACUNIT, mul } from '../misc/fixed'
 import { GameVersion, Skill } from '../doom/mode'
@@ -52,6 +52,9 @@ export class MObjHandler {
   }
   private get mapUtils(): MapUtils {
     return this.play.mapUtils
+  }
+  get players(): readonly Player[] {
+    return this.game.players
   }
   private get pSprite(): PSprite {
     return this.play.pSprite
@@ -444,7 +447,17 @@ export class MObjHandler {
   // P_SpawnMobj
   //
   spawnMObj(x: number, y: number, z: number, type: MObjType): MObj {
-    const mObj = new MObj(this.play, this.thinker, x, y, z, type)
+    const mObj = new MObj(type, this.thinker, this)
+    mObj.x = x
+    mObj.y = y
+
+    if (this.doom.game.gameSkill === Skill.Nightmare) {
+      mObj.reactionTime = 0
+    }
+
+    this.mapUtils.setThingPosition(mObj)
+
+    mObj.setZ(z)
 
     this.tick.addThinker(mObj)
 
@@ -464,9 +477,6 @@ export class MObjHandler {
       mobj.type !== MObjType.Inv &&
       mobj.type !== MObjType.Ins
     ) {
-      if (mobj.spawnPoint === null) {
-        throw 'mobj.spawnPoint = null'
-      }
       this.itemRespawnQue[this.iQueHead] = mobj.spawnPoint
       this.itemRespawnTime[this.iQueHead] = this.tick.levelTime
       this.iQueHead = this.iQueHead + 1 & ITEM_QUE_SIZE - 1

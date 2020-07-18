@@ -23,6 +23,7 @@ import { Node } from '../rendering/node'
 import { PSprite } from './p-sprite'
 import { Plats } from './plats'
 import { Rendering } from '../rendering/rendering'
+import { SaveGame } from './save-game'
 import { Sector } from '../rendering/sector'
 import { Seg } from '../rendering/seg'
 import { Side } from '../rendering/side'
@@ -104,6 +105,7 @@ export class Play {
   public mObjHandler = new MObjHandler(this)
   public plats = new Plats(this)
   public pSprite = new PSprite(this)
+  public saveGame = new SaveGame(this)
   public sight = new Sight(this)
   public special = new Special(this)
   public switch = new Switch(this)
@@ -361,14 +363,14 @@ export class Play {
     for (let i = 0; i < this.numSides; ++i, msdPtr += MapSideDef.sizeOf) {
       msd = new MapSideDef(data.slice(msdPtr))
 
-      this.sides[i] = {
-        textureOffset: msd.textureOffset << FRACBITS,
-        rowOffset: msd.rowOffset << FRACBITS,
-        topTexture: this.rendering.data.textureNumForName(msd.topTexture),
-        bottomTexture: this.rendering.data.textureNumForName(msd.bottomTexture),
-        midTexture: this.rendering.data.textureNumForName(msd.midTexture),
-        sector: this.sectors[msd.sector],
-      }
+      this.sides[i] = new Side(
+        msd.textureOffset << FRACBITS,
+        msd.rowOffset << FRACBITS,
+        this.rendering.data.textureNumForName(msd.topTexture),
+        this.rendering.data.textureNumForName(msd.bottomTexture),
+        this.rendering.data.textureNumForName(msd.midTexture),
+        this.sectors[msd.sector],
+      )
     }
   }
 

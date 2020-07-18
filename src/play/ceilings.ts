@@ -16,13 +16,16 @@ import { Tick } from './tick'
 //
 export class Ceilings {
 
-  private activeCeilings = new Array<Ceiling | null>(MAX_CEILINGS).fill(null)
+  activeCeilings = new Array<Ceiling | null>(MAX_CEILINGS).fill(null)
 
   private get dSound(): DSound {
     return this.play.dSound
   }
   private get floor(): Floor {
     return this.play.floor
+  }
+  get sectors(): readonly Sector[] {
+    return this.play.sectors
   }
   private get special(): Special {
     return this.play.special
@@ -36,8 +39,7 @@ export class Ceilings {
   //
   // T_MoveCeiling
   //
-
-  private moveCeiling(ceiling: Ceiling) {
+  moveCeiling(ceiling: Ceiling): void {
     let res: Result
     switch (ceiling.direction) {
     case 0:
@@ -161,7 +163,7 @@ export class Ceilings {
     }
 
     while ((secNum = this.special.findSectorFromLineTag(line, secNum)) >= 0) {
-      sec = this.play.sectors[secNum]
+      sec = this.sectors[secNum]
 
       if (sec.specialData) {
         continue
@@ -169,7 +171,7 @@ export class Ceilings {
 
       // new ceiling thinker
       rtn = true
-      ceiling = new Ceiling(type, sec, this.moveCeiling, this)
+      ceiling = new Ceiling(this.moveCeiling, this, type, sec)
       this.tick.addThinker(ceiling)
       sec.specialData = ceiling
 
@@ -215,7 +217,7 @@ export class Ceilings {
   //
   // Add an active ceiling
   //
-  private addActiveCeiling(c: Ceiling): void {
+  addActiveCeiling(c: Ceiling): void {
     for (let i = 0; i < MAX_CEILINGS; ++i) {
       if (this.activeCeilings[i] === null) {
         this.activeCeilings[i] = c

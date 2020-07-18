@@ -6,10 +6,7 @@ import { MObjHandler } from '../mobj-handler'
 import { MObjInfo } from '../../doom/info/mobj-info'
 import { MObjType } from '../../doom/info/mobj-type'
 import { MapThing } from '../../doom/data'
-import { Play } from '../setup'
 import { Player } from '../../doom/player'
-import { Skill } from '../../doom/mode'
-import { SpriteNum } from '../../doom/info/sprite-num'
 import { State } from '../../doom/info/state'
 import { SubSector } from '../../rendering/sub-sector'
 import { mObjInfos } from '../../doom/info/mobj-infos'
@@ -82,8 +79,12 @@ import { states } from '../../doom/info/states'
 
 // Map Object definition.
 export class MObj extends Thinker<MObjHandler, [MObj]> {
+  static sizeOf = 154
 
-  public z = 0
+  // Info for drawing: position.
+  x = 0
+  y = 0
+  z = 0
 
   // More list: links in sector (if needed)
   sNext: MObj | null = null
@@ -92,9 +93,9 @@ export class MObj extends Thinker<MObjHandler, [MObj]> {
   // orientation
   angle = 0
   // used to find patch_t and flip value
-  sprite: SpriteNum
+  sprite = 0
   // might be ORed with FF_FULLBRIGHT
-  frame: number
+  frame = 0
 
   // Interaction info, by BLOCKMAP.
   // Links in blocks (if needed).
@@ -104,12 +105,12 @@ export class MObj extends Thinker<MObjHandler, [MObj]> {
   subSector: SubSector | null = null
 
   // The closest interval over all contacted Sectors.
-  floorZ: number
-  ceilingZ: number
+  floorZ = 0
+  ceilingZ = 0
 
   // For movement checking.
-  radius: number
-  height: number
+  radius = 0
+  height = 0
 
   // Momentums, used to update position.
   momX = 0
@@ -119,13 +120,14 @@ export class MObj extends Thinker<MObjHandler, [MObj]> {
   // If == validcount, already checked.
   validCount = 0
 
+  type: MObjType = 0
   info: MObjInfo
 
   // state tic counter
-  tics: number
+  tics = 0
   state: State<unknown, [MObj]>
-  flags: number
-  health: number
+  flags = 0
+  health = 0
 
   // Movement direction, movement generation (zig-zagging).
   // 0-7
@@ -139,7 +141,7 @@ export class MObj extends Thinker<MObjHandler, [MObj]> {
 
   // Reaction time: if non 0, don't attack yet.
   // Used by player to freeze a bit after teleporting.
-  reactionTime: number
+  reactionTime = 0
 
   // If >0, the target will be chased
   // no matter what (even if shot)
@@ -150,53 +152,101 @@ export class MObj extends Thinker<MObjHandler, [MObj]> {
   player: Player | null = null
 
   // Player number last looked for.
-  lastLook: number
+  lastLook = 0
 
   // For nightmare respawn.
-  spawnPoint: MapThing | null = null
+  spawnPoint = new MapThing()
 
   // Thing being chased/attacked for tracers.
   tracer: MObj | null = null
 
+  constructor(buffer: ArrayBuffer, func: Action<MObjHandler, [MObj]>, handle: MObjHandler)
+  constructor(type: MObjType, func: Action<MObjHandler, [MObj]>, handle: MObjHandler)
+
   constructor(
-    play: Play,
+    typeOrBuffer: MObjType | ArrayBuffer,
+
     func: Action<MObjHandler, [MObj]>,
-
-    // Info for drawing: position.
-    public x: number,
-    public y: number,
-    z: number,
-
-    public type: MObjType,
+    handle: MObjHandler,
   ) {
-    super(func, play.mObjHandler)
+    super(func, handle)
 
-    const info = mObjInfos[type]
-    this.info = info
-    this.radius = info.radius
-    this.height = info.height
-    this.flags = info.flags
-    this.health = info.spawnHealth
+    if (typeof typeOrBuffer === 'number') {
+      const info = mObjInfos[typeOrBuffer]
+      this.type = typeOrBuffer
+      this.info = info
+      this.radius = info.radius
+      this.height = info.height
+      this.flags = info.flags
+      this.health = info.spawnHealth
 
-    if (play.doom.game.gameSkill !== Skill.Nightmare) {
       this.reactionTime = info.reactionTime
+
+      this.lastLook = random.pRandom() % MAX_PLAYERS
+
+      // do not set the state with P_SetMobjState,
+      // because action routines can not be called yet
+      const st = states[info.spawnState] as State<unknown, [MObj]>
+      this.state = st
+      this.tics = st.tics
+      this.sprite = st.sprite
+      this.frame = st.frame
     } else {
-      this.reactionTime = 0
+      const int32 = new Int32Array(typeOrBuffer, 0, MObj.sizeOf / Int32Array.BYTES_PER_ELEMENT >> 0)
+      const uint32 = new Uint32Array(typeOrBuffer, 0, MObj.sizeOf / Int32Array.BYTES_PER_ELEMENT >> 0)
+
+      let int32Ptr = 3
+      this.x = int32[int32Ptr++]
+      this.y = int32[int32Ptr++]
+      this.z = int32[int32Ptr++]
+      int32Ptr++; this.sNext = null
+      int32Ptr++; this.sPrev = null
+      this.angle = uint32[int32Ptr++]
+      this.sprite = int32[int32Ptr++]
+      this.frame = int32[int32Ptr++]
+      int32Ptr++; this.bNext = null
+      int32Ptr++; this.bPrev = null
+      int32Ptr++; this.subSector = null
+      this.floorZ = int32[int32Ptr++]
+      this.ceilingZ = int32[int32Ptr++]
+      this.radius = int32[int32Ptr++]
+      this.height = int32[int32Ptr++]
+      this.momX = int32[int32Ptr++]
+      this.momY = int32[int32Ptr++]
+      this.momZ = int32[int32Ptr++]
+      this.validCount = int32[int32Ptr++]
+      this.type = int32[int32Ptr++]
+      int32Ptr++; this.info = mObjInfos[this.type]
+      this.tics = int32[int32Ptr++]
+      const state = int32[int32Ptr++]
+      this.state = states[state] as State<unknown, [unknown]>
+      this.flags = int32[int32Ptr++]
+      this.health = int32[int32Ptr++]
+      this.moveDir = int32[int32Ptr++]
+      this.moveCount = int32[int32Ptr++]
+      int32Ptr++; this.target = null
+      this.reactionTime = int32[int32Ptr++]
+      this.threshold = int32[int32Ptr++]
+      const player = int32[int32Ptr++]
+      if (player) {
+        this.player = this.handler.players[player - 1]
+        this.player.mo = this
+      } else {
+        this.player = null
+      }
+      this.lastLook = int32[int32Ptr++]
+
+      this.spawnPoint.unArchive(typeOrBuffer.slice(
+        int32Ptr * Int32Array.BYTES_PER_ELEMENT,
+        int32Ptr * Int32Array.BYTES_PER_ELEMENT + MapThing.sizeOf,
+      ))
+
+      this.tracer = null
     }
 
-    this.lastLook = random.pRandom() % MAX_PLAYERS
+  }
 
-    // do not set the state with P_SetMobjState,
-    // because action routines can not be called yet
-    const st = states[info.spawnState] as State<unknown, [MObj]>
-    this.state = st
-    this.tics = st.tics
-    this.sprite = st.sprite
-    this.frame = st.frame
-
-    // set subsector and/or block links
-    play.mapUtils.setThingPosition(this)
-
+  setZ(z: number = this.z): void {
     if (this.subSector === null || this.subSector.sector === null) {
       throw 'mobj.subSector = null'
     }
@@ -211,5 +261,58 @@ export class MObj extends Thinker<MObjHandler, [MObj]> {
     } else {
       this.z = z
     }
+  }
+
+  archive(): ArrayBuffer {
+    const buffer = new ArrayBuffer(MObj.sizeOf)
+    const int16 = new Int16Array(buffer)
+    const int32 = new Int32Array(buffer, 0, MObj.sizeOf / Int32Array.BYTES_PER_ELEMENT >> 0)
+    const uint32 = new Uint32Array(buffer, 0, MObj.sizeOf / Int32Array.BYTES_PER_ELEMENT >> 0)
+
+    let int32Ptr = 0
+    int32[int32Ptr++] = 0
+    int32[int32Ptr++] = 0
+    int32[int32Ptr++] = 0
+    int32[int32Ptr++] = this.x
+    int32[int32Ptr++] = this.y
+    int32[int32Ptr++] = this.z
+    int32[int32Ptr++] = 0
+    int32[int32Ptr++] = 0
+    uint32[int32Ptr++] = this.angle
+    int32[int32Ptr++] = this.sprite
+    int32[int32Ptr++] = this.frame
+    int32[int32Ptr++] = 0
+    int32[int32Ptr++] = 0
+    int32[int32Ptr++] = 0
+    int32[int32Ptr++] = this.floorZ
+    int32[int32Ptr++] = this.ceilingZ
+    int32[int32Ptr++] = this.radius
+    int32[int32Ptr++] = this.height
+    int32[int32Ptr++] = this.momX
+    int32[int32Ptr++] = this.momY
+    int32[int32Ptr++] = this.momZ
+    int32[int32Ptr++] = this.validCount
+    int32[int32Ptr++] = this.type
+    int32[int32Ptr++] = 0
+    int32[int32Ptr++] = this.tics
+    int32[int32Ptr++] = states.indexOf(this.state as State<unknown, [unknown]>)
+    int32[int32Ptr++] = this.flags
+    int32[int32Ptr++] = this.health
+    int32[int32Ptr++] = this.moveDir
+    int32[int32Ptr++] = this.moveCount
+    int32[int32Ptr++] = 0
+    int32[int32Ptr++] = this.reactionTime
+    int32[int32Ptr++] = this.threshold
+    if (this.player) {
+      int32[int32Ptr++] = this.handler.players.indexOf(this.player) + 1
+    } else {
+      int32[int32Ptr++] = 0
+    }
+    int32[int32Ptr++] = this.lastLook
+
+    const spawnPoint = new Int16Array(this.spawnPoint.archive())
+    int16.set(spawnPoint, int32Ptr * 2)
+
+    return int16.buffer
   }
 }

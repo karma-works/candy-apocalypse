@@ -34,6 +34,9 @@ export class Floor {
   private get map(): Map {
     return this.play.map
   }
+  get sectors(): readonly Sector[] {
+    return this.play.sectors
+  }
   private get special(): Special {
     return this.play.special
   }
@@ -173,7 +176,7 @@ export class Floor {
   //
   // MOVE A FLOOR TO IT'S DESTINATION (UP OR DOWN)
   //
-  private moveFloor(floor: FloorMove): void {
+  moveFloor(floor: FloorMove): void {
     const res = this.movePlane(
       floor.sector,
       floor.speed,
@@ -219,7 +222,7 @@ export class Floor {
     let floor: FloorMove
 
     while ((secNum = this.special.findSectorFromLineTag(line, secNum)) >= 0) {
-      sec = this.play.sectors[secNum]
+      sec = this.sectors[secNum]
 
       // ALREADY MOVING?  IF SO, KEEP GOING...
       if (sec.specialData) {
@@ -228,7 +231,7 @@ export class Floor {
 
       // new floor thinker
       rtn = true
-      floor = new FloorMove(floorType, sec, this.moveFloor, this)
+      floor = new FloorMove(this.moveFloor, this, floorType, sec)
       this.tick.addThinker(floor)
       sec.specialData = floor as unknown
 
@@ -335,7 +338,7 @@ export class Floor {
           for (let i = 0; i < sec.lineCount; ++i) {
             if (this.special.twoSided(secNum, i)) {
               if (
-                this.play.sectors.indexOf(
+                this.sectors.indexOf(
                   this.special.getSide(secNum, i, 0).sector,
                 ) === secNum
               ) {
@@ -388,7 +391,7 @@ export class Floor {
     let speed: number
 
     while ((secNum = this.special.findSectorFromLineTag(line, secNum)) >= 0) {
-      sec = this.play.sectors[secNum]
+      sec = this.sectors[secNum]
 
       // ALREADY MOVING?  IF SO, KEEP GOING...
       if (sec.specialData) {
@@ -397,7 +400,7 @@ export class Floor {
 
       // new floor thinker
       rtn = true
-      floor = new FloorMove(FloorType.LowerFloor, sec, this.moveFloor, this)
+      floor = new FloorMove(this.moveFloor, this, FloorType.LowerFloor, sec)
       this.tick.addThinker(floor)
       sec.specialData = floor
       floor.direction = 1
@@ -432,7 +435,7 @@ export class Floor {
             continue
           }
 
-          newSecNum = this.play.sectors.indexOf(tsec)
+          newSecNum = this.sectors.indexOf(tsec)
 
           if (secNum !== newSecNum) {
             continue
@@ -442,7 +445,7 @@ export class Floor {
           if (tsec === null) {
             continue
           }
-          newSecNum = this.play.sectors.indexOf(tsec)
+          newSecNum = this.sectors.indexOf(tsec)
 
           if (tsec.floorPic !== texture) {
             continue
@@ -457,7 +460,7 @@ export class Floor {
           sec = tsec
           secNum = newSecNum
 
-          floor = new FloorMove(FloorType.LowerFloor, sec, this.moveFloor, this)
+          floor = new FloorMove(this.moveFloor, this, FloorType.LowerFloor, sec)
           this.tick.addThinker(floor)
 
           sec.specialData = floor
@@ -485,7 +488,7 @@ export class Floor {
     let floor: FloorMove
 
     while ((secNum = this.special.findSectorFromLineTag(line, secNum)) >= 0) {
-      s1 = this.play.sectors[secNum]
+      s1 = this.sectors[secNum]
 
       // ALREADY MOVING?  IF SO, KEEP GOING...
       if (s1.specialData) {
@@ -511,7 +514,7 @@ export class Floor {
         }
 
         // Spawn rising slime
-        floor = new FloorMove(FloorType.DonutRaise, s2, this.moveFloor, this)
+        floor = new FloorMove(this.moveFloor, this, FloorType.DonutRaise, s2,)
         this.tick.addThinker(floor)
         s2.specialData = floor
         floor.direction = 1
@@ -521,7 +524,7 @@ export class Floor {
         floor.floorDestHeight = s3.floorHeight
 
         // Spawn lowering donut-hole
-        floor = new FloorMove(FloorType.LowerFloor, s1, this.moveFloor, this)
+        floor = new FloorMove(this.moveFloor, this, FloorType.LowerFloor, s1)
         this.tick.addThinker(floor)
         s1.specialData = floor
         floor.direction = -1

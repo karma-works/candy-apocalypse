@@ -249,7 +249,7 @@ export class MapNode {
 // Thing definition, position, orientation and type,
 // plus skill/visibility flags and attributes.
 export class MapThing {
-  static sizeOf = 2 * 5
+  static sizeOf = Int16Array.BYTES_PER_ELEMENT * 5
 
   x = 0
   y = 0
@@ -259,13 +259,27 @@ export class MapThing {
 
   constructor(buffer?: ArrayBuffer) {
     if (buffer) {
-      const int16 = new Int16Array(buffer, 0, 5)
-
-      this.x = int16[0]
-      this.y = int16[1]
-      this.angle = int16[2]
-      this.type = int16[3]
-      this.options = int16[4]
+      this.unArchive(buffer)
     }
+  }
+
+  unArchive(buffer: ArrayBuffer): void {
+    const int16 = new Int16Array(buffer, 0, 5)
+
+    this.x = int16[0]
+    this.y = int16[1]
+    this.angle = int16[2]
+    this.type = int16[3]
+    this.options = int16[4]
+  }
+
+  archive(): ArrayBuffer {
+    return new Int16Array([
+      this.x,
+      this.y,
+      this.angle,
+      this.type,
+      this.options,
+    ]).buffer
   }
 }

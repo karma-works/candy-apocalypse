@@ -1,5 +1,5 @@
+import { FRACBITS, FRACUNIT } from '../misc/fixed'
 import { BBox } from '../misc/bbox'
-import { FRACUNIT } from '../misc/fixed'
 import { Line } from './line'
 import { MObj } from '../play/mobj/mobj'
 import { MapLineFlag } from '../doom/data'
@@ -12,6 +12,8 @@ const MAX_ADJOINING_SECTORS = 20
 // Stores things/mobjs.
 //
 export class Sector {
+  static sizeOf = 14
+
   floorHeight: number;
   ceilingHeight: number;
   floorPic: number;
@@ -242,4 +244,36 @@ export class Sector {
 
     return min
   }
+
+  unArchive(buffer: ArrayBuffer): void {
+    const int16 = new Int16Array(buffer)
+    let int16Ptr = 0
+    this.floorHeight = int16[int16Ptr++] << FRACBITS
+    this.ceilingHeight = int16[int16Ptr++] << FRACBITS
+    this.floorPic = int16[int16Ptr++]
+    this.ceilingPic = int16[int16Ptr++]
+    this.lightLevel = int16[int16Ptr++]
+    this.special = int16[int16Ptr++]
+    this.tag = int16[int16Ptr++]
+    this.specialData = 0
+    this.soundTarget = null
+  }
+
+  archive(): ArrayBuffer {
+    return new Int16Array([
+      this.floorHeight >> FRACBITS,
+      this.ceilingHeight >> FRACBITS,
+      this.floorPic,
+      this.ceilingPic,
+      this.lightLevel,
+      this.special,
+      this.tag,
+    ]).buffer
+  }
+}
+
+export function isSector(s: unknown): s is Sector {
+  const sec = s as Sector
+
+  return typeof sec.getNextSector === 'function'
 }

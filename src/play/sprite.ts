@@ -1,5 +1,6 @@
 import { Player } from '../doom/player'
 import { State } from '../doom/info/state'
+import { states } from '../doom/info/states'
 
 //
 // Frame flags:
@@ -21,6 +22,8 @@ export const enum PSpriteNum {
 }
 
 export class PSpriteDef {
+  static sizeOf = 16
+
   // a NULL state means not active
   state: State<unknown, [Player, PSpriteDef]> | null = null
   tics = 0
@@ -32,5 +35,26 @@ export class PSpriteDef {
     this.tics = 0
     this.sX = 0
     this.sY = 0
+  }
+
+  unArchive(buffer: ArrayBuffer): void {
+    const int32 = new Int32Array(buffer)
+    let int32Ptr = 0
+    const state = int32[int32Ptr++]
+    if (state) {
+      this.state = states[state] as State<unknown, [unknown]>
+    }
+    this.tics = int32[int32Ptr++]
+    this.sX = int32[int32Ptr++]
+    this.sY = int32[int32Ptr++]
+  }
+
+  archive(): ArrayBuffer {
+    return new Int32Array([
+      states.indexOf(this.state as State<unknown, [unknown]>),
+      this.tics,
+      this.sX,
+      this.sY,
+    ]).buffer
   }
 }

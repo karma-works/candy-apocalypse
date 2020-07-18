@@ -24,6 +24,9 @@ export class Plats {
   private get floor(): Floor {
     return this.play.floor
   }
+  get sectors(): readonly Sector[] {
+    return this.play.sectors
+  }
   private get special(): Special {
     return this.play.special
   }
@@ -36,7 +39,7 @@ export class Plats {
   //
   // Move a plat up and down
   //
-  private plateRaise(plat: Plat): void {
+  platRaise(plat: Plat): void {
     let res: Result
 
     switch (plat.status) {
@@ -130,7 +133,7 @@ export class Plats {
     }
 
     while ((secNum = this.special.findSectorFromLineTag(line, secNum)) >= 0) {
-      sec = this.play.sectors[secNum]
+      sec = this.sectors[secNum]
 
       if (sec.specialData) {
         continue
@@ -138,7 +141,7 @@ export class Plats {
 
       // Find lowest & highest floors around sector
       rtn = true
-      plat = new Plat(type, sec, this.plateRaise, this)
+      plat = new Plat(this.platRaise, this, type, sec)
       this.tick.addThinker(plat)
 
       plat.sector.specialData = plat
@@ -229,7 +232,7 @@ export class Plats {
         this.activePlats[i].status = this.activePlats[i].oldStatus
 
         debugger
-        this.activePlats[i].func = this.plateRaise
+        this.activePlats[i].func = this.platRaise
         this.activePlats[i].handler = this
       }
     }
@@ -251,7 +254,7 @@ export class Plats {
     }
   }
 
-  private addActivePlat(plat: Plat): void {
+  addActivePlat(plat: Plat): void {
     for (let i = 0; i< MAX_PLATS; ++i) {
       if (this.activePlats[i] === undefined) {
         this.activePlats[i] = plat

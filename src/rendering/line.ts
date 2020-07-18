@@ -4,6 +4,8 @@ import { SlopeType } from './slope-type'
 import { Vertex } from './vertex'
 import { div } from '../misc/fixed'
 export class Line {
+  static sizeOf = 6
+
   // Precalculated v2 - v1 for side checking.
   dX: number
   dY: number
@@ -65,5 +67,21 @@ export class Line {
       this.bbox.bottom = v2.y
       this.bbox.top = v1.y
     }
+  }
+
+  unArchive(buffer: ArrayBuffer): void {
+    const int16 = new Int16Array(buffer)
+    let int16Ptr = 0
+    this.flags = int16[int16Ptr++]
+    this.special = int16[int16Ptr++]
+    this.tag = int16[int16Ptr++]
+  }
+
+  archive(): ArrayBuffer {
+    return new Int16Array([
+      this.flags,
+      this.special,
+      this.tag,
+    ]).buffer
   }
 }

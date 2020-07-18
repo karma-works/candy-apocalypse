@@ -94,6 +94,7 @@ function drawSave(menu: Menu): void {
 // M_Responder calls this when user is finished
 //
 export function doSave(menu: Menu, slot: number): void {
+  menu.game.setSaveGame(slot, menu.saveGameStrings[slot])
   menu.clearMenus()
 
   // PICK QUICKSAVE SLOT YET?

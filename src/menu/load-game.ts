@@ -1,5 +1,6 @@
 import { LINEHEIGHT, Menu } from './menu'
 import { MenuItem, MenuStruct } from './typedefs'
+import { SAVE_GAME_NAME } from '../game/game'
 import { Sfx } from '../doom/sounds/sfx'
 import { mainDef } from './doom-menu'
 
@@ -83,7 +84,8 @@ function drawLoad(menu: Menu): void {
 //
 // User wants to load this game
 //
-function loadSelect(menu: Menu/* , choice: number */): void {
+function loadSelect(menu: Menu, choice: number): void {
+  menu.game.loadGame(`${SAVE_GAME_NAME}${choice}.dsg`)
   menu.clearMenus()
 }
 
@@ -92,7 +94,7 @@ function loadSelect(menu: Menu/* , choice: number */): void {
 //
 function quickLoadResponse(menu: Menu, choice: number): void {
   if (choice === 'y'.charCodeAt(0)) {
-    loadSelect(menu/* , menu.quickSaveSlot */)
+    loadSelect(menu, menu.quickSaveSlot)
     menu.dSound.startSound(null, Sfx.Swtchx)
   }
 }

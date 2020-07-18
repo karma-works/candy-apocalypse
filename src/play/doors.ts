@@ -21,6 +21,9 @@ export class Doors {
   private get floor(): Floor {
     return this.play.floor
   }
+  get sectors(): readonly Sector[] {
+    return this.play.sectors
+  }
   private get special(): Special {
     return this.play.special
   }
@@ -39,7 +42,7 @@ export class Doors {
   //
   // T_VerticalDoor
   //
-  private verticalDoor(door: Door): void {
+  verticalDoor(door: Door): void {
     let res: Result
     switch (door.direction) {
     case 0:
@@ -202,7 +205,7 @@ export class Doors {
     let door: Door
 
     while ((secNum = this.special.findSectorFromLineTag(line, secNum)) >= 0) {
-      sec = this.play.sectors[secNum]
+      sec = this.sectors[secNum]
       if (sec.specialData) {
         continue
       }
@@ -211,10 +214,10 @@ export class Doors {
       rtn = 1
 
       door = new Door(
-        type,
-        sec,
         this.verticalDoor,
         this,
+        type,
+        sec,
       )
       this.tick.addThinker(door)
       sec.specialData = door
@@ -366,7 +369,7 @@ export class Doors {
     }
 
     // new door thinker
-    door = new Door(0, sec, this.verticalDoor, this)
+    door = new Door(this.verticalDoor, this, 0, sec)
     this.tick.addThinker(door)
     sec.specialData = door
 
@@ -415,10 +418,10 @@ export class Doors {
   //
   spawnDoorCloseIn30(sec: Sector): void {
     const door = new Door(
-      DoorType.Normal,
-      sec,
       this.verticalDoor,
       this,
+      DoorType.Normal,
+      sec,
     )
     this.tick.addThinker(door)
 
@@ -434,10 +437,10 @@ export class Doors {
   //
   spawnDoorRaiseIn5mins(sec: Sector): void {
     const door = new Door(
-      DoorType.RaiseIn5Mins,
-      sec,
       this.verticalDoor,
       this,
+      DoorType.RaiseIn5Mins,
+      sec,
     )
     this.tick.addThinker(door)
 

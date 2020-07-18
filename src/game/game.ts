@@ -16,6 +16,7 @@ import { Net } from '../doom/net'
 import { Play } from '../play/setup'
 import { Rendering } from '../rendering/rendering'
 import { SKY_FLAT_NAME } from '../rendering/sky'
+import { SaveGame } from '../play/save-game'
 import { StateNum } from '../doom/info/state-num'
 import { StatusBar } from '../status/stuff'
 import { Tick } from '../play/tick'
@@ -27,6 +28,7 @@ import { mObjInfos } from '../doom/info/mobj-infos'
 import { maxAmmo } from '../play/inter'
 import { random } from '../misc/random'
 import { states } from '../doom/info/states'
+import { tostring } from '../c'
 
 const MAX_PL_MOVE = 0x32
 
@@ -56,6 +58,9 @@ const cPars = [
 
 const DEMO_MARKER = 0x80
 
+const SAVE_GAME_SIZE = 0x2c000
+const SAVE_STRING_SIZE = 24
+const VERSION_SIZE = 16
 
 export class Game {
   gameAction = GameAction.Nothing
@@ -170,6 +175,9 @@ export class Game {
   // allow [-1]
   private joyButtons = new Array<boolean>(4).fill(false)
 
+  private saveGameSlot = 0
+  private saveDescription = ''
+
   bodyQueSlot = -1
 
   mouseSensitivity = 5
@@ -194,6 +202,9 @@ export class Game {
   }
   private get rendering(): Rendering {
     return this.doom.rendering
+  }
+  private get saveGame(): SaveGame {
+    return this.play.saveGame
   }
   private get statusBar(): StatusBar {
     return this.doom.statusBar
@@ -365,6 +376,13 @@ export class Game {
 
     cmd.forwardMove += forward
     cmd.sideMove += side
+
+    // special buttons
+    if (this.sendSave) {
+      this.sendSave = false
+      cmd.buttons = ButtonCode.Special |
+        ButtonCode.SaveGame | this.saveGameSlot << ButtonCode.SaveShift
+    }
   }
 
   //
@@ -533,8 +551,17 @@ export class Game {
 
     while (this.gameAction !== GameAction.Nothing) {
       switch (this.gameAction) {
+      case GameAction.LoadLevel:
+        this.doLoadLevel()
+        break
       case GameAction.NewGame:
         this.doNewGame()
+        break
+      case GameAction.LoadGame:
+        this.doLoadGame()
+        break
+      case GameAction.SaveGame:
+        this.doSaveGame()
         break
       case GameAction.PlayDemo:
         this.doPlayDemo()
@@ -579,7 +606,13 @@ export class Game {
             break
 
           case ButtonCode.SaveGame:
-            debugger
+            if (!this.saveDescription) {
+              this.saveDescription = 'NET GAME'
+            }
+            this.saveGameSlot = this.players[i].cmd.buttons & ButtonCode.SaveMask >>
+                ButtonCode.SaveShift
+
+            this.gameAction = GameAction.SaveGame
             break
           }
         }
@@ -846,6 +879,119 @@ export class Game {
     this.doLoadLevel()
     this.gameAction = GameAction.Nothing
     this.viewActive = true
+  }
+
+  private saveName = ''
+  loadGame(name: string): void {
+    this.saveName = name
+    this.gameAction = GameAction.LoadGame
+  }
+
+  private async doLoadGame(): Promise<void> {
+    this.gameAction = GameAction.Pending
+
+    const saveBuffer = new ArrayBuffer(0)
+    // TODO
+
+    const int8 = new Uint8Array(saveBuffer)
+    let saveP = SAVE_STRING_SIZE
+
+    const vCheck1 = `version ${this.vanillaVersionCode()}`
+    const vCheck2 = tostring(saveBuffer, saveP, VERSION_SIZE)
+    if (vCheck1 !== vCheck2) {
+      // bad version
+      return
+    }
+
+    saveP += VERSION_SIZE
+
+    this.gameSkill = int8[saveP++]
+    this.gameEpisode = int8[saveP++]
+    this.gameMap = int8[saveP++]
+
+    for (let i = 0; i < MAX_PLAYERS; ++i) {
+      this.playerInGame[i] = !!int8[saveP++]
+    }
+
+    // load a base level
+    this.initNew(this.gameSkill, this.gameEpisode, this.gameMap)
+
+    const a = int8[saveP++]
+    const b = int8[saveP++]
+    const c = int8[saveP++]
+    this.tick.levelTime = (a << 16) + (b << 8) + c
+
+    // dearchive all the modifications
+    saveP = this.saveGame.unArchivePlayers(saveBuffer, saveP)
+    saveP = this.saveGame.unArchiveWorld(saveBuffer, saveP)
+    saveP = this.saveGame.unArchiveThinkers(saveBuffer, saveP)
+    saveP = this.saveGame.unArchiveSpecials(saveBuffer, saveP)
+
+    if (int8[saveP++] !== 0x1d) {
+      throw 'Bad savegame'
+    }
+
+    if (this.rendering.setSizeNeeded) {
+      this.rendering.executeSetViewSize()
+    }
+  }
+
+  //
+  // G_SaveGame
+  // Called by the menu task.
+  // Description is a 24 byte text string
+  //
+  setSaveGame(slot: number, description: string): void {
+    this.saveGameSlot = slot
+    this.saveDescription = description
+    this.sendSave = true
+  }
+
+  private doSaveGame(): void {
+    const saveBuffer = new ArrayBuffer(SAVE_GAME_SIZE)
+    const int8 = new Uint8Array(saveBuffer)
+    let saveP = 0
+
+    const description = this.saveDescription
+
+    for (let i = 0; i < SAVE_STRING_SIZE; ++i) {
+      int8[saveP++] = description.charCodeAt(i)
+    }
+
+    const name2 = `version ${this.vanillaVersionCode()}`
+
+    for (let i = 0; i < VERSION_SIZE; ++i) {
+      int8[saveP++] = name2.charCodeAt(i)
+    }
+
+    int8[saveP++] = this.gameSkill
+    int8[saveP++] = this.gameEpisode
+    int8[saveP++] = this.gameMap
+    for (let i = 0; i < MAX_PLAYERS; ++i) {
+      int8[saveP++] = this.playerInGame[i] ? 1 : 0
+    }
+    int8[saveP++] = this.tick.levelTime >> 16
+    int8[saveP++] = this.tick.levelTime >> 8
+    int8[saveP++] = this.tick.levelTime
+
+    saveP = this.saveGame.archivePlayers(saveBuffer, saveP)
+    saveP = this.saveGame.archiveWorld(saveBuffer, saveP)
+    saveP = this.saveGame.archiveThinkers(saveBuffer, saveP)
+    saveP = this.saveGame.archiveSpecials(saveBuffer, saveP)
+
+    // consistancy marker
+    int8[saveP++] = 0x1d
+
+    if (saveP > SAVE_GAME_SIZE) {
+      throw 'Savegame buffer overrun'
+    }
+
+    // TODO save
+
+    this.gameAction = GameAction.Nothing
+    this.saveDescription = ''
+
+    this.players[this.consolePlayer].message = this.doom.strings.ggsaved
   }
 
   //

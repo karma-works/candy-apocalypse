@@ -57,4 +57,10 @@ export class TickCmd {
   copyFrom(from: TickCmd): void {
     this.bytes.set(from.bytes)
   }
+  unArchive(buffer: ArrayBuffer): void {
+    this.bytes.set(new Uint8Array(buffer))
+  }
+  archive(): ArrayBuffer {
+    return this.bytes.slice().buffer
+  }
 }

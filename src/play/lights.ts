@@ -11,6 +11,9 @@ import { random } from '../misc/random'
 
 export class Lights {
 
+  get sectors(): readonly Sector[] {
+    return this.play.sectors
+  }
   private get special(): Special {
     return this.play.special
   }
@@ -82,9 +85,9 @@ export class Lights {
     sector.special = 0
 
     const flash = new LightFlash(
-      sector,
       this.lightFlash,
       this,
+      sector,
     )
 
     this.tick.addThinker(flash)
@@ -119,9 +122,9 @@ export class Lights {
   //
   spawnStrobeFlash(sector: Sector, fastOrSlow: number, inSync: number): void {
     const flash = new Strobe(
-      sector,
       this.strobeFlash,
       this,
+      sector,
       fastOrSlow,
       STROBE_BRIGHT,
       inSync,
@@ -139,7 +142,7 @@ export class Lights {
     let secNum = -1
     let sec: Sector
     while ((secNum = this.special.findSectorFromLineTag(line, secNum)) >= 0) {
-      sec = this.play.sectors[secNum]
+      sec = this.sectors[secNum]
       if (sec.specialData) {
         continue
       }
@@ -156,9 +159,9 @@ export class Lights {
     let tSec: Sector | null
     let tempLine: Line
 
-    for (let i = 0, sector = this.play.sectors[i];
+    for (let i = 0, sector = this.sectors[i];
       i < this.play.numSectors;
-      i++, sector = this.play.sectors[i]) {
+      i++, sector = this.sectors[i]) {
       if (sector.tag === line.tag) {
         min = sector.lightLevel
         for (i = 0; i < sector.lineCount; i++) {
@@ -183,9 +186,9 @@ export class Lights {
     let tempLine: Line
     let temp: Sector | null
 
-    for (let i = 0, sector = this.play.sectors[i];
+    for (let i = 0, sector = this.sectors[i];
       i < this.play.numSectors;
-      i++, sector = this.play.sectors[i]) {
+      i++, sector = this.sectors[i]) {
       if (sector.tag === line.tag) {
         // bright = 0 means to search
         // for highest light level
@@ -234,9 +237,9 @@ export class Lights {
   }
   spawnGlowingLight(sector: Sector): void {
     const glow = new Glow(
-      sector,
       this.glow,
       this,
+      sector,
     )
     this.tick.addThinker(glow)
 

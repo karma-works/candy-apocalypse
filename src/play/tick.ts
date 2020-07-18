@@ -18,7 +18,7 @@ export class Tick {
   levelTime = -1
 
   // Both the head and tail of the thinker list.
-  thinkerCap = new Thinker()
+  thinkerCap = new Thinker(null, this)
 
   private get game(): Game {
     return this.play.game
