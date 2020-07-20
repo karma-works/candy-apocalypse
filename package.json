@@ -26,5 +26,8 @@
   },
   "browserslist": [
     "last 1 Chrome versions"
-  ]
+  ],
+  "dependencies": {
+    "dexie": "^3.0.1"
+  }
 }

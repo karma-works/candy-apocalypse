@@ -32,6 +32,7 @@ export const enum GameAction {
   Victory,
   WorldDone,
   Screenshot,
+  Pending,
 }
 
 //

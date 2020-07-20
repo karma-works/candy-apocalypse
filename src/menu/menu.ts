@@ -1,4 +1,5 @@
 import { DEvent, EvType } from '../doom/event'
+import { Game, SAVE_GAME_NAME, SAVE_STRING_SIZE } from '../game/game'
 import { GameMode, GameVersion } from '../doom/mode'
 import { HU_FONTSIZE, HU_FONTSTART, HeadsUp } from '../heads-up/stuff'
 import { KEY_BACKSPACE, KEY_DOWNARROW, KEY_ENTER, KEY_EQUALS, KEY_ESCAPE, KEY_F1, KEY_F10, KEY_F11, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_LEFTARROW, KEY_MINUS, KEY_RIGHTARROW, KEY_UPARROW, SCREENWIDTH } from '../global/doomdef'
@@ -8,10 +9,10 @@ import { Sound, soundDef } from './sound-volume'
 import { changeDetail, changeMessages, endGame, sizeDisplay } from './options'
 import { doSave, quickSave } from './save-game'
 import { drawReadThisCommercial, finishReadThis, readDef1, readDef2, readMenu1, readThis2 } from './read-this'
+import { tostring, toupper } from '../c'
 import { AutoMap } from '../auto-map/auto-map'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom/doom'
-import { Game } from '../game/game'
 import { Video as IVideo } from '../interfaces/video'
 import { MenuStruct } from './typedefs'
 import { Video as RVideo } from '../rendering/video'
@@ -19,9 +20,9 @@ import { Rendering } from '../rendering/rendering'
 import { Sfx } from '../doom/sounds/sfx'
 import { Wad } from '../wad/wad'
 import { episodeDef as epiDef } from './episode-select'
+import { fs } from '../system/fs'
 import { getTime } from '../system/system'
 import { newDef } from './new-game'
-import { toupper } from '../c'
 
 const SAVESTRINGSIZE = 24
 const SKULLOFF = -32
@@ -93,11 +94,27 @@ export class Menu {
   // M_ReadSaveStrings
   //  read the strings from the savegame files
   //
-  readSaveStrings(): void {
+  async readSaveStrings(): Promise<void> {
+    const promises: Promise<void>[] = []
     for (let i = 0; i < Load.LoadEnd; ++i) {
+      promises.push(this.readSaveString(i))
+    }
+    await Promise.all(promises)
+  }
+  private async readSaveString(i: number): Promise<void> {
+    this.saveGameStrings[i] = '...'
+    loadMenu[i].status = 0
+
+    const handle = await fs.open(`${SAVE_GAME_NAME}${i}.dsg`)
+
+    if (handle === undefined) {
       this.saveGameStrings[i] = ''
       loadMenu[i].status = 0
+      return
     }
+
+    this.saveGameStrings[i] = tostring(handle, 0, SAVE_STRING_SIZE)
+    loadMenu[i].status = 1
   }
 
   //

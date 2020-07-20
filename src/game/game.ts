@@ -23,6 +23,7 @@ import { Tick } from '../play/tick'
 import { TickCmd } from '../doom/tick-cmd'
 import { Wad } from '../wad/wad'
 import { Win } from '../win/win'
+import { fs } from '../system/fs'
 import { getTime } from '../system/system'
 import { mObjInfos } from '../doom/info/mobj-infos'
 import { maxAmmo } from '../play/inter'
@@ -58,8 +59,9 @@ const cPars = [
 
 const DEMO_MARKER = 0x80
 
+export const SAVE_GAME_NAME = 'doomsav'
 const SAVE_GAME_SIZE = 0x2c000
-const SAVE_STRING_SIZE = 24
+export const SAVE_STRING_SIZE = 24
 const VERSION_SIZE = 16
 
 export class Game {
@@ -381,7 +383,8 @@ export class Game {
     if (this.sendSave) {
       this.sendSave = false
       cmd.buttons = ButtonCode.Special |
-        ButtonCode.SaveGame | this.saveGameSlot << ButtonCode.SaveShift
+        ButtonCode.SaveGame |
+        this.saveGameSlot << ButtonCode.SaveShift
     }
   }
 
@@ -551,6 +554,8 @@ export class Game {
 
     while (this.gameAction !== GameAction.Nothing) {
       switch (this.gameAction) {
+      case GameAction.Pending:
+        return
       case GameAction.LoadLevel:
         this.doLoadLevel()
         break
@@ -609,7 +614,7 @@ export class Game {
             if (!this.saveDescription) {
               this.saveDescription = 'NET GAME'
             }
-            this.saveGameSlot = this.players[i].cmd.buttons & ButtonCode.SaveMask >>
+            this.saveGameSlot = (this.players[i].cmd.buttons & ButtonCode.SaveMask) >>
                 ButtonCode.SaveShift
 
             this.gameAction = GameAction.SaveGame
@@ -890,8 +895,10 @@ export class Game {
   private async doLoadGame(): Promise<void> {
     this.gameAction = GameAction.Pending
 
-    const saveBuffer = new ArrayBuffer(0)
-    // TODO
+    const saveBuffer = await fs.open(this.saveName)
+    if (saveBuffer === undefined) {
+      throw 'saveBuffer = undefined'
+    }
 
     const int8 = new Uint8Array(saveBuffer)
     let saveP = SAVE_STRING_SIZE
@@ -947,7 +954,9 @@ export class Game {
     this.sendSave = true
   }
 
-  private doSaveGame(): void {
+  private async doSaveGame(): Promise<void> {
+    const name = `${SAVE_GAME_NAME}${this.saveGameSlot}.dsg`
+
     const saveBuffer = new ArrayBuffer(SAVE_GAME_SIZE)
     const int8 = new Uint8Array(saveBuffer)
     let saveP = 0
@@ -986,7 +995,9 @@ export class Game {
       throw 'Savegame buffer overrun'
     }
 
-    // TODO save
+    this.gameAction = GameAction.Pending
+
+    await fs.write(name, saveBuffer.slice(0, saveP))
 
     this.gameAction = GameAction.Nothing
     this.saveDescription = ''

@@ -1,5 +1,6 @@
 import { GameMode, GameVersion, Language } from '../doom/mode'
 import { MenuItem, MenuStruct } from './typedefs'
+import { GameState } from '../global/doomdef'
 import { Menu } from './menu'
 import { Sfx } from '../doom/sounds/sfx'
 import { episodeDef } from './episode-select'
@@ -108,6 +109,15 @@ export function loadGame(menu: Menu): void {
 // Selected from DOOM menu
 //
 export function saveGame(menu: Menu): void {
+  if (!menu.game.userGame) {
+    menu.startMessage(menu.doom.strings.savedead, undefined, false)
+    return
+  }
+
+  if (menu.game.gameState !== GameState.Level) {
+    return
+  }
+
   menu.setupNextMenu(saveDef)
   menu.readSaveStrings()
 }
