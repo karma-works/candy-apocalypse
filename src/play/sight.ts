@@ -3,14 +3,14 @@ import { MapLineFlag, NF_SUBSECTOR } from '../doom/data'
 import { DivLine } from './map-utils/div-line'
 import { Doom } from '../doom/doom'
 import { GameVersion } from '../doom/mode'
-import { Line } from '../rendering/line'
+import { Line } from '../rendering/defs/line'
 import { MObj } from './mobj/mobj'
 import { MapUtils } from './map-utils'
 import { Play } from './setup'
 import { RANGE_CHECK } from '../global/doomdef'
 import { Rendering } from '../rendering/rendering'
-import { Sector } from '../rendering/sector'
-import { Vertex } from '../rendering/vertex'
+import { Sector } from '../rendering/defs/sector'
+import { Vertex } from '../rendering/data/vertex'
 
 export class Sight {
   //

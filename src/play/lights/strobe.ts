@@ -1,5 +1,5 @@
 import { Action, Thinker } from '../../doom/think'
-import { Sector, isSector } from '../../rendering/sector'
+import { Sector, isSector } from '../../rendering/defs/sector'
 import { Lights } from '../lights'
 import { random } from '../../misc/random'
 

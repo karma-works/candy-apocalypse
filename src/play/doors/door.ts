@@ -2,7 +2,7 @@ import { Action, Thinker } from '../../doom/think'
 import { DoorType } from './door-type'
 import { Doors } from '../doors'
 import { FRACUNIT } from '../../misc/fixed'
-import { Sector } from '../../rendering/sector'
+import { Sector } from '../../rendering/defs/sector'
 
 export const DOOR_SPEED = FRACUNIT * 2
 export const DOOR_WAIT = 150

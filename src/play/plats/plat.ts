@@ -3,7 +3,7 @@ import { FRACUNIT } from '../../misc/fixed'
 import { PlatStatus } from './plat-status'
 import { PlatType } from './plat-type'
 import { Plats } from '../plats'
-import { Sector } from '../../rendering/sector'
+import { Sector } from '../../rendering/defs/sector'
 
 export const PLAT_WAIT = 3
 export const PLAT_SPEED = FRACUNIT

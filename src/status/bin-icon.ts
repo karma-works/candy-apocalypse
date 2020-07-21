@@ -1,4 +1,4 @@
-import { Patch } from '../rendering/patch'
+import { Patch } from '../rendering/defs/patch'
 
 export class BinIcon {
   // last icon value

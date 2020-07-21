@@ -1,4 +1,4 @@
-import { Patch } from '../rendering/patch'
+import { Patch } from '../rendering/defs/patch'
 import { Point } from './point'
 import { TICRATE } from '../global/doomdef'
 

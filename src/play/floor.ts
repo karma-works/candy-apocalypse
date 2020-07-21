@@ -5,14 +5,14 @@ import { Doom } from '../doom/doom'
 import { FRACUNIT } from '../misc/fixed'
 import { FloorType } from './floor/floor-type'
 import { GameVersion } from '../doom/mode'
-import { Line } from '../rendering/line'
+import { Line } from '../rendering/defs/line'
 import { Map } from './map'
 import { MapLineFlag } from '../doom/data'
 import { Play } from './setup'
 import { Result } from './specials/result'
-import { Sector } from '../rendering/sector'
+import { Sector } from '../rendering/defs/sector'
 import { Sfx } from '../doom/sounds/sfx'
-import { Side } from '../rendering/side'
+import { Side } from '../rendering/defs/side'
 import { Special } from './special'
 import { StairType } from './floor/stair-type'
 import { Tick } from './tick'
@@ -514,7 +514,7 @@ export class Floor {
         }
 
         // Spawn rising slime
-        floor = new FloorMove(this.moveFloor, this, FloorType.DonutRaise, s2,)
+        floor = new FloorMove(this.moveFloor, this, FloorType.DonutRaise, s2)
         this.tick.addThinker(floor)
         s2.specialData = floor
         floor.direction = 1

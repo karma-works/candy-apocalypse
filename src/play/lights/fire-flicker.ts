@@ -1,6 +1,6 @@
 import { Action, Thinker } from '../../doom/think'
 import { Lights } from '../lights'
-import { Sector } from '../../rendering/sector'
+import { Sector } from '../../rendering/defs/sector'
 
 export class FireFlicker extends Thinker<Lights, [FireFlicker]> {
   count: number

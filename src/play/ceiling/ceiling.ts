@@ -2,7 +2,7 @@ import { Action, Thinker } from '../../doom/think'
 import { CeilingType } from './ceiling-type'
 import { Ceilings } from '../ceilings'
 import { FRACUNIT } from '../../misc/fixed'
-import { Sector } from '../../rendering/sector'
+import { Sector } from '../../rendering/defs/sector'
 
 export const CEIL_SPEED = FRACUNIT
 export const MAX_CEILINGS = 30

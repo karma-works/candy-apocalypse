@@ -2,7 +2,7 @@ import { Action, Thinker } from '../../doom/think'
 import { FRACUNIT } from '../../misc/fixed'
 import { Floor } from '../floor'
 import { FloorType } from './floor-type'
-import { Sector } from '../../rendering/sector'
+import { Sector } from '../../rendering/defs/sector'
 
 export const FLOOR_SPEED = FRACUNIT
 

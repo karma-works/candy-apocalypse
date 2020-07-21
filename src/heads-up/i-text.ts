@@ -1,4 +1,4 @@
-import { Patch } from '../rendering/patch'
+import { Patch } from '../rendering/defs/patch'
 import { TextLine } from './text-line'
 
 // Input Text Line widget

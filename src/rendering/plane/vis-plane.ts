@@ -1,4 +1,4 @@
-import { SCREENWIDTH } from '../global/doomdef'
+import { SCREENWIDTH } from '../../global/doomdef'
 //
 // Now what is a visplane, anyway?
 //

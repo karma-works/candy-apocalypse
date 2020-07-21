@@ -1,8 +1,8 @@
-import { BBox } from '../misc/bbox'
+import { BBox } from '../../misc/bbox'
 import { Sector } from './sector'
 import { SlopeType } from './slope-type'
-import { Vertex } from './vertex'
-import { div } from '../misc/fixed'
+import { Vertex } from '../data/vertex'
+import { div } from '../../misc/fixed'
 export class Line {
   static sizeOf = 6
 

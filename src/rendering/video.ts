@@ -1,8 +1,8 @@
 import { RANGE_CHECK, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { BBox } from '../misc/bbox'
-import { Column } from './column'
-import { Patch } from './patch'
-import { Post } from './post'
+import { Column } from './defs/column'
+import { Patch } from './defs/patch'
+import { Post } from './defs/post'
 
 export class Video {
   // Each screen is [SCREENWIDTH*SCREENHEIGHT];

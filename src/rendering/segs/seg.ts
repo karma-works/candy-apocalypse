@@ -1,9 +1,9 @@
 import { FRACBITS, mul } from '../../misc/fixed'
 import { MapLineFlag, MapSeg } from '../../doom/data'
-import { Line } from '../line'
-import { Sector } from '../sector'
-import { Side } from '../side'
-import { Vertex } from '../vertex'
+import { Line } from '../defs/line'
+import { Sector } from '../defs/sector'
+import { Side } from '../defs/side'
+import { Vertex } from '../data/vertex'
 
 //
 // The LineSeg.

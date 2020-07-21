@@ -1,4 +1,4 @@
-import { Patch } from '../rendering/patch'
+import { Patch } from '../rendering/defs/patch'
 
 const MAX_LINE_LENGTH = 80
 

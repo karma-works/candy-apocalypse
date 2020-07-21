@@ -6,9 +6,9 @@ import { div, mul } from '../misc/fixed'
 import { BSP } from './bsp'
 import { Data } from './data'
 import { Draw } from './draw'
-import { MAX_DRAW_SEGS } from './draw-seg'
+import { MAX_DRAW_SEGS } from './defs/draw-seg'
 import { Things } from './things'
-import { VisPlane } from './vis-plane'
+import { VisPlane } from './plane/vis-plane'
 import { Wad } from '../wad/wad'
 
 export type PlaneFunction = (top: number, bottom: number) => void

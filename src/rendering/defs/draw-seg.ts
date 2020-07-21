@@ -1,4 +1,4 @@
-import { Seg } from './segs/seg'
+import { Seg } from '../segs/seg'
 
 // Silhouette, needed for clipping Segs (mainly)
 // and sprites representing things.

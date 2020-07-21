@@ -3,12 +3,12 @@ import { MAP_BLOCK_SHIFT, MAP_BLOCK_SIZE, MAP_B_TO_FRAC, MAX_INTERCEPTS, PT_ADD_
 import { BBox } from '../misc/bbox'
 import { DivLine } from './map-utils/div-line'
 import { Intercept } from './map-utils/intercept'
-import { Line } from '../rendering/line'
+import { Line } from '../rendering/defs/line'
 import { MObj } from './mobj/mobj'
 import { MObjFlag } from './mobj/mobj-flag'
 import { Play } from './setup'
 import { Rendering } from '../rendering/rendering'
-import { SlopeType } from '../rendering/slope-type'
+import { SlopeType } from '../rendering/defs/slope-type'
 
 export class MapUtils {
   private get rendering(): Rendering {

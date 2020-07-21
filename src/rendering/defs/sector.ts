@@ -1,8 +1,8 @@
-import { FRACBITS, FRACUNIT } from '../misc/fixed'
-import { BBox } from '../misc/bbox'
+import { FRACBITS, FRACUNIT } from '../../misc/fixed'
+import { BBox } from '../../misc/bbox'
 import { Line } from './line'
-import { MObj } from '../play/mobj/mobj'
-import { MapLineFlag } from '../doom/data'
+import { MObj } from '../../play/mobj/mobj'
+import { MapLineFlag } from '../../doom/data'
 
 // 20 adjoining sectors max!
 const MAX_ADJOINING_SECTORS = 20

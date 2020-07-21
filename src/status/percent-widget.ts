@@ -1,5 +1,5 @@
 import { NumberWidget } from './number-widget'
-import { Patch } from '../rendering/patch'
+import { Patch } from '../rendering/defs/patch'
 
 export class PercentWidget extends NumberWidget {
   constructor(

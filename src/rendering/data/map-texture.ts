@@ -1,5 +1,5 @@
 import { MapPatch } from './map-patch'
-import { tostring } from '../c'
+import { tostring } from '../../c'
 //
 // Texture definition.
 // A DOOM wall texture is a list of patches

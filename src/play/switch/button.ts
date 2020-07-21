@@ -1,4 +1,4 @@
-import { Line } from '../../rendering/line'
+import { Line } from '../../rendering/defs/line'
 import { MObj } from '../mobj/mobj'
 
 export const enum Where {

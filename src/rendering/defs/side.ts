@@ -1,4 +1,4 @@
-import { FRACBITS } from '../misc/fixed'
+import { FRACBITS } from '../../misc/fixed'
 import { Sector } from './sector'
 
 //
