@@ -12,7 +12,6 @@ import { Node } from './bsp/node'
 import { Plane } from './plane'
 import { Play } from '../play/setup'
 import { Player } from '../doom/player'
-import { Seg } from './seg'
 import { Segs } from './segs'
 import { Sky } from './sky'
 import { SubSector } from './sub-sector'
@@ -149,49 +148,6 @@ export class Rendering {
   screenBlocks = 9
   // temp for screenblocks (0-9)
   screenSize = this.screenBlocks - 3
-
-  pointOnSegSide(x: number, y: number, line: Seg): number {
-    const lX = line.v1.x
-    const lY = line.v1.y
-
-    const ldX = line.v2.x - lX
-    const ldY = line.v2.y - lY
-
-    if (!ldX) {
-      if (x <= lX) {
-        return ldY > 0 ? 1 : 0
-      }
-      return ldY < 0 ? 1 : 0
-    }
-    if (!ldY) {
-      if (y <= lY) {
-        return ldX < 0 ? 1 : 0
-      }
-      return ldX > 0 ? 1 : 0
-    }
-
-    const dX = x - lX
-    const dY = y - lY
-
-    // Try to quickly decide by looking at sign bits.
-    if ((ldY ^ ldX ^ dX ^ dY) & 0x80000000) {
-      if ((ldY ^ dX) & 0x80000000) {
-        // (left is negative)
-        return 1
-      }
-      return 0
-    }
-
-    const left = mul(ldY >> FRACBITS, dX)
-    const right = mul(dY, ldX >> FRACBITS)
-
-    if (right < left) {
-      // front side
-      return 0
-    }
-    // back side
-    return 1
-  }
 
   //
   // R_PointToAngle

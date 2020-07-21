@@ -1,6 +1,6 @@
 import { GameMode, Skill } from '../doom/mode'
 import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
-import { MapLineDef, MapLineFlag, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef, MapSubSector, MapThing, MapVertex } from '../doom/data'
+import { MapLineDef, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef, MapSubSector, MapThing, MapVertex } from '../doom/data'
 import { AutoMap } from '../auto-map/auto-map'
 import { BBox } from '../misc/bbox'
 import { Ceilings } from './ceilings'
@@ -25,7 +25,7 @@ import { Plats } from './plats'
 import { Rendering } from '../rendering/rendering'
 import { SaveGame } from './save-game'
 import { Sector } from '../rendering/sector'
-import { Seg } from '../rendering/seg'
+import { Seg } from '../rendering/segs/seg'
 import { Side } from '../rendering/side'
 import { Sight } from './sight'
 import { Special } from './special'
@@ -166,27 +166,9 @@ export class Play {
 
     let ml: MapSeg
     let mlIdx = 0
-    let lDef: Line
-    let li: Seg
     for (let i = 0; i < this.numSegs; ++i, mlIdx += MapSeg.sizeOf) {
       ml = new MapSeg(data.slice(mlIdx))
-      lDef = this.lines[ml.lineDef]
-      li = {
-        v1: this.vertexes[ml.v1],
-        v2: this.vertexes[ml.v2],
-        angle: ml.angle << 16 >>> 0,
-        offset: ml.offset << 16,
-        lineDef: lDef,
-        sideDef: this.sides[lDef.sideNum[ml.side]],
-        frontSector: this.sides[lDef.sideNum[ml.side]].sector,
-        backSector: null,
-      }
-      if (lDef.flags & MapLineFlag.TwoSided) {
-        li.backSector = this.sides[lDef.sideNum[ml.side^1]].sector
-      } else {
-        li.backSector = null
-      }
-      this.segs[i] = li
+      this.segs[i] = new Seg(ml, this.vertexes, this.lines, this.sides)
     }
   }
 

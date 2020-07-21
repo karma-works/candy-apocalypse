@@ -773,7 +773,7 @@ export class Things {
 
       if (scale < spr.scale ||
         lowScale < spr.scale &&
-          !this.rendering.pointOnSegSide(spr.gX, spr.gY, ds.curLine)
+          !ds.curLine.pointOnSegSide(spr.gX, spr.gY)
       ) {
         // masked mid texture?
         if (ds.maskedTextureCol) {
