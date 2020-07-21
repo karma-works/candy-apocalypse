@@ -513,7 +513,7 @@ export class BSP {
     const bsp = this.play.nodes[bspNum]
 
     // Decide which side the view point is on.
-    const side = this.rendering.pointOnSide(this.rendering.viewX, this.rendering.viewY, bsp)
+    const side = bsp.pointOnSide(this.rendering.viewX, this.rendering.viewY)
 
     // Recursively divide front space.
     this.renderBSPNode(bsp.children[side])

@@ -19,7 +19,7 @@ import { MObj } from './mobj/mobj'
 import { MObjHandler } from './mobj-handler'
 import { Map } from './map'
 import { MapUtils } from './map-utils'
-import { Node } from '../rendering/node'
+import { Node } from '../rendering/bsp/node'
 import { PSprite } from './p-sprite'
 import { Plats } from './plats'
 import { Rendering } from '../rendering/rendering'
@@ -246,28 +246,10 @@ export class Play {
 
     let mn: MapNode
     let mnPtr = 0
-    let no: Node
     for (let i = 0; i < this.numNodes; ++i, mnPtr += MapNode.sizeOf) {
       mn = new MapNode(data.slice(mnPtr))
-      no = {
-        x: mn.x << FRACBITS,
-        y: mn.y << FRACBITS,
-        dX: mn.dX << FRACBITS,
-        dY: mn.dY << FRACBITS,
 
-        bbox: [ new BBox(), new BBox() ],
-        children: new Array(2),
-      }
-
-      for (let j = 0; j < 2; ++j) {
-        no.children[j] = mn.children[j]
-        no.bbox[j].top = mn.bbox[j][0] << FRACBITS
-        no.bbox[j].bottom = mn.bbox[j][1] << FRACBITS
-        no.bbox[j].left = mn.bbox[j][2] << FRACBITS
-        no.bbox[j].right = mn.bbox[j][3] << FRACBITS
-      }
-
-      this.nodes[i] = no
+      this.nodes[i] = new Node(mn)
     }
   }
 

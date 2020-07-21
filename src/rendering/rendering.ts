@@ -8,7 +8,7 @@ import { Draw } from './draw'
 import { Game } from '../game/game'
 import { NF_SUBSECTOR } from '../doom/data'
 import { Net } from '../doom/net'
-import { Node } from './node'
+import { Node } from './bsp/node'
 import { Plane } from './plane'
 import { Play } from '../play/setup'
 import { Player } from '../doom/player'
@@ -149,49 +149,6 @@ export class Rendering {
   screenBlocks = 9
   // temp for screenblocks (0-9)
   screenSize = this.screenBlocks - 3
-
-
-  //
-  // R_PointOnSide
-  // Traverse BSP (sub) tree,
-  //  check point against partition plane.
-  // Returns side 0 (front) or 1 (back).
-  //
-  pointOnSide(x: number, y: number, node: Node): 0 | 1 {
-    if (!node.dX) {
-      if (x <= node.x) {
-        return node.dY > 0 ? 1 : 0
-      }
-      return node.dY < 0 ? 1 : 0
-    }
-    if (!node.dY) {
-      if (y <= node.y) {
-        return node.dX < 0 ? 1 : 0
-      }
-      return node.dX > 0 ? 1 : 0
-    }
-
-    const dX = x - node.x
-    const dY = y - node.y
-    // Try to quickly decide by looking at sign bits.
-    if ((node.dY ^ node.dX ^ dX ^ dY) & 0x80000000) {
-      if ((node.dY ^ dX) & 0x80000000) {
-        // (left is negative)
-        return 1
-      }
-      return 0
-    }
-
-    const left = mul(node.dY >> FRACBITS, dX)
-    const right = mul(dY, node.dX >> FRACBITS)
-
-    if (right < left) {
-      // front side
-      return 0
-    }
-    // back side
-    return 1
-  }
 
   pointOnSegSide(x: number, y: number, line: Seg): number {
     const lX = line.v1.x
@@ -601,7 +558,7 @@ export class Rendering {
     let nodeNum = this.play.numNodes - 1
     while (!(nodeNum & NF_SUBSECTOR)) {
       node = this.play.nodes[nodeNum]
-      side = this.pointOnSide(x, y, node)
+      side = node.pointOnSide(x, y)
       nodeNum = node.children[side]
     }
     return this.play.subSectors[nodeNum & ~NF_SUBSECTOR]
