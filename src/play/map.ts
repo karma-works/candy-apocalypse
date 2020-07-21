@@ -26,6 +26,7 @@ import { Special } from './special'
 import { StateNum } from '../doom/info/state-num'
 import { Switch } from './switch'
 import { Tick } from './tick'
+import { pointToAngle } from '../misc/angle'
 import { random } from '../misc/random'
 
 // keep track of special lines as they are hit,
@@ -623,7 +624,7 @@ export class Map {
       ld,
     )
 
-    let lineAngle = this.rendering.pointToAngle2(
+    let lineAngle = pointToAngle(
       0, 0, ld.dX, ld.dY,
     )
 
@@ -631,7 +632,7 @@ export class Map {
       lineAngle = lineAngle + ANG180 >>> 0
     }
 
-    const moveAngle = this.rendering.pointToAngle2(
+    const moveAngle = pointToAngle(
       0, 0, this.tmXMove, this.tmYMove,
     )
 

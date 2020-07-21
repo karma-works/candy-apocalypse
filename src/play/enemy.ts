@@ -33,6 +33,7 @@ import { Switch } from './switch'
 import { Thinker } from '../doom/think'
 import { Tick } from './tick'
 import { mObjInfos } from '../doom/info/mobj-infos'
+import { pointToAngle } from '../misc/angle'
 import { random } from '../misc/random'
 
 const xSpeed: readonly number[] = [ FRACUNIT, 47000, 0, -47000, -FRACUNIT, -47000, 0, 47000 ]
@@ -499,7 +500,7 @@ export class Enemy {
       }
 
       if (!allAround) {
-        angle = this.rendering.pointToAngle2(
+        angle = pointToAngle(
           actor.x,
           actor.y,
           player.mo.x,
@@ -745,7 +746,7 @@ export class Enemy {
 
     actor.flags &= ~MObjFlag.Ambush
 
-    actor.angle = this.rendering.pointToAngle2(actor.x,
+    actor.angle = pointToAngle(actor.x,
       actor.y,
       actor.target.x,
       actor.target.y)
@@ -979,7 +980,7 @@ export class Enemy {
     }
 
     // change angle
-    let exact = this.rendering.pointToAngle2(actor.x, actor.y,
+    let exact = pointToAngle(actor.x, actor.y,
       dest.x, dest.y)
 
     if (exact !== actor.angle) {

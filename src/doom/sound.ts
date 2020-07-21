@@ -6,8 +6,8 @@ import { Doom } from './doom'
 import { Game } from '../game/game'
 import { Sound as ISound } from '../interfaces/sound'
 import { MObj } from '../play/mobj/mobj'
-import { Rendering } from '../rendering/rendering'
 import { Sfx } from './sounds/sfx'
+import { pointToAngle } from '../misc/angle'
 import { random } from '../misc/random'
 
 // when to clip out sounds
@@ -54,9 +54,6 @@ export class Sound {
   }
   private get iSound(): ISound {
     return this.doom.iSound
-  }
-  private get rendering(): Rendering {
-    return this.doom.rendering
   }
 
   constructor(private doom: Doom) { }
@@ -379,7 +376,7 @@ export class Sound {
     }
 
     // angle of source to listener
-    let angle = this.rendering.pointToAngle2(listener.x,
+    let angle = pointToAngle(listener.x,
       listener.y,
       source.x,
       source.y)

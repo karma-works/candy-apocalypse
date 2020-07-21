@@ -25,6 +25,7 @@ import { StatusBar } from '../status/stuff'
 import { Tick } from './tick'
 import { mObjInfos } from '../doom/info/mobj-infos'
 import { noopFunc } from '../doom/think'
+import { pointToAngle } from '../misc/angle'
 import { random } from '../misc/random'
 import { states } from '../doom/info/states'
 
@@ -791,7 +792,7 @@ export class MObjHandler {
     // where it came from
     th.target = source
 
-    let an = this.rendering.pointToAngle2(source.x, source.y, dest.x, dest.y)
+    let an = pointToAngle(source.x, source.y, dest.x, dest.y)
 
     // fuzzy player
     if (dest.flags & MObjFlag.Shadow) {

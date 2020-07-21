@@ -1,4 +1,4 @@
-import { ANG180, ANG270, ANG90, ANGLE_TO_FINE_SHIFT, DBITS, FINE_ANGLES, fineSine, fineTangent, slopeDiv, tanToAngle } from '../misc/table'
+import { ANG90, ANGLE_TO_FINE_SHIFT, DBITS, FINE_ANGLES, fineSine, fineTangent, tanToAngle } from '../misc/table'
 import { FRACBITS, FRACUNIT, div, mul } from '../misc/fixed'
 import { SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { BSP } from './bsp'
@@ -19,6 +19,7 @@ import { Things } from './things'
 import { Tick } from '../play/tick'
 import { Video } from './video'
 import { Wad } from '../wad/wad'
+import { pointToAngle } from '../misc/angle'
 
 
 // Lighting constants.
@@ -149,82 +150,8 @@ export class Rendering {
   // temp for screenblocks (0-9)
   screenSize = this.screenBlocks - 3
 
-  //
-  // R_PointToAngle
-  // To get a global angle from cartesian coordinates,
-  //  the coordinates are flipped until they are in
-  //  the first octant of the coordinate system, then
-  //  the y (<=x) is scaled and divided by x to get a
-  //  tangent (slope) value which is looked up in the
-  //  tantoangle[] table.
-
-  //
   pointToAngle(x: number, y: number): number {
-    x -= this.viewX
-    y -= this.viewY
-
-    if (!x && !y) {
-      return 0
-    }
-
-
-    if (x >= 0) {
-      // x >=0
-      if (y >= 0) {
-        // y>= 0
-
-        if (x > y) {
-          // octant 0
-          return tanToAngle[slopeDiv(y,x)]
-        } else {
-          // octant 1
-          return ANG90 - 1 - tanToAngle[slopeDiv(x,y)]
-        }
-      } else {
-        // y<0
-        y = -y
-
-        if (x > y) {
-          // octant 8
-          return -tanToAngle[slopeDiv(y,x)]
-        } else {
-          // octant 7
-          return ANG270 + tanToAngle[slopeDiv(x,y)]
-        }
-      }
-    } else {
-      // x<0
-      x = -x
-
-      if (y >= 0) {
-        // y>= 0
-        if (x > y) {
-          // octant 3
-          return ANG180 - 1 - tanToAngle[slopeDiv(y, x)]
-        } else {
-          // octant 2
-          return ANG90 + tanToAngle[slopeDiv(x, y)]
-        }
-      } else {
-        // y<0
-        y = -y
-
-        if (x>y) {
-          // octant 4
-          return ANG180 + tanToAngle[slopeDiv(y, x)]
-        } else {
-          // octant 5
-          return ANG270 - 1 - tanToAngle[slopeDiv(x, y)]
-        }
-      }
-    }
-    return 0
-  }
-  pointToAngle2(x1: number, y1: number, x2: number, y2: number): number {
-    this.viewX = x1
-    this.viewY = y1
-
-    return this.pointToAngle(x2, y2)
+    return pointToAngle(this.viewX, this.viewY, x, y)
   }
 
   pointToDist(x: number, y: number): number {

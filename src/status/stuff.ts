@@ -16,6 +16,7 @@ import { PercentWidget } from './percent-widget'
 import { Video as RVideo } from '../rendering/video'
 import { Rendering } from '../rendering/rendering'
 import { Wad } from '../wad/wad'
+import { pointToAngle } from '../misc/angle'
 import { random } from '../misc/random'
 import { weaponInfo } from '../doom/items'
 
@@ -417,7 +418,7 @@ export class StatusBar {
           this.faceCount = TURN_COUNT
           this.faceIndex = this.calcPainOffset() + OUCH_OFFSET
         } else {
-          badGuyAngle = this.rendering.pointToAngle2(
+          badGuyAngle = pointToAngle(
             pl.mo.x,
             pl.mo.y,
             pl.attacker.x,

@@ -10,11 +10,11 @@ import { MObjHandler } from './mobj-handler'
 import { Map } from './map'
 import { PSprite } from './p-sprite'
 import { Play } from './setup'
-import { Rendering } from '../rendering/rendering'
 import { Special } from './special'
 import { StateNum } from '../doom/info/state-num'
 import { Tick } from './tick'
 import { VIEW_HEIGHT } from './local'
+import { pointToAngle } from '../misc/angle'
 import { states } from '../doom/info/states'
 
 // Index of the special effects (INVUL inverse) map.
@@ -41,9 +41,6 @@ export class User {
   }
   private get pSprite(): PSprite {
     return this.play.pSprite
-  }
-  private get rendering(): Rendering {
-    return this.play.rendering
   }
   private get special(): Special {
     return this.play.special
@@ -195,7 +192,7 @@ export class User {
     this.calcHeight(player)
 
     if (player.attacker && player.attacker !== player.mo) {
-      const angle = this.rendering.pointToAngle2(player.mo.x,
+      const angle = pointToAngle(player.mo.x,
         player.mo.y,
         player.attacker.x,
         player.attacker.y,

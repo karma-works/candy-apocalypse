@@ -14,11 +14,11 @@ import { MObjHandler } from './mobj-handler'
 import { MObjType } from '../doom/info/mobj-type'
 import { PSprite } from './p-sprite'
 import { Play } from './setup'
-import { Rendering } from '../rendering/rendering'
 import { Sfx } from '../doom/sounds/sfx'
 import { SpriteNum } from '../doom/info/sprite-num'
 import { StateNum } from '../doom/info/state-num'
 import { Strings } from '../translation/strings'
+import { pointToAngle } from '../misc/angle'
 import { random } from '../misc/random'
 import { states } from '../doom/info/states'
 import { weaponInfo } from '../doom/items'
@@ -49,9 +49,6 @@ export class Inter {
   }
   private get pSprite(): PSprite {
     return this.play.pSprite
-  }
-  private get rendering(): Rendering {
-    return this.play.rendering
   }
   private get strings(): Strings {
     return this.play.doom.strings
@@ -819,7 +816,7 @@ export class Inter {
         !source.player ||
         source.player.readyWeapon !== WeaponType.Chainsaw)
     ) {
-      let ang = this.rendering.pointToAngle2(inflictor.x,
+      let ang = pointToAngle(inflictor.x,
         inflictor.y,
         target.x,
         target.y)

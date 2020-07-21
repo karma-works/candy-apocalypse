@@ -16,11 +16,11 @@ import { MObjHandler } from './mobj-handler'
 import { MObjType } from '../doom/info/mobj-type'
 import { Map } from './map'
 import { Play } from './setup'
-import { Rendering } from '../rendering/rendering'
 import { Sfx } from '../doom/sounds/sfx'
 import { State } from '../doom/info/state'
 import { StateNum } from '../doom/info/state-num'
 import { Tick } from './tick'
+import { pointToAngle } from '../misc/angle'
 import { random } from '../misc/random'
 import { states } from '../doom/info/states'
 import { weaponInfo } from '../doom/items'
@@ -53,9 +53,6 @@ export class PSprite {
   }
   private get mObjHandler(): MObjHandler {
     return this.play.mObjHandler
-  }
-  private get rendering(): Rendering {
-    return this.play.rendering
   }
   private get tick(): Tick {
     return this.play.tick
@@ -408,7 +405,7 @@ export class PSprite {
     // turn to face target
     if (this.map.lineTarget) {
       this.dSound.startSound(player.mo, Sfx.Punch)
-      player.mo.angle = this.rendering.pointToAngle2(player.mo.x,
+      player.mo.angle = pointToAngle(player.mo.x,
         player.mo.y,
         this.map.lineTarget.x,
         this.map.lineTarget.y)
@@ -438,7 +435,7 @@ export class PSprite {
     this.dSound.startSound(player.mo, Sfx.Sawhit)
 
     // turn to face target
-    angle = this.rendering.pointToAngle2(player.mo.x,
+    angle = pointToAngle(player.mo.x,
       player.mo.y,
       this.map.lineTarget.x, this.map.lineTarget.y)
 
