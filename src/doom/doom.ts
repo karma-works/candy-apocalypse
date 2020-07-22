@@ -71,12 +71,7 @@ export class Doom {
   public rendering = new Rendering(this)
   public game = new Game(this)
   public iVideo = new IVideo(this)
-  public menu = new Menu(this,
-    this.headsUp,
-    this.iVideo,
-    this.wad,
-    this.game,
-  )
+  public menu = new Menu(this)
   private wipe = new Wipe(this)
   public autoMap = new AutoMap(this)
   public win = new Win(this)

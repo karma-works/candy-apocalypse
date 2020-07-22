@@ -1,8 +1,16 @@
 import { LINEHEIGHT, Menu } from './menu'
 import { MenuItem, MenuStruct } from './typedefs'
+import { Sound as DSound } from '../doom/sound'
+import { Doom } from '../doom/doom'
+import { Game } from '../game/game'
+import { HeadsUp } from '../heads-up/stuff'
+import { MainMenu } from './main'
+import { Video as RVideo } from '../rendering/video'
+import { Rendering } from '../rendering/rendering'
 import { Sfx } from '../doom/sounds/sfx'
-import { mainDef } from './doom-menu'
-import { soundDef } from './sound-volume'
+import { SoundMenu } from './sound'
+import { Strings } from '../translation/strings'
+import { Wad } from '../wad/wad'
 
 const enum Options {
   EndGame,
@@ -16,169 +24,203 @@ const enum Options {
   OptEnd,
 }
 
-const optionsMenu: MenuItem[] = [
-  {
-    status: 1,
-    name: 'M_ENDGAM',
-    routine: endGame,
-    alphaKey: 'e',
-  },
-  {
-    status: 1,
-    name: 'M_MESSG',
-    routine: changeMessages,
-    alphaKey: 'm',
-  },
-  {
-    status: 1,
-    name: 'M_DETAIL',
-    routine: changeDetail,
-    alphaKey: 'g',
-  },
-  {
-    status: 2,
-    name: 'M_SCRNSZ',
-    routine: sizeDisplay,
-    alphaKey: 's',
-  },
-  {
-    status: -1,
-    name: '',
-  },
-  {
-    status: 2,
-    name: 'M_MSENS',
-    routine: changeSensitivity,
-    alphaKey: 'm',
-  },
-  {
-    status: -1,
-    name: '',
-  },
-  {
-    status: 1,
-    name: 'M_SVOL',
-    routine: sound,
-    alphaKey: 's',
-  },
-]
-
-export const optionsDef: MenuStruct = {
-  numItems: Options.OptEnd,
-  prevMenu: mainDef,
-  menuItems: optionsMenu,
-  routine: drawOptions,
-  x: 60, y: 37,
-  lastOn: 0,
-}
-
-//
-//      Toggle messages on/off
-//
-export function changeMessages(menu: Menu): void {
-  // TODO
-  menu.headsUp.showMessages = !menu.headsUp.showMessages
-  menu.headsUp.messageDontFuckWithMe = true
-}
-
-//
-// M_EndGame
-//
-function endGameResponse(menu: Menu, ch: number): void {
-  if (ch !== 'y'.charCodeAt(0)) {
-    return
-  }
-
-  menu.currentMenu.lastOn = menu.itemOn
-  menu.clearMenus()
-  menu.doom.startTitle()
-}
-export function endGame(menu: Menu): void {
-  if (!menu.game.userGame) {
-    menu.dSound.startSound(null, Sfx.Oof)
-    return
-  }
-  if (menu.game.netGame) {
-    menu.startMessage(menu.doom.strings.netend, void 0, false)
-    return
-  }
-  menu.startMessage(menu.doom.strings.endgame, endGameResponse, true)
-}
-
-function changeSensitivity(menu: Menu, choice: number): void {
-  switch (choice) {
-  case 0:
-    if (menu.game.mouseSensitivity) {
-      --menu.game.mouseSensitivity
-    }
-    break
-  case 1:
-    if (menu.game.mouseSensitivity < 9) {
-      ++menu.game.mouseSensitivity
-    }
-    break
-  }
-}
-
-export function changeDetail(/* menu: Menu, choice: number */): void {
-  // TODO
-}
-export function sizeDisplay(menu: Menu, choice: number): void {
-  switch (choice) {
-  case 0:
-    if (menu.rendering.screenSize > 0) {
-      --menu.rendering.screenBlocks
-      --menu.rendering.screenSize
-    }
-    break
-  case 1:
-    if (menu.rendering.screenSize < 8) {
-      ++menu.rendering.screenBlocks
-      ++menu.rendering.screenSize
-    }
-    break
-  }
-  menu.rendering.setViewSize(
-    menu.rendering.screenBlocks,
-    menu.rendering.detailLevel,
-  )
-}
-function sound(menu: Menu): void {
-  menu.setupNextMenu(soundDef)
-}
-
 const detailNames = [ 'M_GDHIGH', 'M_GDLOW' ]
 const msgNames = [ 'M_MSGOFF', 'M_MSGON' ]
 
+export class OptionsMenu implements MenuStruct {
+  numItems = Options.OptEnd
 
-function drawOptions(menu: Menu): void {
-  menu.rvideo.drawPatchDirect(
-    108, 15, 0,
-    menu.wad.cacheLumpName('M_OPTTTL'),
-  )
+  menuItems: MenuItem[] = [
+    {
+      status: 1,
+      name: 'M_ENDGAM',
+      routine: this.endGame,
+      alphaKey: 'e',
+    },
+    {
+      status: 1,
+      name: 'M_MESSG',
+      routine: this.changeMessages,
+      alphaKey: 'm',
+    },
+    {
+      status: 1,
+      name: 'M_DETAIL',
+      routine: this.changeDetail,
+      alphaKey: 'g',
+    },
+    {
+      status: 2,
+      name: 'M_SCRNSZ',
+      routine: this.sizeDisplay,
+      alphaKey: 's',
+    },
+    {
+      status: -1,
+    },
+    {
+      status: 2,
+      name: 'M_MSENS',
+      routine: this.changeSensitivity,
+      alphaKey: 'm',
+    },
+    {
+      status: -1,
+    },
+    {
+      status: 1,
+      name: 'M_SVOL',
+      routine: this.sound,
+      alphaKey: 's',
+    },
+  ]
 
-  menu.rvideo.drawPatchDirect(
-    optionsDef.x + 175, optionsDef.y + LINEHEIGHT * Options.Detail, 0,
-    menu.wad.cacheLumpName(detailNames[menu.rendering.detailLevel]),
-  )
+  x = 60
+  y = 37
+  lastOn = 0
 
-  menu.rvideo.drawPatchDirect(
-    optionsDef.x + 120, optionsDef.y + LINEHEIGHT * Options.Messages, 0,
-    menu.wad.cacheLumpName(msgNames[menu.headsUp.showMessages ? 0 : 1]),
-  )
+  soundMenu = new SoundMenu(this)
 
-  menu.drawThermo(
-    optionsDef.x,
-    optionsDef.y + LINEHEIGHT * (Options.MouseSens + 1),
-    10,
-    menu.game.mouseSensitivity,
-  )
+  private get doom(): Doom {
+    return this.prevMenu.doom
+  }
+  public get dSound(): DSound {
+    return this.prevMenu.dSound
+  }
+  private get game(): Game {
+    return this.prevMenu.game
+  }
+  private get headsUp(): HeadsUp {
+    return this.menu.headsUp
+  }
+  public get menu(): Menu {
+    return this.prevMenu.menu
+  }
+  private get rendering(): Rendering {
+    return this.menu.rendering
+  }
+  public get rVideo(): RVideo {
+    return this.prevMenu.rVideo
+  }
+  private get strings(): Strings {
+    return this.prevMenu.strings
+  }
+  public get wad(): Wad {
+    return this.prevMenu.wad
+  }
 
-  menu.drawThermo(
-    optionsDef.x,
-    optionsDef.y + LINEHEIGHT * (Options.ScrnSize + 1),
-    9,
-    menu.rendering.screenSize,
-  )
+  constructor(public prevMenu: MainMenu) { }
 
+
+  //
+  //      Toggle messages on/off
+  //
+  changeMessages(): void {
+    // TODO
+    this.headsUp.showMessages = !this.headsUp.showMessages
+    if (!this.headsUp.showMessages) {
+      this.game.players[this.game.consolePlayer].message = this.strings.msgoff
+    } else {
+      this.game.players[this.game.consolePlayer].message = this.strings.msgon
+    }
+    this.headsUp.messageDontFuckWithMe = true
+  }
+
+  //
+  // M_EndGame
+  //
+  private endGameResponse(ch: number): void {
+    if (ch !== 'y'.charCodeAt(0)) {
+      return
+    }
+
+    this.menu.currentMenu.lastOn = this.menu.itemOn
+    this.menu.clearMenus()
+    this.doom.startTitle()
+  }
+  endGame(): void {
+    if (!this.game.userGame) {
+      this.dSound.startSound(null, Sfx.Oof)
+      return
+    }
+    if (this.game.netGame) {
+      this.menu.startMessage(this.strings.netend, false)
+      return
+    }
+    this.menu.startMessage(this.strings.endgame, true, this.endGameResponse)
+  }
+
+  private changeSensitivity(choice: number): void {
+    switch (choice) {
+    case 0:
+      if (this.game.mouseSensitivity) {
+        --this.game.mouseSensitivity
+      }
+      break
+    case 1:
+      if (this.game.mouseSensitivity < 9) {
+        ++this.game.mouseSensitivity
+      }
+      break
+    }
+  }
+
+  changeDetail(/* choice: number */): void {
+    this.rendering.detailLevel = !this.rendering.detailLevel ? 1 : 0
+  }
+  sizeDisplay(choice: number): void {
+    switch (choice) {
+    case 0:
+      if (this.rendering.screenSize > 0) {
+        --this.rendering.screenBlocks
+        --this.rendering.screenSize
+      }
+      break
+    case 1:
+      if (this.rendering.screenSize < 8) {
+        ++this.rendering.screenBlocks
+        ++this.rendering.screenSize
+      }
+      break
+    }
+    this.rendering.setViewSize(
+      this.rendering.screenBlocks,
+      this.rendering.detailLevel,
+    )
+  }
+  private sound(): void {
+    this.menu.setupNextMenu(this.soundMenu)
+  }
+
+  routine(): void {
+    this.rVideo.drawPatchDirect(
+      108, 15, 0,
+      this.wad.cacheLumpName('M_OPTTTL'),
+    )
+
+    this.rVideo.drawPatchDirect(
+      this.x + 175, this.y + LINEHEIGHT * Options.Detail, 0,
+      this.wad.cacheLumpName(detailNames[this.rendering.detailLevel]),
+    )
+
+    this.rVideo.drawPatchDirect(
+      this.x + 120, this.y + LINEHEIGHT * Options.Messages, 0,
+      this.wad.cacheLumpName(msgNames[this.headsUp.showMessages ? 0 : 1]),
+    )
+
+    this.menu.drawThermo(
+      this.x,
+      this.y + LINEHEIGHT * (Options.MouseSens + 1),
+      10,
+      this.game.mouseSensitivity,
+    )
+
+    this.menu.drawThermo(
+      this.x,
+      this.y + LINEHEIGHT * (Options.ScrnSize + 1),
+      9,
+      this.rendering.screenSize,
+    )
+
+  }
 }

@@ -1,22 +1,35 @@
-import { Menu } from './menu'
-
 //
 // MENU TYPEDEFS
 //
-export interface MenuItem {
-  // 0 = no cursor here, 1 = ok, 2 = arrows ok
-  status: number
 
-  name: string
+type DisabledMenuItem = {
+  status: -1 | 0
+}
+
+type SimpleMenuItem = {
+  status: 1
+  name?: string
 
   // choice = menu item #.
-  // if status = 2,
-  //   choice=0:leftarrow,1:rightarrow
-  routine?: (menu: Menu, choice: number) => void
+  routine: (choice: number) => void
 
   // hotkey in menu
   alphaKey?: string
 }
+
+type ArrowMenuItem = {
+  status: 2,
+  name: string,
+
+  //   choice=0:leftarrow,1:rightarrow
+  routine: (leftOrRight: 0 | 1) => void
+
+  // hotkey in menu
+  alphaKey: string
+}
+
+export type MenuItem = DisabledMenuItem | SimpleMenuItem | ArrowMenuItem
+
 export interface MenuStruct {
   // # of menu items
   numItems: number
@@ -25,7 +38,7 @@ export interface MenuStruct {
   // menu items
   menuItems: MenuItem[]
   // draw routine
-  routine?: (menu: Menu) => void
+  routine: () => void
   // x,y of menu
   x: number
   y: number

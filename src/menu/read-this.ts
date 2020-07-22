@@ -1,82 +1,69 @@
 import { MenuItem, MenuStruct } from './typedefs'
+import { MainMenu } from './main'
 import { Menu } from './menu'
-import { mainDef } from './doom-menu'
+import { Video as RVideo } from '../rendering/video'
+import { Wad } from '../wad/wad'
 
-const enum Read1 {
-  ReadThisEmpty,
-  ReadEnd
+export abstract class AbstractReadThisMenu implements MenuStruct {
+  numItems = 1
+
+  menuItems: MenuItem[] = [
+    {
+      status: 1,
+      routine: this.readThis,
+    },
+  ]
+
+  abstract lumpName: string
+
+  abstract x: number
+  abstract y: number
+  lastOn = 0
+
+  prevMenu: MenuStruct | null = null
+  nextMenu: MenuStruct | null = null
+
+  public get menu(): Menu {
+    return this.main.menu
+  }
+  public get rVideo(): RVideo {
+    return this.main.rVideo
+  }
+  public get wad(): Wad {
+    return this.main.wad
+  }
+
+  constructor(private main: MainMenu) { }
+
+  // Read This Menus
+  routine(): void {
+    this.menu.inHelpScreens = true
+    this.rVideo.drawPatchDirect(0, 0, 0,
+      this.wad.cacheLumpName(this.lumpName),
+    )
+  }
+
+  private readThis(): void {
+    if (this.nextMenu) {
+      this.menu.setupNextMenu(this.nextMenu)
+    }
+  }
 }
 
-export const readMenu1: MenuItem[] = [
-  {
-    status: 1,
-    name: '',
-    routine: readThis2,
-  },
-]
-
-export const readDef1: MenuStruct = {
-  numItems: Read1.ReadEnd,
-  prevMenu: mainDef,
-  menuItems: readMenu1,
-  routine: drawReadThis1,
-  x: 280, y: 185,
-  lastOn: 0,
+export class ReadThis1Menu extends AbstractReadThisMenu {
+  lumpName = 'HELP2'
+  x = 280
+  y = 185
 }
 
-const enum Read2 {
-  ReadThisEmpty,
-  ReadEnd
+export class ReadThis2Menu extends AbstractReadThisMenu {
+  lumpName = 'HELP1'
+  x = 330
+  y = 175
 }
 
-const readMenu2: MenuItem[] = [
-  {
-    status: 1,
-    name: '',
-    routine: finishReadThis,
-  },
-]
-
-export const readDef2: MenuStruct = {
-  numItems: Read2.ReadEnd,
-  prevMenu: readDef1,
-  menuItems: readMenu2,
-  routine: drawReadThis2,
-  x: 330, y: 175,
-  lastOn: 0,
-}
-
-//
-// Read This Menus
-// Had a "quick hack to fix romero bug"
-//
-function drawReadThis1(menu: Menu): void {
-  menu.inHelpScreens = true
-  menu.rvideo.drawPatchDirect(0, 0, 0,
-    menu.wad.cacheLumpName('HELP2'),
-  )
-}
-
-//
-// Read This Menus - optional second page.
-//
-function drawReadThis2(menu: Menu): void {
-  menu.inHelpScreens = true
-  menu.rvideo.drawPatchDirect(0, 0, 0,
-    menu.wad.cacheLumpName('HELP1'),
-  )
-}
-
-export function drawReadThisCommercial(menu: Menu): void {
-  menu.inHelpScreens = true
-  menu.rvideo.drawPatchDirect(0, 0, 0,
-    menu.wad.cacheLumpName('HELP'),
-  )
-}
-
-export function readThis2(menu: Menu): void {
-  menu.setupNextMenu(readDef2)
-}
-export function finishReadThis(menu: Menu): void {
-  menu.setupNextMenu(mainDef)
+export class ReadThisCommercialMenu extends AbstractReadThisMenu {
+  lumpName = 'HELP'
+  x = 330
+  y = 165
 }

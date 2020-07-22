@@ -1,30 +1,26 @@
 import { DEvent, EvType } from '../doom/event'
-import { Game, SAVE_GAME_NAME, SAVE_STRING_SIZE } from '../game/game'
 import { GameMode, GameVersion } from '../doom/mode'
 import { HU_FONTSIZE, HU_FONTSTART, HeadsUp } from '../heads-up/stuff'
 import { KEY_BACKSPACE, KEY_DOWNARROW, KEY_ENTER, KEY_EQUALS, KEY_ESCAPE, KEY_F1, KEY_F10, KEY_F11, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_LEFTARROW, KEY_MINUS, KEY_RIGHTARROW, KEY_UPARROW, SCREENWIDTH } from '../global/doomdef'
-import { Load, loadMenu, quickLoad } from './load-game'
-import { MainEnum, loadGame, mainDef, mainMenu, quitDOOM, saveGame } from './doom-menu'
-import { Sound, soundDef } from './sound-volume'
-import { changeDetail, changeMessages, endGame, sizeDisplay } from './options'
-import { doSave, quickSave } from './save-game'
-import { drawReadThisCommercial, finishReadThis, readDef1, readDef2, readMenu1, readThis2 } from './read-this'
-import { tostring, toupper } from '../c'
+import { LoadGameMenu, SaveGameMenu } from './save-game'
+import { MainEnum, MainMenu } from './main'
+import { MenuItem, MenuStruct } from './typedefs'
+import { Sound, SoundMenu } from './sound'
 import { AutoMap } from '../auto-map/auto-map'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom/doom'
+import { Game } from '../game/game'
 import { Video as IVideo } from '../interfaces/video'
-import { MenuStruct } from './typedefs'
+import { OptionsMenu } from './options'
 import { Video as RVideo } from '../rendering/video'
+import { ReadThisCommercialMenu } from './read-this'
 import { Rendering } from '../rendering/rendering'
 import { Sfx } from '../doom/sounds/sfx'
+import { Strings } from '../translation/strings'
 import { Wad } from '../wad/wad'
-import { episodeDef as epiDef } from './episode-select'
-import { fs } from '../system/fs'
 import { getTime } from '../system/system'
-import { newDef } from './new-game'
+import { toupper } from '../c'
 
-const SAVESTRINGSIZE = 24
 const SKULLOFF = -32
 export const LINEHEIGHT = 16
 
@@ -39,21 +35,10 @@ export class Menu {
 
   // timed message = no input from user
   messageNeedsInput = false
-  messageRoutine?: (menu: Menu, response: number) => void
-
-  // we are going to be entering a savegame string
-  saveStringEnter = false
-  // which slot to save in
-  saveSlot = 0
-  // which char we're editing
-  saveCharIndex = 0
-  // old save description before edit
-  saveOldString = ''
+  messageRoutine?: (response: number) => void
 
   inHelpScreens = false
   menuActive = false
-
-  saveGameStrings: string[] = new Array(10).fill('')
 
   // menu item skull is on
   itemOn = 0
@@ -67,7 +52,21 @@ export class Menu {
   private skullName = [ 'M_SKULL1', 'M_SKULL2' ]
 
   // current menudef
-  currentMenu: MenuStruct = mainDef
+  mainMenu = new MainMenu(this)
+  private get optionsMenu(): OptionsMenu {
+    return this.mainMenu.optionsMenu
+  }
+  private get soundMenu(): SoundMenu {
+    return this.optionsMenu.soundMenu
+  }
+  private get loadMenu(): LoadGameMenu {
+    return this.mainMenu.loadMenu
+  }
+  private get saveMenu(): SaveGameMenu {
+    return this.mainMenu.saveMenu
+  }
+
+  currentMenu: MenuStruct = this.mainMenu
 
   quickSaveSlot = 0
 
@@ -77,112 +76,64 @@ export class Menu {
   get dSound(): DSound {
     return this.doom.dSound
   }
+  get game(): Game {
+    return this.doom.game
+  }
+  get headsUp(): HeadsUp {
+    return this.doom.headsUp
+  }
+  private get iVideo(): IVideo {
+    return this.doom.iVideo
+  }
   get rendering(): Rendering {
     return this.doom.rendering
   }
-  get rvideo(): RVideo {
+  get rVideo(): RVideo {
     return this.rendering.video
   }
-
-  constructor(public doom: Doom,
-              public headsUp: HeadsUp,
-              private ivideo: IVideo,
-              public wad: Wad,
-              public game: Game) {}
-
-  //
-  // M_ReadSaveStrings
-  //  read the strings from the savegame files
-  //
-  async readSaveStrings(): Promise<void> {
-    const promises: Promise<void>[] = []
-    for (let i = 0; i < Load.LoadEnd; ++i) {
-      promises.push(this.readSaveString(i))
-    }
-    await Promise.all(promises)
+  get strings(): Strings {
+    return this.doom.strings
   }
-  private async readSaveString(i: number): Promise<void> {
-    this.saveGameStrings[i] = '...'
-    loadMenu[i].status = 0
-
-    const handle = await fs.open(`${SAVE_GAME_NAME}${i}.dsg`)
-
-    if (handle === undefined) {
-      this.saveGameStrings[i] = ''
-      loadMenu[i].status = 0
-      return
-    }
-
-    this.saveGameStrings[i] = tostring(handle, 0, SAVE_STRING_SIZE)
-    loadMenu[i].status = 1
+  get wad(): Wad {
+    return this.doom.wad
   }
 
-  //
-  // Draw border for the savegame description
-  //
-  drawSaveLoadBorder(x: number, y: number): void {
-    this.rvideo.drawPatchDirect(
-      x - 8, y + 7, 0,
-      this.wad.cacheLumpName('M_LSLEFT'),
-    )
-    for (let i = 0; i < 24; ++i) {
-      this.rvideo.drawPatchDirect(
-        x, y + 7, 0,
-        this.wad.cacheLumpName('M_LSCNTR'),
-      )
-      x += 8
-    }
-    this.rvideo.drawPatchDirect(
-      x, y + 7, 0,
-      this.wad.cacheLumpName('M_LSRGHT'),
-    )
-  }
+  constructor(public doom: Doom) {}
 
   //
   //      Menu Functions
   //
   drawThermo(x: number, y: number, thermWidth: number, thermDot: number): void {
     let xx = x
-    this.rvideo.drawPatchDirect(
+    this.rVideo.drawPatchDirect(
       xx, y, 0,
       this.wad.cacheLumpName('M_THERML'),
     )
     xx += 8
     for (let i = 0; i < thermWidth; ++i) {
-      this.rvideo.drawPatchDirect(
+      this.rVideo.drawPatchDirect(
         xx, y, 0,
         this.wad.cacheLumpName('M_THERMM'),
       )
       xx += 8
     }
-    this.rvideo.drawPatchDirect(
+    this.rVideo.drawPatchDirect(
       xx, y, 0,
       this.wad.cacheLumpName('M_THERMR'),
     )
-    this.rvideo.drawPatchDirect(
+    this.rVideo.drawPatchDirect(
       x + 8 + thermDot * 8, y, 0,
       this.wad.cacheLumpName('M_THERMO'),
     )
   }
 
-  drawEmptyCell(menu: MenuStruct, item: number): void {
-    this.rvideo.drawPatchDirect(
-      menu.x - 10, menu.y + item * LINEHEIGHT - 1, 0,
-      this.wad.cacheLumpName('M_CELL1'),
-    )
-  }
-
-  drawSelCell(menu: MenuStruct, item: number): void {
-    this.rvideo.drawPatchDirect(
-      menu.x - 10, menu.y + item * LINEHEIGHT - 1, 0,
-      this.wad.cacheLumpName('M_CELL2'),
-    )
-  }
-
-  startMessage(
+  startMessage(str: string, input: false): void
+  startMessage<T>(str: string, input: true,
+    routine: (response: number) => void): void
+  startMessage<T>(
     str: string,
-    routine: ((menu: Menu, response: number) => void) | undefined,
     input: boolean,
+    routine?: (response: number) => void,
   ): void {
     this.messageLastMenuActive = this.menuActive
     this.messageToPrint = true
@@ -262,7 +213,7 @@ export class Menu {
         break
       }
 
-      this.rvideo.drawPatchDirect(cx, cy, 0, this.headsUp.font[c])
+      this.rVideo.drawPatchDirect(cx, cy, 0, this.headsUp.font[c])
 
       cx += w
     }
@@ -353,47 +304,7 @@ export class Menu {
     }
 
     // Save Game string input
-    if (this.saveStringEnter) {
-      switch (ch) {
-      case KEY_BACKSPACE:
-        if (this.saveCharIndex > 0) {
-          this.saveCharIndex--
-          this.saveGameStrings[this.saveSlot] =
-              this.saveGameStrings[this.saveSlot].substr(0, this.saveCharIndex)
-        }
-        break
-
-      case KEY_ESCAPE:
-        this.saveStringEnter = false
-        this.saveGameStrings[this.saveSlot] = this.saveOldString
-        break
-
-      case KEY_ENTER:
-        this.saveStringEnter = false
-        if (this.saveGameStrings[this.saveSlot].length > 0) {
-          doSave(this, this.saveSlot)
-        }
-        break
-
-      default:
-        ch = toupper(ch)
-        if (ch !== 32) {
-          if (ch - HU_FONTSTART < 0 ||
-              ch - HU_FONTSTART >= HU_FONTSIZE) {
-            break
-          }
-        }
-        if (ch >= 32 && ch <= 127 &&
-          this.saveCharIndex < SAVESTRINGSIZE - 1 &&
-          this.stringWidth(this.saveGameStrings[this.saveSlot]) < (SAVESTRINGSIZE - 2) * 8
-        ) {
-          this.saveGameStrings[this.saveSlot] =
-              this.saveGameStrings[this.saveSlot].substr(0, this.saveCharIndex) +
-              String.fromCharCode(ch)
-          this.saveCharIndex++
-        }
-        break
-      }
+    if (this.saveMenu.responder(ch)) {
       return true
     }
 
@@ -410,7 +321,7 @@ export class Menu {
       this.menuActive = this.messageLastMenuActive
       this.messageToPrint = false
       if (this.messageRoutine) {
-        this.messageRoutine(this, ch)
+        this.messageRoutine.call(this.currentMenu, ch)
       }
 
       this.menuActive = false
@@ -426,7 +337,7 @@ export class Menu {
         if (this.autoMap.active || this.headsUp.chatOn) {
           return false
         }
-        sizeDisplay(this, 0)
+        this.optionsMenu.sizeDisplay(0)
         this.dSound.startSound(null, Sfx.Stnmov)
         return true
 
@@ -435,7 +346,7 @@ export class Menu {
         if (this.autoMap.active || this.headsUp.chatOn) {
           return false
         }
-        sizeDisplay(this, 1)
+        this.optionsMenu.sizeDisplay(1)
         this.dSound.startSound(null, Sfx.Stnmov)
         return true
 
@@ -444,9 +355,9 @@ export class Menu {
         this.startControlPanel()
 
         if (this.doom.gameVersion >= GameVersion.Ultimate) {
-          this.currentMenu = readDef2
+          this.currentMenu = this.mainMenu.readThis2Menu
         } else {
-          this.currentMenu = readDef1
+          this.currentMenu = this.mainMenu.readThis1Menu
         }
 
         this.itemOn = 0
@@ -457,67 +368,67 @@ export class Menu {
       case KEY_F2:
         this.startControlPanel()
         this.dSound.startSound(null, Sfx.Swtchn)
-        saveGame(this)
+        this.mainMenu.saveGame()
         return true
 
       // Load
       case KEY_F3:
         this.startControlPanel()
         this.dSound.startSound(null, Sfx.Swtchn)
-        loadGame(this)
+        this.mainMenu.loadGame()
         return true
 
       // Sound Volume
       case KEY_F4:
         this.startControlPanel()
-        this.currentMenu = soundDef
+        this.currentMenu = this.soundMenu
         this.itemOn = Sound.SfxVol
         this.dSound.startSound(null, Sfx.Swtchn)
         return true
 
       // Detail toggle
       case KEY_F5:
-        changeDetail()
+        this.optionsMenu.changeDetail()
         this.dSound.startSound(null, Sfx.Swtchn)
         return true
 
       // Quicksave
       case KEY_F6:
         this.dSound.startSound(null, Sfx.Swtchn)
-        quickSave(this)
+        this.saveMenu.quickSave()
         return true
 
       // End game
       case KEY_F7:
         this.dSound.startSound(null, Sfx.Swtchn)
-        endGame(this)
+        this.optionsMenu.endGame()
         return true
 
       // Toggle messages
       case KEY_F8:
-        changeMessages(this)
+        this.optionsMenu.changeMessages()
         this.dSound.startSound(null, Sfx.Swtchn)
         return true
 
       // Quickload
       case KEY_F9:
         this.dSound.startSound(null, Sfx.Swtchn)
-        quickLoad(this)
+        this.loadMenu.quickLoad()
         return true
 
       // Quit DOOM
       case KEY_F10:
         this.dSound.startSound(null, Sfx.Swtchn)
-        quitDOOM(this)
+        this.mainMenu.quitDOOM()
         return true
 
       // gamma toggle
       case KEY_F11:
-        this.ivideo.useGamma++
-        if (this.ivideo.useGamma > 4) {
-          this.ivideo.useGamma = 0
+        this.iVideo.useGamma++
+        if (this.iVideo.useGamma > 4) {
+          this.iVideo.useGamma = 0
         }
-        this.ivideo.setPalette(this.wad.cacheLumpName('PLAYPAL'))
+        this.iVideo.setPalette(this.wad.cacheLumpName('PLAYPAL'))
         return true
       }
     }
@@ -533,6 +444,7 @@ export class Menu {
     }
 
     // Keys usable within menu
+    let item: MenuItem
     switch (ch) {
     case KEY_DOWNARROW:
       do {
@@ -558,32 +470,32 @@ export class Menu {
 
     case KEY_LEFTARROW: {
       const item = this.currentMenu.menuItems[this.itemOn]
-      if (item.routine && item.status === 2) {
+      if (item.status === 2) {
         this.dSound.startSound(null, Sfx.Stnmov)
-        item.routine(this, 0)
+        item.routine.call(this.currentMenu, 0)
       }
       return true
     }
 
     case KEY_RIGHTARROW: {
       const item = this.currentMenu.menuItems[this.itemOn]
-      if (item.routine && item.status === 2) {
+      if (item.status === 2) {
         this.dSound.startSound(null, Sfx.Stnmov)
-        item.routine(this, 1)
+        item.routine.call(this.currentMenu, 1)
       }
       return true
     }
 
     case KEY_ENTER: {
       const item = this.currentMenu.menuItems[this.itemOn]
-      if (item.routine && item.status) {
+      if (item.status === 1 || item.status === 2) {
         this.currentMenu.lastOn = this.itemOn
         if (item.status === 2) {
           // right arrow
-          item.routine(this, 1)
+          item.routine.call(this.currentMenu, 1)
           this.dSound.startSound(null, Sfx.Stnmov)
         } else {
-          item.routine(this, this.itemOn)
+          item.routine.call(this.currentMenu, this.itemOn)
           this.dSound.startSound(null, Sfx.Pistol)
         }
       }
@@ -607,14 +519,20 @@ export class Menu {
 
     default:
       for (let i = this.itemOn + 1; i < this.currentMenu.numItems; ++i) {
-        if (this.currentMenu.menuItems[i].alphaKey === String.fromCharCode(ch)) {
+        item = this.currentMenu.menuItems[i]
+        if ((item.status === 1 || item.status === 2) &&
+          item.alphaKey === String.fromCharCode(ch)
+        ) {
           this.itemOn = i
           this.dSound.startSound(null, Sfx.Pstop)
           return true
         }
       }
       for (let i = 0; i <= this.itemOn; ++i) {
-        if (this.currentMenu.menuItems[i].alphaKey === String.fromCharCode(ch)) {
+        item = this.currentMenu.menuItems[i]
+        if ((item.status === 1 || item.status === 2) &&
+          item.alphaKey === String.fromCharCode(ch)
+        ) {
           this.itemOn = i
           this.dSound.startSound(null, Sfx.Pstop)
           return true
@@ -636,7 +554,7 @@ export class Menu {
     }
 
     this.menuActive = true
-    this.currentMenu = mainDef
+    this.currentMenu = this.mainMenu
     this.itemOn = this.currentMenu.lastOn
   }
 
@@ -683,27 +601,29 @@ export class Menu {
       return
     }
 
-    if (this.currentMenu.routine) {
-      // call Draw routine
-      this.currentMenu.routine(this)
-    }
+    // call Draw routine
+    this.currentMenu.routine.call(this.currentMenu)
 
     // DRAW MENU
     this.x = this.currentMenu.x
     this.y = this.currentMenu.y
     const max = this.currentMenu.numItems
 
+    let item: MenuItem
     for (let i = 0; i < max; ++i) {
-      if (this.currentMenu.menuItems[i].name) {
-        this.rvideo.drawPatchDirect(
+      item = this.currentMenu.menuItems[i]
+      if ((item.status === 1 || item.status === 2) &&
+        item.name
+      ) {
+        this.rVideo.drawPatchDirect(
           this.x, this.y, 0,
-          this.wad.cacheLumpName(this.currentMenu.menuItems[i].name),
+          this.wad.cacheLumpName(item.name),
         )
       }
       this.y += LINEHEIGHT
     }
 
-    this.rvideo.drawPatchDirect(
+    this.rVideo.drawPatchDirect(
       this.x + SKULLOFF,
       this.currentMenu.y - 5 + this.itemOn * LINEHEIGHT,
       0,
@@ -738,7 +658,7 @@ export class Menu {
   }
 
   init(): void {
-    this.currentMenu = mainDef
+    this.currentMenu = this.mainMenu
     this.menuActive = false
     this.itemOn = this.currentMenu.lastOn
     this.whichSkull = 0
@@ -748,29 +668,26 @@ export class Menu {
     this.messageLastMenuActive = this.menuActive
     this.quickSaveSlot = -1
 
+
     // Here we could catch other version dependencies,
     //  like HELP1/2, and four episodes.
 
     // The same hacks were used in the original Doom EXEs.
 
-    if (this.doom.gameVersion >= GameVersion.Ultimate) {
-      mainMenu[MainEnum.ReadThis].routine = readThis2
-      readDef2.prevMenu = null
-    }
-
     if (this.doom.gameVersion >= GameVersion.Final && this.doom.gameVersion <= GameVersion.Final2) {
-      readDef2.routine = drawReadThisCommercial
+      this.mainMenu.readThis2Menu = new ReadThisCommercialMenu(this.mainMenu)
+      this.mainMenu.readThis2Menu.prevMenu = this.mainMenu
+      this.mainMenu.readThis2Menu.nextMenu = this.mainMenu
     }
 
     if (this.doom.gameMode === GameMode.Commercial) {
-      mainMenu[MainEnum.ReadThis] = mainMenu[MainEnum.QuitDoom]
-      mainDef.numItems--
-      mainDef.y += 8
-      newDef.prevMenu = mainDef
-      readDef1.routine = drawReadThisCommercial
-      readDef1.x = 330
-      readDef1.y = 165
-      readMenu1[0].routine = finishReadThis
+      this.mainMenu.menuItems.splice(MainEnum.ReadThis)
+      this.mainMenu.numItems--
+      this.mainMenu.y += 8
+
+      this.mainMenu.readThis1Menu = new ReadThisCommercialMenu(this.mainMenu)
+      this.mainMenu.readThis1Menu.prevMenu = this.mainMenu
+      this.mainMenu.readThis1Menu.nextMenu = this.mainMenu
     }
 
     // Versions of doom.exe before the Ultimate Doom release only had
@@ -778,10 +695,10 @@ export class Menu {
     // to show episode four. If we are, then do show episode four
     // (should crash if missing).
     if (this.doom.gameVersion < GameVersion.Ultimate) {
-      epiDef.numItems--
+      this.mainMenu.episodeMenu.numItems--
     } else if (this.doom.gameVersion === GameVersion.Chex) {
       // chex.exe shows only one episode.
-      epiDef.numItems = 1
+      this.mainMenu.episodeMenu.numItems = 1
     }
   }
 }
