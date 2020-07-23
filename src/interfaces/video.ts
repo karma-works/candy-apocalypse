@@ -1,9 +1,9 @@
-import { Button1, Button1Mask, Button2, Button2Mask, Button3, Button3Mask, XColor, XColorFlags, XListenEvent, XNextEvent, XPending } from './x'
+import { Button1, Button1Mask, Button2, Button2Mask, Button3, Button3Mask, XListenEvent, XNextEvent, XPending } from './x'
 import { DEvent, EvType } from '../doom/event'
 import { KEY_BACKSPACE, KEY_DOWNARROW, KEY_ENTER, KEY_EQUALS, KEY_ESCAPE, KEY_F1, KEY_F10, KEY_F11, KEY_F12, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_LEFTARROW, KEY_MINUS, KEY_PAUSE, KEY_RALT, KEY_RCTRL, KEY_RIGHTARROW, KEY_RSHIFT, KEY_TAB, KEY_UPARROW, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { Doom } from '../doom/doom'
+import { Palette } from './palette'
 import { Video as RVideo } from '../rendering/video'
-import { gammaTable } from './gamma'
 
 function xlateKey({ code, key }: KeyboardEvent): number {
   let rc: number
@@ -189,15 +189,16 @@ export class Video {
       let iLinePtr = 0
       let x: number
       let y = SCREENHEIGHT
-      let color: XColor
+      const palette = this.palette
       while (y--) {
         x = SCREENWIDTH
         do {
-          color = this.colors[iLine[iLinePtr++]]
-          oLine[oLinePtr++] = color.red / 65535 * 255
-          oLine[oLinePtr++] = color.green / 65535 * 255
-          oLine[oLinePtr++] = color.blue / 65535 * 255
-          oLine[oLinePtr++] = 255
+          oLine.set(
+            palette.get(iLine[iLinePtr++], this.useGamma),
+            oLinePtr,
+          )
+
+          oLinePtr += 4
         // eslint-disable-next-line no-cond-assign
         } while (x -= 1)
       }
@@ -206,40 +207,7 @@ export class Video {
     this.xScreen.putImageData(this.image, 0, 0)
   }
 
-  private colors = new Array<XColor>(256)
-  private firstCall = true
-  private uploadNewPalette(palette: ArrayBuffer): void {
-    // initialize the colormap
-    if (this.firstCall) {
-      this.firstCall = false
-
-      for (let i = 0; i < 256; ++i) {
-        this.colors[i] = {
-          pixel: i,
-          flags: XColorFlags.DoRed | XColorFlags.DoGreen | XColorFlags.DoBlue,
-          red: 0, green: 0, blue: 0, pad: 0,
-        }
-      }
-    }
-
-    // set the X colormap entries
-    let c = 0
-    const paletteReader = new Uint8Array(palette)
-    let palettePtr = 0
-    for (let i = 0; i < 256; ++i) {
-      c = gammaTable[this.useGamma][paletteReader[palettePtr++]]
-      this.colors[i].red = (c << 8) + c
-      c = gammaTable[this.useGamma][paletteReader[palettePtr++]]
-      this.colors[i].green = (c << 8) + c
-      c = gammaTable[this.useGamma][paletteReader[palettePtr++]]
-      this.colors[i].blue = (c << 8) + c
-    }
-  }
-
-  setPalette(palette: ArrayBuffer): void {
-    this.uploadNewPalette(palette)
-  }
-
+  palette = new Palette()
 
   private firstTime = 1
 

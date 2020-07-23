@@ -428,7 +428,6 @@ export class Menu {
         if (this.iVideo.useGamma > 4) {
           this.iVideo.useGamma = 0
         }
-        this.iVideo.setPalette(this.wad.cacheLumpName('PLAYPAL'))
         return true
       }
     }

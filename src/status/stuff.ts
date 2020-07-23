@@ -11,6 +11,7 @@ import { GameVersion } from '../doom/mode'
 import { Video as IVideo } from '../interfaces/video'
 import { MultiIcon } from './multi-icon'
 import { NumberWidget } from './number-widget'
+import { Palette } from '../interfaces/palette'
 import { Patch } from '../rendering/defs/patch'
 import { PercentWidget } from './percent-widget'
 import { Video as RVideo } from '../rendering/video'
@@ -203,9 +204,6 @@ export class StatusBar {
 
   // used to execute ST_Init() only once
   private veryFirstTime = true
-
-  // lump number for PLAYPAL
-  private luPalette = -1
 
   // used for timing
   private clock = 0
@@ -560,6 +558,7 @@ export class StatusBar {
   }
 
   private palette = 0
+  private palettes = new Array<Palette>()
 
   // 1000
   private doPaletteStuff(): void {
@@ -607,9 +606,8 @@ export class StatusBar {
 
     if (palette !== this.palette) {
       this.palette = palette
-      const pal = this.wad.cacheLumpNum(this.luPalette)
 
-      this.iVideo.setPalette(pal.slice(palette * 768))
+      this.iVideo.palette = this.palettes[palette]
     }
   }
 
@@ -763,7 +761,13 @@ export class StatusBar {
 
   // 1201
   private loadData(): void {
-    this.luPalette = this.wad.getNumForName('PLAYPAL')
+    const paletteLump = this.wad.getNumForName('PLAYPAL')
+    const fullPalette = this.wad.cacheLumpNum(paletteLump)
+    const size = this.wad.lumpLength(paletteLump) / (256 * 3)
+
+    for (let i = 0; i < size; ++i) {
+      this.palettes[i] = new Palette(fullPalette.slice(i * 256 * 3))
+    }
     this.loadGraphics()
   }
 
@@ -977,7 +981,7 @@ export class StatusBar {
       return
     }
 
-    this.iVideo.setPalette(this.wad.cacheLumpNum(this.luPalette))
+    this.iVideo.palette = this.palettes[0]
   }
 
   // 1466

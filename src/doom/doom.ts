@@ -11,6 +11,7 @@ import { Sound as ISound } from '../interfaces/sound'
 import { Video as IVideo } from '../interfaces/video'
 import { Menu } from '../menu/menu'
 import { Net } from './net'
+import { Palette } from '../interfaces/palette'
 import { Params } from './params'
 import { Play } from '../play/setup'
 import { PlayerState } from './player'
@@ -213,7 +214,7 @@ export class Doom {
     if (this.game.gameState !== this.oldGameState &&
       this.game.gameState !== GameState.Level
     ) {
-      this.iVideo.setPalette(this.wad.cacheLumpName('PLAYPAL'))
+      this.iVideo.palette = new Palette(this.wad.cacheLumpName('PLAYPAL'))
     }
 
     // see if the border needs to be initially drawn
