@@ -380,6 +380,11 @@ export class Game {
     cmd.sideMove += side
 
     // special buttons
+    if (this.sendPause) {
+      this.sendPause = false
+      cmd.buttons = ButtonCode.Special |
+        ButtonCode.Pause
+    }
     if (this.sendSave) {
       this.sendSave = false
       cmd.buttons = ButtonCode.Special |

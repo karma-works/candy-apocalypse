@@ -13,6 +13,7 @@ import { Menu } from '../menu/menu'
 import { Net } from './net'
 import { Params } from './params'
 import { Play } from '../play/setup'
+import { PlayerState } from './player'
 import { Video as RVIdeo } from '../rendering/video'
 import { Rendering } from '../rendering/rendering'
 import { StatusBar } from '../status/stuff'
@@ -395,7 +396,12 @@ export class Doom {
   // FIXME - version dependend demo numbers?
   //
   doAdvanceDemo(): void {
+    // not reborn
+    this.game.players[this.game.consolePlayer].playerState = PlayerState.Live
     this.advancedemo = false
+    // no save / end game here
+    this.game.userGame = false
+    this.game.paused = false
     this.game.gameAction = GameAction.Nothing
 
     if (this.gameVersion === GameVersion.Ultimate ||
