@@ -72,8 +72,8 @@ export class Data {
   textureHeight = new Array<number>()
   private textureCompositeSize = new Array<number>()
   private textureColumnLump = new Array<number[]>()
-  private textureColumnOfs = new Array<number[]>()
-  private textureComposite = new Array<ArrayBuffer>()
+  private textureColumnCols = new Array<number[]>()
+  private textureComposite = new Array<Patch>()
 
   // for global animation
   flatTranslation: number[] = []
@@ -104,12 +104,12 @@ export class Data {
   // Clip and draw a column
   //  from a patch into a cached post.
   //
-  drawColumnInCache(patch: Column, cache: Uint8Array, originY: number, cacheHeight: number): void {
+  drawColumnInCache(patch: Column, cache: Column, originY: number, cacheHeight: number): void {
     let count: number
     let position: number
 
     let col: Post
-    for (col of patch) {
+    for (col of patch.posts) {
       count = col.length
       position = originY + col.topDelta
 
@@ -123,7 +123,10 @@ export class Data {
       }
 
       if (count > 0) {
-        cache.set(col.bytes.slice(0, count), position)
+        cache.posts[0].bytes.set(
+          col.bytes.slice(0, count),
+          position,
+        )
       }
     }
   }
@@ -138,10 +141,10 @@ export class Data {
 
     const texture = this.textures[textNum]
     const colLump = this.textureColumnLump[textNum]
-    const colOfs = this.textureColumnOfs[textNum]
 
-    const block = new ArrayBuffer(this.textureCompositeSize[textNum])
-    this.textureComposite[textNum] = block
+    const columns = Array.from({ length: texture.width },
+      () => new Column([ new Post(texture.height) ]))
+    this.textureComposite[textNum] = new Patch(columns)
 
     // Composite the columns together.
     let patch: TexPatch
@@ -172,11 +175,11 @@ export class Data {
           continue
         }
 
-        patchCol = realPatch.getColumn(x - x1)
+        patchCol = realPatch.columns[x - x1]
 
         this.drawColumnInCache(
           patchCol,
-          new Uint8Array(block, colOfs[x]),
+          columns[x],
           patch.originY,
           texture.height,
         )
@@ -195,7 +198,7 @@ export class Data {
 
     this.textureCompositeSize[textNum] = 0
     const colLump = this.textureColumnLump[textNum]
-    const colOfs = this.textureColumnOfs[textNum]
+    const colCol = this.textureColumnCols[textNum]
 
     // Now count the number of columns
     //  that are covered by more than one patch.
@@ -225,7 +228,7 @@ export class Data {
       for (; x < x2; ++x) {
         patchCount[x]++
         colLump[x] = patch.patch
-        colOfs[x] = realPatch.columnOfs[x - x1] + 3
+        colCol[x] = x - x1
       }
     }
 
@@ -238,11 +241,7 @@ export class Data {
       if (patchCount[x] > 1) {
         // Use the cached block.
         colLump[x] = -1
-        colOfs[x] = this.textureCompositeSize[textNum]
-
-        if (this.textureCompositeSize[textNum] > 0x10000 - texture.height) {
-          throw `R_GenerateLookup: texture ${textNum} is >64k`
-        }
+        colCol[x] = x
 
         this.textureCompositeSize[textNum] += texture.height
       }
@@ -252,25 +251,21 @@ export class Data {
   //
   // R_GetColumn
   //
-  getColumn(tex: number, col: number, withHeader = false): ArrayBuffer {
+  getColumn(tex: number, col: number): Column {
     col &= this.textureWidthMask[tex]
     const lump = this.textureColumnLump[tex][col]
-    let ofs = this.textureColumnOfs[tex][col]
-    if (withHeader) {
-      ofs -= 3
-    }
+    col = this.textureColumnCols[tex][col]
 
     if (lump > 0) {
-      return this.wad.cacheLumpNum(lump).slice(ofs)
+      return new Patch(this.wad.cacheLumpNum(lump)).columns[col]
     }
 
-    if (!this.textureComposite[tex] ||
-      this.textureComposite[tex].byteLength === 0
-    ) {
+
+    if (!this.textureComposite[tex]) {
       this.generateComposite(tex)
     }
 
-    return this.textureComposite[tex].slice(ofs)
+    return this.textureComposite[tex].columns[col]
   }
 
   //
@@ -321,7 +316,7 @@ export class Data {
 
     this.textures = new Array(this.numTextures).fill(0)
     this.textureColumnLump = new Array(this.numTextures).fill(0)
-    this.textureColumnOfs = new Array(this.numTextures).fill(0)
+    this.textureColumnCols = new Array(this.numTextures).fill(0)
     this.textureComposite = new Array(this.numTextures).fill(0)
     this.textureCompositeSize = new Array(this.numTextures).fill(0)
     this.textureWidthMask = new Array(this.numTextures).fill(0)
@@ -373,7 +368,7 @@ export class Data {
       }
 
       this.textureColumnLump[i] = new Array(texture.width).fill(0)
-      this.textureColumnOfs[i] = new Array(texture.width).fill(0)
+      this.textureColumnCols[i] = new Array(texture.width).fill(0)
 
       j = 1
       while (j * 2 <= texture.width) {

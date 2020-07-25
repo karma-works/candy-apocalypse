@@ -95,10 +95,10 @@ export class Video {
     let sourcePtr: number
     let count: number
     for (; col < w; ++x, ++col, ++destTopPtr) {
-      column = patch.getColumn(col)
+      column = patch.columns[col]
 
       // step through the posts in a column
-      for (post of column) {
+      for (post of column.posts) {
         sourcePtr = 0
         destPtr = destTopPtr + post.topDelta * SCREENWIDTH
         count = post.length

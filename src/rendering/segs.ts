@@ -181,12 +181,9 @@ export class Segs {
         this.draw.dcIScale = 0xffffffff / this.things.sprYScale >>> 0
 
         // draw the texture
-        col = new Column(
-          this.data.getColumn(
-            textNum,
-            this.maskedTextureCol[this.draw.dcX],
-            true,
-          ),
+        col = this.data.getColumn(
+          textNum,
+          this.maskedTextureCol[this.draw.dcX],
         )
 
         this.things.drawMaskedColumn(col)
@@ -290,9 +287,8 @@ export class Segs {
         this.draw.dcYl = yl
         this.draw.dcYh = yh
         this.draw.dcTextureMid = this.rwMidTextureMid
-        this.draw.dcSource = new Uint8ClampedArray(
-          this.data.getColumn(this.midTexture, textureColumn),
-        )
+        this.draw.dcSource =
+          this.data.getColumn(this.midTexture, textureColumn).posts[0]
         this.rendering.colFunc.apply(this.draw)
         this.plane.ceilingClip[this.rwX] = this.draw.viewHeight
         this.plane.floorClip[this.rwX] = -1
@@ -311,9 +307,8 @@ export class Segs {
             this.draw.dcYl = yl
             this.draw.dcYh = mid
             this.draw.dcTextureMid = this.rwTopTextureMid
-            this.draw.dcSource = new Uint8ClampedArray(
-              this.data.getColumn(this.topTexture, textureColumn),
-            )
+            this.draw.dcSource =
+              this.data.getColumn(this.topTexture, textureColumn).posts[0]
             this.rendering.colFunc.apply(this.draw)
             this.plane.ceilingClip[this.rwX] = mid
           } else {
@@ -340,9 +335,8 @@ export class Segs {
             this.draw.dcYl = mid
             this.draw.dcYh = yh
             this.draw.dcTextureMid = this.rwBottomTextureMid
-            this.draw.dcSource = new Uint8ClampedArray(
-              this.data.getColumn(this.bottomTexture, textureColumn),
-            )
+            this.draw.dcSource =
+              this.data.getColumn(this.bottomTexture, textureColumn).posts[0]
             this.rendering.colFunc.apply(this.draw)
             this.plane.floorClip[this.rwX] = mid
           } else {

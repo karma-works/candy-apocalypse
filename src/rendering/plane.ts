@@ -355,9 +355,8 @@ export class Plane {
           if (this.draw.dcYl <= this.draw.dcYh) {
             angle = this.rendering.viewAngle + this.rendering.xToViewAngle[x] >> ANGLE_TO_SKY_SHIFT
             this.draw.dcX = x
-            this.draw.dcSource = new Uint8ClampedArray(
-              this.data.getColumn(this.sky.skyTexture, angle),
-            )
+            this.draw.dcSource =
+              this.data.getColumn(this.sky.skyTexture, angle).posts[0]
 
             if (this.rendering.colFunc === null) {
               throw 'this.rendering.colFunc = null'

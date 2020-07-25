@@ -5,16 +5,26 @@ export class Post {
   // length data bytes follows
   length: number;
   bytes: Uint8Array;
-  constructor(buffer: ArrayBuffer) {
-    const int8 = new Uint8Array(buffer, 0)
-    this.topDelta = int8[0]
-    if (this.topDelta !== 0xff) {
-      this.length = int8[1]
-      // 2 or 3
-      this.bytes = new Uint8Array(buffer, 3, this.length)
+
+  constructor()
+  constructor(length: number)
+  constructor(buffer: ArrayBuffer)
+  constructor(arg: ArrayBuffer | number = 0) {
+    if (typeof arg === 'number') {
+      this.topDelta = 0
+      this.length = arg
+      this.bytes = new Uint8Array(arg)
     } else {
-      this.length = 0
-      this.bytes = new Uint8Array([])
+      const int8 = new Uint8Array(arg, 0)
+
+      this.topDelta = int8[0]
+      if (this.topDelta !== 0xff) {
+        this.length = int8[1]
+        this.bytes = new Uint8Array(arg, 3, this.length)
+      } else {
+        this.length = 0
+        this.bytes = new Uint8Array([])
+      }
     }
   }
 }

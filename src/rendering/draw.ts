@@ -4,6 +4,7 @@ import { Doom } from '../doom/doom'
 import { FRACBITS } from '../misc/fixed'
 import { GameMode } from '../doom/mode'
 import { Patch } from './defs/patch'
+import { Post } from './defs/post'
 import { Rendering } from './rendering'
 import { Video } from './video'
 import { Wad } from '../wad/wad'
@@ -67,11 +68,7 @@ export class Draw {
   dcIScale = 0
   dcTextureMid = 0
 
-  // first pixel in a column (possibly virtual)
-  dcSource = new Uint8ClampedArray(0)
-
-  // just for profiling
-  private dcCount = 0
+  dcSource = new Post()
 
   private get data(): Data {
     return this.rendering.data
@@ -135,7 +132,9 @@ export class Draw {
     do {
       // Re-map color indices from wall texture column
       //  using a lighting/special effects LUT.
-      dest[destPtr] = this.dcColorMap[this.dcSource[frac >> FRACBITS & 127]]
+      dest[destPtr] = this.dcColorMap[
+        this.dcSource.bytes[frac >> FRACBITS & 127]
+      ]
       destPtr += SCREENWIDTH
       frac += fracStep
     } while (count--)

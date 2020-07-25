@@ -295,7 +295,7 @@ export class Things {
     let topScreen: number
     let bottomScreen: number
     let post: Post
-    for (post of column) {
+    for (post of column.posts) {
       // calculate unclipped screen coordinates
       //  for post
       topScreen = this.sprTopScreen + this.sprYScale * post.topDelta
@@ -313,7 +313,7 @@ export class Things {
       }
 
       if (this.draw.dcYl <= this.draw.dcYh) {
-        this.draw.dcSource = new Uint8ClampedArray(post.bytes)
+        this.draw.dcSource = post
         this.draw.dcTextureMid = baseTextureMid - (post.topDelta << FRACBITS)
 
         // Drawn by either R_DrawColumn
@@ -365,7 +365,7 @@ export class Things {
         }
       }
 
-      column = patch.getColumn(textureColumn)
+      column = patch.columns[textureColumn]
       this.drawMaskedColumn(column)
     }
 
