@@ -16,9 +16,9 @@ import { Strings } from '../translation/strings'
 import { Video } from '../rendering/video'
 import { Wad } from '../wad/wad'
 
-const AM_MSGHEADER = ('a'.charCodeAt(0) << 24) + ('m'.charCodeAt(0) << 16)
-const AM_MSGENTERED = AM_MSGHEADER | 'e'.charCodeAt(0) << 8
-const AM_MSGEXITED = AM_MSGHEADER | 'x'.charCodeAt(0) << 8
+export const AM_MSGHEADER = ('a'.charCodeAt(0) << 24) + ('m'.charCodeAt(0) << 16)
+export const AM_MSGENTERED = AM_MSGHEADER | 'e'.charCodeAt(0) << 8
+export const AM_MSGEXITED = AM_MSGHEADER | 'x'.charCodeAt(0) << 8
 
 // For use if I do walls with outsides/insides
 const REDS = 256 - 5 * 16

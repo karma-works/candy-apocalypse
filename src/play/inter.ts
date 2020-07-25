@@ -257,7 +257,7 @@ export class Inter {
   //
   // P_GivePower
   //
-  private givePower(player: Player, power: PowerType): boolean {
+  givePower(player: Player, power: PowerType): boolean {
     if (power === PowerType.Invulnerability) {
       player.powers[power] = PowerDuration.InvulnTics
       return true

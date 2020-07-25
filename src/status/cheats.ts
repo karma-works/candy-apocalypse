@@ -1,0 +1,108 @@
+import { CheatSeq } from '../misc/cheat'
+
+// Massive bunches of cheat shit
+//  to keep it from being easy to figure them out.
+// Yeah, right...
+
+const musCheatSeq =
+  [
+    0xb2, 0x26, 0xb6, 0xae, 0xea, 1, 0, 0, 0xff,
+  ]
+
+const choppersCheatSeq =
+  [
+    // id...
+    0xb2, 0x26, 0xe2, 0x32, 0xf6, 0x2a, 0x2a, 0xa6, 0x6a, 0xea, 0xff,
+  ]
+
+const godCheatSeq =
+  [
+    // iddqd
+    0xb2, 0x26, 0x26, 0xaa, 0x26, 0xff,
+  ]
+
+const ammoCheatSeq =
+  [
+    // idkfa
+    0xb2, 0x26, 0xf2, 0x66, 0xa2, 0xff,
+  ]
+
+const ammoNoKeyCheatSeq =
+  [
+    // idfa
+    0xb2, 0x26, 0x66, 0xa2, 0xff,
+  ]
+
+
+// Smashing Pumpkins Into Samml Piles Of Putried Debris.
+const noClipCheatSeq =
+  [
+    // idspispopd
+    0xb2, 0x26, 0xea, 0x2a, 0xb2,
+    0xea, 0x2a, 0xf6, 0x2a, 0x26, 0xff,
+  ]
+
+//
+const commercialNoClipCheatSeq =
+  [
+    // idclip
+    0xb2, 0x26, 0xe2, 0x36, 0xb2, 0x2a, 0xff,
+  ]
+
+
+const powerupCheatSeq =
+  [
+    // beholdv
+    [ 0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0x6e, 0xff ],
+    // beholds
+    [ 0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0xea, 0xff ],
+    // beholdi
+    [ 0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0xb2, 0xff ],
+    // beholdr
+    [ 0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0x6a, 0xff ],
+    // beholda
+    [ 0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0xa2, 0xff ],
+    // beholdl
+    [ 0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0x36, 0xff ],
+    // behold
+    [ 0xb2, 0x26, 0x62, 0xa6, 0x32, 0xf6, 0x36, 0x26, 0xff ],
+  ]
+
+
+const clevCheatSeq =
+  [
+    // idclev
+    0xb2, 0x26, 0xe2, 0x36, 0xa6, 0x6e, 1, 0, 0, 0xff,
+  ]
+
+
+// my position cheat
+const myPosCheatSeq =
+  [
+    // idmypos
+    0xb2, 0x26, 0xb6, 0xba, 0x2a, 0xf6, 0xea, 0xff,
+  ]
+
+
+// Now what?
+export const musCheat: CheatSeq = { sequence: musCheatSeq }
+export const godCheat: CheatSeq = { sequence: godCheatSeq }
+export const ammoCheat: CheatSeq = { sequence: ammoCheatSeq }
+export const ammoNoKeyCheat: CheatSeq = { sequence: ammoNoKeyCheatSeq }
+export const noClipCheat: CheatSeq = { sequence: noClipCheatSeq }
+export const commercialNoClipCheat: CheatSeq = { sequence: commercialNoClipCheatSeq }
+
+export const powerupCheat: readonly CheatSeq[] =
+  [
+    { sequence: powerupCheatSeq[0] },
+    { sequence: powerupCheatSeq[1] },
+    { sequence: powerupCheatSeq[2] },
+    { sequence: powerupCheatSeq[3] },
+    { sequence: powerupCheatSeq[4] },
+    { sequence: powerupCheatSeq[5] },
+    { sequence: powerupCheatSeq[6] },
+  ]
+
+export const choppersCheat: CheatSeq = { sequence: choppersCheatSeq }
+export const clevCheat: CheatSeq = { sequence: clevCheatSeq }
+export const myPosCheat: CheatSeq = { sequence: myPosCheatSeq }

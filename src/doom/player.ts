@@ -67,7 +67,7 @@ export class Player {
   // Is wp_nochange if not changing.
   pendingWeapon: WeaponType = 0
 
-  weaponOwned = new Array<boolean>(WeaponType.NUMWEAPONS).fill(false)
+  weaponOwned = new Array<boolean>(WeaponType.NUM_WEAPONS).fill(false)
   ammo = new Array<number>(AmmoType.NUM_AMMO).fill(0)
   maxAmmo = new Array<number>(AmmoType.NUM_AMMO).fill(0)
 
@@ -190,7 +190,7 @@ export class Player {
     this.readyWeapon = int32[int32Ptr++]
     this.pendingWeapon = int32[int32Ptr++]
 
-    for (let i = 0; i < WeaponType.NUMWEAPONS; ++i) {
+    for (let i = 0; i < WeaponType.NUM_WEAPONS; ++i) {
       this.weaponOwned[i] = !!int32[int32Ptr++]
     }
     for (let i = 0; i < AmmoType.NUM_AMMO; ++i) {
@@ -264,7 +264,7 @@ export class Player {
     int32[int32Ptr++] = this.readyWeapon
     int32[int32Ptr++] = this.pendingWeapon
 
-    for (let i = 0; i < WeaponType.NUMWEAPONS; ++i) {
+    for (let i = 0; i < WeaponType.NUM_WEAPONS; ++i) {
       int32[int32Ptr++] = this.weaponOwned[i] ? 1 : 0
     }
     for (let i = 0; i < AmmoType.NUM_AMMO; ++i) {

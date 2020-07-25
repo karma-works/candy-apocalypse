@@ -1,14 +1,17 @@
+import { AM_MSGENTERED, AM_MSGEXITED, AM_MSGHEADER, AutoMap } from '../auto-map/auto-map'
 import { ANG180, ANG45 } from '../misc/table'
 import { AmmoType, Card, MAX_PLAYERS, PowerType, TICRATE, WeaponType } from '../global/doomdef'
 import { BG, FG, Lib, ST_HEIGHT, ST_WIDTH, ST_Y } from './lib'
-import { Cheat, Player } from '../doom/player'
-import { AutoMap } from '../auto-map/auto-map'
+import { DEvent, EvType } from '../doom/event'
+import { GameMission, GameMode, GameVersion, Skill, logicalGameMission } from '../doom/mode'
+import { Cheat as PCheat, Player } from '../doom/player'
+import { ammoCheat, ammoNoKeyCheat, choppersCheat, clevCheat, commercialNoClipCheat, godCheat, musCheat, myPosCheat, noClipCheat, powerupCheat } from './cheats'
 import { BinIcon } from './bin-icon'
-import { DEvent } from '../doom/event'
+import { Cheat } from '../misc/cheat'
 import { Doom } from '../doom/doom'
 import { Game } from '../game/game'
-import { GameVersion } from '../doom/mode'
 import { Video as IVideo } from '../interfaces/video'
+import { Inter } from '../play/inter'
 import { MultiIcon } from './multi-icon'
 import { NumberWidget } from './number-widget'
 import { Palette } from '../interfaces/palette'
@@ -16,6 +19,8 @@ import { Patch } from '../rendering/defs/patch'
 import { PercentWidget } from './percent-widget'
 import { Video as RVideo } from '../rendering/video'
 import { Rendering } from '../rendering/rendering'
+import { State } from './states'
+import { Strings } from '../translation/strings'
 import { Wad } from '../wad/wad'
 import { pointToAngle } from '../misc/angle'
 import { random } from '../misc/random'
@@ -208,6 +213,9 @@ export class StatusBar {
   // used for timing
   private clock = 0
 
+  // whether in automap or first-person
+  private gameState: State = 0
+
   // whether left-side main status bar is active
   private statusBarOn = false
 
@@ -303,6 +311,9 @@ export class StatusBar {
   private get autoMap(): AutoMap {
     return this.doom.autoMap
   }
+  private get inter(): Inter {
+    return this.doom.play.inter
+  }
   public get rendering(): Rendering {
     return this.doom.rendering
   }
@@ -312,6 +323,9 @@ export class StatusBar {
   private get iVideo(): IVideo {
     return this.doom.iVideo
   }
+  private get strings(): Strings {
+    return this.doom.strings
+  }
   public get wad(): Wad {
     return this.doom.wad
   }
@@ -319,6 +333,7 @@ export class StatusBar {
     return this.doom.game
   }
 
+  private cheat = new Cheat()
   private lib = new Lib(this)
 
   constructor(private doom: Doom) { }
@@ -338,8 +353,200 @@ export class StatusBar {
   // Respond to keyboard input events,
   //  intercept cheats.
   responder(ev: DEvent): boolean {
-    // TODO see chocolate
+    // Filter automap on/off.
+    if (ev.type === EvType.KeyUp &&
+      (ev.data1 & 0xffff0000) === AM_MSGHEADER
+    ) {
+      switch (ev.data1) {
+      case AM_MSGENTERED:
+        this.gameState = State.AutoMap
+        this.firstTime = true
+        break
 
+      case AM_MSGEXITED:
+        this.gameState = State.FirstPerson
+        break
+      }
+    } else if (ev.type === EvType.KeyDown) {
+      const plyr = this.player
+
+      // if a user keypress...
+      if (!this.game.netGame && this.game.gameSkill !== Skill.Nightmare) {
+        if (this.cheat.checkCheat(godCheat, ev.data1)) {
+          // 'dqd' cheat for toggleable god mode
+          plyr.cheats ^= PCheat.GodMode
+          if (plyr.cheats & PCheat.GodMode) {
+            if (plyr.mo) {
+              plyr.mo.health = 100
+            }
+
+            plyr.health = 100
+            plyr.message = this.strings.ststrDqdon
+          } else {
+            plyr.message = this.strings.ststrDqdoff
+          }
+        } else if (this.cheat.checkCheat(ammoNoKeyCheat, ev.data1)) {
+          // 'fa' cheat for killer fucking arsenal
+          plyr.armorPoints = 200
+          plyr.armorType = 2
+
+          for (let i = 0; i < WeaponType.NUM_WEAPONS; i++) {
+            plyr.weaponOwned[i] = true
+          }
+
+          for (let i = 0; i < AmmoType.NUM_AMMO; i++) {
+            plyr.ammo[i] = plyr.maxAmmo[i]
+          }
+
+          plyr.message = this.strings.ststrFaadded
+        } else if (this.cheat.checkCheat(ammoCheat, ev.data1)) {
+          // 'kfa' cheat for key full ammo
+          plyr.armorPoints = 200
+          plyr.armorType = 2
+
+          for (let i = 0; i < WeaponType.NUM_WEAPONS; i++) {
+            plyr.weaponOwned[i] = true
+          }
+
+          for (let i = 0; i < AmmoType.NUM_AMMO; i++) {
+            plyr.ammo[i] = plyr.maxAmmo[i]
+          }
+
+          for (let i = 0; i < Card.NUM_CARDS; i++) {
+            plyr.cards[i] = true
+          }
+
+          plyr.message = this.strings.ststrKfaadded
+        } else if (this.cheat.checkCheat(musCheat, ev.data1)) {
+          // 'mus' cheat for changing music
+
+          plyr.message = this.strings.ststrMus
+          // const buf = this.cheat.getParam(musCheat)
+
+          // Note: The original v1.9 had a bug that tried to play back
+          // the Doom II music regardless of gamemode.  This was fixed
+          // in the Ultimate Doom executable so that it would work for
+          // the Doom 1 music as well.
+
+          if (this.doom.gameMode === GameMode.Commercial ||
+            this.doom.gameVersion < GameVersion.Ultimate
+          ) {
+            // TODO
+          } else {
+            // TODO
+          }
+
+        } else if (logicalGameMission(this.doom.gameMission) === GameMission.Doom &&
+          this.cheat.checkCheat(noClipCheat, ev.data1) ||
+          logicalGameMission(this.doom.gameMission) !== GameMission.Doom &&
+          this.cheat.checkCheat(commercialNoClipCheat, ev.data1)
+        ) {
+          // Simplified, accepting both "noclip" and "idspispopd".
+          // no clipping mode cheat
+          plyr.cheats ^= PCheat.NoClip
+
+          if (plyr.cheats & PCheat.NoClip) {
+            plyr.message = this.strings.ststrNcon
+          } else {
+            plyr.message = this.strings.ststrNcoff
+          }
+        }
+
+        // 'behold?' power-up cheats
+        for (let i = 0; i < 6; i++) {
+          if (this.cheat.checkCheat(powerupCheat[i], ev.data1)) {
+            if (!plyr.powers[i]) {
+              this.inter.givePower(plyr, i)
+            } else if (i !== PowerType.Strength) {
+              plyr.powers[i] = 1
+            } else {
+              plyr.powers[i] = 0
+            }
+
+            plyr.message = this.strings.ststrBeholdx
+          }
+        }
+
+        if (this.cheat.checkCheat(powerupCheat[6], ev.data1)) {
+          // 'behold' power-up menu
+          plyr.message = this.strings.ststrBehold
+        } else if (this.cheat.checkCheat(choppersCheat, ev.data1)) {
+          // 'choppers' invulnerability & chainsaw
+          plyr.weaponOwned[WeaponType.Chainsaw] = true
+          plyr.powers[PowerType.Invulnerability] = 1
+          plyr.message = this.strings.ststrChoppers
+        } else if (this.cheat.checkCheat(myPosCheat, ev.data1)) {
+          // 'mypos' for player position
+
+          if (plyr.mo === null) {
+            throw 'plyr.mo = null'
+          }
+
+          const ang = plyr.mo.angle.toString(16)
+          const x = plyr.mo.x.toString(16)
+          const y = plyr.mo.y.toString(16)
+          plyr.message = `ang=0x${ang};x,y=(0x${x},0x${y})`
+        }
+      }
+
+      // 'clev' change-level cheat
+      if (!this.game.netGame && this.cheat.checkCheat(clevCheat, ev.data1)) {
+        const buf = this.cheat.getParam(clevCheat)
+
+        let episode: number
+        let map: number
+        if (this.doom.gameMode === GameMode.Commercial) {
+          episode = 0
+          map = Number(buf) || 0
+        } else {
+          episode = Number(buf[0]) || 0
+          map = Number(buf[1]) || 0
+
+          // Chex.exe always warps to episode 1.
+
+          if (this.doom.gameVersion === GameVersion.Chex) {
+            if (episode > 1) {
+              episode = 1
+            }
+            if (map > 5) {
+              map = 5
+            }
+          }
+        }
+
+        // Catch invalid maps.
+        if (this.doom.gameMode !== GameMode.Commercial) {
+          if (episode < 1) {
+            return false
+          }
+          if (episode > 4) {
+            return false
+          }
+          if (episode === 4 &&
+            this.doom.gameVersion < GameVersion.Ultimate
+          ) {
+            return false
+          }
+          if (map < 1) {
+            return false
+          }
+          if (map > 9) {
+            return false
+          }
+        } else {
+          if (map < 1) {
+            return false
+          }
+          if (map > 40) {
+            return false
+          }
+        }
+
+        // So be it
+        plyr.message = this.strings.ststrClev
+        this.game.deferedInitNew(this.game.gameSkill, episode, map)
+      }
+    }
     return false
   }
 
@@ -387,7 +594,7 @@ export class StatusBar {
         // picking up bonus
         doEvilGrin = false
 
-        for (i = 0; i < WeaponType.NUMWEAPONS; ++i) {
+        for (i = 0; i < WeaponType.NUM_WEAPONS; ++i) {
           if (this.oldWeaponsOwned[i] !== pl.weaponOwned[i]) {
             doEvilGrin = true
             this.oldWeaponsOwned[i] = pl.weaponOwned[i]
@@ -483,7 +690,7 @@ export class StatusBar {
 
     if (this.priority < 5) {
       // invulnerability
-      if (pl.cheats & Cheat.GodMode ||
+      if (pl.cheats & PCheat.GodMode ||
         pl.powers[PowerType.Invulnerability]
       ) {
         this.priority = 4
@@ -777,6 +984,7 @@ export class StatusBar {
     this.player = this.game.players[this.game.consolePlayer]
 
     this.clock = 0
+    this.gameState = State.FirstPerson
 
     this.statusBarOn = true
 
