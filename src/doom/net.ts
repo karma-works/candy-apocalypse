@@ -414,25 +414,9 @@ export class Net {
     }
 
     // wait for new tics if needed
-    while (lowTic < (this.game.gameTic / this.ticDup >> 0) + counts) {
-      this.netUpdate()
-      lowTic = 2147483647
-
-      for (i = 0; i < this.doomCom.numNodes; ++i) {
-        if (this.nodeInGame[i] && this.netTics[i] < lowTic) {
-          lowTic = this.netTics[i]
-        }
-      }
-
-      if (lowTic < this.game.gameTic / this.ticDup >> 0) {
-        throw 'TryRunTics: lowtic < gametic'
-      }
-
-      // don't stay in here forever -- give the menu a chance to work
-      if ((getTime() / this.ticDup >> 0) - enterTic >= 20) {
-        this.menu.ticker()
-        return
-      }
+    if (lowTic < (this.game.gameTic / this.ticDup >> 0) + counts) {
+      // Don't hog CPU
+      return
     }
 
     // run the count * ticdup dics
