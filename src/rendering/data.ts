@@ -155,7 +155,7 @@ export class Data {
     let patchCol: Column
     for (let i = 0; i < texture.patchCount; ++i) {
       patch = texture.patches[i]
-      realPatch = new Patch(this.wad.cacheLumpNum(patch.patch))
+      realPatch = this.wad.cacheLumpNum(patch.patch, Patch)
       x1 = patch.originX
       x2 = x1 + realPatch.width
 
@@ -211,7 +211,7 @@ export class Data {
     let x: number, x1: number, x2: number
     for (let i = 0; i < texture.patchCount; ++i) {
       patch = texture.patches[i]
-      realPatch = new Patch(this.wad.cacheLumpNum(patch.patch))
+      realPatch = this.wad.cacheLumpNum(patch.patch, Patch)
       x1 = patch.originX
       x2 = x1 + realPatch.width
 
@@ -257,7 +257,7 @@ export class Data {
     col = this.textureColumnCols[tex][col]
 
     if (lump > 0) {
-      return new Patch(this.wad.cacheLumpNum(lump)).columns[col]
+      return this.wad.cacheLumpNum(lump, Patch).columns[col]
     }
 
 
@@ -425,7 +425,7 @@ export class Data {
 
     let patch: Patch
     for (let i = 0; i < this.numSpriteLumps; ++i) {
-      patch = new Patch(this.wad.cacheLumpNum(this.firstSpriteLump + i))
+      patch = this.wad.cacheLumpNum(this.firstSpriteLump + i, Patch)
 
       this.spriteWidth[i] = patch.width << FRACBITS
       this.spriteOffset[i] = patch.leftOffset << FRACBITS
@@ -511,102 +511,4 @@ export class Data {
 
     return i
   }
-
-  //
-  // R_PrecacheLevel
-  // Preloads all relevant graphics for the level.
-  //
-  private flatMemory = 0
-  private textureMemory = 0
-  private spriteMemory = 0
-
-  precacheLevel(): void {
-    if (this.game.demoPlayback) {
-      return
-    }
-    let i: number
-
-    // Precache flats
-    const flatPresent = new Array<boolean>(this.numFlats).fill(false)
-    for (i = 0; i < this.play.numSectors; ++i) {
-      flatPresent[this.play.sectors[i].floorPic] = true
-      flatPresent[this.play.sectors[i].ceilingPic] = true
-    }
-
-    this.flatMemory = 0
-    let lump: number
-    for (i = 0; i < this.numFlats; ++i) {
-      if (flatPresent[i]) {
-        lump = this.firstFlat + i
-        this.flatMemory += this.wad.lumpInfo[lump].size
-        this.wad.cacheLumpNum(lump)
-      }
-    }
-
-
-    // Precache textures.
-    const texturePresent = new Array<boolean>(this.numTextures).fill(false)
-    for (i = 0; i < this.play.numSides; ++i) {
-      texturePresent[this.play.sides[i].topTexture] = true
-      texturePresent[this.play.sides[i].midTexture] = true
-      texturePresent[this.play.sides[i].bottomTexture] = true
-    }
-
-    // Sky texture is always present.
-    // Note that F_SKY1 is the name used to
-    //  indicate a sky floor/ceiling as a flat,
-    //  while the sky texture is stored like
-    //  a wall texture, with an episode dependend
-    //  name.
-    texturePresent[this.sky.skyTexture] = true
-
-    this.textureMemory = 0
-    let j: number
-    let texture: Texture
-    for (i = 0; i < this.numTextures; ++i) {
-      if (!texturePresent[i]) {
-        continue
-      }
-
-      texture = this.textures[i]
-
-      for (j = 0; j < texture.patchCount; ++j) {
-        lump = texture.patches[j].patch
-        this.textureMemory += this.wad.lumpInfo[lump].size
-        this.wad.cacheLumpNum(lump)
-      }
-    }
-
-    // Precache sprites.
-    const spritePresent = new Array<boolean>(this.things.numSprites).fill(false)
-    let th: Thinker<unknown, [unknown]> | null
-    for (th = this.tick.thinkerCap.next;
-      th !== null && th !== this.tick.thinkerCap;
-      th = th.next
-    ) {
-      if (th.func === this.mObjHandler.thinker) {
-        debugger
-        // spritepresent[((mobj_t *)th)->sprite] = 1;
-      }
-    }
-
-    this.spriteMemory = 0
-    let sf: SpriteFrame
-    let k: number
-    for (i = 0; i < this.things.numSprites; ++i) {
-      if (!spritePresent[i]) {
-        continue
-      }
-
-      for (j = 0; j < this.things.sprites[i].numFrames; ++j) {
-        sf = this.things.sprites[i].spriteFrames[j]
-        for (k = 0; k < 8; ++k) {
-          lump = this.firstSpriteLump + sf.lump[k]
-          this.spriteMemory += this.wad.lumpInfo[lump].size
-          this.wad.cacheLumpNum(lump)
-        }
-      }
-    }
-  }
-
 }

@@ -278,7 +278,7 @@ export class HeadsUp {
       paddedJ = '0'.repeat(3 - paddedJ.length) + paddedJ
       buffer = 'STCFN' + paddedJ
 
-      this.font[i] = new Patch(this.wad.cacheLumpName(buffer))
+      this.font[i] = this.wad.cacheLumpName(buffer, Patch)
     }
   }
 

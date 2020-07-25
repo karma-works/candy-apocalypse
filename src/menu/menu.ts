@@ -12,6 +12,7 @@ import { Doom } from '../doom/doom'
 import { Game } from '../game/game'
 import { Video as IVideo } from '../interfaces/video'
 import { OptionsMenu } from './options'
+import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
 import { ReadThisCommercialMenu } from './read-this'
 import { Rendering } from '../rendering/rendering'
@@ -107,23 +108,23 @@ export class Menu {
     let xx = x
     this.rVideo.drawPatchDirect(
       xx, y, 0,
-      this.wad.cacheLumpName('M_THERML'),
+      this.wad.cacheLumpName('M_THERML', Patch),
     )
     xx += 8
     for (let i = 0; i < thermWidth; ++i) {
       this.rVideo.drawPatchDirect(
         xx, y, 0,
-        this.wad.cacheLumpName('M_THERMM'),
+        this.wad.cacheLumpName('M_THERMM', Patch),
       )
       xx += 8
     }
     this.rVideo.drawPatchDirect(
       xx, y, 0,
-      this.wad.cacheLumpName('M_THERMR'),
+      this.wad.cacheLumpName('M_THERMR', Patch),
     )
     this.rVideo.drawPatchDirect(
       x + 8 + thermDot * 8, y, 0,
-      this.wad.cacheLumpName('M_THERMO'),
+      this.wad.cacheLumpName('M_THERMO', Patch),
     )
   }
 
@@ -616,7 +617,7 @@ export class Menu {
       ) {
         this.rVideo.drawPatchDirect(
           this.x, this.y, 0,
-          this.wad.cacheLumpName(item.name),
+          this.wad.cacheLumpName(item.name, Patch),
         )
       }
       this.y += LINEHEIGHT
@@ -626,7 +627,7 @@ export class Menu {
       this.x + SKULLOFF,
       this.currentMenu.y - 5 + this.itemOn * LINEHEIGHT,
       0,
-      this.wad.cacheLumpName(this.skullName[this.whichSkull]),
+      this.wad.cacheLumpName(this.skullName[this.whichSkull], Patch),
     )
 
   }

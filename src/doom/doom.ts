@@ -13,6 +13,7 @@ import { Menu } from '../menu/menu'
 import { Net } from './net'
 import { Palette } from '../interfaces/palette'
 import { Params } from './params'
+import { Patch } from '../rendering/defs/patch'
 import { Play } from '../play/setup'
 import { PlayerState } from './player'
 import { Video as RVIdeo } from '../rendering/video'
@@ -257,7 +258,8 @@ export class Doom {
       }
       const x = this.rendering.draw.viewWindowX +
         (this.rendering.draw.scaledViewWidth - 68) / 2
-      this.rVideo.drawPatchDirect(x, y, 0, this.wad.cacheLumpName('M_PAUSE'))
+      this.rVideo.drawPatchDirect(x, y, 0,
+        this.wad.cacheLumpName('M_PAUSE', Patch))
     }
 
     // menus go directly to the screen
@@ -380,7 +382,7 @@ export class Doom {
   //
   private pageDrawer(): void {
     this.rVideo.drawPatch(0, 0, 0,
-      this.wad.cacheLumpName(this.pageName),
+      this.wad.cacheLumpName(this.pageName, Patch),
     )
   }
 

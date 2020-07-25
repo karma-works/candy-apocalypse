@@ -695,30 +695,30 @@ export class StatusBar {
     // Load the numbers, tall and short
     for (let i = 0; i < 10; ++i) {
       name = `STTNUM${i}`
-      this.tallNum[i] = new Patch(this.wad.cacheLumpName(name))
+      this.tallNum[i] = this.wad.cacheLumpName(name, Patch)
 
       name = `STYSNUM${i}`
-      this.shortNum[i] = new Patch(this.wad.cacheLumpName(name))
+      this.shortNum[i] = this.wad.cacheLumpName(name, Patch)
     }
 
     // Load percent key.
     //Note: why not load STMINUS here, too?
-    this.tallPercent = new Patch(this.wad.cacheLumpName('STTPRCNT'))
+    this.tallPercent = this.wad.cacheLumpName('STTPRCNT', Patch)
 
     // key cards
     for (let i = 0; i < Card.NUM_CARDS; ++i) {
       name = `STKEYS${i}`
-      this.keys[i] = new Patch(this.wad.cacheLumpName(name))
+      this.keys[i] = this.wad.cacheLumpName(name, Patch)
     }
 
     // arms background
-    this.armsBg = new Patch(this.wad.cacheLumpName('STARMS'))
+    this.armsBg = this.wad.cacheLumpName('STARMS', Patch)
 
     // arms ownership widgets
     for (let i = 0; i < 6; ++i) {
       name = `STGNUM${i + 2}`
       // gray #
-      this.arms[i][0] = new Patch(this.wad.cacheLumpName(name))
+      this.arms[i][0] = this.wad.cacheLumpName(name, Patch)
 
       // yellow #
       this.arms[i][1] = this.shortNum[i + 2]
@@ -726,10 +726,10 @@ export class StatusBar {
 
     // face backgrounds for different color players
     name = `STFB${this.game.consolePlayer}`
-    this.faceBack = new Patch(this.wad.cacheLumpName(name))
+    this.faceBack = this.wad.cacheLumpName(name, Patch)
 
     // status bar background bits
-    this.sBar = new Patch(this.wad.cacheLumpName('STBAR'))
+    this.sBar = this.wad.cacheLumpName('STBAR', Patch)
 
     // face states
 
@@ -737,26 +737,26 @@ export class StatusBar {
     for (let i = 0; i < NUM_PAIN_FACES; i++) {
       for (let j = 0; j < NUM_STRAIGHT_FACES; j++) {
         name = `STFST${i}${j}`
-        this.faces[faceNum++] = new Patch(this.wad.cacheLumpName(name))
+        this.faces[faceNum++] = this.wad.cacheLumpName(name, Patch)
       }
       // turn right
       name = `STFTR${i}0`
-      this.faces[faceNum++] = new Patch(this.wad.cacheLumpName(name))
+      this.faces[faceNum++] = this.wad.cacheLumpName(name, Patch)
       // turn left
       name = `STFTL${i}0`
-      this.faces[faceNum++] = new Patch(this.wad.cacheLumpName(name))
+      this.faces[faceNum++] = this.wad.cacheLumpName(name, Patch)
       // ouch!
       name = `STFOUCH${i}`
-      this.faces[faceNum++] = new Patch(this.wad.cacheLumpName(name))
+      this.faces[faceNum++] = this.wad.cacheLumpName(name, Patch)
       // evil grin ;)
       name = `STFEVL${i}`
-      this.faces[faceNum++] = new Patch(this.wad.cacheLumpName(name))
+      this.faces[faceNum++] = this.wad.cacheLumpName(name, Patch)
       // pissed off
       name = `STFKILL${i}`
-      this.faces[faceNum++] = new Patch(this.wad.cacheLumpName(name))
+      this.faces[faceNum++] = this.wad.cacheLumpName(name, Patch)
     }
-    this.faces[faceNum++] = new Patch(this.wad.cacheLumpName('STFGOD0'))
-    this.faces[faceNum++] = new Patch(this.wad.cacheLumpName('STFDEAD0'))
+    this.faces[faceNum++] = this.wad.cacheLumpName('STFGOD0', Patch)
+    this.faces[faceNum++] = this.wad.cacheLumpName('STFDEAD0', Patch)
   }
 
   // 1201

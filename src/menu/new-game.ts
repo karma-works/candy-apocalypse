@@ -3,6 +3,7 @@ import { EpisodeMenu } from './episode'
 import { Game } from '../game/game'
 import { MainMenu } from './main'
 import { Menu } from './menu'
+import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
 import { Skill } from '../doom/mode'
 import { Strings } from '../translation/strings'
@@ -81,11 +82,11 @@ export class NewGameMenu implements MenuStruct {
   routine(): void {
     this.rVideo.drawPatchDirect(
       96, 14, 0,
-      this.wad.cacheLumpName('M_NEWG'),
+      this.wad.cacheLumpName('M_NEWG', Patch),
     )
     this.rVideo.drawPatchDirect(
       54, 38, 0,
-      this.wad.cacheLumpName('M_SKILL'),
+      this.wad.cacheLumpName('M_SKILL', Patch),
     )
   }
 

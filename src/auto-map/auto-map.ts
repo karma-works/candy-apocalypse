@@ -352,7 +352,7 @@ export class AutoMap {
     let nameBuf: string
     for (let i = 0; i < 10; ++i) {
       nameBuf = `AMMNUM${i}`
-      this.markNums[i] = new Patch(this.wad.cacheLumpName(nameBuf))
+      this.markNums[i] = this.wad.cacheLumpName(nameBuf, Patch)
     }
   }
 

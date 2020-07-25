@@ -725,7 +725,7 @@ export class Win {
     }
 
     // background
-    this.bg = new Patch(this.wad.cacheLumpName(name))
+    this.bg = this.wad.cacheLumpName(name, Patch)
     this.rVideo.drawPatch(0, 0, 1, this.bg)
 
     if (this.doom.gameMode === GameMode.Commercial) {
@@ -735,24 +735,24 @@ export class Win {
       for (let i = 0; i < this.numCMaps; ++i) {
         name = `CWILV${i.toString().padStart(2, ' ')}`
         debugger
-        this.lNames[i] = new Patch(this.wad.cacheLumpName(name))
+        this.lNames[i] = this.wad.cacheLumpName(name, Patch)
       }
     } else {
       this.lNames = new Array(NUM_MAPS)
 
       for (let i = 0; i < NUM_MAPS; ++i) {
         name = `WILV${this.wbs.episode}${i}`
-        this.lNames[i] = new Patch(this.wad.cacheLumpName(name))
+        this.lNames[i] = this.wad.cacheLumpName(name, Patch)
       }
 
       // you are here
-      this.yah[0] = new Patch(this.wad.cacheLumpName('WIURH0'))
+      this.yah[0] = this.wad.cacheLumpName('WIURH0', Patch)
 
       // you are here (alt.)
-      this.yah[1] = new Patch(this.wad.cacheLumpName('WIURH1'))
+      this.yah[1] = this.wad.cacheLumpName('WIURH1', Patch)
 
       // splat
-      this.splat = new Patch(this.wad.cacheLumpName('WISPLAT'))
+      this.splat = this.wad.cacheLumpName('WISPLAT', Patch)
 
       if (this.wbs.episode < 3) {
         let a: Anim
@@ -763,7 +763,7 @@ export class Win {
             if (this.wbs.episode !== 1 || j !== 8) {
               // animations
               name = `WIA${this.wbs.episode}${j.toString().padStart(2, '0')}${i.toString().padStart(2, '0')}`
-              a.p[i] = new Patch(this.wad.cacheLumpName(name))
+              a.p[i] = this.wad.cacheLumpName(name, Patch)
             } else {
               // HACK ALERT!
               debugger
@@ -776,82 +776,82 @@ export class Win {
 
 
     // More hacks on minus sign.
-    this.wiMinus = new Patch(this.wad.cacheLumpName('WIMINUS'))
+    this.wiMinus = this.wad.cacheLumpName('WIMINUS', Patch)
 
     for (let i = 0; i < 10; i++) {
       // numbers 0-9
       name = `WINUM${i}`
-      this.num[i] = new Patch(this.wad.cacheLumpName(name))
+      this.num[i] = this.wad.cacheLumpName(name, Patch)
     }
 
     // percent sign
-    this.percent = new Patch(this.wad.cacheLumpName('WIPCNT'))
+    this.percent = this.wad.cacheLumpName('WIPCNT', Patch)
 
     // "finished"
-    this.finished = new Patch(this.wad.cacheLumpName('WIF'))
+    this.finished = this.wad.cacheLumpName('WIF', Patch)
 
     // "entering"
-    this.entering = new Patch(this.wad.cacheLumpName('WIENTER'))
+    this.entering = this.wad.cacheLumpName('WIENTER', Patch)
 
     // "kills"
-    this.kills = new Patch(this.wad.cacheLumpName('WIOSTK'))
+    this.kills = this.wad.cacheLumpName('WIOSTK', Patch)
 
     // "scrt"
-    this.secret = new Patch(this.wad.cacheLumpName('WIOSTS'))
+    this.secret = this.wad.cacheLumpName('WIOSTS', Patch)
 
     // "secret"
-    this.spSecret = new Patch(this.wad.cacheLumpName('WISCRT2'))
+    this.spSecret = this.wad.cacheLumpName('WISCRT2', Patch)
 
     // Yuck.
     if (this.doom.language === Language.French) {
       // "items"
       if (this.game.netGame && !this.game.deathMatch) {
-        this.items = new Patch(this.wad.cacheLumpName('WIOBJ'))
+        this.items = this.wad.cacheLumpName('WIOBJ', Patch)
       } else {
-        this.items = new Patch(this.wad.cacheLumpName('WIOSTI'))
+        this.items = this.wad.cacheLumpName('WIOSTI', Patch)
       }
     } else {
-      this.items = new Patch(this.wad.cacheLumpName('WIOSTI'))
+      this.items = this.wad.cacheLumpName('WIOSTI', Patch)
     }
 
     // "frgs"
-    this.frags = new Patch(this.wad.cacheLumpName('WIFRGS'))
+    this.frags = this.wad.cacheLumpName('WIFRGS', Patch)
 
     // ":"
-    this.colon = new Patch(this.wad.cacheLumpName('WICOLON'))
+    this.colon = this.wad.cacheLumpName('WICOLON', Patch)
 
     // "time"
-    this.time = new Patch(this.wad.cacheLumpName('WITIME'))
+    this.time = this.wad.cacheLumpName('WITIME', Patch)
 
     // "sucks"
-    this.sucks = new Patch(this.wad.cacheLumpName('WISUCKS'))
+    this.sucks = this.wad.cacheLumpName('WISUCKS', Patch)
 
     // "par"
-    this.par = new Patch(this.wad.cacheLumpName('WIPAR'))
+    this.par = this.wad.cacheLumpName('WIPAR', Patch)
 
     // "killers" (vertical)
-    this.killers = new Patch(this.wad.cacheLumpName('WIKILRS'))
+    this.killers = this.wad.cacheLumpName('WIKILRS', Patch)
 
     // "victims" (horiz)
-    this.victims = new Patch(this.wad.cacheLumpName('WIVCTMS'))
+    this.victims = this.wad.cacheLumpName('WIVCTMS', Patch)
 
     // "total"
-    this.total = new Patch(this.wad.cacheLumpName('WIMSTT'))
+    this.total = this.wad.cacheLumpName('WIMSTT', Patch)
 
     // your face
-    this.star = new Patch(this.wad.cacheLumpName('STFST01'))
+    this.star = this.wad.cacheLumpName('STFST01', Patch)
 
     // dead face
-    this.bStar = new Patch(this.wad.cacheLumpName('STFDEAD0'))
+    this.bStar = this.wad.cacheLumpName('STFDEAD0', Patch)
 
     for (let i = 0; i < MAX_PLAYERS; i++) {
       // "1,2,3,4"
       name = `STPB${i}`
-      this.p[i] = new Patch(this.wad.cacheLumpName(name))
+      this.p[i] = this.wad.cacheLumpName(name, Patch)
 
       // "1,2,3,4"
       name = `WIBP${i + 1}`
-      this.bp[i] = new Patch(this.wad.cacheLumpName(name))
+      this.bp[i] = this.wad.cacheLumpName(name, Patch)
     }
   }
 

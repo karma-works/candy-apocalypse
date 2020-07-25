@@ -1,6 +1,7 @@
 import { MenuItem, MenuStruct } from './typedefs'
 import { MainMenu } from './main'
 import { Menu } from './menu'
+import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
 import { Wad } from '../wad/wad'
 
@@ -39,7 +40,7 @@ export abstract class AbstractReadThisMenu implements MenuStruct {
   routine(): void {
     this.menu.inHelpScreens = true
     this.rVideo.drawPatchDirect(0, 0, 0,
-      this.wad.cacheLumpName(this.lumpName),
+      this.wad.cacheLumpName(this.lumpName, Patch),
     )
   }
 

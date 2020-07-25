@@ -400,22 +400,22 @@ export class Draw {
       }
     }
 
-    let patch = new Patch(this.wad.cacheLumpName('brdr_t'))
+    let patch = this.wad.cacheLumpName('brdr_t', Patch)
     for (let x = 0; x < this.scaledViewWidth; x += 8) {
       this.video.drawPatch(this.viewWindowX + x, this.viewWindowY - 8, 1, patch)
     }
 
-    patch = new Patch(this.wad.cacheLumpName('brdr_b'))
+    patch = this.wad.cacheLumpName('brdr_b', Patch)
     for (let x = 0; x < this.scaledViewWidth; x += 8) {
       this.video.drawPatch(this.viewWindowX + x, this.viewWindowY + this.viewHeight, 1, patch)
     }
 
-    patch = new Patch(this.wad.cacheLumpName('brdr_l'))
+    patch = this.wad.cacheLumpName('brdr_l', Patch)
     for (let y = 0; y < this.viewHeight; y += 8) {
       this.video.drawPatch(this.viewWindowX - 8, this.viewWindowY + y, 1, patch)
     }
 
-    patch = new Patch(this.wad.cacheLumpName('brdr_r'))
+    patch = this.wad.cacheLumpName('brdr_r', Patch)
     for (let y = 0; y < this.viewHeight; y += 8) {
       this.video.drawPatch(this.viewWindowX + this.scaledViewWidth, this.viewWindowY + y, 1, patch)
     }
@@ -424,22 +424,22 @@ export class Draw {
     this.video.drawPatch(this.viewWindowX - 8,
       this.viewWindowY - 8,
       1,
-      this.wad.cacheLumpName('brdr_tl'))
+      this.wad.cacheLumpName('brdr_tl', Patch))
 
     this.video.drawPatch(this.viewWindowX + this.scaledViewWidth,
       this.viewWindowY - 8,
       1,
-      this.wad.cacheLumpName('brdr_tr'))
+      this.wad.cacheLumpName('brdr_tr', Patch))
 
     this.video.drawPatch(this.viewWindowX - 8,
       this.viewWindowY + this.viewHeight,
       1,
-      this.wad.cacheLumpName('brdr_bl'))
+      this.wad.cacheLumpName('brdr_bl', Patch))
 
     this.video.drawPatch(this.viewWindowX + this.scaledViewWidth,
       this.viewWindowY + this.viewHeight,
       1,
-      this.wad.cacheLumpName('brdr_br'))
+      this.wad.cacheLumpName('brdr_br', Patch))
 
   }
 

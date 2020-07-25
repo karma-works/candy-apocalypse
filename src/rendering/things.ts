@@ -330,9 +330,8 @@ export class Things {
   //  mfloorclip and mceilingclip should also be set.
   //
   drawVisSprite(vis: VisSprite): void {
-    const patch = new Patch(
-      this.wad.cacheLumpNum(vis.patch + this.data.firstSpriteLump),
-    )
+    const patch =
+      this.wad.cacheLumpNum(vis.patch + this.data.firstSpriteLump, Patch)
 
     this.draw.dcColorMap = vis.colorMap
 

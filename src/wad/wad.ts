@@ -17,9 +17,9 @@ export class Wad {
   lumpInfo: LumpInfo[] = []
   numLumps = 0
 
-  private lumpCache: ArrayBuffer[] = []
+  private lumpRaw: ArrayBuffer[] = []
+  private lumpCache: unknown[] = []
 
-  private reloadLump = 0
   private reloadName = ''
 
   //
@@ -45,7 +45,6 @@ export class Wad {
     if (fileName[0] === '~') {
       fileName = fileName.substr(1)
       this.reloadName = fileName
-      this.reloadLump = this.numLumps
     }
 
     const res = await fetch(fileName)
@@ -142,6 +141,7 @@ export class Wad {
       throw 'W_InitFiles: no files found'
     }
 
+    this.lumpRaw = new Array(this.numLumps)
     this.lumpCache = new Array(this.numLumps)
   }
 
@@ -228,22 +228,33 @@ export class Wad {
   //
   // W_CacheLumpNum
   //
-  cacheLumpNum(lump: number): ArrayBuffer {
+  cacheLumpNum(lump: number): ArrayBuffer
+  cacheLumpNum<T>(lump: number, klass?: { new(b: ArrayBuffer): T; }): T
+  cacheLumpNum<T>(lump: number, klass?: { new(b: ArrayBuffer): T; }): T | ArrayBuffer {
     if (lump >= this.numLumps) {
       throw `W_CacheLumpNum: ${lump} >= numlumps`
     }
-    if (!this.lumpCache[lump]) {
+    if (!this.lumpRaw[lump]) {
       // read the lump in
-      this.lumpCache[lump] = this.readLump(lump)
+      this.lumpRaw[lump] = this.readLump(lump)
     }
 
-    return this.lumpCache[lump]
+    if (klass) {
+      if (!this.lumpCache[lump]) {
+        this.lumpCache[lump] = new klass(this.readLump(lump))
+      }
+      return this.lumpCache[lump] as T
+    } else {
+      return this.lumpRaw[lump]
+    }
   }
 
   //
   // W_CacheLumpName
   //
-  cacheLumpName(name: string): ArrayBuffer {
-    return this.cacheLumpNum(this.getNumForName(name))
+  cacheLumpName(name: string): ArrayBuffer
+  cacheLumpName<T>(name: string, klass?: { new(b: ArrayBuffer): T; }): T
+  cacheLumpName<T>(name: string, klass?: { new(b: ArrayBuffer): T; }): T | ArrayBuffer {
+    return this.cacheLumpNum(this.getNumForName(name), klass)
   }
 }

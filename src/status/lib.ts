@@ -32,7 +32,7 @@ export class Lib {
   //
   private minus = new Patch()
   init(): void {
-    this.minus = new Patch(this.statusBar.wad.cacheLumpName('STTMINUS'))
+    this.minus = this.statusBar.wad.cacheLumpName('STTMINUS', Patch)
   }
 
 

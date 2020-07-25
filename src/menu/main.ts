@@ -10,6 +10,7 @@ import { GameState } from '../global/doomdef'
 import { Menu } from './menu'
 import { NewGameMenu } from './new-game'
 import { OptionsMenu } from './options'
+import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
 import { Sfx } from '../doom/sounds/sfx'
 import { Strings } from '../translation/strings'
@@ -165,7 +166,7 @@ export class MainMenu implements MenuStruct {
   routine(): void {
     this.rVideo.drawPatchDirect(
       94, 2, 0,
-      this.wad.cacheLumpName('M_DOOM'),
+      this.wad.cacheLumpName('M_DOOM', Patch),
     )
   }
 

@@ -5,6 +5,7 @@ import { Doom } from '../doom/doom'
 import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
 import { MainMenu } from './main'
+import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
 import { Rendering } from '../rendering/rendering'
 import { Sfx } from '../doom/sounds/sfx'
@@ -195,17 +196,17 @@ export class OptionsMenu implements MenuStruct {
   routine(): void {
     this.rVideo.drawPatchDirect(
       108, 15, 0,
-      this.wad.cacheLumpName('M_OPTTTL'),
+      this.wad.cacheLumpName('M_OPTTTL', Patch),
     )
 
     this.rVideo.drawPatchDirect(
       this.x + 175, this.y + LINEHEIGHT * Options.Detail, 0,
-      this.wad.cacheLumpName(detailNames[this.rendering.detailLevel]),
+      this.wad.cacheLumpName(detailNames[this.rendering.detailLevel], Patch),
     )
 
     this.rVideo.drawPatchDirect(
       this.x + 120, this.y + LINEHEIGHT * Options.Messages, 0,
-      this.wad.cacheLumpName(msgNames[this.headsUp.showMessages ? 0 : 1]),
+      this.wad.cacheLumpName(msgNames[this.headsUp.showMessages ? 0 : 1], Patch),
     )
 
     this.menu.drawThermo(

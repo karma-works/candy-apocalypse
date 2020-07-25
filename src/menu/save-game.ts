@@ -6,6 +6,7 @@ import { MenuItem, MenuStruct } from './typedefs'
 import { tostring, toupper } from '../c'
 import { Sound as DSound } from '../doom/sound'
 import { MainMenu } from './main'
+import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
 import { Sfx } from '../doom/sounds/sfx'
 import { Strings } from '../translation/strings'
@@ -89,7 +90,7 @@ export class LoadGameMenu implements MenuStruct {
   routine(): void {
     this.rVideo.drawPatchDirect(
       72, 28, 0,
-      this.wad.cacheLumpName(this.title),
+      this.wad.cacheLumpName(this.title, Patch),
     )
 
     for (let i = 0; i < Save.SaveEnd; ++i) {
@@ -166,18 +167,18 @@ export class LoadGameMenu implements MenuStruct {
   private drawSaveLoadBorder(x: number, y: number): void {
     this.rVideo.drawPatchDirect(
       x - 8, y + 7, 0,
-      this.wad.cacheLumpName('M_LSLEFT'),
+      this.wad.cacheLumpName('M_LSLEFT', Patch),
     )
     for (let i = 0; i < 24; ++i) {
       this.rVideo.drawPatchDirect(
         x, y + 7, 0,
-        this.wad.cacheLumpName('M_LSCNTR'),
+        this.wad.cacheLumpName('M_LSCNTR', Patch),
       )
       x += 8
     }
     this.rVideo.drawPatchDirect(
       x, y + 7, 0,
-      this.wad.cacheLumpName('M_LSRGHT'),
+      this.wad.cacheLumpName('M_LSRGHT', Patch),
     )
   }
 }

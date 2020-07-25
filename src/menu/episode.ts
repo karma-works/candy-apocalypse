@@ -3,6 +3,7 @@ import { Game } from '../game/game'
 import { MainMenu } from './main'
 import { Menu } from './menu'
 import { NewGameMenu } from './new-game'
+import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
 import { Strings } from '../translation/strings'
 import { Wad } from '../wad/wad'
@@ -76,7 +77,7 @@ export class EpisodeMenu implements MenuStruct {
   routine(): void {
     this.rVideo.drawPatchDirect(
       54, 38, 0,
-      this.wad.cacheLumpName('M_EPISOD'),
+      this.wad.cacheLumpName('M_EPISOD', Patch),
     )
   }
 

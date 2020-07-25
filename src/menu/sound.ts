@@ -2,6 +2,7 @@ import { LINEHEIGHT, Menu } from './menu'
 import { MenuItem, MenuStruct } from './typedefs'
 import { Sound as DSound } from '../doom/sound'
 import { OptionsMenu } from './options'
+import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
 import { Wad } from '../wad/wad'
 
@@ -61,7 +62,7 @@ export class SoundMenu implements MenuStruct {
   //
   routine(): void {
     this.rVideo.drawPatchDirect(60, 38, 0,
-      this.wad.cacheLumpName('M_SVOL'),
+      this.wad.cacheLumpName('M_SVOL', Patch),
     )
 
     this.menu.drawThermo(
