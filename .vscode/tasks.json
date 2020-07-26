@@ -6,7 +6,6 @@
 			"script": "serve",
 			"problemMatcher": [],
 			"label": "npm: serve",
-			"detail": "parcel index.html data/**/*",
 			"group": "build"
 		}
 	]
