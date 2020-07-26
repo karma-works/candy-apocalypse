@@ -1139,6 +1139,7 @@ export class Map {
       throw 'inter.isALine = false'
     }
     if (!inter.d.special) {
+      this.mapUtils.lineOpening(inter.d)
       if (this.mapUtils.openRange <= 0) {
         this.dSound.startSound(this.useThing, Sfx.Noway)
         // can't use through a wall
