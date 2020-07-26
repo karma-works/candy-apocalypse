@@ -1,4 +1,4 @@
-import { div, mul } from '../../src/misc/fixed'
+import { div, mul } from '../../src/doom/misc/fixed'
 import { expect } from 'chai'
 
 describe('Fixed', () => {

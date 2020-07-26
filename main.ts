@@ -1,5 +1,5 @@
-import { Doom } from './src/doom/doom'
-import { fs } from './src/system/fs'
+import { Doom } from './src/doom/doom/doom'
+import { fs } from './src/doom/system/fs'
 
 async function main() {
   const screen = document.getElementById('screen') as HTMLCanvasElement
