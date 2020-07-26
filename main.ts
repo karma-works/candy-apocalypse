@@ -1,4 +1,5 @@
 import { Doom } from './src/doom/doom'
+import { fs } from './src/system/fs'
 
 async function main() {
   const screen = document.getElementById('screen') as HTMLCanvasElement
@@ -18,10 +19,11 @@ async function main() {
   window.addEventListener('resize', () => resize())
   resize()
 
+  await fs.write('doom1.wad', './data/doom1.wad')
+
   const doom = new Doom({
     screen,
-    wad: './data/doom.wad',
-    dev: true,
+    wad: 'doom1.wad',
     // skill: Skill.Medium,
     // episode: 1,
     // map: 1,

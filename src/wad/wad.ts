@@ -1,4 +1,5 @@
 import { FileLump, LumpInfo, WadInfo } from './types'
+import { fs } from '../system/fs'
 import { tostring } from '../c'
 
 function extractFileBase(path: string): string {
@@ -47,16 +48,14 @@ export class Wad {
       this.reloadName = fileName
     }
 
-    const res = await fetch(fileName)
-    if (!res.ok) {
+    const handle = await fs.open(fileName)
+    if (handle === undefined) {
       console.log(` couldn't open ${fileName}`)
       return
     }
     console.log(` adding ${fileName}`)
 
     const startLump = this.numLumps
-
-    const handle = await res.arrayBuffer()
 
     if (fileName.substr(fileName.length - 3).toLowerCase() !== 'wad') {
       fileInfo = [ singleInfo ]

@@ -176,7 +176,7 @@ export class MainMenu implements MenuStruct {
   private newGame(): void {
     if (this.doom.gameMode === GameMode.Commercial ||
       this.doom.gameVersion === GameVersion.Chex) {
-      this.menu.setupNextMenu(this.episodeMenu.newGameMenu)
+      this.menu.setupNextMenu(this.newGameMenu)
     } else {
       this.menu.setupNextMenu(this.episodeMenu)
     }

@@ -1,5 +1,7 @@
 import { MenuItem, MenuStruct } from './typedefs'
+import { Doom } from '../doom/doom'
 import { Game } from '../game/game'
+import { GameMode } from '../doom/mode'
 import { MainMenu } from './main'
 import { Menu } from './menu'
 import { NewGameMenu } from './new-game'
@@ -54,6 +56,9 @@ export class EpisodeMenu implements MenuStruct {
 
   newGameMenu = new NewGameMenu(this)
 
+  private get doom(): Doom {
+    return this.prevMenu.doom
+  }
   public get game(): Game {
     return this.prevMenu.game
   }
@@ -82,6 +87,12 @@ export class EpisodeMenu implements MenuStruct {
   }
 
   private episode(choice: number): void {
+    if (this.doom.gameMode === GameMode.Shareware && choice) {
+      this.menu.startMessage(this.strings.swstring, false)
+      this.menu.setupNextMenu(this.prevMenu.readThis1Menu)
+      return
+    }
+
     this.epi = choice
     this.menu.setupNextMenu(this.newGameMenu)
   }
