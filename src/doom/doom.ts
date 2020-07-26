@@ -179,7 +179,7 @@ export class Doom {
         this.autoMap.drawer()
       }
       if (wipe ||
-        this.rendering.draw.viewHeight !== 200 && this.fullScreen
+        this.rendering.draw.viewHeight !== SCREENHEIGHT && this.fullScreen
       ) {
         redrawsBar = true
       }
@@ -187,8 +187,8 @@ export class Doom {
       if (this.inHelpScreenState && !this.menu.inHelpScreens) {
         redrawsBar = true
       }
-      this.statusBar.drawer(this.rendering.draw.viewHeight === 200, redrawsBar)
-      this.fullScreen = this.rendering.draw.viewHeight === 200
+      this.statusBar.drawer(this.rendering.draw.viewHeight === SCREENHEIGHT, redrawsBar)
+      this.fullScreen = this.rendering.draw.viewHeight === SCREENHEIGHT
       break
     case GameState.Intermission:
       this.win.drawer()
@@ -231,7 +231,7 @@ export class Doom {
     // see if the border needs to be updated to the screen
     if (this.game.gameState === GameState.Level &&
       !this.autoMap.active &&
-      this.rendering.draw.scaledViewWidth !== 320
+      this.rendering.draw.scaledViewWidth !== SCREENWIDTH
     ) {
       if (this.menu.menuActive || this.menuActiveState || !this.viewActiveState) {
         this.borderDrawCount = 3

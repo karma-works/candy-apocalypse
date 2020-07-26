@@ -225,7 +225,7 @@ export class Plane {
     check.minX = SCREENWIDTH
     check.maxX = -1
 
-    check.top.fill(0xff)
+    check.top.fill(0xffff)
 
     return check
   }
@@ -256,7 +256,7 @@ export class Plane {
 
     let x: number
     for (x = intrl; x <= intrh; ++x) {
-      if (pl.top[x] !== 0xff) {
+      if (pl.top[x] !== 0xffff) {
         break
       }
     }
@@ -279,7 +279,7 @@ export class Plane {
     pl.minX = start
     pl.maxX = stop
 
-    pl.top.fill(0xff)
+    pl.top.fill(0xffff)
 
     return pl
   }
@@ -385,8 +385,8 @@ export class Plane {
 
       this.planeZLight = this.rendering.zLight[light]
 
-      pl.top[pl.maxX + 1] = 0xff
-      pl.top[pl.minX - 1] = 0xff
+      pl.top[pl.maxX + 1] = 0xffff
+      pl.top[pl.minX - 1] = 0xffff
 
       stop = pl.maxX + 1
 

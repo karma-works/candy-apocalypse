@@ -367,7 +367,7 @@ export class Draw {
     // DOOM II border patch.
     const name2 = 'GRNROCK'
 
-    if (this.scaledViewWidth === 320) {
+    if (this.scaledViewWidth === SCREENWIDTH) {
       return
     }
 
