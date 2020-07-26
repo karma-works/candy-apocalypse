@@ -318,7 +318,7 @@ export class Doom {
   //  calls I_GetTime, I_StartFrame, and I_StartTic
   //
   private doomLoop(): void {
-    this.iVideo.initGraphics()
+    this.iVideo.initGraphics(this.params.screen)
 
     const w = () => {
       if (this.wipeActive) {

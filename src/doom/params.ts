@@ -1,6 +1,8 @@
 import { GameVersion, Skill } from './mode'
 
 export interface Params {
+  screen: HTMLCanvasElement,
+
   wad: string,
   gameVersion?: GameVersion
   pack?: string

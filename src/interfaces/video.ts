@@ -64,7 +64,7 @@ function xlateKey({ code, key }: KeyboardEvent): number {
 export class Video {
   useGamma = 0
 
-  private xDisplay: HTMLCanvasElement | null = null
+  private screen: HTMLCanvasElement | null = null
   private xScreen: CanvasRenderingContext2D | null = null
 
   private image: ImageData | null = null
@@ -86,11 +86,11 @@ export class Video {
   private lastMouseX = 0
   private lastMouseY = 0
   getEvent(): void {
-    if (this.xDisplay === null) {
+    if (this.screen === null) {
       return
     }
     // put event-grabbing stuff in here
-    const xEvent = XNextEvent(this.xDisplay)
+    const xEvent = XNextEvent(this.screen)
     const keyEvent = xEvent as KeyboardEvent
     const mouseEvent = xEvent as MouseEvent
     const event: DEvent = {
@@ -163,11 +163,11 @@ export class Video {
   // I_StartTic
   //
   startTic(): void {
-    if (this.xDisplay === null) {
+    if (this.screen === null) {
       return
     }
 
-    while (XPending(this.xDisplay)) {
+    while (XPending(this.screen)) {
       this.getEvent()
     }
   }
@@ -211,7 +211,7 @@ export class Video {
 
   private firstTime = 1
 
-  initGraphics(): void {
+  initGraphics(screen: HTMLCanvasElement): void {
     if (!this.firstTime) {
       return
     }
@@ -220,23 +220,19 @@ export class Video {
     this.xWidth = SCREENWIDTH * this.multiply
     this.xHeight = SCREENHEIGHT * this.multiply
 
-    const displayName = 'screen'
-    this.xDisplay = document.getElementById(displayName) as HTMLCanvasElement
+    this.screen = screen
 
-    this.xDisplay.width = this.xWidth
-    this.xDisplay.height = this.xHeight
+    this.screen.width = this.xWidth
+    this.screen.height = this.xHeight
 
-    if (this.xDisplay === null || this.xDisplay.getContext('2d') === null) {
-      throw `Could not open display [${displayName}]`
-    }
 
-    this.xScreen = this.xDisplay.getContext('2d')
+    this.xScreen = this.screen.getContext('2d')
 
     if (this.xScreen === null) {
-      throw `Could not open display [${displayName}]`
+      throw 'Could not open display'
     }
 
-    XListenEvent(this.xDisplay)
+    XListenEvent(this.screen)
 
     this.image = this.xScreen.createImageData(this.xWidth, this.xHeight)
 
