@@ -1,5 +1,4 @@
 import { RANGE_CHECK, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
-import { BBox } from '../misc/bbox'
 import { Column } from './defs/column'
 import { Patch } from './defs/patch'
 import { Post } from './defs/post'
@@ -7,15 +6,6 @@ import { Post } from './defs/post'
 export class Video {
   // Each screen is [SCREENWIDTH*SCREENHEIGHT];
   screens = new Array<Uint8ClampedArray>(5)
-  private dirtybox = new BBox()
-
-  //
-  // V_MarkRect
-  //
-  markRect(x: number, y: number, width: number, height: number): void {
-    this.dirtybox.add(x, y)
-    this.dirtybox.add(x + width - 1, y + height - 1)
-  }
 
   //
   // V_CopyRect
@@ -39,8 +29,6 @@ export class Video {
         throw 'Bad V_CopyRect'
       }
     }
-
-    this.markRect(destX, destY, width, height)
 
     let srcPtr = SCREENWIDTH * srcY + srcX
     let destPtr = SCREENWIDTH * destY + destX
@@ -73,10 +61,6 @@ export class Video {
         console.error('V_DrawPatch: bad patch (ignored)')
         return
       }
-    }
-
-    if (!scrn) {
-      this.markRect(x, y, patch.width, patch.height)
     }
 
     let col = 0
@@ -132,8 +116,6 @@ export class Video {
         throw 'Bad V_DrawBlock'
       }
     }
-
-    this.markRect(x, y, width, height)
 
     let srcPtr = 0
     let destPtr = y * SCREENWIDTH + x

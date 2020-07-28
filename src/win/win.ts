@@ -162,7 +162,6 @@ export class Win {
   // UNUSED static unsigned char *background=0;
   private slamBackground(): void {
     this.rVideo.screens[0].set(this.rVideo.screens[1])
-    this.rVideo.markRect(0, 0, SCREENWIDTH, SCREENHEIGHT)
   }
 
   // Draws "<Levelname> Finished!"

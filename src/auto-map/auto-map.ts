@@ -1133,7 +1133,5 @@ export class AutoMap {
     this.drawCrossHair(XHAIR_COLORS)
 
     this.drawMarks()
-
-    this.rVideo.markRect(this.fx, this.fy, this.fw, this.fh)
   }
 }

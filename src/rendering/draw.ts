@@ -481,9 +481,6 @@ export class Draw {
       this.videoErase(ofs, side)
       ofs += SCREENWIDTH
     }
-
-    // ?
-    this.video.markRect(0, 0, SCREENWIDTH, SCREENHEIGHT - SBAR_HEIGHT)
   }
 
 }

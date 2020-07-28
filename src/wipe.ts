@@ -133,7 +133,6 @@ export class Wipe {
     }
 
     // do a piece of wipe-in
-    this.rVideo.markRect(0, 0, width, height)
     const rc = this.doMelt(width, height, tics)
 
     // final stuff
