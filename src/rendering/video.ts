@@ -1,3 +1,4 @@
+import { FRACBITS, FRACUNIT, div, mul } from '../misc/fixed'
 import { RANGE_CHECK, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { Column } from './defs/column'
 import { Patch } from './defs/patch'
@@ -46,15 +47,24 @@ export class Video {
   // V_DrawPatch
   // Masks a column based masked pic to the screen.
   //
-  drawPatch(x: number, y: number, scrn: number, patch: Patch): void {
+  drawPatch(x: number, y: number, scrn: number, patch: Patch,
+    width = patch.width, height = patch.height): void {
+
+    const srcWidth = patch.width << FRACBITS
+    const srcHeight = patch.height << FRACBITS
+    const destWidth = width << FRACBITS
+    const destHeight = height << FRACBITS
+    const xScale = div(destWidth, srcWidth)
+    const yScale = div(destHeight, srcHeight)
+
     y -= patch.topOffset
     x -= patch.leftOffset
 
     if (RANGE_CHECK) {
       if (x < 0 ||
-        x + patch.width > SCREENWIDTH ||
+        x + width > SCREENWIDTH ||
         y < 0 ||
-        y + patch.height > SCREENHEIGHT ||
+        y + height > SCREENHEIGHT ||
         scrn > 4
       ) {
         console.error(`Patch at ${x},${y} exceeds LFB`)
@@ -63,29 +73,37 @@ export class Video {
       }
     }
 
-    let col = 0
     const screen = this.screens[scrn]
     let destTopPtr = y * SCREENWIDTH + x
-
-    const w = patch.width
 
     let column: Column
     let post: Post
     let destPtr: number
-    let sourcePtr: number
     let count: number
-    for (; col < w; ++x, ++col, ++destTopPtr) {
-      column = patch.columns[col]
+
+    let xFrac = 0
+    const xStep = div(FRACUNIT, xScale)
+    let yFrac: number
+    let yStep: number
+    for (; xFrac < srcWidth; ++x, ++destTopPtr) {
+      column = patch.columns[xFrac >> FRACBITS]
+      xFrac += xStep
 
       // step through the posts in a column
       for (post of column.posts) {
-        sourcePtr = 0
-        destPtr = destTopPtr + post.topDelta * SCREENWIDTH
-        count = post.length
+        destPtr = destTopPtr +
+          (mul(post.topDelta << FRACBITS, yScale) >> FRACBITS) *
+          SCREENWIDTH
+        count = mul(post.length << FRACBITS, yScale) >> FRACBITS
+
+        yFrac = 0
+        yStep = div(FRACUNIT, yScale)
 
         while (count--) {
-          screen[destPtr] = post.bytes[sourcePtr++]
+          screen[destPtr] = post.bytes[yFrac >> FRACBITS]
+
           destPtr += SCREENWIDTH
+          yFrac += yStep
         }
       }
     }
