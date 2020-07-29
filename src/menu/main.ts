@@ -164,7 +164,7 @@ export class MainMenu implements MenuStruct {
   // M_DrawMainMenu
   //
   routine(): void {
-    this.rVideo.drawPatchDirect(
+    this.rVideo.drawPatch(
       94, 2, 0,
       this.wad.cacheLumpName('M_DOOM', Patch),
     )

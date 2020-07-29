@@ -80,11 +80,11 @@ export class NewGameMenu implements MenuStruct {
   // M_NewGame
   //
   routine(): void {
-    this.rVideo.drawPatchDirect(
+    this.rVideo.drawPatch(
       96, 14, 0,
       this.wad.cacheLumpName('M_NEWG', Patch),
     )
-    this.rVideo.drawPatchDirect(
+    this.rVideo.drawPatch(
       54, 38, 0,
       this.wad.cacheLumpName('M_SKILL', Patch),
     )

@@ -44,7 +44,7 @@ export class Lib {
           break
         }
 
-        this.video.drawPatchDirect(x, l.y, FG, l.font[c - l.startChar])
+        this.video.drawPatch(x, l.y, FG, l.font[c - l.startChar])
         x += w
       } else {
         x += 4
@@ -58,7 +58,7 @@ export class Lib {
     if (drawCursor &&
       x + l.font[US - l.startChar].width <= SCREENWIDTH
     ) {
-      this.video.drawPatchDirect(x, l.y, FG, l.font[US - l.startChar])
+      this.video.drawPatch(x, l.y, FG, l.font[US - l.startChar])
     }
   }
 

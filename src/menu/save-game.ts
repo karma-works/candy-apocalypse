@@ -88,7 +88,7 @@ export class LoadGameMenu implements MenuStruct {
   //
   protected title = 'M_LOADG'
   routine(): void {
-    this.rVideo.drawPatchDirect(
+    this.rVideo.drawPatch(
       72, 28, 0,
       this.wad.cacheLumpName(this.title, Patch),
     )
@@ -165,18 +165,18 @@ export class LoadGameMenu implements MenuStruct {
   // Draw border for the savegame description
   //
   private drawSaveLoadBorder(x: number, y: number): void {
-    this.rVideo.drawPatchDirect(
+    this.rVideo.drawPatch(
       x - 8, y + 7, 0,
       this.wad.cacheLumpName('M_LSLEFT', Patch),
     )
     for (let i = 0; i < 24; ++i) {
-      this.rVideo.drawPatchDirect(
+      this.rVideo.drawPatch(
         x, y + 7, 0,
         this.wad.cacheLumpName('M_LSCNTR', Patch),
       )
       x += 8
     }
-    this.rVideo.drawPatchDirect(
+    this.rVideo.drawPatch(
       x, y + 7, 0,
       this.wad.cacheLumpName('M_LSRGHT', Patch),
     )

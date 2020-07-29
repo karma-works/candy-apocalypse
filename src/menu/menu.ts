@@ -106,23 +106,23 @@ export class Menu {
   //
   drawThermo(x: number, y: number, thermWidth: number, thermDot: number): void {
     let xx = x
-    this.rVideo.drawPatchDirect(
+    this.rVideo.drawPatch(
       xx, y, 0,
       this.wad.cacheLumpName('M_THERML', Patch),
     )
     xx += 8
     for (let i = 0; i < thermWidth; ++i) {
-      this.rVideo.drawPatchDirect(
+      this.rVideo.drawPatch(
         xx, y, 0,
         this.wad.cacheLumpName('M_THERMM', Patch),
       )
       xx += 8
     }
-    this.rVideo.drawPatchDirect(
+    this.rVideo.drawPatch(
       xx, y, 0,
       this.wad.cacheLumpName('M_THERMR', Patch),
     )
-    this.rVideo.drawPatchDirect(
+    this.rVideo.drawPatch(
       x + 8 + thermDot * 8, y, 0,
       this.wad.cacheLumpName('M_THERMO', Patch),
     )
@@ -214,7 +214,7 @@ export class Menu {
         break
       }
 
-      this.rVideo.drawPatchDirect(cx, cy, 0, this.headsUp.font[c])
+      this.rVideo.drawPatch(cx, cy, 0, this.headsUp.font[c])
 
       cx += w
     }
@@ -615,7 +615,7 @@ export class Menu {
       if ((item.status === 1 || item.status === 2) &&
         item.name
       ) {
-        this.rVideo.drawPatchDirect(
+        this.rVideo.drawPatch(
           this.x, this.y, 0,
           this.wad.cacheLumpName(item.name, Patch),
         )
@@ -623,7 +623,7 @@ export class Menu {
       this.y += LINEHEIGHT
     }
 
-    this.rVideo.drawPatchDirect(
+    this.rVideo.drawPatch(
       this.x + SKULLOFF,
       this.currentMenu.y - 5 + this.itemOn * LINEHEIGHT,
       0,

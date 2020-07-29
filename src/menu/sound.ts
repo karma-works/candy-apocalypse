@@ -61,7 +61,7 @@ export class SoundMenu implements MenuStruct {
   // Change Sfx & Music volumes
   //
   routine(): void {
-    this.rVideo.drawPatchDirect(60, 38, 0,
+    this.rVideo.drawPatch(60, 38, 0,
       this.wad.cacheLumpName('M_SVOL', Patch),
     )
 

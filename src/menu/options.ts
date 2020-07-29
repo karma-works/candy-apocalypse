@@ -194,17 +194,17 @@ export class OptionsMenu implements MenuStruct {
   }
 
   routine(): void {
-    this.rVideo.drawPatchDirect(
+    this.rVideo.drawPatch(
       108, 15, 0,
       this.wad.cacheLumpName('M_OPTTTL', Patch),
     )
 
-    this.rVideo.drawPatchDirect(
+    this.rVideo.drawPatch(
       this.x + 175, this.y + LINEHEIGHT * Options.Detail, 0,
       this.wad.cacheLumpName(detailNames[this.rendering.detailLevel], Patch),
     )
 
-    this.rVideo.drawPatchDirect(
+    this.rVideo.drawPatch(
       this.x + 120, this.y + LINEHEIGHT * Options.Messages, 0,
       this.wad.cacheLumpName(msgNames[this.headsUp.showMessages ? 0 : 1], Patch),
     )

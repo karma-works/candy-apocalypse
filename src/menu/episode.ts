@@ -80,7 +80,7 @@ export class EpisodeMenu implements MenuStruct {
   epi = 0
 
   routine(): void {
-    this.rVideo.drawPatchDirect(
+    this.rVideo.drawPatch(
       54, 38, 0,
       this.wad.cacheLumpName('M_EPISOD', Patch),
     )

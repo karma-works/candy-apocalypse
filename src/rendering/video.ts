@@ -111,14 +111,6 @@ export class Video {
   }
 
   //
-  // V_DrawPatchDirect
-  // Draws directly to the screen on the pc.
-  //
-  drawPatchDirect(x: number, y: number, scrn: number, patch: Patch): void {
-    this.drawPatch(x, y, scrn, patch)
-  }
-
-  //
   // V_DrawBlock
   // Draw a linear block of pixels into the view buffer.
   //

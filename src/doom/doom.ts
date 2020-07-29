@@ -258,7 +258,7 @@ export class Doom {
       }
       const x = this.rendering.draw.viewWindowX +
         (this.rendering.draw.scaledViewWidth - 68) / 2
-      this.rVideo.drawPatchDirect(x, y, 0,
+      this.rVideo.drawPatch(x, y, 0,
         this.wad.cacheLumpName('M_PAUSE', Patch))
     }
 

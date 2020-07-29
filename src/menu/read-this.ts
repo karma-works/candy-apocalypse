@@ -39,7 +39,7 @@ export abstract class AbstractReadThisMenu implements MenuStruct {
   // Read This Menus
   routine(): void {
     this.menu.inHelpScreens = true
-    this.rVideo.drawPatchDirect(0, 0, 0,
+    this.rVideo.drawPatch(0, 0, 0,
       this.wad.cacheLumpName(this.lumpName, Patch),
     )
   }
