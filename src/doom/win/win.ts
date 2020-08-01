@@ -4,7 +4,7 @@ import { MAX_PLAYERS, SCREENHEIGHT, SCREENWIDTH, TICRATE } from '../global/doomd
 import { WbPlayer, WbStart } from '../doom/player'
 import { ButtonCode } from '../doom/event'
 import { Sound as DSound } from '../doom/sound'
-import { Doom } from '../doom/doom'
+import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { Patch } from '../rendering/defs/patch'
 import { Sfx } from '../doom/sounds/sfx'

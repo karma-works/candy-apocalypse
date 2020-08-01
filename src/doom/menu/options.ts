@@ -1,7 +1,7 @@
 import { LINEHEIGHT, Menu } from './menu'
 import { MenuItem, MenuStruct } from './typedefs'
 import { Sound as DSound } from '../doom/sound'
-import { Doom } from '../doom/doom'
+import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
 import { MainMenu } from './main'

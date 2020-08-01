@@ -1,5 +1,5 @@
 import { Net as DNet, DOOMCOM_ID } from '../doom/net'
-import { Doom } from '../doom/doom'
+import { Doom } from '../doom'
 import { DoomCom } from '../doom/net/doom-com'
 import { Game } from '../game/game'
 

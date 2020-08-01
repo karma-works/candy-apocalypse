@@ -1,6 +1,6 @@
 import { RANGE_CHECK, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { Data } from './data'
-import { Doom } from '../doom/doom'
+import { Doom } from '../doom'
 import { FRACBITS } from '../misc/fixed'
 import { GameMode } from '../doom/mode'
 import { Patch } from './defs/patch'

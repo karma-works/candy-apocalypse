@@ -8,7 +8,7 @@ import { MenuItem, MenuStruct } from './typedefs'
 import { Sound, SoundMenu } from './sound'
 import { AutoMap } from '../auto-map/auto-map'
 import { Sound as DSound } from '../doom/sound'
-import { Doom } from '../doom/doom'
+import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { Video as IVideo } from '../interfaces/video'
 import { OptionsMenu } from './options'
@@ -20,7 +20,7 @@ import { Sfx } from '../doom/sounds/sfx'
 import { Strings } from '../translation/strings'
 import { Wad } from '../wad/wad'
 import { getTime } from '../system/system'
-import { toupper } from '../c'
+import { toupper } from '../utils/c'
 
 const SKULLOFF = -32
 export const LINEHEIGHT = 16

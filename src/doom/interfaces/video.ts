@@ -1,7 +1,7 @@
 import { Button1, Button1Mask, Button2, Button2Mask, Button3, Button3Mask, XListenEvent, XNextEvent, XPending } from './x'
 import { DEvent, EvType } from '../doom/event'
 import { KEY_BACKSPACE, KEY_DOWNARROW, KEY_ENTER, KEY_EQUALS, KEY_ESCAPE, KEY_F1, KEY_F10, KEY_F11, KEY_F12, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_LEFTARROW, KEY_MINUS, KEY_PAUSE, KEY_RALT, KEY_RCTRL, KEY_RIGHTARROW, KEY_RSHIFT, KEY_TAB, KEY_UPARROW, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
-import { Doom } from '../doom/doom'
+import { Doom } from '../doom'
 import { Palette } from './palette'
 import { Video as RVideo } from '../rendering/video'
 

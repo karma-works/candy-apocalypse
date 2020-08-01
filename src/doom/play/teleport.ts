@@ -1,6 +1,6 @@
 import { ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table'
 import { Sound as DSound } from '../doom/sound'
-import { Doom } from '../doom/doom'
+import { Doom } from '../doom'
 import { GameVersion } from '../doom/mode'
 import { Line } from '../rendering/defs/line'
 import { MObj } from './mobj/mobj'

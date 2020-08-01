@@ -5,7 +5,7 @@ import { Player, PlayerState, WbStart } from '../doom/player'
 import { AutoMap } from '../auto-map/auto-map'
 import { BACKUP_TICS } from '../doom/net/doom-data'
 import { Sound as DSound } from '../doom/sound'
-import { Doom } from '../doom/doom'
+import { Doom } from '../doom'
 import { FRACUNIT } from '../misc/fixed'
 import { HeadsUp } from '../heads-up/stuff'
 import { MAX_HEALTH } from '../play/local'
@@ -29,7 +29,7 @@ import { mObjInfos } from '../doom/info/mobj-infos'
 import { maxAmmo } from '../play/inter'
 import { random } from '../misc/random'
 import { states } from '../doom/info/states'
-import { tostring } from '../c'
+import { tostring } from '../utils/c'
 
 const MAX_PL_MOVE = 0x32
 

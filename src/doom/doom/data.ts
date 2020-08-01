@@ -1,4 +1,4 @@
-import { tostring } from '../c'
+import { tostring } from '../utils/c'
 
 //
 // Map level types.

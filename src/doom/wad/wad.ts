@@ -1,6 +1,6 @@
 import { FileLump, LumpInfo, WadInfo } from './types'
 import { fs } from '../system/fs'
-import { tostring } from '../c'
+import { tostring } from '../utils/c'
 
 function extractFileBase(path: string): string {
   const idx = path.lastIndexOf('/')

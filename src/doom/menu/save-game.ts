@@ -3,7 +3,7 @@ import { GameState, KEY_BACKSPACE, KEY_ENTER, KEY_ESCAPE } from '../global/doomd
 import { HU_FONTSIZE, HU_FONTSTART } from '../heads-up/stuff'
 import { LINEHEIGHT, Menu } from './menu'
 import { MenuItem, MenuStruct } from './typedefs'
-import { tostring, toupper } from '../c'
+import { tostring, toupper } from '../utils/c'
 import { Sound as DSound } from '../doom/sound'
 import { MainMenu } from './main'
 import { Patch } from '../rendering/defs/patch'

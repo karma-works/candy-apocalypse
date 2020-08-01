@@ -4,7 +4,7 @@ import { FLOAT_SPEED, MAP_BLOCK_SHIFT, MAX_RADIUS, MELEE_RANGE, MISSILE_RANGE } 
 import { FRACUNIT, mul } from '../misc/fixed'
 import { GameMode, GameVersion, Skill } from '../doom/mode'
 import { Sound as DSound } from '../doom/sound'
-import { Doom } from '../doom/doom'
+import { Doom } from '../doom'
 import { DoorType } from './doors/door-type'
 import { Doors } from './doors'
 import { Floor } from './floor'

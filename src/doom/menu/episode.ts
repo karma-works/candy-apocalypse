@@ -1,5 +1,5 @@
 import { MenuItem, MenuStruct } from './typedefs'
-import { Doom } from '../doom/doom'
+import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { GameMode } from '../doom/mode'
 import { MainMenu } from './main'

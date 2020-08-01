@@ -14,7 +14,7 @@ import { Texture } from './data/texture'
 import { Things } from './things'
 import { Tick } from '../play/tick'
 import { Wad } from '../wad/wad'
-import { tostring } from '../c'
+import { tostring } from '../utils/c'
 
 //
 // Graphics.

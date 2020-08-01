@@ -1,6 +1,6 @@
 import { BACKUP_TICS, DoomData } from './net/doom-data'
 import { ButtonCode } from './event'
-import { Doom } from './doom'
+import { Doom } from '../doom'
 import { DoomCom } from './net/doom-com'
 import { Game } from '../game/game'
 import { Net as INet } from '../interfaces/net'

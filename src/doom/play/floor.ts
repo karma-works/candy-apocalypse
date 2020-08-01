@@ -1,7 +1,7 @@
 import { FLOOR_SPEED, FloorMove } from './floor/floor-move'
 import { Sound as DSound } from '../doom/sound'
 import { Data } from '../rendering/data'
-import { Doom } from '../doom/doom'
+import { Doom } from '../doom'
 import { FRACUNIT } from '../misc/fixed'
 import { FloorType } from './floor/floor-type'
 import { GameVersion } from '../doom/mode'

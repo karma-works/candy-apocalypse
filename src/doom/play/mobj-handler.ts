@@ -4,7 +4,7 @@ import { FLOAT_SPEED, GRAVITY, ITEM_QUE_SIZE, MAX_MOVE, MELEE_RANGE, ON_CEILING_
 import { FRACBITS, FRACUNIT, mul } from '../misc/fixed'
 import { GameVersion, Skill } from '../doom/mode'
 import { Sound as DSound } from '../doom/sound'
-import { Doom } from '../doom/doom'
+import { Doom } from '../doom'
 import { Enemy } from './enemy'
 import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'

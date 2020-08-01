@@ -1,4 +1,4 @@
-import { Doom } from './doom/doom'
+import { Doom } from './doom'
 import { Video as RVideo } from './rendering/video'
 import { random } from './misc/random'
 

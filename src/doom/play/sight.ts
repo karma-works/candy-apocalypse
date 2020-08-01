@@ -1,7 +1,7 @@
 import { FRACBITS, div, mul } from '../misc/fixed'
 import { MapLineFlag, NF_SUBSECTOR } from '../doom/data'
 import { DivLine } from './map-utils/div-line'
-import { Doom } from '../doom/doom'
+import { Doom } from '../doom'
 import { GameVersion } from '../doom/mode'
 import { Line } from '../rendering/defs/line'
 import { MObj } from './mobj/mobj'
