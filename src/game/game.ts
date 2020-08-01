@@ -439,7 +439,7 @@ export class Game {
       }
     }
 
-    this.play.setupLevel(this.gameEpisode, this.gameMap, 0, this.gameSkill)
+    this.play.setupLevel(this.gameEpisode, this.gameMap)
     // view the guy you are playing
     this.displayPlayer = this.consolePlayer
     this.startTime = getTime()

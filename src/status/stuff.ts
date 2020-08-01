@@ -61,7 +61,6 @@ const FACESY = 168
 const EVIL_GRIN_COUNT = 2 * TICRATE
 const STRAIGHT_FACE_COUNT = TICRATE / 2 >> 0
 const TURN_COUNT = 1 * TICRATE
-const OUCH_COUNT = 1 * TICRATE
 const RAMPAGE_DELAY = 2 * TICRATE
 
 const MUCH_PAIN = 20
@@ -80,7 +79,6 @@ const AMMOX = 44
 const AMMOY = 171
 
 // HEALTH number pos.
-const HEALTHWIDTH = 3
 const HEALTHX = 90
 const HEALTHY = 171
 
@@ -98,25 +96,19 @@ const FRAGSY = 171
 const FRAGSWIDTH = 2
 
 // ARMOR number pos.
-const ARMORWIDTH = 3
 const ARMORX = 221
 const ARMORY = 171
 
 // Key icon positions.
-const KEY0WIDTH = 8
-const KEY0HEIGHT = 5
 const KEY0X = 239
 const KEY0Y = 171
-const KEY1WIDTH = KEY0WIDTH
 const KEY1X = 239
 const KEY1Y = 181
-const KEY2WIDTH = KEY0WIDTH
 const KEY2X = 239
 const KEY2Y = 191
 
 // Ammunition counter.
 const AMMO0WIDTH = 3
-const AMMO0HEIGHT = 6
 const AMMO0X = 288
 const AMMO0Y = 173
 const AMMO1WIDTH = AMMO0WIDTH
@@ -132,7 +124,6 @@ const AMMO3Y = 185
 // Indicate maximum ammunition.
 // Only needed because backpack exists.
 const MAXAMMO0WIDTH = 3
-const MAXAMMO0HEIGHT = 5
 const MAXAMMO0X = 314
 const MAXAMMO0Y = 173
 const MAXAMMO1WIDTH = MAXAMMO0WIDTH
@@ -144,61 +135,6 @@ const MAXAMMO2Y = 191
 const MAXAMMO3WIDTH = MAXAMMO0WIDTH
 const MAXAMMO3X = 314
 const MAXAMMO3Y = 185
-
-// pistol
-const WEAPON0X = 110
-const WEAPON0Y = 172
-
-// shotgun
-const WEAPON1X = 122
-const WEAPON1Y = 172
-
-// chain gun
-const WEAPON2X = 134
-const WEAPON2Y = 172
-
-// missile launcher
-const WEAPON3X = 110
-const WEAPON3Y = 181
-
-// plasma gun
-const WEAPON4X = 122
-const WEAPON4Y = 181
-
-// bfg
-const WEAPON5X = 134
-const WEAPON5Y = 181
-
-// WPNS title
-const WPNSX = 109
-const WPNSY = 191
-
-// DETH title
-const DETHX = 109
-const DETHY = 191
-
-//Incoming messages window location
-//UNUSED
-// const MSGTEXTX = viewwindowx)
-// const MSGTEXTY = viewwindowy+viewheight-18)
-const MSGTEXTX = 0
-const MSGTEXTY = 0
-// Dimensions given in characters.
-const MSGWIDTH = 52
-// Or shall I say, in lines?
-const MSGHEIGHT = 1
-
-const OUTTEXTX = 0
-const OUTTEXTY = 6
-
-// Width, in characters again.
-const OUTWIDTH = 52
-// Height, in lines.
-const OUTHEIGHT = 1
-
-
-const MAPTITLEY = 0
-const MAPHEIGHT = 1
 
 export class StatusBar {
   // main player in game

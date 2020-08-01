@@ -441,7 +441,7 @@ export class Play {
   //
   // P_SetupLevel
   //
-  setupLevel(episode: number, map: number, playMask: number, skill: Skill): void {
+  setupLevel(episode: number, map: number): void {
     this.doom.game.totalKills =
         this.doom.game.totalItems =
         this.doom.game.totalSecret = 0
