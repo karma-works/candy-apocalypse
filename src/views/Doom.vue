@@ -1,7 +1,9 @@
 <template>
-  <canvas width="320" height="320" ref="screen"
-    v-bind:style="{ transform: `scale3d(${ratio}, ${ratio}, 1)` }">
-  </canvas>
+  <div class="screen-wrapper" ref="screenWrapper">
+    <canvas width="320" height="320" ref="screen"
+      v-bind:style="{ transform: `scale3d(${ratio}, ${ratio}, 1)` }">
+    </canvas>
+  </div>
 </template>
 
 <script lang="ts">
@@ -13,6 +15,7 @@ import { Doom as RawDoom } from '@/doom/doom'
 export default class Doom extends Vue {
   $refs!: {
     screen: HTMLCanvasElement
+    screenWrapper: HTMLDivElement
   }
 
   doomInst!: RawDoom
@@ -36,6 +39,7 @@ export default class Doom extends Vue {
   }
 
   onResize(): void {
+    const screenWrapper = this.$refs.screenWrapper
     const screen = this.$refs.screen
     const screenParent = screen.parentElement
     if (screenParent !== null) {
@@ -50,3 +54,14 @@ export default class Doom extends Vue {
   }
 }
 </script>
+
+<style lang="scss">
+.screen-wrapper {
+  height: calc(100vh - 64px);
+  text-align: center;
+  > canvas {
+    transform-origin: top;
+    outline: none;
+  }
+}
+</style>

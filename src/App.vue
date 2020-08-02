@@ -1,14 +1,10 @@
 <template>
-  <div id="app">
-    <router-view/>
-  </div>
-</template>
+  <v-app>
+    <v-app-bar app>
+    </v-app-bar>
 
-<style lang="scss">
-#app {
-  display: flex;
-  justify-content: center;
-  height: 100%;
-  align-items: center;
-}
-</style>
+    <v-main>
+      <router-view/>
+    </v-main>
+  </v-app>
+</template>
