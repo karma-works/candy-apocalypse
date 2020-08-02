@@ -145,7 +145,7 @@ export class LoadGameMenu implements MenuStruct {
     }
     await Promise.all(promises)
   }
-  private async readSaveString(i: number): Promise<void> {
+  protected async readSaveString(i: number): Promise<void> {
     this.saveGameStrings[i] = '...'
     this.menuItems[i].status = 0
 
@@ -153,7 +153,6 @@ export class LoadGameMenu implements MenuStruct {
 
     if (handle === undefined) {
       this.saveGameStrings[i] = ''
-      this.menuItems[i].status = 0
       return
     }
 
@@ -312,5 +311,10 @@ export class SaveGameMenu extends LoadGameMenu {
     }
 
     return false
+  }
+
+  protected async readSaveString(i: number): Promise<void> {
+    await super.readSaveString(i)
+    this.menuItems[i].status = 1
   }
 }
