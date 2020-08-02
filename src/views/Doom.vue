@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Ref } from 'vue-property-decorator'
+import { Component, Vue } from 'vue-property-decorator'
 import { fs } from '@/doom/system/fs'
 import { Doom as RawDoom } from '@/doom/doom'
 
