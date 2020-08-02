@@ -22,6 +22,6 @@ import { Component, Vue } from 'vue-property-decorator'
 
 @Component
 export default class extends Vue {
-  sourceUrl = process.env.CI_PROJECT_URL
+  sourceUrl = process.env.VUE_APP_PROJECT_URL
 }
 </script>

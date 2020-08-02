@@ -6,6 +6,8 @@ build:
   cache:
     paths:
       - node_modules/
+  variables:
+    VUE_APP_PROJECT_URL: $CI_PROJECT_URL
   script:
     - yarn install
     - yarn build
