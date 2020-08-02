@@ -402,6 +402,8 @@ export class Menu {
       // End game
       case KEY_F7:
         this.dSound.startSound(null, Sfx.Swtchn)
+        // Workaround
+        this.currentMenu = this.optionsMenu
         this.optionsMenu.endGame()
         return true
 
