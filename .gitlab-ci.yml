@@ -1,0 +1,30 @@
+---
+
+build:
+  image: node:latest
+  stage: build
+  cache:
+    paths:
+      - node_modules/
+  script:
+    - yarn install
+    - yarn build
+  artifacts:
+    paths:
+      - dist/
+
+pages:
+  stage: deploy
+  image: alpine:latest
+  variables:
+    GIT_STRATEGY: none
+  needs:
+    - build
+  script:
+    - rm -rf public
+    - mv dist public
+  artifacts:
+    paths:
+      - public/
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
