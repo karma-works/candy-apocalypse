@@ -6,8 +6,8 @@
 
 <script lang="ts">
 import { Component, Vue, Ref } from 'vue-property-decorator'
-import { Doom as RawDoom } from './doom'
-import { fs } from './system/fs'
+import { fs } from '@/doom/system/fs'
+import { Doom as RawDoom } from '@/doom/doom'
 
 @Component
 export default class Doom extends Vue {

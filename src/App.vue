@@ -1,21 +1,8 @@
 <template>
   <div id="app">
-    <Doom />
+    <router-view/>
   </div>
 </template>
-
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import Doom from './doom/Doom.vue'
-
-@Component({
-  components: {
-    Doom,
-  },
-})
-export default class App extends Vue {
-}
-</script>
 
 <style lang="scss">
 #app {
