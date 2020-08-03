@@ -83,8 +83,6 @@ export class Video {
 
   constructor(private doom: Doom) { }
 
-  private lastMouseX = 0
-  private lastMouseY = 0
   getEvent(): void {
     if (this.screen === null) {
       return
@@ -139,15 +137,14 @@ export class Video {
       event.type = EvType.Mouse
 
       event.data1 =
-          (mouseEvent.buttons & Button1Mask ? 1 : 0) |
-          (mouseEvent.buttons & Button2Mask ? 2 : 0) |
-          (mouseEvent.buttons & Button3Mask ? 4 : 0)
-      event.data2 = mouseEvent.offsetX - this.lastMouseX << 2
-      event.data3 = this.lastMouseY - mouseEvent.offsetY << 2
+      (mouseEvent.buttons & Button1Mask ? 1 : 0) |
+      (mouseEvent.buttons & Button2Mask ? 2 : 0) |
+      (mouseEvent.buttons & Button3Mask ? 4 : 0)
+
+      event.data2 = mouseEvent.movementX << 2
+      event.data3 = -mouseEvent.movementY << 2
 
       if (event.data2 || event.data3) {
-        this.lastMouseX = mouseEvent.offsetX
-        this.lastMouseY = mouseEvent.offsetY
         if (mouseEvent.offsetX !== this.xWidth / 2 &&
             mouseEvent.offsetY !== this.xHeight / 2
         ) {

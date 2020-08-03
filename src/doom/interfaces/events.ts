@@ -44,6 +44,8 @@ export function XListenEvent(display: HTMLCanvasElement): void {
       display.addEventListener('mouseup', listener)
       display.addEventListener('mousemove', listener)
     }, 0)
+
+    display.requestPointerLock()
   })
   display.addEventListener('blur', () => {
     display.removeEventListener('keydown', listener)
