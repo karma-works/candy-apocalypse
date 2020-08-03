@@ -28,14 +28,29 @@ export function XListenEvent(display: HTMLCanvasElement): void {
   const list = new Array<XEvent>()
   pending.set(display, list)
   display.tabIndex = 0
-  display.focus()
+
+  display.addEventListener('contextmenu', ev => ev.preventDefault())
+
   const listener = (ev: XEvent): void => {
     list.push(ev) && ev.preventDefault()
   }
-  display.addEventListener('keydown', listener)
-  display.addEventListener('keyup', listener)
-  display.addEventListener('mousedown', listener)
-  display.addEventListener('mouseup', listener)
-  display.addEventListener('mousemove', listener)
-  display.addEventListener('contextmenu', ev => ev.preventDefault())
+
+  display.addEventListener('focus', () => {
+    // Delay to avoid triggering event while focusing
+    setTimeout(() => {
+      display.addEventListener('keydown', listener)
+      display.addEventListener('keyup', listener)
+      display.addEventListener('mousedown', listener)
+      display.addEventListener('mouseup', listener)
+      display.addEventListener('mousemove', listener)
+    }, 0)
+  })
+  display.addEventListener('blur', () => {
+    display.removeEventListener('keydown', listener)
+    display.removeEventListener('keyup', listener)
+    display.removeEventListener('mousedown', listener)
+    display.removeEventListener('mouseup', listener)
+    display.removeEventListener('mousemove', listener)
+  })
+
 }
