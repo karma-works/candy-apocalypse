@@ -52,6 +52,10 @@ export default class Doom extends Vue {
   beforeDestroy(): void {
     window.removeEventListener('resize', this.onResize)
   }
+
+  toggleSound(): void {
+    this.doomInst.iSound.toggleSound()
+  }
 }
 </script>
 

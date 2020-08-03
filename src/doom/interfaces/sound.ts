@@ -326,9 +326,6 @@ export class Sound {
     const audioCtx = new AudioContext({
       sampleRate: SAMPLE_RATE,
     })
-    document.addEventListener('click', () => {
-      audioCtx.resume()
-    })
     this.audioCtx = audioCtx
 
     let sfxInfo: SfxInfo
@@ -344,4 +341,19 @@ export class Sound {
       }
     }
   }
+
+  toggleSound(): void {
+    if (this.audioCtx === null) {
+      return
+    }
+    switch (this.audioCtx.state) {
+    case 'running':
+      this.audioCtx.suspend()
+      break
+    case 'suspended':
+      this.audioCtx.resume()
+      break
+    }
+  }
+
 }
