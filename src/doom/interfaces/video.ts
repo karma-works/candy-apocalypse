@@ -1,8 +1,8 @@
 import { Button1, Button1Mask, Button2, Button2Mask, Button3, Button3Mask, XListenEvent, XNextEvent, XPending } from './events'
+import { Color, Palette } from './palette'
 import { DEvent, EvType } from '../doom/event'
 import { KEY_BACKSPACE, KEY_DOWNARROW, KEY_ENTER, KEY_EQUALS, KEY_ESCAPE, KEY_F1, KEY_F10, KEY_F11, KEY_F12, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_LEFTARROW, KEY_MINUS, KEY_PAUSE, KEY_RALT, KEY_RCTRL, KEY_RIGHTARROW, KEY_RSHIFT, KEY_TAB, KEY_UPARROW, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { Doom } from '../doom'
-import { Palette } from './palette'
 import { Video as RVideo } from '../rendering/video'
 
 function xlateKey({ code, key }: KeyboardEvent): number {
@@ -81,7 +81,9 @@ export class Video {
     return this.doom.rendering.video
   }
 
-  constructor(private doom: Doom) { }
+  constructor(private doom: Doom) {
+    this.uploadNewPalette()
+  }
 
   getEvent(): void {
     if (this.screen === null) {
@@ -186,16 +188,18 @@ export class Video {
       let iLinePtr = 0
       let x: number
       let y = SCREENHEIGHT
-      const palette = this.palette
+
+      const reds = this.reds
+      const greens = this.greens
+      const blues = this.blues
       while (y--) {
         x = SCREENWIDTH
         do {
-          oLine.set(
-            palette.get(iLine[iLinePtr++], this.useGamma),
-            oLinePtr,
-          )
-
-          oLinePtr += 4
+          oLine[oLinePtr++] = reds[iLine[iLinePtr]]
+          oLine[oLinePtr++] = greens[iLine[iLinePtr]]
+          oLine[oLinePtr++] = blues[iLine[iLinePtr]]
+          oLine[oLinePtr++] = 255
+          iLinePtr++
         // eslint-disable-next-line no-cond-assign
         } while (x -= 1)
       }
@@ -204,7 +208,17 @@ export class Video {
     this.xScreen.putImageData(this.image, 0, 0)
   }
 
-  palette = new Palette()
+  private palette = new Palette()
+  private reds = new Uint8ClampedArray()
+  private greens = new Uint8ClampedArray()
+  private blues = new Uint8ClampedArray()
+
+  uploadNewPalette(palette: Palette = this.palette): void {
+    this.reds = palette.getColors(Color.Red, this.useGamma)
+    this.greens = palette.getColors(Color.Green, this.useGamma)
+    this.blues = palette.getColors(Color.Blue, this.useGamma)
+    this.palette = palette
+  }
 
   private firstTime = 1
 

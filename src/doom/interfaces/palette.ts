@@ -1,5 +1,12 @@
 import { gammaTable } from './gamma'
 
+export const enum Color {
+  Red,
+  Green,
+  Blue,
+  Alpha,
+}
+
 export class Palette {
   private colors = Array.from({ length: gammaTable.length },
     () => new Uint8ClampedArray(256 * 4),
@@ -44,5 +51,8 @@ export class Palette {
 
   get(i: number, gamma: number): Uint8ClampedArray {
     return this.colors[gamma].subarray(i * 4, i * 4 + 4)
+  }
+  getColors(color: Color, gamma: number): Uint8ClampedArray {
+    return this.colors[gamma].filter((_, i) => i % 4 === color)
   }
 }
