@@ -37,7 +37,7 @@ export default class extends Vue {
     doomInst: Doom
   }
 
-  sourceUrl = process.env.VUE_APP_PROJECT_URL
+  sourceUrl = process.env.VUE_APP_PROJECT_URL || ''
 
   toggleSound(): void {
     this.$refs.doomInst.toggleSound()

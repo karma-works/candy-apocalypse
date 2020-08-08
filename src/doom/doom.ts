@@ -215,7 +215,7 @@ export class Doom {
     if (this.game.gameState !== this.oldGameState &&
       this.game.gameState !== GameState.Level
     ) {
-      this.iVideo.palette = new Palette(this.wad.cacheLumpName('PLAYPAL'))
+      this.iVideo.uploadNewPalette(new Palette(this.wad.cacheLumpName('PLAYPAL')))
     }
 
     // see if the border needs to be initially drawn
