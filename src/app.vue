@@ -16,16 +16,18 @@
     </v-app-bar>
 
     <v-main>
-      <Doom ref="doomInst"></Doom>
-
-      <router-view/>
+      <v-container fluid>
+        <router-view/>
+      </v-container>
     </v-main>
+
+    <Doom ref="doomInst"></Doom>
   </v-app>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import Doom from './views/Doom.vue'
+import Doom from './views/doom.vue'
 
 @Component({
   components: {
