@@ -8,51 +8,91 @@ export const Button1 = 1
 export const Button2 = 3
 export const Button3 = 2
 
-const pending = new Map<HTMLCanvasElement, XEvent[]>()
+interface ScreenListener {
+  pending: XEvent[],
+  listeners: {
+    [K in keyof HTMLElementEventMap]?: (this: HTMLCanvasElement, ev: HTMLElementEventMap[K]) => any
+  },
+}
+const listeners = new Map<HTMLCanvasElement, ScreenListener>()
+
 export function XPending(display: HTMLCanvasElement): number {
-  const list = pending.get(display)
-  return list === void 0 ? 0 : list.length
+  const l = listeners.get(display)
+  return l === void 0 ? 0 : l.pending.length
 }
 
 export function XNextEvent(display: HTMLCanvasElement): XEvent | never {
-  let list: XEvent[] | undefined
   for (;;) {
-    list = pending.get(display)
-    if (list !== undefined && list.length > 0) {
-      return list.shift() as XEvent
+    const l = listeners.get(display)
+    if (l !== undefined && l.pending.length > 0) {
+      return l.pending.shift() as XEvent
     }
   }
 }
 
 export function XListenEvent(display: HTMLCanvasElement): void {
-  const list = new Array<XEvent>()
-  pending.set(display, list)
+  const l: ScreenListener = { pending: [], listeners: {} }
+  const pending = l.pending
+  listeners.set(display, l)
   display.tabIndex = 0
 
-  display.addEventListener('contextmenu', ev => ev.preventDefault())
-
+  const preventDefault = (ev: Event) => ev.preventDefault()
   const listener = (ev: XEvent): void => {
-    list.push(ev) && ev.preventDefault()
+    pending.push(ev) && ev.preventDefault()
   }
+  
+  display.addEventListener('contextmenu', preventDefault)
+  l.listeners.contextmenu = preventDefault
 
-  display.addEventListener('focus', () => {
+  const onFocus = () => {
     // Delay to avoid triggering event while focusing
     setTimeout(() => {
       display.addEventListener('keydown', listener)
+      l.listeners.keydown = listener
       display.addEventListener('keyup', listener)
+      l.listeners.keyup = listener
       display.addEventListener('mousedown', listener)
+      l.listeners.mousedown = listener
       display.addEventListener('mouseup', listener)
+      l.listeners.mouseup = listener
       display.addEventListener('mousemove', listener)
+      l.listeners.mousemove = listener
     }, 0)
 
     display.requestPointerLock()
-  })
-  display.addEventListener('blur', () => {
+  }
+  const onBlur = () => {
     display.removeEventListener('keydown', listener)
+    delete l.listeners.keydown
     display.removeEventListener('keyup', listener)
+    delete l.listeners.keyup
     display.removeEventListener('mousedown', listener)
+    delete l.listeners.mousedown
     display.removeEventListener('mouseup', listener)
+    delete l.listeners.mouseup
     display.removeEventListener('mousemove', listener)
-  })
+    delete l.listeners.mousemove
+  }
 
+  display.addEventListener('focus', onFocus)
+  l.listeners.focus = onFocus
+  display.addEventListener('blur', onBlur)
+  l.listeners.blur = onBlur
+}
+
+export function XQuitEvent(display: HTMLCanvasElement): void {
+  if (document.pointerLockElement === display) {
+    document.exitPointerLock()
+  }
+
+  const l = listeners.get(display)
+  if (l === undefined) {
+    return
+  }
+
+  l.pending = [];
+  (Object.keys(l.listeners) as (keyof HTMLElementEventMap)[])
+    .forEach(k => {
+      display.removeEventListener(k, (l.listeners[k] as any))
+    })
 }
