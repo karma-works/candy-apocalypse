@@ -10,6 +10,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { fs } from '@/doom/system/fs'
 import { Doom as RawDoom } from '@/doom/doom'
+import { Params } from '@/doom/doom/params'
 
 @Component
 export default class Doom extends Vue {
@@ -22,20 +23,35 @@ export default class Doom extends Vue {
 
   ratio = 1
 
+  private defaultParams!: Params
+
   async mounted(): Promise<void> {
     await fs.write('doom1.wad', './doom1.wad')
 
     const screen = this.$refs.screen
 
-    this.doomInst = new RawDoom({
+    this.defaultParams = {
       screen,
       wad: 'doom1.wad',
-    })
+    }
+
+    this.doomInst = new RawDoom(this.defaultParams)
 
     await this.doomInst.init()
 
     window.addEventListener('resize', this.onResize)
     this.onResize()
+  }
+
+  async restart(p: Partial<Params>): Promise<void> {
+    await this.doomInst.quit()
+
+    this.doomInst = new RawDoom({
+      ...this.defaultParams,
+      ...p,
+    })
+
+    await this.doomInst.init()
   }
 
   onResize(): void {
@@ -50,6 +66,7 @@ export default class Doom extends Vue {
   }
 
   beforeDestroy(): void {
+    this.doomInst.quit()
     window.removeEventListener('resize', this.onResize)
   }
 

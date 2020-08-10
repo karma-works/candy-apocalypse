@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Provide, Vue } from 'vue-property-decorator'
 import Doom from './views/doom.vue'
 
 @Component({
@@ -39,10 +39,14 @@ export default class extends Vue {
     doomInst: Doom
   }
 
+  @Provide('doomGetter') getDoom(): Doom {
+    return this.$refs.doomInst
+  }
+
   sourceUrl = process.env.VUE_APP_PROJECT_URL || ''
 
   toggleSound(): void {
-    this.$refs.doomInst.toggleSound()
+    this.getDoom().toggleSound()
   }
 }
 </script>
