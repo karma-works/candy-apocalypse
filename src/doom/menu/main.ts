@@ -210,7 +210,7 @@ export class MainMenu implements MenuStruct {
           quitSounds[this.game.gameTic >> 2 & 7])
       }
     }
-    // TODO
+    this.doom.quit()
   }
 
   quitDOOM(): void {

@@ -346,6 +346,11 @@ export class Doom {
         this.net.tryRunTics()
       }
 
+      if (this.quitted) {
+        this.quitted()
+        return
+      }
+
       // move positional sounds
       this.dSound.updateSounds(this.game.players[this.game.consolePlayer].mo)
 
@@ -783,6 +788,20 @@ export class Doom {
     }
 
     this.doomLoop()
+  }
+
+  private quitted: (() => void) | null = null
+  async quit(): Promise<void> {
+    const quitting = new Promise(resolve => {
+      this.quitted = resolve
+    })
+
+    await quitting
+
+    this.quitted = null
+    this.iVideo.quit()
+
+    return
   }
 }
 
