@@ -683,7 +683,7 @@ export class Doom {
 
   async init(): Promise<void> {
     this.noMonsters = !!this.params.noMonsters
-    this.respawnParam = !!this.params.respawm
+    this.respawnParam = !!this.params.respawn
     this.fastParam = !!this.params.fast
     this.devParam = !!this.params.dev
     if (this.params.altDeath) {

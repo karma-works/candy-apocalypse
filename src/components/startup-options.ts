@@ -20,6 +20,18 @@ export default class extends Vue {
       this.map = p.map
       this.autoStart = true
     }
+    if (p.noMonsters !== undefined) {
+      this.noMonsters = p.noMonsters
+      this.autoStart = true
+    }
+    if (p.respawn !== undefined) {
+      this.respawn = p.respawn
+      this.autoStart = true
+    }
+    if (p.fast !== undefined) {
+      this.fast = p.fast
+      this.autoStart = true
+    }
   }
 
   autoStart = false
@@ -34,6 +46,10 @@ export default class extends Vue {
   episode = 1
   map = 1
 
+  noMonsters = false
+  respawn = false
+  fast = false
+
   play(): void {
     const p: Partial<Params> = {}
 
@@ -41,6 +57,10 @@ export default class extends Vue {
       p.skill = this.skill
       p.episode = this.episode
       p.map = this.map
+
+      p.noMonsters = this.noMonsters
+      p.respawn = this.respawn
+      p.fast = this.fast
     }
 
     this.$emit('input', p)
