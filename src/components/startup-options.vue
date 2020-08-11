@@ -9,6 +9,7 @@
         <v-col cols="12" md="3">
           <v-select
             v-model="skill"
+            :disabled="!autoStart"
             :items="skills"
             label="Skill"
           ></v-select>
@@ -17,6 +18,7 @@
         <v-col cols="12" md="3">
           <v-text-field
             v-model="episode"
+            :disabled="!autoStart"
             type="number"
             inputmode="numeric"
             label="Episode"
@@ -26,6 +28,7 @@
         <v-col cols="12" md="3">
           <v-text-field
             v-model="map"
+            :disabled="!autoStart"
             type="number"
             inputmode="numeric"
             label="Map"
