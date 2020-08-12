@@ -54,6 +54,28 @@
           @change="autoStart = true"
           label="Fast monster"
         ></v-switch>
+
+        <v-col cols="12">
+          <header> Demo </header>
+        </v-col>
+      
+        <v-text-field class="mx-2"
+          v-model="playDemo"
+          label="Play demo"
+        ></v-text-field>
+
+        <v-file-input class="mx-2"
+          hide-input
+          @change="upload($event, 'playDemo')">
+        </v-file-input>
+
+        <v-text-field class="mx-2"
+          @change="autoStart = true"
+          :disabled="true"
+          v-model="record"
+          label="Record demo"
+        ></v-text-field>
+
       </v-row>
 
       <v-btn

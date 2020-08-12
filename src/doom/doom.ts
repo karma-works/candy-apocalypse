@@ -696,6 +696,12 @@ export class Doom {
       console.log(this.strings.dDevstr)
     }
 
+    const playDemo = this.params.playDemo
+    if (playDemo) {
+      this.addFile(`${playDemo}.lmp`)
+      console.log(`Playing demo ${playDemo}.lmp`)
+    }
+
     // init subsystems
     console.log('V_Init: allocate screens.')
     this.rVideo.init()
@@ -775,6 +781,14 @@ export class Doom {
 
     console.log('ST_Init: Init status bar.')
     this.statusBar.init()
+
+    if (playDemo) {
+      // quit after one demo
+      this.game.singleDemo = true
+      this.game.deferedPlayDemo(playDemo)
+      // never returns
+      return this.doomLoop()
+    }
 
     if (this.game.gameAction !== GameAction.LoadGame) {
       if (this.autoStart) {

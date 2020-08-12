@@ -1,4 +1,5 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { fs } from '@/doom/system/fs'
 import { Skill } from '@/doom/doom/mode'
 import { Params } from '@/doom/doom/params'
 
@@ -32,6 +33,8 @@ export default class extends Vue {
       this.fast = p.fast
       this.autoStart = true
     }
+
+    this.playDemo = p.playDemo || ''
   }
 
   autoStart = false
@@ -50,6 +53,9 @@ export default class extends Vue {
   respawn = false
   fast = false
 
+  playDemo = ''
+  record = ''
+
   play(): void {
     const p: Partial<Params> = {}
 
@@ -63,6 +69,15 @@ export default class extends Vue {
       p.fast = this.fast
     }
 
+    p.playDemo = this.playDemo
+
     this.$emit('input', p)
+  }
+
+  async upload(file: File, input: 'playDemo'): Promise<void> {
+    const buf = await file.arrayBuffer()
+    fs.write(file.name, buf)
+
+    this[input] = file.name
   }
 }

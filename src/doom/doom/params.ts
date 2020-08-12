@@ -22,4 +22,6 @@ export interface Params {
   skill?: Skill
   episode?: number
   map?: number
+
+  playDemo?: string
 }

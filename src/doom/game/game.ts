@@ -1258,7 +1258,8 @@ export class Game {
 
     if (this.demoPlayback) {
       if (this.singleDemo) {
-        debugger
+        this.doom.quit()
+        return false
       }
 
       this.demoPlayback = false
