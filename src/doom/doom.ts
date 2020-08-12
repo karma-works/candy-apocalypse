@@ -683,7 +683,7 @@ export class Doom {
 
   async init(): Promise<void> {
     this.noMonsters = !!this.params.noMonsters
-    this.respawnParam = !!this.params.respawm
+    this.respawnParam = !!this.params.respawn
     this.fastParam = !!this.params.fast
     this.devParam = !!this.params.dev
     if (this.params.altDeath) {
@@ -694,6 +694,12 @@ export class Doom {
 
     if (this.devParam) {
       console.log(this.strings.dDevstr)
+    }
+
+    const playDemo = this.params.playDemo
+    if (playDemo) {
+      this.addFile(`${playDemo}.lmp`)
+      console.log(`Playing demo ${playDemo}.lmp`)
     }
 
     // init subsystems
@@ -775,6 +781,14 @@ export class Doom {
 
     console.log('ST_Init: Init status bar.')
     this.statusBar.init()
+
+    if (playDemo) {
+      // quit after one demo
+      this.game.singleDemo = true
+      this.game.deferedPlayDemo(playDemo)
+      // never returns
+      return this.doomLoop()
+    }
 
     if (this.game.gameAction !== GameAction.LoadGame) {
       if (this.autoStart) {

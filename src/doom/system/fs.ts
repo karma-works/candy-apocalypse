@@ -24,9 +24,9 @@ class FS {
   }
 
   async open(name: string): Promise<ArrayBuffer | undefined> {
-    const f = await this.table.get(name)
+    let f = await this.table.get(name)
     if (f === undefined) {
-      return undefined
+      f = { uri: name, type: 'uri' }
     }
 
     switch (f.type) {

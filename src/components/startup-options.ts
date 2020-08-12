@@ -1,4 +1,5 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { fs } from '@/doom/system/fs'
 import { Skill } from '@/doom/doom/mode'
 import { Params } from '@/doom/doom/params'
 
@@ -20,6 +21,22 @@ export default class extends Vue {
       this.map = p.map
       this.autoStart = true
     }
+    if (p.noMonsters !== undefined) {
+      this.noMonsters = p.noMonsters
+      this.autoStart = true
+    }
+    if (p.respawn !== undefined) {
+      this.respawn = p.respawn
+      this.autoStart = true
+    }
+    if (p.fast !== undefined) {
+      this.fast = p.fast
+      this.autoStart = true
+    }
+
+    this.wad = p.wad || ''
+
+    this.playDemo = p.playDemo || ''
   }
 
   autoStart = false
@@ -34,6 +51,15 @@ export default class extends Vue {
   episode = 1
   map = 1
 
+  noMonsters = false
+  respawn = false
+  fast = false
+
+  wad = ''
+
+  playDemo = ''
+  record = ''
+
   play(): void {
     const p: Partial<Params> = {}
 
@@ -41,8 +67,24 @@ export default class extends Vue {
       p.skill = this.skill
       p.episode = this.episode
       p.map = this.map
+
+      p.noMonsters = this.noMonsters
+      p.respawn = this.respawn
+      p.fast = this.fast
     }
 
+    if (this.wad) {
+      p.wad = this.wad
+    }
+    p.playDemo = this.playDemo
+
     this.$emit('input', p)
+  }
+
+  async upload(file: File, input: 'playDemo' | 'wad'): Promise<void> {
+    const buf = await file.arrayBuffer()
+    fs.write(file.name, buf)
+
+    this[input] = file.name
   }
 }

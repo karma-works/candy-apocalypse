@@ -15,11 +15,13 @@ export interface Params {
   dup?: number;
 
   noMonsters?: boolean
-  respawm?: boolean
+  respawn?: boolean
   fast?: boolean
   dev?: boolean
 
   skill?: Skill
   episode?: number
   map?: number
+
+  playDemo?: string
 }
