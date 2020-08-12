@@ -34,6 +34,8 @@ export default class extends Vue {
       this.autoStart = true
     }
 
+    this.wad = p.wad || ''
+
     this.playDemo = p.playDemo || ''
   }
 
@@ -53,6 +55,8 @@ export default class extends Vue {
   respawn = false
   fast = false
 
+  wad = ''
+
   playDemo = ''
   record = ''
 
@@ -69,12 +73,15 @@ export default class extends Vue {
       p.fast = this.fast
     }
 
+    if (this.wad) {
+      p.wad = this.wad
+    }
     p.playDemo = this.playDemo
 
     this.$emit('input', p)
   }
 
-  async upload(file: File, input: 'playDemo'): Promise<void> {
+  async upload(file: File, input: 'playDemo' | 'wad'): Promise<void> {
     const buf = await file.arrayBuffer()
     fs.write(file.name, buf)
 

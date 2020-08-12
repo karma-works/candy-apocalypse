@@ -56,6 +56,20 @@
         ></v-switch>
 
         <v-col cols="12">
+          <header> Version </header>
+        </v-col>
+
+        <v-text-field class="mx-2"
+          v-model="wad"
+          label="WAD file"
+        ></v-text-field>
+
+        <v-file-input class="mx-2"
+          hide-input
+          @change="upload($event, 'wad')">
+        </v-file-input>
+
+        <v-col cols="12">
           <header> Demo </header>
         </v-col>
       
