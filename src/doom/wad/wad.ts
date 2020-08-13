@@ -6,8 +6,13 @@ function extractFileBase(path: string): string {
   const idx = path.lastIndexOf('/')
   const dest = path.substr(idx + 1).toUpperCase()
 
-  if (dest.length > 8) {
-    throw `Filename base of ${path} >8 chars`
+  // if (dest.length > 8) {
+  //   throw `Filename base of ${path} >8 chars`
+  // }
+
+  const dot = dest.lastIndexOf('.')
+  if (dot > 0) {
+    return dest.substr(0, dot)
   }
 
   return dest

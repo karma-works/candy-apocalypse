@@ -318,6 +318,9 @@ export class Doom {
   //  calls I_GetTime, I_StartFrame, and I_StartTic
   //
   private doomLoop(): void {
+    if (this.game.demoRecording) {
+      this.game.beginRecording()
+    }
     this.iVideo.initGraphics(this.params.screen)
 
     const w = () => {
@@ -682,6 +685,8 @@ export class Doom {
   }
 
   async init(): Promise<void> {
+    this.quitted = null
+
     this.noMonsters = !!this.params.noMonsters
     this.respawnParam = !!this.params.respawn
     this.fastParam = !!this.params.fast
@@ -696,8 +701,18 @@ export class Doom {
       console.log(this.strings.dDevstr)
     }
 
-    const playDemo = this.params.playDemo
+    // start the apropriate game based on parms
+    const recordDemo = this.params.record
+    if (recordDemo) {
+      this.game.recordDemo(recordDemo)
+      this.autoStart = true
+    }
+
+    let playDemo = this.params.playDemo
     if (playDemo) {
+      if (playDemo.endsWith('.lmp')) {
+        playDemo = playDemo.substr(0, playDemo.length - 4)
+      }
       this.addFile(`${playDemo}.lmp`)
       console.log(`Playing demo ${playDemo}.lmp`)
     }
@@ -806,13 +821,15 @@ export class Doom {
 
   private quitted: (() => void) | null = null
   async quit(): Promise<void> {
+    if (this.quitted) {
+      return
+    }
     const quitting = new Promise(resolve => {
       this.quitted = resolve
     })
 
     await quitting
 
-    this.quitted = null
     this.iVideo.quit()
 
     return

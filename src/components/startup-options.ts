@@ -37,6 +37,7 @@ export default class extends Vue {
     this.wad = p.wad || ''
 
     this.playDemo = p.playDemo || ''
+    this.record = p.record || ''
   }
 
   autoStart = false
@@ -77,6 +78,7 @@ export default class extends Vue {
       p.wad = this.wad
     }
     p.playDemo = this.playDemo
+    p.record = this.record
 
     this.$emit('input', p)
   }
