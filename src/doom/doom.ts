@@ -708,7 +708,11 @@ export class Doom {
       this.autoStart = true
     }
 
+    let playDemo = this.params.playDemo
     if (playDemo) {
+      if (playDemo.endsWith('.lmp')) {
+        playDemo = playDemo.substr(0, playDemo.length - 4)
+      }
       this.addFile(`${playDemo}.lmp`)
       console.log(`Playing demo ${playDemo}.lmp`)
     }
