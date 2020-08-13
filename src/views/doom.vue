@@ -52,6 +52,8 @@ export default class Doom extends Vue {
     })
 
     await this.doomInst.init()
+
+    this.$refs.screen.focus()
   }
 
   onResize(): void {
