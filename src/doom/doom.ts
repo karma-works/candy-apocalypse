@@ -685,6 +685,8 @@ export class Doom {
   }
 
   async init(): Promise<void> {
+    this.quitted = null
+
     this.noMonsters = !!this.params.noMonsters
     this.respawnParam = !!this.params.respawn
     this.fastParam = !!this.params.fast
@@ -815,13 +817,15 @@ export class Doom {
 
   private quitted: (() => void) | null = null
   async quit(): Promise<void> {
+    if (this.quitted) {
+      return
+    }
     const quitting = new Promise(resolve => {
       this.quitted = resolve
     })
 
     await quitting
 
-    this.quitted = null
     this.iVideo.quit()
 
     return
