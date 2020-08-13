@@ -24,4 +24,5 @@ export interface Params {
   map?: number
 
   playDemo?: string
+  record?: string
 }

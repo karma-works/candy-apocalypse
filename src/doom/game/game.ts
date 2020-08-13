@@ -110,7 +110,7 @@ export class Game {
   totalSecret = 0
 
   private demoName = ''
-  private demoRecording = false
+  demoRecording = false
   demoPlayback = false
   private netDemo = false
   private demoBuffer = new Uint8Array()
@@ -597,6 +597,9 @@ export class Game {
 
         if (this.demoPlayback) {
           this.readDemoTicCmd(cmd)
+        }
+        if (this.demoRecording) {
+          this.writeDemoTicCmd(cmd)
         }
       }
     }
@@ -1162,6 +1165,61 @@ export class Game {
     cmd.buttons = this.demoP[this.demoPtr++]
   }
 
+  private writeDemoTicCmd(cmd: TickCmd): void {
+    // press q to end demo recording
+    if (this.gameKeyDown['q'.charCodeAt(0)]) {
+      this.checkDemoStatus()
+    }
+
+    this.demoP[this.demoPtr++] = cmd.forwardMove
+    this.demoP[this.demoPtr++] = cmd.sideMove
+    this.demoP[this.demoPtr++] = cmd.angleTurn + 128 >>> 8
+    this.demoP[this.demoPtr++] = cmd.buttons
+
+    this.demoPtr -= 4
+    if (this.demoPtr > this.demoP.length - 16) {
+      // no more space, increase
+      const newDemo = new Uint8Array(this.demoP.length + 0x20000)
+      newDemo.set(this.demoP)
+      this.demoP = newDemo
+    }
+
+    // make SURE it is exactly the same
+    this.readDemoTicCmd(cmd)
+  }
+
+  //
+  // G_RecordDemo
+  //
+  recordDemo(name: string): void {
+    this.userGame = false
+    this.demoName = `${name}.lmp`
+    this.demoP = new Uint8Array(0x20000)
+
+    this.demoRecording = true
+  }
+
+  beginRecording(): void {
+    const demoP = this.demoP
+    let demoPtr = 0
+
+    demoP[demoPtr++] = this.vanillaVersionCode()
+    demoP[demoPtr++] = this.gameSkill
+    demoP[demoPtr++] = this.gameEpisode
+    demoP[demoPtr++] = this.gameMap
+    demoP[demoPtr++] = this.deathMatch
+    demoP[demoPtr++] = this.doom.respawnParam ? 1 : 0
+    demoP[demoPtr++] = this.doom.fastParam ? 1 : 0
+    demoP[demoPtr++] = this.doom.noMonsters ? 1 : 0
+    demoP[demoPtr++] = this.consolePlayer
+
+    for (let i = 0; i < MAX_PLAYERS; ++i) {
+      demoP[demoPtr++] = this.playerInGame[i] ? 1 : 0
+    }
+
+    this.demoPtr = demoPtr
+  }
+
   private vanillaVersionCode(): number {
     // Get the demo version code appropriate for the version set in gameversion.
     switch (this.doom.gameVersion) {
@@ -1276,7 +1334,17 @@ export class Game {
     }
 
     if (this.demoRecording) {
-      debugger
+      this.demoP[this.demoPtr++] = DEMO_MARKER
+      fs.write(
+        this.demoName,
+        this.demoP.buffer.slice(0, this.demoPtr),
+      )
+
+      this.demoRecording = false
+
+      alert(`Demo ${this.demoName} recorded`)
+      this.doom.quit()
+      return false
     }
 
     return false

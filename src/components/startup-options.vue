@@ -85,7 +85,6 @@
 
         <v-text-field class="mx-2"
           @change="autoStart = true"
-          :disabled="true"
           v-model="record"
           label="Record demo"
         ></v-text-field>
