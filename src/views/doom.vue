@@ -26,7 +26,7 @@ export default class Doom extends Vue {
   private defaultParams!: Params
 
   async mounted(): Promise<void> {
-    await fs.write('doom1.wad', './doom1.wad')
+    await fs.write('doom1.wad', './doom1.wad', false)
 
     const screen = this.$refs.screen
 

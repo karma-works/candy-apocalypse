@@ -1,5 +1,29 @@
 <template>
   <v-app>
+    <v-navigation-drawer app
+      :expand-on-hover="true"
+      :mini-variant="true"
+      :mobile-breakpoint="0">
+      <v-list
+        dense
+        nav>
+        <v-list-item link to="/">
+          <v-list-item-icon><v-icon>mdi-play</v-icon></v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Play parameters</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-list-item link to="/files-listing">
+          <v-list-item-icon><v-icon>mdi-file-multiple</v-icon></v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Files listing</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+      </v-list>
+    </v-navigation-drawer>
+
     <v-app-bar app>
       <v-toolbar-title>Doom</v-toolbar-title>
 
@@ -12,16 +36,15 @@
       <v-btn icon v-bind:href="sourceUrl">
         <v-icon>mdi-gitlab</v-icon>
       </v-btn>
-
     </v-app-bar>
 
     <v-main>
       <v-container fluid>
         <router-view/>
       </v-container>
-    </v-main>
 
-    <Doom ref="doomInst"></Doom>
+      <Doom ref="doomInst"></Doom>
+    </v-main>
   </v-app>
 </template>
 
