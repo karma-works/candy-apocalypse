@@ -5,6 +5,7 @@ import { Player, PlayerState, WbStart } from '../doom/player'
 import { AutoMap } from '../auto-map/auto-map'
 import { BACKUP_TICS } from '../doom/net/doom-data'
 import { Sound as DSound } from '../doom/sound'
+import { Demo } from './demo'
 import { Doom } from '../doom'
 import { FRACUNIT } from '../misc/fixed'
 import { HeadsUp } from '../heads-up/stuff'
@@ -56,8 +57,6 @@ const cPars = [
   // 31-32
   120,30,
 ]
-
-const DEMO_MARKER = 0x80
 
 export const SAVE_GAME_NAME = 'doomsav'
 const SAVE_GAME_SIZE = 0x2c000
@@ -113,10 +112,7 @@ export class Game {
   demoRecording = false
   demoPlayback = false
   private netDemo = false
-  private demoBuffer = new Uint8Array()
-  private demoP = new Uint8Array()
-  private demoPtr = 0
-  private demoEnd = new Uint8Array()
+  private demo = new Demo()
   // quit after playing a demo from cmdline
   singleDemo = false
 
@@ -1154,15 +1150,9 @@ export class Game {
   // DEMO RECORDING
   //
   private readDemoTicCmd(cmd: TickCmd): void {
-    if (this.demoP[this.demoPtr] === DEMO_MARKER) {
-      // end of demo data stream
+    if (!this.demo.readDemoTicCmd(cmd)) {
       this.checkDemoStatus()
-      return
     }
-    cmd.forwardMove = this.demoP[this.demoPtr++]
-    cmd.sideMove = this.demoP[this.demoPtr++]
-    cmd.angleTurn = this.demoP[this.demoPtr++] << 8
-    cmd.buttons = this.demoP[this.demoPtr++]
   }
 
   private writeDemoTicCmd(cmd: TickCmd): void {
@@ -1171,21 +1161,7 @@ export class Game {
       this.checkDemoStatus()
     }
 
-    this.demoP[this.demoPtr++] = cmd.forwardMove
-    this.demoP[this.demoPtr++] = cmd.sideMove
-    this.demoP[this.demoPtr++] = cmd.angleTurn + 128 >>> 8
-    this.demoP[this.demoPtr++] = cmd.buttons
-
-    this.demoPtr -= 4
-    if (this.demoPtr > this.demoP.length - 16) {
-      // no more space, increase
-      const newDemo = new Uint8Array(this.demoP.length + 0x20000)
-      newDemo.set(this.demoP)
-      this.demoP = newDemo
-    }
-
-    // make SURE it is exactly the same
-    this.readDemoTicCmd(cmd)
+    this.demo.writeDemoTicCmd(cmd)
   }
 
   //
@@ -1194,30 +1170,25 @@ export class Game {
   recordDemo(name: string): void {
     this.userGame = false
     this.demoName = `${name}.lmp`
-    this.demoP = new Uint8Array(0x20000)
+    this.demo = new Demo()
 
     this.demoRecording = true
   }
 
   beginRecording(): void {
-    const demoP = this.demoP
-    let demoPtr = 0
+    this.demo.version = this.vanillaVersionCode()
+    this.demo.skill = this.gameSkill
+    this.demo.episode = this.gameEpisode
+    this.demo.map = this.gameMap
+    this.demo.deathMatch = this.deathMatch
+    this.demo.respawnParam = this.doom.respawnParam
+    this.demo.fastParam = this.doom.fastParam
+    this.demo.noMonsters = this.doom.noMonsters
+    this.demo.consolePlayer = this.consolePlayer
 
-    demoP[demoPtr++] = this.vanillaVersionCode()
-    demoP[demoPtr++] = this.gameSkill
-    demoP[demoPtr++] = this.gameEpisode
-    demoP[demoPtr++] = this.gameMap
-    demoP[demoPtr++] = this.deathMatch
-    demoP[demoPtr++] = this.doom.respawnParam ? 1 : 0
-    demoP[demoPtr++] = this.doom.fastParam ? 1 : 0
-    demoP[demoPtr++] = this.doom.noMonsters ? 1 : 0
-    demoP[demoPtr++] = this.consolePlayer
+    this.demo.playerInGame = [ ...this.playerInGame ]
 
-    for (let i = 0; i < MAX_PLAYERS; ++i) {
-      demoP[demoPtr++] = this.playerInGame[i] ? 1 : 0
-    }
-
-    this.demoPtr = demoPtr
+    this.demo.beginRecording()
   }
 
   private vanillaVersionCode(): number {
@@ -1248,49 +1219,32 @@ export class Game {
   private doPlayDemo(): void {
     this.gameAction = GameAction.Nothing
 
-    const demoP = new Uint8Array(this.wad.cacheLumpName(this.defDemoName))
-    let demoPtr = 0
+    this.demo = this.wad.cacheLumpName(this.defDemoName, Demo)
 
-    const demoVersion = demoP[demoPtr++]
-    let oldDemo = false
-    if (demoVersion >= 0 && demoVersion <= 4) {
-      oldDemo = true
-      demoPtr--
-    }
+    this.demo.beginPlaying()
 
-    if (demoVersion !== this.vanillaVersionCode() &&
-      !(this.doom.gameVersion <= GameVersion.Doom12 && oldDemo)
+    if (this.demo.version !== this.vanillaVersionCode() &&
+      !(this.doom.gameVersion <= GameVersion.Doom12 && this.demo.old)
     ) {
-      throw `Demo is from a different game version (read ${demoVersion}, should be ${this.vanillaVersionCode()})`
+      throw `Demo is from a different game version (read ${this.demo.version}, should be ${this.vanillaVersionCode()})`
     }
 
-    this.skill = demoP[demoPtr++]
-    this.episode = demoP[demoPtr++]
-    this.map = demoP[demoPtr++]
-    if (!oldDemo) {
-      this.deathMatch = demoP[demoPtr++]
-      this.doom.respawnParam = !!demoP[demoPtr++]
-      this.doom.fastParam = !!demoP[demoPtr++]
-      this.doom.noMonsters = !!demoP[demoPtr++]
-      this.consolePlayer = demoP[demoPtr++]
-    } else {
-      this.deathMatch = 0
-      this.doom.respawnParam = false
-      this.doom.fastParam = false
-      this.doom.noMonsters = false
-      this.consolePlayer = 0
-    }
+    this.skill = this.demo.skill
+    this.episode = this.demo.episode
+    this.map = this.demo.map
+
+    this.deathMatch = this.demo.deathMatch
+    this.doom.respawnParam = this.demo.respawnParam
+    this.doom.fastParam = this.demo.fastParam
+    this.doom.noMonsters = this.demo.noMonsters
+    this.consolePlayer = this.demo.consolePlayer
 
     for (let i = 0; i < MAX_PLAYERS; ++i) {
-      this.playerInGame[i] = !!demoP[demoPtr++]
-    }
-    if (this.playerInGame[1]) {
-      this.netGame = true
-      this.netDemo = true
+      this.playerInGame[i] = this.demo.playerInGame[i]
     }
 
-    this.demoP = demoP
-    this.demoPtr = demoPtr
+    this.netGame = this.demo.netGame
+    this.netDemo = this.demo.netDemo
 
     this.initNew(this.skill, this.episode, this.map)
 
@@ -1334,10 +1288,9 @@ export class Game {
     }
 
     if (this.demoRecording) {
-      this.demoP[this.demoPtr++] = DEMO_MARKER
       fs.write(
         this.demoName,
-        this.demoP.buffer.slice(0, this.demoPtr),
+        this.demo.archive(),
       )
 
       this.demoRecording = false
