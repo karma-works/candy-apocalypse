@@ -81,6 +81,10 @@ class FS {
     return await this.table.put(body, name)
   }
 
+  async rm(name: string): Promise<void> {
+    this.table.delete(name)
+  }
+
   async ls(): Promise<readonly FileInfo[]> {
     const collection = this.table.toCollection()
 
