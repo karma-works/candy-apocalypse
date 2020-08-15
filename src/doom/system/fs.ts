@@ -16,6 +16,7 @@ type DbFile = (BufferFile | UriFile) & {
 export interface FileInfo {
   name: string
   size: number
+  buffer: ArrayBuffer | undefined
 }
 
 class FS {
@@ -93,6 +94,7 @@ class FS {
       list.push({
         name: primaryKey,
         size: f.size || 0,
+        buffer: f.type === 'buffer' ? f.buffer : undefined,
       })
     })
 

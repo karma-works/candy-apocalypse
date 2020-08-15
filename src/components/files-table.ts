@@ -1,11 +1,12 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { FileInfo, fs } from '@/doom/system/fs'
+import { LumpType, guessLumpType } from '@/doom/wad/lump'
 import { DataTableHeader } from 'vuetify'
 import { Params } from '@/doom/doom/params'
 
 const prefixes = [ 'B', 'kB', 'MB', 'GB' ]
 
-type FileType = 'wad' | 'save' | 'unknown'
+type FileType = 'wad' | 'save' | 'unknown' | LumpType
 
 @Component
 export default class FilesTable extends Vue {
@@ -44,10 +45,19 @@ export default class FilesTable extends Vue {
   }
 
   getType(item: FileInfo): FileType {
-    if (item.name.toLowerCase().endsWith('.wad')) {
+    let fileName = item.name.toLowerCase()
+    const dot = fileName.lastIndexOf('.')
+    const ext = fileName.substr(dot + 1)
+    fileName = fileName.substr(0, dot)
+
+    if (ext.endsWith('wad')) {
       return 'wad'
-    } else if (item.name.toLowerCase().endsWith('.dsg')) {
+    } else if (ext.endsWith('dsg')) {
       return 'save'
+    } else if (ext.endsWith('lmp') &&
+      item.buffer !== undefined
+    ) {
+      return guessLumpType(item.buffer, fileName)
     }
     return 'unknown'
   }
@@ -57,18 +67,23 @@ export default class FilesTable extends Vue {
       return 'WAD'
     case 'save':
       return 'Save game'
+    case 'demo':
+      return 'Demo'
     default:
       return 'Unknown'
     }
   }
 
   canPlay(item: FileInfo): boolean {
-    return this.getType(item) === 'wad'
+    const playable: FileType[] = [ 'wad', 'demo' ]
+    return playable.includes(this.getType(item))
   }
   getParam(item: FileInfo): Partial<Params> {
     switch (this.getType(item)) {
     case 'wad':
       return { wad: item.name }
+    case 'demo':
+      return { playDemo: item.name }
     default:
       return {}
     }
