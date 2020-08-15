@@ -167,8 +167,8 @@ export class Sight {
   //
   private crossSubSector(num: number) {
     if (RANGE_CHECK) {
-      if (num >= this.play.numSubSectors) {
-        throw `P_CrossSubsector: ss ${num} with numss = ${this.play.numSubSectors}`
+      if (num >= this.play.subSectors.length) {
+        throw `P_CrossSubsector: ss ${num} with numss = ${this.play.subSectors.length}`
       }
     }
 

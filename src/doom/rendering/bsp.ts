@@ -448,8 +448,8 @@ export class BSP {
   private subSector(num: number) {
 
     if (RANGE_CHECK) {
-      if (num >= this.play.numSubSectors) {
-        throw `R_Subsector: ss ${num} with numss = ${this.play.numSubSectors}`
+      if (num >= this.play.subSectors.length) {
+        throw `R_Subsector: ss ${num} with numss = ${this.play.subSectors.length}`
       }
     }
 

@@ -1,5 +1,5 @@
 import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
-import { MapLineDef, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef, MapSubSector } from '../doom/data'
+import { MapLineDef, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef } from '../doom/data'
 import { MapThing, ThingArray } from '../level/thing-array'
 import { AutoMap } from '../auto-map/auto-map'
 import { BBox } from '../misc/bbox'
@@ -32,6 +32,7 @@ import { Side } from '../rendering/defs/side'
 import { Sight } from './sight'
 import { Special } from './special'
 import { SubSector } from '../rendering/defs/sub-sector'
+import { SubSectorArray } from '../level/sub-sector-array'
 import { Switch } from './switch'
 import { Teleport } from './teleport'
 import { Tick } from './tick'
@@ -53,7 +54,6 @@ export class Play {
   numSectors = -1
   sectors = new Array<Sector>()
 
-  numSubSectors = -1
   subSectors = new Array<SubSector>()
 
   numNodes = -1
@@ -160,20 +160,8 @@ export class Play {
   // P_LoadSubsectors
   //
   private loadSubSectors(lump: number): void {
-    this.numSubSectors = this.wad.lumpLength(lump) / MapSubSector.sizeOf
-    this.subSectors = new Array(this.numSubSectors)
-    const data = this.wad.cacheLumpNum(lump)
-
-    let ms: MapSubSector
-    let msPtr = 0
-    for (let i = 0; i < this.numSubSectors; ++i, msPtr += MapSubSector.sizeOf) {
-      ms = new MapSubSector(data.slice(msPtr))
-      this.subSectors[i] = {
-        numLines: ms.numSegs,
-        firstLine: ms.firstSeg,
-        sector: null,
-      }
-    }
+    const data = this.wad.cacheLumpNum(lump, SubSectorArray)
+    this.subSectors = data.getSubSectors()
   }
 
 
@@ -347,7 +335,7 @@ export class Play {
     let ss: SubSector
     let ssPtr = 0
     let seg : Seg
-    for (i = 0; i < this.numSubSectors; ++i, ++ssPtr) {
+    for (i = 0; i < this.subSectors.length; ++i, ++ssPtr) {
       ss = this.subSectors[ssPtr]
       seg = this.segs[ss.firstLine]
       ss.sector = seg.sideDef.sector
