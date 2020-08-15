@@ -432,13 +432,13 @@ export class Rendering {
   //
   pointInSubSector(x: number, y: number): SubSector {
     // single subsector is a special case
-    if (!this.play.numNodes) {
+    if (!this.play.nodes.length) {
       return this.play.subSectors[0]
     }
 
     let node: Node
     let side: 0 | 1
-    let nodeNum = this.play.numNodes - 1
+    let nodeNum = this.play.nodes.length - 1
     while (!(nodeNum & NF_SUBSECTOR)) {
       node = this.play.nodes[nodeNum]
       side = node.pointOnSide(x, y)
@@ -499,7 +499,7 @@ export class Rendering {
     this.net.netUpdate()
 
     // The head node is the last node output.
-    this.bsp.renderBSPNode(this.play.numNodes - 1)
+    this.bsp.renderBSPNode(this.play.nodes.length - 1)
 
     // Check for new console commands.
     this.net.netUpdate()

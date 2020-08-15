@@ -1,5 +1,5 @@
 import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
-import { MapLineDef, MapLumpOrder, MapNode, MapSideDef } from '../doom/data'
+import { MapLineDef, MapLumpOrder, MapSideDef } from '../doom/data'
 import { MapThing, ThingArray } from '../level/thing-array'
 import { AutoMap } from '../auto-map/auto-map'
 import { BBox } from '../misc/bbox'
@@ -22,6 +22,7 @@ import { MObjHandler } from './mobj-handler'
 import { Map } from './map'
 import { MapUtils } from './map-utils'
 import { Node } from '../rendering/bsp/node'
+import { NodeArray } from '../level/node-array'
 import { PSprite } from './p-sprite'
 import { Plats } from './plats'
 import { Rendering } from '../rendering/rendering'
@@ -56,7 +57,6 @@ export class Play {
 
   subSectors = new Array<SubSector>()
 
-  numNodes = -1
   nodes = new Array<Node>()
 
   numLines = -1
@@ -169,17 +169,8 @@ export class Play {
   // P_LoadNodes
   //
   private loadNodes(lump: number): void {
-    this.numNodes = this.wad.lumpLength(lump) / MapNode.sizeOf
-    this.nodes = new Array(this.numNodes)
-    const data = this.wad.cacheLumpNum(lump)
-
-    let mn: MapNode
-    let mnPtr = 0
-    for (let i = 0; i < this.numNodes; ++i, mnPtr += MapNode.sizeOf) {
-      mn = new MapNode(data.slice(mnPtr))
-
-      this.nodes[i] = new Node(mn)
-    }
+    const data = this.wad.cacheLumpNum(lump, NodeArray)
+    this.nodes = data.getNodes()
   }
 
   //

@@ -391,6 +391,6 @@ export class Sight {
     this.sTrace.dY = t2.y - t1.y
 
     // the head node is the last node output
-    return this.crossBSPNode(this.play.numNodes - 1)
+    return this.crossBSPNode(this.play.nodes.length - 1)
   }
 }
