@@ -10,6 +10,7 @@ export const SCREEN_MUL = 1
 
 export const SCREENWIDTH = 320
 export const SCREENHEIGHT = 200
+export const INTENDED_SCREENHEIGHT = 240
 
 // The maximum number of players, multiplayer/networking.
 export const MAX_PLAYERS = 4
