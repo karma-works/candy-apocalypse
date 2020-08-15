@@ -6,6 +6,7 @@ import { Line, Point, cheatPlayerArrow, playerArrow, thinTriangleGuy } from './m
 import { MAP_BLOCK_UNITS, PLAYER_RADIUS } from '../play/local'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
+import { LumpReader } from '../wad/lump-reader'
 import { MObj } from '../play/mobj/mobj'
 import { MapLineFlag } from '../doom/data'
 import { Patch } from '../rendering/defs/patch'
@@ -14,7 +15,6 @@ import { Player } from '../doom/player'
 import { StatusBar } from '../status/stuff'
 import { Strings } from '../translation/strings'
 import { Video } from '../rendering/video'
-import { Wad } from '../wad/wad'
 
 export const AM_MSGHEADER = ('a'.charCodeAt(0) << 24) + ('m'.charCodeAt(0) << 16)
 export const AM_MSGENTERED = AM_MSGHEADER | 'e'.charCodeAt(0) << 8
@@ -188,7 +188,7 @@ export class AutoMap {
   private get strings(): Strings {
     return this.doom.strings
   }
-  private get wad(): Wad {
+  private get wad(): LumpReader {
     return this.doom.wad
   }
 

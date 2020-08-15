@@ -12,16 +12,16 @@ import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { Video as IVideo } from '../interfaces/video'
 import { Inter } from '../play/inter'
+import { LumpReader } from '../wad/lump-reader'
 import { MultiIcon } from './multi-icon'
 import { NumberWidget } from './number-widget'
-import { Palette } from '../interfaces/palette'
+import { Palettes } from '../interfaces/palette'
 import { Patch } from '../rendering/defs/patch'
 import { PercentWidget } from './percent-widget'
 import { Video as RVideo } from '../rendering/video'
 import { Rendering } from '../rendering/rendering'
 import { State } from './states'
 import { Strings } from '../translation/strings'
-import { Wad } from '../wad/wad'
 import { pointToAngle } from '../misc/angle'
 import { random } from '../misc/random'
 import { weaponInfo } from '../doom/items'
@@ -262,7 +262,7 @@ export class StatusBar {
   private get strings(): Strings {
     return this.doom.strings
   }
-  public get wad(): Wad {
+  public get wad(): LumpReader {
     return this.doom.wad
   }
   private get game(): Game {
@@ -701,7 +701,7 @@ export class StatusBar {
   }
 
   private palette = 0
-  private palettes = new Array<Palette>()
+  private playpal = new Palettes()
 
   // 1000
   private doPaletteStuff(): void {
@@ -750,7 +750,7 @@ export class StatusBar {
     if (palette !== this.palette) {
       this.palette = palette
 
-      this.iVideo.uploadNewPalette(this.palettes[palette])
+      this.iVideo.uploadNewPalette(this.playpal.p[palette])
     }
   }
 
@@ -904,13 +904,7 @@ export class StatusBar {
 
   // 1201
   private loadData(): void {
-    const paletteLump = this.wad.getNumForName('PLAYPAL')
-    const fullPalette = this.wad.cacheLumpNum(paletteLump)
-    const size = this.wad.lumpLength(paletteLump) / (256 * 3)
-
-    for (let i = 0; i < size; ++i) {
-      this.palettes[i] = new Palette(fullPalette.slice(i * 256 * 3))
-    }
+    this.playpal = this.wad.cacheLumpName('PLAYPAL', Palettes)
     this.loadGraphics()
   }
 
@@ -1125,7 +1119,7 @@ export class StatusBar {
       return
     }
 
-    this.iVideo.uploadNewPalette(this.palettes[0])
+    this.iVideo.uploadNewPalette(this.playpal.p[0])
   }
 
   // 1466

@@ -2,13 +2,13 @@ import { MenuItem, MenuStruct } from './typedefs'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { GameMode } from '../doom/mode'
+import { LumpReader } from '../wad/lump-reader'
 import { MainMenu } from './main'
 import { Menu } from './menu'
 import { NewGameMenu } from './new-game'
 import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
 import { Strings } from '../translation/strings'
-import { Wad } from '../wad/wad'
 
 const enum Episodes {
   Ep1,
@@ -71,7 +71,7 @@ export class EpisodeMenu implements MenuStruct {
   public get strings(): Strings {
     return this.prevMenu.strings
   }
-  public get wad(): Wad {
+  public get wad(): LumpReader {
     return this.prevMenu.wad
   }
 

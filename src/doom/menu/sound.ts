@@ -1,10 +1,10 @@
 import { LINEHEIGHT, Menu } from './menu'
 import { MenuItem, MenuStruct } from './typedefs'
 import { Sound as DSound } from '../doom/sound'
+import { LumpReader } from '../wad/lump-reader'
 import { OptionsMenu } from './options'
 import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
-import { Wad } from '../wad/wad'
 
 export const enum Sound {
   SfxVol,
@@ -51,7 +51,7 @@ export class SoundMenu implements MenuStruct {
   private get rVideo(): RVideo {
     return this.prevMenu.rVideo
   }
-  private get wad(): Wad {
+  private get wad(): LumpReader {
     return this.prevMenu.wad
   }
 

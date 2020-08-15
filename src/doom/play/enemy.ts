@@ -26,7 +26,7 @@ import { Play } from './setup'
 import { Player } from '../doom/player'
 import { Rendering } from '../rendering/rendering'
 import { Sector } from '../rendering/defs/sector'
-import { Sfx } from '../doom/sounds/sfx'
+import { SfxName } from '../doom/sounds/sfx-name'
 import { Sight } from './sight'
 import { StateNum } from '../doom/info/state-num'
 import { Switch } from './switch'
@@ -604,14 +604,14 @@ export class Enemy {
       let sound: number
 
       switch (actor.info.seeSound) {
-      case Sfx.Posit1:
-      case Sfx.Posit2:
-      case Sfx.Posit3:
-        sound = Sfx.Posit1 + random.pRandom() % 3
+      case SfxName.Posit1:
+      case SfxName.Posit2:
+      case SfxName.Posit3:
+        sound = SfxName.Posit1 + random.pRandom() % 3
         break
-      case Sfx.Bgsit1:
-      case Sfx.Bgsit2:
-        sound = Sfx.Bgsit1 + random.pRandom() % 2
+      case SfxName.Bgsit1:
+      case SfxName.Bgsit2:
+        sound = SfxName.Bgsit1 + random.pRandom() % 2
         break
       default:
         sound = actor.info.seeSound
@@ -764,7 +764,7 @@ export class Enemy {
       return
     }
 
-    this.dSound.startSound(actor, Sfx.Pistol)
+    this.dSound.startSound(actor, SfxName.Pistol)
     this.faceTarget(actor)
     let angle = actor.angle >> 0
     const slope = this.map.aimLineAttack(actor, angle >>> 0, MISSILE_RANGE)
@@ -779,7 +779,7 @@ export class Enemy {
       return
     }
 
-    this.dSound.startSound(actor, Sfx.Shotgn)
+    this.dSound.startSound(actor, SfxName.Shotgn)
     this.faceTarget(actor)
     const bAngle = actor.angle >> 0
     const slope = this.map.aimLineAttack(actor, bAngle >>> 0, MISSILE_RANGE)
@@ -861,7 +861,7 @@ export class Enemy {
     this.faceTarget(actor)
 
     if (this.checkMeleeRange(actor)) {
-      this.dSound.startSound(actor, Sfx.Claw)
+      this.dSound.startSound(actor, SfxName.Claw)
       const damage = (random.pRandom() % 8 + 1) * 3
       this.inter.damageMObj(actor.target, actor, actor, damage)
       return
@@ -924,7 +924,7 @@ export class Enemy {
     }
 
     if (this.checkMeleeRange(actor)) {
-      this.dSound.startSound(actor, Sfx.Claw)
+      this.dSound.startSound(actor, SfxName.Claw)
       const damage = (random.pRandom() % 8 + 1) * 10
       this.inter.damageMObj(actor.target, actor, actor, damage)
       return
@@ -1024,7 +1024,7 @@ export class Enemy {
       return
     }
     this.faceTarget(actor)
-    this.dSound.startSound(actor, Sfx.Skeswg)
+    this.dSound.startSound(actor, SfxName.Skeswg)
   }
 
   skelFist(actor: MObj): void {
@@ -1036,7 +1036,7 @@ export class Enemy {
 
     if (this.checkMeleeRange(actor)) {
       const damage = (random.pRandom() % 10 + 1) * 6
-      this.dSound.startSound(actor, Sfx.Skepch)
+      this.dSound.startSound(actor, SfxName.Skepch)
       this.inter.damageMObj(actor.target, actor, actor, damage)
     }
   }
@@ -1124,7 +1124,7 @@ export class Enemy {
             if (this.corpseHit === null) {
               throw 'this.corpseHit = null'
             }
-            this.dSound.startSound(this.corpseHit, Sfx.Slop)
+            this.dSound.startSound(this.corpseHit, SfxName.Slop)
             info = this.corpseHit.info
 
             this.mObjHandler.setMObjState(this.corpseHit, info.raiseState)
@@ -1147,7 +1147,7 @@ export class Enemy {
   // A_VileStart
   //
   vileStart(actor: MObj): void {
-    this.dSound.startSound(actor, Sfx.Vilatk)
+    this.dSound.startSound(actor, SfxName.Vilatk)
   }
 
   //
@@ -1155,12 +1155,12 @@ export class Enemy {
   // Keep fire in front of player unless out of sight
   //
   startFire(actor: MObj): void {
-    this.dSound.startSound(actor, Sfx.Flamst)
+    this.dSound.startSound(actor, SfxName.Flamst)
     this.fire(actor)
   }
 
   fireCrackle(actor: MObj): void {
-    this.dSound.startSound(actor, Sfx.Flame)
+    this.dSound.startSound(actor, SfxName.Flame)
     this.fire(actor)
   }
 
@@ -1223,7 +1223,7 @@ export class Enemy {
       return
     }
 
-    this.dSound.startSound(actor, Sfx.Barexp)
+    this.dSound.startSound(actor, SfxName.Barexp)
     this.inter.damageMObj(actor.target, actor, actor, 20)
     actor.target.momZ = 1000 * FRACUNIT / actor.target.info.mass
 
@@ -1250,7 +1250,7 @@ export class Enemy {
 
   fatRaise(actor: MObj): void {
     this.faceTarget(actor)
-    this.dSound.startSound(actor, Sfx.Manatk)
+    this.dSound.startSound(actor, SfxName.Manatk)
   }
 
   fatAttack1(actor: MObj): void {
@@ -1410,14 +1410,14 @@ export class Enemy {
       switch (actor.info.deathSound) {
       case 0:
         return
-      case Sfx.Podth1:
-      case Sfx.Podth2:
-      case Sfx.Podth3:
-        sound = Sfx.Podth1 + random.pRandom() % 3
+      case SfxName.Podth1:
+      case SfxName.Podth2:
+      case SfxName.Podth3:
+        sound = SfxName.Podth1 + random.pRandom() % 3
         break
-      case Sfx.Bgdth1:
-      case Sfx.Bgdth2:
-        sound = Sfx.Bgdth1 + random.pRandom() % 2
+      case SfxName.Bgdth1:
+      case SfxName.Bgdth2:
+        sound = SfxName.Bgdth1 + random.pRandom() % 2
         break
       default:
         sound = actor.info.deathSound
@@ -1436,7 +1436,7 @@ export class Enemy {
   }
 
   xScream(actor: MObj): void {
-    this.dSound.startSound(actor, Sfx.Slop)
+    this.dSound.startSound(actor, SfxName.Slop)
   }
 
   pain(actor: MObj): void {
@@ -1615,30 +1615,30 @@ export class Enemy {
   }
 
   hoof(mo: MObj): void {
-    this.dSound.startSound(mo, Sfx.Hoof)
+    this.dSound.startSound(mo, SfxName.Hoof)
     this.chase(mo)
   }
 
   metal(mo: MObj): void {
-    this.dSound.startSound(mo, Sfx.Metal)
+    this.dSound.startSound(mo, SfxName.Metal)
     this.chase(mo)
   }
 
   babyMetal(mo: MObj): void {
-    this.dSound.startSound(mo, Sfx.Bspwlk)
+    this.dSound.startSound(mo, SfxName.Bspwlk)
     this.chase(mo)
   }
 
   openShotgun2(player: Player): void {
-    this.dSound.startSound(player.mo, Sfx.Dbopn)
+    this.dSound.startSound(player.mo, SfxName.Dbopn)
   }
 
   loadShotgun2(player: Player): void {
-    this.dSound.startSound(player.mo, Sfx.Dbload)
+    this.dSound.startSound(player.mo, SfxName.Dbload)
   }
 
   closeShotgun2(player: Player): void {
-    this.dSound.startSound(player.mo, Sfx.Dbcls)
+    this.dSound.startSound(player.mo, SfxName.Dbcls)
     this.pSprite.reFire(player)
   }
 
@@ -1669,11 +1669,11 @@ export class Enemy {
         this.numBrainTargets++
       }
     }
-    this.dSound.startSound(null, Sfx.Bossit)
+    this.dSound.startSound(null, SfxName.Bossit)
   }
 
   brainPain(): void {
-    this.dSound.startSound(null, Sfx.Bospn)
+    this.dSound.startSound(null, SfxName.Bospn)
   }
 
   brainScream(mo: MObj): void {
@@ -1698,7 +1698,7 @@ export class Enemy {
       }
     }
 
-    this.dSound.startSound(mo, Sfx.Bosdth)
+    this.dSound.startSound(mo, SfxName.Bosdth)
   }
 
   brainExplode(mo: MObj): void {
@@ -1737,12 +1737,12 @@ export class Enemy {
     newMObj.reactionTime = ((targ.y - mo.y) / newMObj.momY >> 0) /
       newMObj.state.tics >> 0
 
-    this.dSound.startSound(null, Sfx.Bospit)
+    this.dSound.startSound(null, SfxName.Bospit)
   }
 
   // travelling cube sound
   spawnSound(mo: MObj): void {
-    this.dSound.startSound(mo, Sfx.Boscub)
+    this.dSound.startSound(mo, SfxName.Boscub)
     this.spawnFly(mo)
   }
 
@@ -1760,7 +1760,7 @@ export class Enemy {
 
     // First spawn teleport fog.
     this.mObjHandler.spawnMObj(targ.x, targ.y, targ.z, MObjType.Spawnfire)
-    this.dSound.startSound(mo, Sfx.Telept)
+    this.dSound.startSound(mo, SfxName.Telept)
 
     // Randomly select monster to spawn.
     const r = random.pRandom()
@@ -1807,14 +1807,14 @@ export class Enemy {
 
   playerScream(mo: MObj): void {
     // Default death sound.
-    let sound = Sfx.Pldeth
+    let sound = SfxName.Pldeth
 
     if (this.doom.gameMode === GameMode.Commercial &&
       mo.health < -50
     ) {
       // IF THE PLAYER DIES
       // LESS THAN -50% WITHOUT GIBBING
-      sound = Sfx.Pdiehi
+      sound = SfxName.Pdiehi
     }
 
     this.dSound.startSound(mo, sound)

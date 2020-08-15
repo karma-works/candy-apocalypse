@@ -19,7 +19,7 @@ import { Play } from './setup'
 import { Player } from '../doom/player'
 import { Rendering } from '../rendering/rendering'
 import { Sector } from '../rendering/defs/sector'
-import { Sfx } from '../doom/sounds/sfx'
+import { SfxName } from '../doom/sounds/sfx-name'
 import { Sight } from './sight'
 import { SlopeType } from '../rendering/defs/slope-type'
 import { Special } from './special'
@@ -1141,7 +1141,7 @@ export class Map {
     if (!inter.d.special) {
       this.mapUtils.lineOpening(inter.d)
       if (this.mapUtils.openRange <= 0) {
-        this.dSound.startSound(this.useThing, Sfx.Noway)
+        this.dSound.startSound(this.useThing, SfxName.Noway)
         // can't use through a wall
         return false
       }

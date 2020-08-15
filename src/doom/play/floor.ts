@@ -11,7 +11,7 @@ import { MapLineFlag } from '../doom/data'
 import { Play } from './setup'
 import { Result } from './specials/result'
 import { Sector } from '../rendering/defs/sector'
-import { Sfx } from '../doom/sounds/sfx'
+import { SfxName } from '../doom/sounds/sfx-name'
 import { Side } from '../rendering/defs/side'
 import { Special } from './special'
 import { StairType } from './floor/stair-type'
@@ -187,7 +187,7 @@ export class Floor {
     )
 
     if (!(this.tick.levelTime & 7)) {
-      this.dSound.startSound(floor.sector.soundOrg, Sfx.Stnmov)
+      this.dSound.startSound(floor.sector.soundOrg, SfxName.Stnmov)
     }
 
     if (res === Result.PastDest) {
@@ -208,7 +208,7 @@ export class Floor {
       }
       this.tick.removeThinker(floor)
 
-      this.dSound.startSound(floor.sector.soundOrg, Sfx.Pstop)
+      this.dSound.startSound(floor.sector.soundOrg, SfxName.Pstop)
     }
   }
 

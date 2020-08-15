@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <StartupOptions :value="params" @input="restartDoom($event)"/>
+    <StartupOptions :value="$route.query" @input="restartDoom($event)"/>
   </v-card>
 </template>
 
@@ -16,13 +16,9 @@ import { Params } from '@/doom/doom/params';
   },
 })
 export default class extends Vue {
-  params: Partial<Params> = {}
-
   @Inject('doomGetter') doomGetter!: () => Doom
 
   restartDoom(p: Partial<Params>): void {
-    this.params = p
-
     const d = this.doomGetter()
 
     d.restart(p)

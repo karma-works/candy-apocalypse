@@ -6,7 +6,7 @@ import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { Sound as ISound } from '../interfaces/sound'
 import { MObj } from '../play/mobj/mobj'
-import { Sfx } from './sounds/sfx'
+import { SfxName } from './sounds/sfx-name'
 import { pointToAngle } from '../misc/angle'
 import { random } from '../misc/random'
 
@@ -88,7 +88,7 @@ export class Sound {
     this.musicPaused = false
 
     // Note that sounds have not been cached (yet).
-    for (let i = 1; i < Sfx.NUM_SFX; ++i) {
+    for (let i = 1; i < SfxName.NUM_SFX; ++i) {
       sfxInfos[i].lumpNum = sfxInfos[i].usefulness = -1
     }
   }
@@ -110,9 +110,9 @@ export class Sound {
     // TODO: music
   }
 
-  private startSoundAtVolume(origin: MObj | null, sfxId: Sfx, volume: number): void {
+  private startSoundAtVolume(origin: MObj | null, sfxId: SfxName, volume: number): void {
     // check for bogus sound #
-    if (sfxId < 1 || sfxId > Sfx.NUM_SFX) {
+    if (sfxId < 1 || sfxId > SfxName.NUM_SFX) {
       throw `Bad sfx #: ${sfxId}`
     }
 
@@ -168,8 +168,8 @@ export class Sound {
     }
 
     // hacks to vary the sfx pitches
-    if (sfxId >= Sfx.Sawup &&
-      sfxId <= Sfx.Sawhit
+    if (sfxId >= SfxName.Sawup &&
+      sfxId <= SfxName.Sawhit
     ) {
       pitch += 8 - (random.mRandom() & 15)
 
@@ -178,8 +178,8 @@ export class Sound {
       } else if (pitch > 255) {
         pitch = 255
       }
-    } else if (sfxId !== Sfx.Itemup &&
-      sfxId !== Sfx.Tink
+    } else if (sfxId !== SfxName.Itemup &&
+      sfxId !== SfxName.Tink
     ) {
       pitch += 16 - (random.mRandom() & 31)
 
@@ -225,7 +225,7 @@ export class Sound {
     )
   }
 
-  startSound(origin: MObj | null, sfxId: Sfx): void {
+  startSound(origin: MObj | null, sfxId: SfxName): void {
     this.startSoundAtVolume(origin, sfxId, this.sfxVolume)
   }
 

@@ -1,9 +1,9 @@
 import { MenuItem, MenuStruct } from './typedefs'
+import { LumpReader } from '../wad/lump-reader'
 import { MainMenu } from './main'
 import { Menu } from './menu'
 import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
-import { Wad } from '../wad/wad'
 
 export abstract class AbstractReadThisMenu implements MenuStruct {
   numItems = 1
@@ -30,7 +30,7 @@ export abstract class AbstractReadThisMenu implements MenuStruct {
   public get rVideo(): RVideo {
     return this.main.rVideo
   }
-  public get wad(): Wad {
+  public get wad(): LumpReader {
     return this.main.wad
   }
 

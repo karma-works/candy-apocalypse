@@ -9,6 +9,7 @@ import { Column } from './defs/column'
 import { Data } from './data'
 import { Doom } from '../doom'
 import { Draw } from './draw'
+import { LumpReader } from '../wad/lump-reader'
 import { MObj } from '../play/mobj/mobj'
 import { MObjFlag } from '../play/mobj/mobj-flag'
 import { Patch } from './defs/patch'
@@ -18,7 +19,6 @@ import { Segs } from './segs'
 import { SpriteDef } from './things/sprite-def'
 import { SpriteFrame } from './things/sprite-frame'
 import { VisSprite } from './things/vis-sprite'
-import { Wad } from '../wad/wad'
 
 export const MINZ = FRACUNIT*4
 const BASE_Y_CENTER = 100
@@ -41,7 +41,7 @@ export class Things {
   private get segs(): Segs {
     return this.rendering.segsHandler
   }
-  private get wad(): Wad {
+  private get wad(): LumpReader {
     return this.rendering.wad
   }
   constructor(private rendering: Rendering) { }

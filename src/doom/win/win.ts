@@ -6,10 +6,10 @@ import { ButtonCode } from '../doom/event'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
+import { LumpReader } from '../wad/lump-reader'
 import { Patch } from '../rendering/defs/patch'
-import { Sfx } from '../doom/sounds/sfx'
+import { SfxName } from '../doom/sounds/sfx-name'
 import { Video } from '../rendering/video'
-import { Wad } from '../wad/wad'
 import { lNodes } from './point'
 import { random } from '../misc/random'
 
@@ -152,7 +152,7 @@ export class Win {
   private get rVideo(): Video {
     return this.doom.rendering.video
   }
-  private get wad(): Wad {
+  private get wad(): LumpReader {
     return this.doom.wad
   }
 
@@ -549,7 +549,7 @@ export class Win {
       this.cntSecret[0] = this.players[this.me].sSecret * 100 / this.wbs.maxSecret >> 0
       this.cntTime = this.players[this.me].sTime / TICRATE >> 0
       this.cntPar = this.wbs.parTime / TICRATE >> 0
-      this.dSound.startSound(null, Sfx.Barexp)
+      this.dSound.startSound(null, SfxName.Barexp)
       this.spState = 10
     }
 
@@ -557,43 +557,43 @@ export class Win {
       this.cntKills[0] += 2
 
       if (!(this.bCnt & 3)) {
-        this.dSound.startSound(null, Sfx.Pistol)
+        this.dSound.startSound(null, SfxName.Pistol)
       }
 
       if (this.cntKills[0] >= this.players[this.me].sKills * 100 / this.wbs.maxKills >> 0) {
         this.cntKills[0] = this.players[this.me].sKills * 100 / this.wbs.maxKills >> 0
-        this.dSound.startSound(null, Sfx.Barexp)
+        this.dSound.startSound(null, SfxName.Barexp)
         this.spState++
       }
     } else if (this.spState === 4) {
       this.cntItems[0] += 2
 
       if (!(this.bCnt & 3)) {
-        this.dSound.startSound(null, Sfx.Pistol)
+        this.dSound.startSound(null, SfxName.Pistol)
       }
 
       if (this.cntItems[0] >= this.players[this.me].sItems * 100 / this.wbs.maxItems >> 0) {
         this.cntItems[0] = this.players[this.me].sItems * 100 / this.wbs.maxItems >> 0
-        this.dSound.startSound(null, Sfx.Barexp)
+        this.dSound.startSound(null, SfxName.Barexp)
         this.spState++
       }
     } else if (this.spState === 6) {
       this.cntSecret[0] += 2
 
       if (!(this.bCnt & 3)) {
-        this.dSound.startSound(null, Sfx.Pistol)
+        this.dSound.startSound(null, SfxName.Pistol)
       }
 
       if (this.cntSecret[0] >= this.players[this.me].sSecret * 100 / this.wbs.maxSecret >> 0) {
         this.cntSecret[0] = this.players[this.me].sSecret * 100 / this.wbs.maxSecret >> 0
-        this.dSound.startSound(null, Sfx.Barexp)
+        this.dSound.startSound(null, SfxName.Barexp)
         this.spState++
       }
     } else if (this.spState === 8) {
       this.cntTime += 3
 
       if (!(this.bCnt & 3)) {
-        this.dSound.startSound(null, Sfx.Pistol)
+        this.dSound.startSound(null, SfxName.Pistol)
       }
 
       if (this.cntTime >= this.players[this.me].sTime / TICRATE >> 0) {
@@ -606,13 +606,13 @@ export class Win {
         this.cntPar = this.wbs.parTime / TICRATE >> 0
 
         if (this.cntTime >= this.players[this.me].sTime / TICRATE >> 0) {
-          this.dSound.startSound(null, Sfx.Barexp)
+          this.dSound.startSound(null, SfxName.Barexp)
           this.spState++
         }
       }
     } else if (this.spState === 10) {
       if (this.accelerateStage) {
-        this.dSound.startSound(null, Sfx.Sgcock)
+        this.dSound.startSound(null, SfxName.Sgcock)
         if (this.doom.gameMode === GameMode.Commercial) {
           this.initNoState()
         } else {

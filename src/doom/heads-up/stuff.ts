@@ -6,12 +6,12 @@ import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { IText } from './i-text'
 import { Lib } from './lib'
+import { LumpReader } from '../wad/lump-reader'
 import { Patch } from '../rendering/defs/patch'
 import { Player } from '../doom/player'
 import { SText } from './s-text'
 import { Strings } from '../translation/strings'
 import { TextLine } from './text-line'
-import { Wad } from '../wad/wad'
 
 // the first font characters
 export const HU_FONTSTART = '!'.charCodeAt(0)
@@ -261,7 +261,7 @@ export class HeadsUp {
   private get strings(): Strings {
     return this.doom.strings
   }
-  private get wad(): Wad {
+  private get wad(): LumpReader {
     return this.doom.wad
   }
 

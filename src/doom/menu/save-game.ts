@@ -5,12 +5,12 @@ import { LINEHEIGHT, Menu } from './menu'
 import { MenuItem, MenuStruct } from './typedefs'
 import { tostring, toupper } from '../utils/c'
 import { Sound as DSound } from '../doom/sound'
+import { LumpReader } from '../wad/lump-reader'
 import { MainMenu } from './main'
 import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
-import { Sfx } from '../doom/sounds/sfx'
+import { SfxName } from '../doom/sounds/sfx-name'
 import { Strings } from '../translation/strings'
-import { Wad } from '../wad/wad'
 import { fs } from '../system/fs'
 
 export const enum Save {
@@ -77,7 +77,7 @@ export class LoadGameMenu implements MenuStruct {
   protected get strings(): Strings {
     return this.prevMenu.strings
   }
-  private get wad(): Wad {
+  private get wad(): LumpReader {
     return this.prevMenu.wad
   }
 
@@ -117,7 +117,7 @@ export class LoadGameMenu implements MenuStruct {
   private quickLoadResponse(choice: number): void {
     if (choice === 'y'.charCodeAt(0)) {
       this.select(this.menu.quickSaveSlot)
-      this.dSound.startSound(null, Sfx.Swtchx)
+      this.dSound.startSound(null, SfxName.Swtchx)
     }
   }
 
@@ -228,13 +228,13 @@ export class SaveGameMenu extends LoadGameMenu {
   private quickSaveResponse(ch: number): void {
     if (ch === 'y'.charCodeAt(0)) {
       this.doSave(this.menu.quickSaveSlot)
-      this.dSound.startSound(null, Sfx.Swtchx)
+      this.dSound.startSound(null, SfxName.Swtchx)
     }
   }
 
   quickSave(): void {
     if (!this.game.userGame) {
-      this.dSound.startSound(null, Sfx.Oof)
+      this.dSound.startSound(null, SfxName.Oof)
       return
     }
     if (this.game.gameState !== GameState.Level) {
