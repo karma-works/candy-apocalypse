@@ -18,7 +18,7 @@ import { MapUtils } from './map-utils'
 import { PSprite } from './p-sprite'
 import { Play } from './setup'
 import { Rendering } from '../rendering/rendering'
-import { Sfx } from '../doom/sounds/sfx'
+import { SfxName } from '../doom/sounds/sfx-name'
 import { State } from '../doom/info/state'
 import { StateNum } from '../doom/info/state-num'
 import { StatusBar } from '../status/stuff'
@@ -327,7 +327,7 @@ export class MObjHandler {
           // after hitting the ground (hard),
           // and utter appropriate sound.
           mo.player.deltaViewHeight = mo.momZ >> 3
-          this.dSound.startSound(mo, Sfx.Oof)
+          this.dSound.startSound(mo, SfxName.Oof)
         }
         mo.momZ = 0
       }
@@ -528,7 +528,7 @@ export class MObjHandler {
       throw 'ss.sector = null'
     }
     let mo = this.spawnMObj(x, y, ss.sector.floorHeight, MObjType.Ifog)
-    this.dSound.startSound(mo, Sfx.Itmbk)
+    this.dSound.startSound(mo, SfxName.Itmbk)
 
     // find which type to spawn
     let i: number

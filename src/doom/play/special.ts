@@ -25,7 +25,7 @@ import { Plats } from './plats'
 import { Play } from './setup'
 import { PowerType } from '../global/doomdef'
 import { Sector } from '../rendering/defs/sector'
-import { Sfx } from '../doom/sounds/sfx'
+import { SfxName } from '../doom/sounds/sfx-name'
 import { Side } from '../rendering/defs/side'
 import { StairType } from './floor/stair-type'
 import { Switch } from './switch'
@@ -842,7 +842,7 @@ export class Special {
             break
           }
 
-          this.dSound.startSound(button.soundOrg, Sfx.Swtchn)
+          this.dSound.startSound(button.soundOrg, SfxName.Swtchn)
           button.reset()
         }
       }

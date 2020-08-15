@@ -9,7 +9,7 @@ import { MainMenu } from './main'
 import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
 import { Rendering } from '../rendering/rendering'
-import { Sfx } from '../doom/sounds/sfx'
+import { SfxName } from '../doom/sounds/sfx-name'
 import { SoundMenu } from './sound'
 import { Strings } from '../translation/strings'
 
@@ -141,7 +141,7 @@ export class OptionsMenu implements MenuStruct {
   }
   endGame(): void {
     if (!this.game.userGame) {
-      this.dSound.startSound(null, Sfx.Oof)
+      this.dSound.startSound(null, SfxName.Oof)
       return
     }
     if (this.game.netGame) {

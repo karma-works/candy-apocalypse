@@ -14,7 +14,7 @@ import { MObjHandler } from './mobj-handler'
 import { MObjType } from '../doom/info/mobj-type'
 import { PSprite } from './p-sprite'
 import { Play } from './setup'
-import { Sfx } from '../doom/sounds/sfx'
+import { SfxName } from '../doom/sounds/sfx-name'
 import { SpriteNum } from '../doom/info/sprite-num'
 import { StateNum } from '../doom/info/state-num'
 import { Strings } from '../translation/strings'
@@ -174,7 +174,7 @@ export class Inter {
       player.pendingWeapon = weapon
 
       if (player === this.game.players[this.game.consolePlayer]) {
-        this.dSound.startSound(null, Sfx.Wpnup)
+        this.dSound.startSound(null, SfxName.Wpnup)
         return false
       }
     }
@@ -306,7 +306,7 @@ export class Inter {
       return
     }
 
-    let sound = Sfx.Itemup
+    let sound = SfxName.Itemup
     const player = toucher.player
 
     // Dead thing touching.
@@ -372,7 +372,7 @@ export class Inter {
       player.mo.health = player.health
       player.message = this.strings.gotsuper
       if (this.doom.gameVersion > GameVersion.Doom12) {
-        sound = Sfx.Getpow
+        sound = SfxName.Getpow
       }
       break
 
@@ -385,7 +385,7 @@ export class Inter {
       this.giveArmor(player, 2)
       player.message = this.strings.gotmsphere
       if (this.doom.gameVersion > GameVersion.Doom12) {
-        sound = Sfx.Getpow
+        sound = SfxName.Getpow
       }
       break
 
@@ -479,7 +479,7 @@ export class Inter {
       }
       player.message = this.strings.gotinvul
       if (this.doom.gameVersion > GameVersion.Doom12) {
-        sound = Sfx.Getpow
+        sound = SfxName.Getpow
       }
       break
 
@@ -492,7 +492,7 @@ export class Inter {
         player.pendingWeapon = WeaponType.Fist
       }
       if (this.doom.gameVersion > GameVersion.Doom12) {
-        sound = Sfx.Getpow
+        sound = SfxName.Getpow
       }
       break
 
@@ -502,7 +502,7 @@ export class Inter {
       }
       player.message = this.strings.gotinvis
       if (this.doom.gameVersion > GameVersion.Doom12) {
-        sound = Sfx.Getpow
+        sound = SfxName.Getpow
       }
       break
 
@@ -512,7 +512,7 @@ export class Inter {
       }
       player.message = this.strings.gotsuit
       if (this.doom.gameVersion > GameVersion.Doom12) {
-        sound = Sfx.Getpow
+        sound = SfxName.Getpow
       }
       break
 
@@ -522,7 +522,7 @@ export class Inter {
       }
       player.message = this.strings.gotmap
       if (this.doom.gameVersion > GameVersion.Doom12) {
-        sound = Sfx.Getpow
+        sound = SfxName.Getpow
       }
       break
 
@@ -532,7 +532,7 @@ export class Inter {
       }
       player.message = this.strings.gotvisor
       if (this.doom.gameVersion > GameVersion.Doom12) {
-        sound = Sfx.Getpow
+        sound = SfxName.Getpow
       }
       break
 
@@ -618,7 +618,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotbfg9000
-      sound = Sfx.Wpnup
+      sound = SfxName.Wpnup
       break
 
     case SpriteNum.Mgun:
@@ -626,7 +626,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotchaingun
-      sound = Sfx.Wpnup
+      sound = SfxName.Wpnup
       break
 
     case SpriteNum.Csaw:
@@ -634,7 +634,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotchainsaw
-      sound = Sfx.Wpnup
+      sound = SfxName.Wpnup
       break
 
     case SpriteNum.Laun:
@@ -642,7 +642,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotlauncher
-      sound = Sfx.Wpnup
+      sound = SfxName.Wpnup
       break
 
     case SpriteNum.Plas:
@@ -650,7 +650,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotplasma
-      sound = Sfx.Wpnup
+      sound = SfxName.Wpnup
       break
 
     case SpriteNum.Shot:
@@ -658,7 +658,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotshotgun
-      sound = Sfx.Wpnup
+      sound = SfxName.Wpnup
       break
 
     case SpriteNum.Sgn2:
@@ -666,7 +666,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotshotgun2
-      sound = Sfx.Wpnup
+      sound = SfxName.Wpnup
       break
 
     default:

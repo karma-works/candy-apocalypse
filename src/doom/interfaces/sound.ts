@@ -2,6 +2,7 @@ import { SfxInfo, sfxInfos } from '../doom/sounds/sfx-infos'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { LumpReader } from '../wad/lump-reader'
+import { SfxName } from '../doom/sounds/sfx-name'
 import { Sfx } from '../doom/sounds/sfx'
 
 const NUM_CHANNELS = 8
@@ -30,7 +31,7 @@ export class Sound {
   private channelRightVolLookup = new Array<Int32Array>(NUM_CHANNELS)
 
   // sfx id of the playing sound effect
-  private channelIds = new Array<Sfx>(NUM_CHANNELS).fill(0)
+  private channelIds = new Array<SfxName>(NUM_CHANNELS).fill(0)
 
   private stepTable = new Int32Array(256)
   private volLookup = new Int32Array(128 * 256)
@@ -57,9 +58,9 @@ export class Sound {
       sfxLump = this.wad.getNumForName(name)
     }
 
-    const sfx = new Uint8Array(this.wad.cacheLumpNum(sfxLump))
+    const sfx = this.wad.cacheLumpNum(sfxLump, Sfx)
 
-    return sfx.subarray(8)
+    return sfx.samples
   }
 
   //
@@ -70,19 +71,19 @@ export class Sound {
   // Returns a handle.
   //
   private handleNums = 0
-  private addSfx(sfxId: Sfx, volume: number, step: number, seperation: number): number {
+  private addSfx(sfxId: SfxName, volume: number, step: number, seperation: number): number {
     let i: number
     let oldest = this.game.gameTic
     let oldestNum = 0
 
     // Chainsaw troubles.
     // Play these sound effects only one at a time.
-    if (sfxId === Sfx.Sawup ||
-      sfxId === Sfx.Sawidl ||
-      sfxId === Sfx.Sawful ||
-      sfxId === Sfx.Sawhit ||
-      sfxId === Sfx.Stnmov ||
-      sfxId === Sfx.Pistol
+    if (sfxId === SfxName.Sawup ||
+      sfxId === SfxName.Sawidl ||
+      sfxId === SfxName.Sawful ||
+      sfxId === SfxName.Sawhit ||
+      sfxId === SfxName.Stnmov ||
+      sfxId === SfxName.Pistol
     ) {
       // Loop all channels, check.
       for (i = 0; i < NUM_CHANNELS; ++i) {
@@ -218,7 +219,7 @@ export class Sound {
   // Pitching (that is, increased speed of playback)
   //  is set, but currently not used by mixing.
   //
-  startSound(id: Sfx, vol: number, sep: number, pitch: number): number {
+  startSound(id: SfxName, vol: number, sep: number, pitch: number): number {
     return this.addSfx(id, vol, this.stepTable[pitch], sep)
   }
 
@@ -329,7 +330,7 @@ export class Sound {
     this.audioCtx = audioCtx
 
     let sfxInfo: SfxInfo
-    for (let i = 1; i < Sfx.NUM_SFX; ++i) {
+    for (let i = 1; i < SfxName.NUM_SFX; ++i) {
       // Alias? Example is the chaingun sound linked to pistol.
       sfxInfo = sfxInfos[i]
       if (!sfxInfo.link) {

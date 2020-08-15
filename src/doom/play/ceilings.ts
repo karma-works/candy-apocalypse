@@ -7,7 +7,7 @@ import { Line } from '../rendering/defs/line'
 import { Play } from './setup'
 import { Result } from './specials/result'
 import { Sector } from '../rendering/defs/sector'
-import { Sfx } from '../doom/sounds/sfx'
+import { SfxName } from '../doom/sounds/sfx-name'
 import { Special } from './special'
 import { Tick } from './tick'
 
@@ -59,7 +59,7 @@ export class Ceilings {
         default:
 
           this.dSound.startSound(ceiling.sector.soundOrg,
-            Sfx.Stnmov)
+            SfxName.Stnmov)
           // ?
           break
         }
@@ -73,7 +73,7 @@ export class Ceilings {
 
         case CeilingType.SilentCrushAndRaise:
           this.dSound.startSound(ceiling.sector.soundOrg,
-            Sfx.Pstop)
+            SfxName.Pstop)
           // fallthrough
         case CeilingType.FastCrushAndRaise:
         case CeilingType.CrushAndRaise:
@@ -100,7 +100,7 @@ export class Ceilings {
           break
         default:
           this.dSound.startSound(ceiling.sector.soundOrg,
-            Sfx.Stnmov)
+            SfxName.Stnmov)
         }
       }
 
@@ -108,7 +108,7 @@ export class Ceilings {
         switch (ceiling.type) {
         case CeilingType.SilentCrushAndRaise:
           this.dSound.startSound(ceiling.sector.soundOrg,
-            Sfx.Pstop)
+            SfxName.Pstop)
           // fallthrough
         case CeilingType.CrushAndRaise:
           ceiling.speed = CEIL_SPEED

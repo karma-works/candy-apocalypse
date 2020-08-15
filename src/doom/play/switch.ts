@@ -17,7 +17,7 @@ import { MapLineFlag } from '../doom/data'
 import { PlatType } from './plats/plat-type'
 import { Plats } from './plats'
 import { Play } from './setup'
-import { Sfx } from '../doom/sounds/sfx'
+import { SfxName } from '../doom/sounds/sfx-name'
 import { StairType } from './floor/stair-type'
 import { alphSwitchList } from './switch/switch-list'
 
@@ -134,11 +134,11 @@ export class Switch {
       const texMid = this.play.sides[line.sideNum[0]].midTexture
       const texBot = this.play.sides[line.sideNum[0]].bottomTexture
 
-      let sound = Sfx.Swtchn
+      let sound = SfxName.Swtchn
 
       // EXIT SWITCH?
       if (line.special === 11) {
-        sound = Sfx.Swtchx
+        sound = SfxName.Swtchx
       }
 
       for (let i = 0; i < this.numSwitches * 2; ++i) {

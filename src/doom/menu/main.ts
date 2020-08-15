@@ -13,32 +13,32 @@ import { NewGameMenu } from './new-game'
 import { OptionsMenu } from './options'
 import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
-import { Sfx } from '../doom/sounds/sfx'
+import { SfxName } from '../doom/sounds/sfx-name'
 import { Strings } from '../translation/strings'
 
 //
 // M_QuitDOOM
 //
-const quitSounds: readonly Sfx[] = [
-  Sfx.Pldeth,
-  Sfx.Dmpain,
-  Sfx.Popain,
-  Sfx.Slop,
-  Sfx.Telept,
-  Sfx.Posit1,
-  Sfx.Posit3,
-  Sfx.Sgtatk,
+const quitSounds: readonly SfxName[] = [
+  SfxName.Pldeth,
+  SfxName.Dmpain,
+  SfxName.Popain,
+  SfxName.Slop,
+  SfxName.Telept,
+  SfxName.Posit1,
+  SfxName.Posit3,
+  SfxName.Sgtatk,
 ]
 
-const quitSounds2: readonly Sfx[] = [
-  Sfx.Vilact,
-  Sfx.Getpow,
-  Sfx.Boscub,
-  Sfx.Slop,
-  Sfx.Skeswg,
-  Sfx.Kntdth,
-  Sfx.Bspact,
-  Sfx.Sgtatk,
+const quitSounds2: readonly SfxName[] = [
+  SfxName.Vilact,
+  SfxName.Getpow,
+  SfxName.Boscub,
+  SfxName.Slop,
+  SfxName.Skeswg,
+  SfxName.Kntdth,
+  SfxName.Bspact,
+  SfxName.Sgtatk,
 ]
 
 export const enum MainEnum {
