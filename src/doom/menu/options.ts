@@ -4,6 +4,7 @@ import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
+import { LumpReader } from '../wad/lump-reader'
 import { MainMenu } from './main'
 import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
@@ -11,7 +12,6 @@ import { Rendering } from '../rendering/rendering'
 import { Sfx } from '../doom/sounds/sfx'
 import { SoundMenu } from './sound'
 import { Strings } from '../translation/strings'
-import { Wad } from '../wad/wad'
 
 const enum Options {
   EndGame,
@@ -106,7 +106,7 @@ export class OptionsMenu implements MenuStruct {
   private get strings(): Strings {
     return this.prevMenu.strings
   }
-  public get wad(): Wad {
+  public get wad(): LumpReader {
     return this.prevMenu.wad
   }
 

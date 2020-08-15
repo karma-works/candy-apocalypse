@@ -16,6 +16,7 @@ import { GameVersion } from '../doom/mode'
 import { Inter } from './inter'
 import { Lights } from './lights'
 import { Line } from '../rendering/defs/line'
+import { LumpReader } from '../wad/lump-reader'
 import { MObj } from './mobj/mobj'
 import { MObjType } from '../doom/info/mobj-type'
 import { MapLineFlag } from '../doom/data'
@@ -30,7 +31,6 @@ import { StairType } from './floor/stair-type'
 import { Switch } from './switch'
 import { Teleport } from './teleport'
 import { Tick } from './tick'
-import { Wad } from '../wad/wad'
 import { random } from '../misc/random'
 
 export const GLOW_SPEED = 8
@@ -79,7 +79,7 @@ export class Special {
   private get tick(): Tick {
     return this.play.tick
   }
-  private get wad(): Wad {
+  private get wad(): LumpReader {
     return this.play.wad
   }
 

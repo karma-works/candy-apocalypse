@@ -14,6 +14,7 @@ import { GameMode } from '../doom/mode'
 import { Inter } from './inter'
 import { Lights } from './lights'
 import { Line } from '../rendering/defs/line'
+import { LumpReader } from '../wad/lump-reader'
 import { MAX_PLAYERS } from '../global/doomdef'
 import { MObj } from './mobj/mobj'
 import { MObjHandler } from './mobj-handler'
@@ -35,7 +36,6 @@ import { Teleport } from './teleport'
 import { Tick } from './tick'
 import { User } from './user'
 import { Vertex } from '../rendering/data/vertex'
-import { Wad } from '../wad/wad'
 import { sprNames } from '../doom/info/spr-names'
 
 export class Play {
@@ -121,7 +121,7 @@ export class Play {
   get rendering(): Rendering {
     return this.doom.rendering
   }
-  get wad(): Wad {
+  get wad(): LumpReader {
     return this.doom.wad
   }
   get game(): Game {

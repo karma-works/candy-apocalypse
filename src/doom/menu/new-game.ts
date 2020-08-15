@@ -1,13 +1,13 @@
 import { MenuItem, MenuStruct } from './typedefs'
 import { EpisodeMenu } from './episode'
 import { Game } from '../game/game'
+import { LumpReader } from '../wad/lump-reader'
 import { MainMenu } from './main'
 import { Menu } from './menu'
 import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
 import { Skill } from '../doom/mode'
 import { Strings } from '../translation/strings'
-import { Wad } from '../wad/wad'
 
 export const enum NewGame {
   KillThings,
@@ -70,7 +70,7 @@ export class NewGameMenu implements MenuStruct {
   private get strings(): Strings {
     return this.prevMenu.strings
   }
-  private get wad(): Wad {
+  private get wad(): LumpReader {
     return this.prevMenu.wad
   }
 

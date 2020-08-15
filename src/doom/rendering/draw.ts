@@ -3,11 +3,11 @@ import { Data } from './data'
 import { Doom } from '../doom'
 import { FRACBITS } from '../misc/fixed'
 import { GameMode } from '../doom/mode'
+import { LumpReader } from '../wad/lump-reader'
 import { Patch } from './defs/patch'
 import { Post } from './defs/post'
 import { Rendering } from './rendering'
 import { Video } from './video'
-import { Wad } from '../wad/wad'
 
 // ?
 export const MAX_WIDTH = 1120
@@ -79,7 +79,7 @@ export class Draw {
   private get video(): Video {
     return this.rendering.video
   }
-  private get wad(): Wad {
+  private get wad(): LumpReader {
     return this.rendering.wad
   }
 

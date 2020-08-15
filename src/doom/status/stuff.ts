@@ -12,6 +12,7 @@ import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { Video as IVideo } from '../interfaces/video'
 import { Inter } from '../play/inter'
+import { LumpReader } from '../wad/lump-reader'
 import { MultiIcon } from './multi-icon'
 import { NumberWidget } from './number-widget'
 import { Palette } from '../interfaces/palette'
@@ -21,7 +22,6 @@ import { Video as RVideo } from '../rendering/video'
 import { Rendering } from '../rendering/rendering'
 import { State } from './states'
 import { Strings } from '../translation/strings'
-import { Wad } from '../wad/wad'
 import { pointToAngle } from '../misc/angle'
 import { random } from '../misc/random'
 import { weaponInfo } from '../doom/items'
@@ -262,7 +262,7 @@ export class StatusBar {
   private get strings(): Strings {
     return this.doom.strings
   }
-  public get wad(): Wad {
+  public get wad(): LumpReader {
     return this.doom.wad
   }
   private get game(): Game {

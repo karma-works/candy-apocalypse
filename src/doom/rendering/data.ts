@@ -1,6 +1,7 @@
 import { Column } from './defs/column'
 import { FRACBITS } from '../misc/fixed'
 import { Game } from '../game/game'
+import { LumpReader } from '../wad/lump-reader'
 import { MObjHandler } from '../play/mobj-handler'
 import { MapPatch } from './data/map-patch'
 import { MapTexture } from './data/map-texture'
@@ -13,7 +14,6 @@ import { TexPatch } from './data/tex-patch'
 import { Texture } from './data/texture'
 import { Things } from './things'
 import { Tick } from '../play/tick'
-import { Wad } from '../wad/wad'
 import { tostring } from '../utils/c'
 
 //
@@ -43,7 +43,7 @@ export class Data {
   private get tick(): Tick {
     return this.rendering.tick
   }
-  private get wad(): Wad {
+  private get wad(): LumpReader {
     return this.rendering.wad
   }
 

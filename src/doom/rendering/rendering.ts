@@ -6,6 +6,7 @@ import { Data } from './data'
 import { Doom } from '../doom'
 import { Draw } from './draw'
 import { Game } from '../game/game'
+import { LumpReader } from '../wad/lump-reader'
 import { NF_SUBSECTOR } from '../doom/data'
 import { Net } from '../doom/net'
 import { Node } from './bsp/node'
@@ -18,7 +19,6 @@ import { SubSector } from './defs/sub-sector'
 import { Things } from './things'
 import { Tick } from '../play/tick'
 import { Video } from './video'
-import { Wad } from '../wad/wad'
 import { pointToAngle } from '../misc/angle'
 
 
@@ -138,7 +138,7 @@ export class Rendering {
   get tick(): Tick {
     return this.doom.play.tick
   }
-  get wad(): Wad {
+  get wad(): LumpReader {
     return this.doom.wad
   }
 

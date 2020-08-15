@@ -6,10 +6,10 @@ import { div, mul } from '../misc/fixed'
 import { BSP } from './bsp'
 import { Data } from './data'
 import { Draw } from './draw'
+import { LumpReader } from '../wad/lump-reader'
 import { MAX_DRAW_SEGS } from './defs/draw-seg'
 import { Things } from './things'
 import { VisPlane } from './plane/vis-plane'
-import { Wad } from '../wad/wad'
 
 export type PlaneFunction = (top: number, bottom: number) => void
 
@@ -85,7 +85,7 @@ export class Plane {
   private get things(): Things {
     return this.rendering.things
   }
-  private get wad(): Wad {
+  private get wad(): LumpReader {
     return this.rendering.wad
   }
 

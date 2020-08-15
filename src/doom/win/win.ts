@@ -6,10 +6,10 @@ import { ButtonCode } from '../doom/event'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
+import { LumpReader } from '../wad/lump-reader'
 import { Patch } from '../rendering/defs/patch'
 import { Sfx } from '../doom/sounds/sfx'
 import { Video } from '../rendering/video'
-import { Wad } from '../wad/wad'
 import { lNodes } from './point'
 import { random } from '../misc/random'
 
@@ -152,7 +152,7 @@ export class Win {
   private get rVideo(): Video {
     return this.doom.rendering.video
   }
-  private get wad(): Wad {
+  private get wad(): LumpReader {
     return this.doom.wad
   }
 

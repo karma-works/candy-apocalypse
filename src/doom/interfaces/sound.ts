@@ -1,8 +1,8 @@
 import { SfxInfo, sfxInfos } from '../doom/sounds/sfx-infos'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
+import { LumpReader } from '../wad/lump-reader'
 import { Sfx } from '../doom/sounds/sfx'
-import { Wad } from '../wad/wad'
 
 const NUM_CHANNELS = 8
 
@@ -40,7 +40,7 @@ export class Sound {
   private get game(): Game {
     return this.doom.game
   }
-  private get wad(): Wad {
+  private get wad(): LumpReader {
     return this.doom.wad
   }
 

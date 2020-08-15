@@ -9,6 +9,7 @@ import { Demo } from './demo'
 import { Doom } from '../doom'
 import { FRACUNIT } from '../misc/fixed'
 import { HeadsUp } from '../heads-up/stuff'
+import { LumpReader } from '../wad/lump-reader'
 import { MAX_HEALTH } from '../play/local'
 import { MObjFlag } from '../play/mobj/mobj-flag'
 import { MObjType } from '../doom/info/mobj-type'
@@ -22,7 +23,6 @@ import { StateNum } from '../doom/info/state-num'
 import { StatusBar } from '../status/stuff'
 import { Tick } from '../play/tick'
 import { TickCmd } from '../doom/tick-cmd'
-import { Wad } from '../wad/wad'
 import { Win } from '../win/win'
 import { fs } from '../system/fs'
 import { getTime } from '../system/system'
@@ -210,7 +210,7 @@ export class Game {
   private get tick(): Tick {
     return this.play.tick
   }
-  private get wad(): Wad {
+  private get wad(): LumpReader {
     return this.doom.wad
   }
   private get win(): Win {

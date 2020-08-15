@@ -9,6 +9,7 @@ import { HeadsUp } from './heads-up/stuff'
 import { Net as INet } from './interfaces/net'
 import { Sound as ISound } from './interfaces/sound'
 import { Video as IVideo } from './interfaces/video'
+import { LumpReader } from './wad/lump-reader'
 import { Menu } from './menu/menu'
 import { Net } from './doom/net'
 import { Palette } from './interfaces/palette'
@@ -20,7 +21,6 @@ import { Video as RVIdeo } from './rendering/video'
 import { Rendering } from './rendering/rendering'
 import { StatusBar } from './status/stuff'
 import { Strings } from './translation/strings'
-import { Wad } from './wad/wad'
 import { Win } from './win/win'
 import { Wipe } from './wipe'
 import { getTime } from './system/system'
@@ -63,7 +63,7 @@ export class Doom {
   // print title for every printed line
   private title = ''
 
-  public wad = new Wad()
+  public wad = new LumpReader()
   public net = new Net(this)
   public iNet = new INet(this)
   public dSound = new DSound(this)

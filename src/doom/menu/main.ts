@@ -7,6 +7,7 @@ import { Doom } from '../doom'
 import { EpisodeMenu } from './episode'
 import { Game } from '../game/game'
 import { GameState } from '../global/doomdef'
+import { LumpReader } from '../wad/lump-reader'
 import { Menu } from './menu'
 import { NewGameMenu } from './new-game'
 import { OptionsMenu } from './options'
@@ -14,7 +15,6 @@ import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
 import { Sfx } from '../doom/sounds/sfx'
 import { Strings } from '../translation/strings'
-import { Wad } from '../wad/wad'
 
 //
 // M_QuitDOOM
@@ -124,7 +124,7 @@ export class MainMenu implements MenuStruct {
   public get strings(): Strings {
     return this.menu.strings
   }
-  public get wad(): Wad {
+  public get wad(): LumpReader {
     return this.menu.wad
   }
 

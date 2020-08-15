@@ -11,6 +11,7 @@ import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { Video as IVideo } from '../interfaces/video'
+import { LumpReader } from '../wad/lump-reader'
 import { OptionsMenu } from './options'
 import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
@@ -18,7 +19,6 @@ import { ReadThisCommercialMenu } from './read-this'
 import { Rendering } from '../rendering/rendering'
 import { Sfx } from '../doom/sounds/sfx'
 import { Strings } from '../translation/strings'
-import { Wad } from '../wad/wad'
 import { getTime } from '../system/system'
 import { toupper } from '../utils/c'
 
@@ -95,7 +95,7 @@ export class Menu {
   get strings(): Strings {
     return this.doom.strings
   }
-  get wad(): Wad {
+  get wad(): LumpReader {
     return this.doom.wad
   }
 
