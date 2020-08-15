@@ -7,6 +7,7 @@ import { Patch } from '../rendering/defs/patch'
 import { SectorArray } from '../level/sector-array'
 import { SegArray } from '../level/seg-array'
 import { Sfx } from '../doom/sounds/sfx'
+import { SideArray } from '../level/side-array'
 import { SubSectorArray } from '../level/sub-sector-array'
 import { ThingArray } from '../level/thing-array'
 import { VertexArray } from '../level/vertex-array'
@@ -18,7 +19,7 @@ export interface LumpStatic {
 }
 
 export type LumpType = 'demo' | 'palettes' | 'sfx' | 'patch' | 'unknown' |
-  'level' | 'things' | 'vertexes' | 'sub-sectors' | 'segs' | 'sectors' | 'nodes' | 'lines'
+  'level' | 'things' | 'vertexes' | 'sub-sectors' | 'segs' | 'sectors' | 'nodes' | 'lines' | 'sides'
 
 const lumpCandidates: LumpStatic[] = [
   Level,
@@ -29,6 +30,7 @@ const lumpCandidates: LumpStatic[] = [
   SectorArray,
   NodeArray,
   LineArray,
+  SideArray,
   Patch,
   Sfx,
   Palettes,

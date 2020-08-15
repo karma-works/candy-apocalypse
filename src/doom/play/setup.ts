@@ -1,5 +1,4 @@
 import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
-import { MapLumpOrder, MapSideDef } from '../doom/data'
 import { MapThing, ThingArray } from '../level/thing-array'
 import { AutoMap } from '../auto-map/auto-map'
 import { BBox } from '../misc/bbox'
@@ -21,6 +20,7 @@ import { MAX_PLAYERS } from '../global/doomdef'
 import { MObj } from './mobj/mobj'
 import { MObjHandler } from './mobj-handler'
 import { Map } from './map'
+import { MapLumpOrder } from '../doom/data'
 import { MapUtils } from './map-utils'
 import { Node } from '../rendering/bsp/node'
 import { NodeArray } from '../level/node-array'
@@ -33,6 +33,7 @@ import { SectorArray } from '../level/sector-array'
 import { Seg } from '../rendering/segs/seg'
 import { SegArray } from '../level/seg-array'
 import { Side } from '../rendering/defs/side'
+import { SideArray } from '../level/side-array'
 import { Sight } from './sight'
 import { Special } from './special'
 import { SubSector } from '../rendering/defs/sub-sector'
@@ -62,7 +63,6 @@ export class Play {
 
   lines = new Array<Line>()
 
-  numSides = -1
   sides = new Array<Side>()
 
   // BLOCKMAP
@@ -224,24 +224,8 @@ export class Play {
   // P_LoadSideDefs
   //
   private loadSideDefs(lump: number): void {
-    this.numSides = this.wad.lumpLength(lump) / MapSideDef.sizeOf
-    this.sides = new Array(this.numSides)
-    const data = this.wad.cacheLumpNum(lump)
-
-    let msd: MapSideDef
-    let msdPtr = 0
-    for (let i = 0; i < this.numSides; ++i, msdPtr += MapSideDef.sizeOf) {
-      msd = new MapSideDef(data.slice(msdPtr))
-
-      this.sides[i] = new Side(
-        msd.textureOffset << FRACBITS,
-        msd.rowOffset << FRACBITS,
-        this.rendering.data.textureNumForName(msd.topTexture),
-        this.rendering.data.textureNumForName(msd.bottomTexture),
-        this.rendering.data.textureNumForName(msd.midTexture),
-        this.sectors[msd.sector],
-      )
-    }
+    const data = this.wad.cacheLumpNum(lump, SideArray)
+    this.sides = data.getSides(this.rendering.data, this.sectors)
   }
 
   //
