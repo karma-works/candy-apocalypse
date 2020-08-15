@@ -59,32 +59,6 @@ export class MapSideDef {
   }
 }
 
-// A LineDef, as used for editing, and as input
-// to the BSP builder.
-export class MapLineDef {
-  static sizeOf = 2 * 5 + 2 * 2
-
-  v1: number
-  v2: number
-  flags: number
-  special: number
-  tag: number
-
-  // sidenum[1] will be -1 if one sided
-  sideNum: number[]
-
-  constructor(buffer: ArrayBuffer) {
-    const int16 = new Int16Array(buffer, 0, 7)
-    this.v1 = int16[0]
-    this.v2 = int16[1]
-    this.flags = int16[2]
-    this.special = int16[3]
-    this.tag = int16[4]
-
-    this.sideNum = [ int16[5], int16[6] ]
-  }
-}
-
 //
 // LineDef attributes.
 //

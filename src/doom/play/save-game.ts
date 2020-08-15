@@ -138,7 +138,7 @@ export class SaveGame {
 
     // do lines
     for (let i = 0, li = this.play.lines[i];
-      i < this.play.numLines;
+      i < this.play.lines.length;
       ++i, li = this.play.lines[i]
     ) {
       temp = new Uint8Array(li.archive())
@@ -174,7 +174,7 @@ export class SaveGame {
 
     // do lines
     for (let i = 0, li = this.play.lines[i];
-      i < this.play.numLines;
+      i < this.play.lines.length;
       ++i, li = this.play.lines[i]
     ) {
       li.unArchive(buffer.slice(saveP))

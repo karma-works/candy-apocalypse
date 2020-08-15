@@ -922,7 +922,7 @@ export class Special {
 
     // Init line EFFECTs
     this.numLineSpecials = 0
-    for (let i = 0; i < this.play.numLines; ++i) {
+    for (let i = 0; i < this.play.lines.length; ++i) {
       switch (this.play.lines[i].special) {
       case 48:
         // EFFECT FIRSTCOL SCROLL+

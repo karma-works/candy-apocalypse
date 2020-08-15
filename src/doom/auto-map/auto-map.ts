@@ -914,7 +914,7 @@ export class AutoMap {
     const lines = this.play.lines
     let line = lines[0]
 
-    for (let i = 0; i < this.play.numLines; i++) {
+    for (let i = 0; i < this.play.lines.length; i++) {
       line = lines[i]
       l.a.x = line.v1.x
       l.a.y = line.v1.y

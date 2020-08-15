@@ -1,5 +1,5 @@
 import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
-import { MapLineDef, MapLumpOrder, MapSideDef } from '../doom/data'
+import { MapLumpOrder, MapSideDef } from '../doom/data'
 import { MapThing, ThingArray } from '../level/thing-array'
 import { AutoMap } from '../auto-map/auto-map'
 import { BBox } from '../misc/bbox'
@@ -15,6 +15,7 @@ import { GameMode } from '../doom/mode'
 import { Inter } from './inter'
 import { Lights } from './lights'
 import { Line } from '../rendering/defs/line'
+import { LineArray } from '../level/line-array'
 import { LumpReader } from '../wad/lump-reader'
 import { MAX_PLAYERS } from '../global/doomdef'
 import { MObj } from './mobj/mobj'
@@ -59,7 +60,6 @@ export class Play {
 
   nodes = new Array<Node>()
 
-  numLines = -1
   lines = new Array<Line>()
 
   numSides = -1
@@ -216,37 +216,8 @@ export class Play {
   // Also counts secret lines for intermissions.
   //
   private loadLineDefs(lump: number): void {
-    this.numLines = this.wad.lumpLength(lump) / MapLineDef.sizeOf
-    this.lines = new Array(this.numLines)
-    const data = this.wad.cacheLumpNum(lump)
-
-    let mld: MapLineDef
-    let mldPtr = 0
-    let ld: Line
-    let v1: Vertex, v2: Vertex
-    for (let i = 0; i < this.numLines; ++i, mldPtr += MapLineDef.sizeOf) {
-      mld = new MapLineDef(data.slice(mldPtr))
-      v1 = this.vertexes[mld.v1]
-      v2 = this.vertexes[mld.v2]
-      ld = new Line(v1, v2, mld.flags, mld.special, mld.tag)
-
-      ld.sideNum[0] = mld.sideNum[0]
-      ld.sideNum[1] = mld.sideNum[1]
-
-      if (ld.sideNum[0] !== -1) {
-        ld.frontSector = this.sides[ld.sideNum[0]].sector
-      } else {
-        ld.frontSector = null
-      }
-
-      if (ld.sideNum[1] !== -1) {
-        ld.backSector = this.sides[ld.sideNum[1]].sector
-      } else {
-        ld.backSector = null
-      }
-
-      this.lines[i] = ld
-    }
+    const data = this.wad.cacheLumpNum(lump, LineArray)
+    this.lines = data.getLines(this.vertexes, this.sides)
   }
 
   //
@@ -311,7 +282,7 @@ export class Play {
     let li: Line
     let liPtr = 0
     let total = 0
-    for (i = 0; i < this.numLines; ++i, ++liPtr) {
+    for (i = 0; i < this.lines.length; ++i, ++liPtr) {
       li = this.lines[liPtr]
 
       ++total
@@ -341,7 +312,7 @@ export class Play {
       sectorLinePtr = lineBufferPtr
 
       liPtr = 0
-      for (let j = 0; j < this.numLines; ++j, ++liPtr) {
+      for (let j = 0; j < this.lines.length; ++j, ++liPtr) {
         li = this.lines[liPtr]
         if (li.frontSector === sector || li.backSector === sector) {
           lineBuffer[lineBufferPtr++] = li
