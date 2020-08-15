@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <FilesTable />
+    <FilesTable :parent="$route.params.parent" />
   </v-card>
 </template>
 

@@ -1,8 +1,9 @@
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { FileInfo, fs } from '@/doom/system/fs'
 import { LumpType, guessLumpType } from '@/doom/wad/lump'
 import { DataTableHeader } from 'vuetify'
 import { Params } from '@/doom/doom/params'
+import { Wad } from '@/doom/wad/wad'
 
 const prefixes = [ 'B', 'kB', 'MB', 'GB' ]
 
@@ -10,6 +11,7 @@ type FileType = 'wad' | 'save' | 'unknown' | LumpType
 
 @Component
 export default class FilesTable extends Vue {
+  @Prop() parent!: string | undefined
 
   files: readonly FileInfo[] = []
 
@@ -32,7 +34,26 @@ export default class FilesTable extends Vue {
     },
   ]
 
+  wadName = ''
+
   async mounted(): Promise<void> {
+    await this.initFiles()
+  }
+  @Watch('parent')
+  async initFiles(): Promise<void> {
+    if (this.parent &&
+      this.parent.toLowerCase().endsWith('.wad')
+    ) {
+      this.wadName = this.parent
+      const buffer = await fs.open(this.wadName)
+      if (buffer) {
+        const wad = new Wad(buffer)
+
+        this.files = wad.lumps
+        return
+      }
+    }
+    this.wadName = ''
     this.files = await fs.ls()
   }
 
@@ -46,6 +67,9 @@ export default class FilesTable extends Vue {
 
   getType(item: FileInfo): FileType {
     let fileName = item.name.toLowerCase()
+    if (this.wadName && item.buffer) {
+      return guessLumpType(item.buffer, fileName)
+    }
     const dot = fileName.lastIndexOf('.')
     const ext = fileName.substr(dot + 1)
     fileName = fileName.substr(0, dot)
@@ -78,6 +102,9 @@ export default class FilesTable extends Vue {
     const playable: FileType[] = [ 'wad', 'demo' ]
     return playable.includes(this.getType(item))
   }
+  canBrowse(item: FileInfo): boolean {
+    return this.getType(item) === 'wad'
+  }
   getParam(item: FileInfo): Partial<Params> {
     switch (this.getType(item)) {
     case 'wad':
@@ -89,8 +116,11 @@ export default class FilesTable extends Vue {
     }
   }
 
-  async download({ name }: FileInfo): Promise<void> {
-    const buf = await fs.open(name)
+  async download(f: FileInfo): Promise<void> {
+    let buf = f.buffer
+    if (buf === undefined) {
+      buf = await fs.open(name)
+    }
     if (buf === undefined) {
       return
     }
@@ -100,10 +130,16 @@ export default class FilesTable extends Vue {
 
     const a = document.createElement('a')
     a.href = url
-    a.download = name
+    a.download = f.name
+    if (this.wadName) {
+      a.download += '.LMP'
+    }
     a.click()
   }
 
+  canRemove(): boolean {
+    return !this.wadName
+  }
   async remove({ name }: FileInfo): Promise<void> {
     await fs.rm(name)
   }

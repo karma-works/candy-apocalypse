@@ -9,8 +9,8 @@ const routes: Array<RouteConfig> = [
     component: () => import('@/views/startup.vue'),
   },
   {
-    path: '/files-listing',
-    component: () => import('@/views/files-listing.vue')
+    path: '/files-listing/:parent?',
+    component: () => import('@/views/files-listing.vue'),
   },
 ]
 

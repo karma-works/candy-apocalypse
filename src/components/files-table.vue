@@ -17,10 +17,16 @@
       ><v-icon>mdi-play</v-icon></v-btn>
 
       <v-btn icon
+        v-if="canBrowse(item)"
+        link :to="{ params: { parent: item.name }}"
+      ><v-icon>mdi-folder-open</v-icon></v-btn>
+
+      <v-btn icon
         @click="download(item)"
       ><v-icon>mdi-download</v-icon></v-btn>
 
       <v-btn icon
+        v-if="canRemove(item)"
         @click="remove(item)"
       ><v-icon>mdi-delete-forever</v-icon></v-btn>
     </template>
