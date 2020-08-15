@@ -15,7 +15,6 @@ type DbFile = (BufferFile | UriFile) & {
 
 export interface FileInfo {
   name: string
-  location: string
   size: number
 }
 
@@ -91,18 +90,8 @@ class FS {
     const list: FileInfo[] = []
 
     await collection.each((f, { primaryKey }) => {
-      let location = ''
-      switch (f.type) {
-      case 'buffer':
-        location = '[local database]'
-        break
-      case 'uri':
-        location = f.uri
-        break
-      }
       list.push({
         name: primaryKey,
-        location,
         size: f.size || 0,
       })
     })

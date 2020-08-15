@@ -22,10 +22,6 @@ export default class FilesTable extends Vue {
       value: 'size',
     },
     {
-      text: 'Location',
-      value: 'location',
-    },
-    {
       text: 'Type',
       value: 'type',
     },
