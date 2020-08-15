@@ -101,10 +101,8 @@ export default class FilesTable extends Vue {
       return 'WAD'
     case 'save':
       return 'Save game'
-    case 'demo':
-      return 'Demo'
     default:
-      return 'Unknown'
+      return type[0].toUpperCase() + type.substr(1)
     }
   }
 

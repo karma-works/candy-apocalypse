@@ -1,3 +1,4 @@
+import { LumpType } from '../wad/lump'
 import { gammaTable } from './gamma'
 
 export const enum Color {
@@ -5,6 +6,26 @@ export const enum Color {
   Green,
   Blue,
   Alpha,
+}
+
+export class Palettes {
+  static type: LumpType = 'palettes'
+  static isType(buffer: ArrayBuffer): boolean {
+    return buffer.byteLength !== 0 &&
+        buffer.byteLength % (256 * 3) === 0
+  }
+
+  p: Palette[] = []
+
+  constructor(buffer?: ArrayBuffer) {
+    if (buffer) {
+      const size = buffer.byteLength / (256 * 3)
+
+      for (let i = 0; i < size; ++i) {
+        this.p[i] = new Palette(buffer.slice(i * 256 * 3))
+      }
+    }
+  }
 }
 
 export class Palette {

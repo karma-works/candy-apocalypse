@@ -12,7 +12,7 @@ import { Video as IVideo } from './interfaces/video'
 import { LumpReader } from './wad/lump-reader'
 import { Menu } from './menu/menu'
 import { Net } from './doom/net'
-import { Palette } from './interfaces/palette'
+import { Palettes } from './interfaces/palette'
 import { Params } from './doom/params'
 import { Patch } from './rendering/defs/patch'
 import { Play } from './play/setup'
@@ -215,7 +215,7 @@ export class Doom {
     if (this.game.gameState !== this.oldGameState &&
       this.game.gameState !== GameState.Level
     ) {
-      this.iVideo.uploadNewPalette(new Palette(this.wad.cacheLumpName('PLAYPAL')))
+      this.iVideo.uploadNewPalette(this.wad.cacheLumpName('PLAYPAL', Palettes).p[0])
     }
 
     // see if the border needs to be initially drawn
