@@ -1,5 +1,5 @@
 import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
-import { MapLineDef, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef } from '../doom/data'
+import { MapLineDef, MapLumpOrder, MapNode, MapSector, MapSideDef } from '../doom/data'
 import { MapThing, ThingArray } from '../level/thing-array'
 import { AutoMap } from '../auto-map/auto-map'
 import { BBox } from '../misc/bbox'
@@ -28,6 +28,7 @@ import { Rendering } from '../rendering/rendering'
 import { SaveGame } from './save-game'
 import { Sector } from '../rendering/defs/sector'
 import { Seg } from '../rendering/segs/seg'
+import { SegArray } from '../level/seg-array'
 import { Side } from '../rendering/defs/side'
 import { Sight } from './sight'
 import { Special } from './special'
@@ -48,7 +49,6 @@ export class Play {
   //
   vertexes = new Array<Vertex>()
 
-  numSegs = -1
   segs = new Array<Seg>()
 
   numSectors = -1
@@ -144,16 +144,8 @@ export class Play {
   // P_LoadSegs
   //
   private loadSegs(lump: number): void {
-    this.numSegs = this.wad.lumpLength(lump) / MapSeg.sizeOf
-    this.segs = new Array(this.numSegs)
-    const data = this.wad.cacheLumpNum(lump)
-
-    let ml: MapSeg
-    let mlIdx = 0
-    for (let i = 0; i < this.numSegs; ++i, mlIdx += MapSeg.sizeOf) {
-      ml = new MapSeg(data.slice(mlIdx))
-      this.segs[i] = new Seg(ml, this.vertexes, this.lines, this.sides)
-    }
+    const data = this.wad.cacheLumpNum(lump, SegArray)
+    this.segs = data.getSegs(this.vertexes, this.lines, this.sides)
   }
 
   //
