@@ -4,6 +4,7 @@ import { Palettes } from '../interfaces/palette'
 import { Patch } from '../rendering/defs/patch'
 import { Sfx } from '../doom/sounds/sfx'
 import { ThingArray } from '../level/thing-array'
+import { VertexArray } from '../level/vertex-array'
 
 export interface LumpStatic {
   new(buffer: ArrayBuffer, name: string): unknown
@@ -12,11 +13,12 @@ export interface LumpStatic {
 }
 
 export type LumpType = 'demo' | 'palettes' | 'sfx' | 'patch' | 'unknown' |
-  'level' | 'things'
+  'level' | 'things' | 'vertexes'
 
 const lumpCandidates: LumpStatic[] = [
   Level,
   ThingArray,
+  VertexArray,
   Patch,
   Sfx,
   Palettes,

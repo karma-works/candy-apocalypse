@@ -33,20 +33,6 @@ export const enum MapLumpOrder {
   BlockMap
 }
 
-// A single Vertex.
-export class MapVertex {
-  static sizeOf = 2 + 2
-
-  x: number
-  y: number
-
-  constructor(buffer: ArrayBuffer) {
-    const int16 = new Int16Array(buffer, 0, 2)
-    this.x = int16[0]
-    this.y = int16[1]
-  }
-}
-
 // A SideDef, defining the visual appearance of a wall,
 // by setting textures and offsets.
 export class MapSideDef {

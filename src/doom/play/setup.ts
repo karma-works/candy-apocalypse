@@ -1,5 +1,5 @@
 import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
-import { MapLineDef, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef, MapSubSector, MapVertex } from '../doom/data'
+import { MapLineDef, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef, MapSubSector } from '../doom/data'
 import { MapThing, ThingArray } from '../level/thing-array'
 import { AutoMap } from '../auto-map/auto-map'
 import { BBox } from '../misc/bbox'
@@ -37,6 +37,7 @@ import { Teleport } from './teleport'
 import { Tick } from './tick'
 import { User } from './user'
 import { Vertex } from '../rendering/data/vertex'
+import { VertexArray } from '../level/vertex-array'
 import { sprNames } from '../doom/info/spr-names'
 
 export class Play {
@@ -44,7 +45,6 @@ export class Play {
   // MAP related Lookup tables.
   // Store VERTEXES, LINEDEFS, SIDEDEFS, etc.
   //
-  numVertexes = -1
   vertexes = new Array<Vertex>()
 
   numSegs = -1
@@ -135,26 +135,9 @@ export class Play {
   // P_LoadVertexes
   //
   private loadVertexes(lump: number): void {
-    // Determine number of lumps:
-    //  total lump length / vertex record length.
-    this.numVertexes = this.wad.lumpLength(lump) / MapVertex.sizeOf
-
-    // Allocate zone memory for buffer.
-    this.vertexes = new Array(this.numVertexes)
-
     // Load data into cache.
-    const data = this.wad.cacheLumpNum(lump)
-    let ml: MapVertex
-    let mlPtr = 0
-    // Copy and convert vertex coordinates,
-    // internal representation as fixed.
-    for (let i = 0; i < this.numVertexes; ++i, mlPtr += MapVertex.sizeOf) {
-      ml = new MapVertex(data.slice(mlPtr))
-      this.vertexes[i] = new Vertex(
-        ml.x << FRACBITS,
-        ml.y << FRACBITS,
-      )
-    }
+    const data = this.wad.cacheLumpNum(lump, VertexArray)
+    this.vertexes = data.getVertexes()
   }
 
   //

@@ -255,7 +255,7 @@ export class AutoMap {
 
     const vertexes = this.play.vertexes
 
-    for (let i = 0; i < this.play.numVertexes; i++) {
+    for (let i = 0; i < this.play.vertexes.length; i++) {
       if (vertexes[i].x < this.minX) {
         this.minX = vertexes[i].x
       } else if (vertexes[i].x > this.maxX) {
