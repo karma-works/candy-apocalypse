@@ -60,6 +60,7 @@ export function XListenEvent(display: HTMLCanvasElement): void {
     }, 0)
 
     display.requestPointerLock()
+    display.requestFullscreen()
   }
   const onBlur = () => {
     display.removeEventListener('keydown', listener)
@@ -83,6 +84,9 @@ export function XListenEvent(display: HTMLCanvasElement): void {
 export function XQuitEvent(display: HTMLCanvasElement): void {
   if (document.pointerLockElement === display) {
     document.exitPointerLock()
+  }
+  if (document.fullscreenElement === display) {
+    document.exitFullscreen()
   }
 
   const l = listeners.get(display)
