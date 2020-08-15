@@ -1,5 +1,6 @@
 import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
-import { MapLineDef, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef, MapSubSector, MapThing, MapVertex } from '../doom/data'
+import { MapLineDef, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef, MapSubSector, MapVertex } from '../doom/data'
+import { MapThing, ThingArray } from '../level/thing-array'
 import { AutoMap } from '../auto-map/auto-map'
 import { BBox } from '../misc/bbox'
 import { Ceilings } from './ceilings'
@@ -239,14 +240,11 @@ export class Play {
   // P_LoadThings
   //
   private loadThings(lump: number) {
-    const data = this.wad.cacheLumpNum(lump)
-    const numThings = this.wad.lumpLength(lump) / MapThing.sizeOf
+    const things = this.wad.cacheLumpNum(lump, ThingArray)
 
     let mt: MapThing
-    let mtPtr = 0
     let spawn: boolean
-    for (let i = 0; i < numThings; ++i, mtPtr += MapThing.sizeOf) {
-      mt = new MapThing(data.slice(mtPtr))
+    for (mt of things) {
       spawn = true
 
       // Do not spawn cool, new monsters if !commercial
