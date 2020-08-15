@@ -7,7 +7,7 @@
     </template>
 
     <template v-slot:[`item.type`]="{ item }">
-      {{ getLabel(item) }}
+      {{ getLabel(item.type) }}
     </template>
 
     <template v-slot:[`item.actions`]="{ item }">

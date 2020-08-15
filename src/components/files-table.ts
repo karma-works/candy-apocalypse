@@ -9,13 +9,42 @@ const prefixes = [ 'B', 'kB', 'MB', 'GB' ]
 
 type FileType = 'wad' | 'save' | 'unknown' | LumpType
 
+type ExtendedFileInfo = FileInfo & { type: FileType }
+
+function getType(item: FileInfo): FileType {
+  let fileName = item.name.toLowerCase()
+  const dot = fileName.lastIndexOf('.')
+  const ext = fileName.substr(dot + 1)
+  fileName = fileName.substr(0, dot)
+
+  if (ext.endsWith('wad')) {
+    return 'wad'
+  } else if (ext.endsWith('dsg')) {
+    return 'save'
+  } else if (ext.endsWith('lmp') &&
+    item.buffer !== undefined
+  ) {
+    return guessLumpType(item.buffer, fileName)
+  }
+  return 'unknown'
+}
+
+function extend(f: FileInfo, wad = false): ExtendedFileInfo {
+  return {
+    ...f,
+    type: wad && f.buffer ?
+      guessLumpType(f.buffer, f.name) :
+      getType(f),
+  }
+}
+
 @Component
 export default class FilesTable extends Vue {
   @Prop() parent!: string | undefined
 
-  files: readonly FileInfo[] = []
+  files: readonly ExtendedFileInfo[] = []
 
-  headers: DataTableHeader<FileInfo>[] = [
+  headers: DataTableHeader<ExtendedFileInfo>[] = [
     {
       text: 'Name',
       value: 'name',
@@ -31,6 +60,7 @@ export default class FilesTable extends Vue {
     {
       text: 'Actions',
       value: 'actions',
+      sortable: false,
     },
   ]
 
@@ -49,12 +79,12 @@ export default class FilesTable extends Vue {
       if (buffer) {
         const wad = new Wad(buffer)
 
-        this.files = wad.lumps
+        this.files = wad.lumps.map(f => extend(f, true))
         return
       }
     }
     this.wadName = ''
-    this.files = await fs.ls()
+    this.files = (await fs.ls()).map(f => extend(f))
   }
 
   formatSize(size: number): string {
@@ -65,28 +95,8 @@ export default class FilesTable extends Vue {
     return `${(size / Math.pow(1000, i)).toFixed(2)} ${prefixes[i]}`
   }
 
-  getType(item: FileInfo): FileType {
-    let fileName = item.name.toLowerCase()
-    if (this.wadName && item.buffer) {
-      return guessLumpType(item.buffer, fileName)
-    }
-    const dot = fileName.lastIndexOf('.')
-    const ext = fileName.substr(dot + 1)
-    fileName = fileName.substr(0, dot)
-
-    if (ext.endsWith('wad')) {
-      return 'wad'
-    } else if (ext.endsWith('dsg')) {
-      return 'save'
-    } else if (ext.endsWith('lmp') &&
-      item.buffer !== undefined
-    ) {
-      return guessLumpType(item.buffer, fileName)
-    }
-    return 'unknown'
-  }
-  getLabel(item: FileInfo): string {
-    switch (this.getType(item)) {
+  getLabel(type: FileType): string {
+    switch (type) {
     case 'wad':
       return 'WAD'
     case 'save':
@@ -98,15 +108,15 @@ export default class FilesTable extends Vue {
     }
   }
 
-  canPlay(item: FileInfo): boolean {
+  canPlay(item: ExtendedFileInfo): boolean {
     const playable: FileType[] = [ 'wad', 'demo' ]
-    return playable.includes(this.getType(item))
+    return playable.includes(item.type)
   }
-  canBrowse(item: FileInfo): boolean {
-    return this.getType(item) === 'wad'
+  canBrowse(item: ExtendedFileInfo): boolean {
+    return item.type === 'wad'
   }
-  getParam(item: FileInfo): Partial<Params> {
-    switch (this.getType(item)) {
+  getParam(item: ExtendedFileInfo): Partial<Params> {
+    switch (item.type) {
     case 'wad':
       return { wad: item.name }
     case 'demo':
