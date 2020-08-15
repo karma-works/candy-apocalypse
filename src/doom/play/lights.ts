@@ -164,7 +164,7 @@ export class Lights {
     let tempLine: Line
 
     for (let i = 0, sector = this.sectors[i];
-      i < this.play.numSectors;
+      i < this.play.sectors.length;
       i++, sector = this.sectors[i]) {
       if (sector.tag === line.tag) {
         min = sector.lightLevel
@@ -191,7 +191,7 @@ export class Lights {
     let temp: Sector | null
 
     for (let i = 0, sector = this.sectors[i];
-      i < this.play.numSectors;
+      i < this.play.sectors.length;
       i++, sector = this.sectors[i]) {
       if (sector.tag === line.tag) {
         // bright = 0 means to search

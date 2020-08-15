@@ -356,7 +356,7 @@ export class Sight {
     // Determine subsector entries in REJECT table.
     const s1 = this.play.sectors.indexOf(t1.subSector.sector)
     const s2 = this.play.sectors.indexOf(t2.subSector.sector)
-    const pNum = s1 * this.play.numSectors + s2
+    const pNum = s1 * this.play.sectors.length + s2
     const byteNum = pNum >> 3
     const bitNum = 1 << (pNum & 7)
 

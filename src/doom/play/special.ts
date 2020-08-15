@@ -169,7 +169,7 @@ export class Special {
   // RETURN NEXT SECTOR # THAT LINE TAG REFERS TO
   //
   findSectorFromLineTag(line: Line, start: number): number {
-    for (let i = start + 1; i < this.play.numSectors; ++i) {
+    for (let i = start + 1; i < this.play.sectors.length; ++i) {
       if (this.play.sectors[i].tag === line.tag) {
         return i
       }
@@ -864,7 +864,7 @@ export class Special {
   spawnSpecials(): void {
     // Init special SECTORs.
     let sector: Sector
-    for (let i = 0; i < this.play.numSectors; ++i) {
+    for (let i = 0; i < this.play.sectors.length; ++i) {
       sector = this.play.sectors[i]
 
       if (!sector.special) {

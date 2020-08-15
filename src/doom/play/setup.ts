@@ -1,5 +1,5 @@
 import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
-import { MapLineDef, MapLumpOrder, MapNode, MapSector, MapSideDef } from '../doom/data'
+import { MapLineDef, MapLumpOrder, MapNode, MapSideDef } from '../doom/data'
 import { MapThing, ThingArray } from '../level/thing-array'
 import { AutoMap } from '../auto-map/auto-map'
 import { BBox } from '../misc/bbox'
@@ -27,6 +27,7 @@ import { Plats } from './plats'
 import { Rendering } from '../rendering/rendering'
 import { SaveGame } from './save-game'
 import { Sector } from '../rendering/defs/sector'
+import { SectorArray } from '../level/sector-array'
 import { Seg } from '../rendering/segs/seg'
 import { SegArray } from '../level/seg-array'
 import { Side } from '../rendering/defs/side'
@@ -51,7 +52,6 @@ export class Play {
 
   segs = new Array<Seg>()
 
-  numSectors = -1
   sectors = new Array<Sector>()
 
   subSectors = new Array<SubSector>()
@@ -161,25 +161,8 @@ export class Play {
   // P_LoadSectors
   //
   private loadSectors(lump: number): void {
-    this.numSectors = this.wad.lumpLength(lump) / MapSector.sizeOf
-    this.sectors = new Array(this.numSectors)
-    const data = this.wad.cacheLumpNum(lump)
-
-    let ms: MapSector
-    let msPtr = 0
-    for (let i = 0; i < this.numSectors; ++i, msPtr += MapSector.sizeOf) {
-      ms = new MapSector(data.slice(msPtr))
-      this.sectors[i] = new Sector(
-        ms.floorHeight << FRACBITS,
-        ms.ceilingHeight << FRACBITS,
-        this.rendering.data.flatNumForName(ms.floorPic),
-        this.rendering.data.flatNumForName(ms.ceilingPic),
-        ms.lightLevel,
-        ms.special,
-        ms.tag,
-        null,
-      )
-    }
+    const data = this.wad.cacheLumpNum(lump, SectorArray)
+    this.sectors = data.getSectors(this.rendering.data)
   }
 
   //
@@ -360,7 +343,7 @@ export class Play {
     const bbox = new BBox()
 
     let block: number
-    for (i = 0; i < this.numSectors; ++i, ++sectorPtr) {
+    for (i = 0; i < this.sectors.length; ++i, ++sectorPtr) {
       sector = this.sectors[sectorPtr]
       bbox.clear()
       // sector.lines = lineBuffer TODO

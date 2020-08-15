@@ -128,7 +128,7 @@ export class SaveGame {
 
     // do sectors
     for (let i = 0, sec = this.play.sectors[i];
-      i < this.play.numSectors;
+      i < this.play.sectors.length;
       ++i, sec = this.play.sectors[i]
     ) {
       temp = new Uint8Array(sec.archive())
@@ -165,7 +165,7 @@ export class SaveGame {
   unArchiveWorld(buffer: ArrayBuffer, saveP: number): number {
     // do sectors
     for (let i = 0, sec = this.play.sectors[i];
-      i < this.play.numSectors;
+      i < this.play.sectors.length;
       ++i, sec = this.play.sectors[i]
     ) {
       sec.unArchive(buffer.slice(saveP))

@@ -56,7 +56,7 @@ export class Teleport {
     let oldY: number
     let oldZ: number
     let an: number
-    for (let i = 0; i < this.play.numSectors; i++) {
+    for (let i = 0; i < this.play.sectors.length; i++) {
       if (this.play.sectors[i].tag === tag) {
         for (thinker = this.tick.thinkerCap.next;
           thinker !== null && thinker !== this.tick.thinkerCap;

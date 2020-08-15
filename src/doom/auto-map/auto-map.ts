@@ -1077,7 +1077,7 @@ export class AutoMap {
   private drawThings(colors: number): void {
     const sectors = this.play.sectors
     let t: MObj | null
-    for (let i = 0; i < this.play.numSectors; i++) {
+    for (let i = 0; i < this.play.sectors.length; i++) {
       t = sectors[i].thingList
       while (t) {
         this.drawLineCharacter(thinTriangleGuy, thinTriangleGuy.length,

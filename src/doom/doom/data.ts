@@ -128,31 +128,6 @@ export const enum MapLineFlag {
 
 }
 
-// Sector definition, from editing.
-export class MapSector {
-  static sizeOf = 2 + 2 + 8 + 8 + 2 + 2 + 2
-
-  floorHeight: number
-  ceilingHeight: number
-  floorPic: string
-  ceilingPic: string
-  lightLevel: number
-  special: number
-  tag: number
-
-  constructor(buffer: ArrayBuffer) {
-    const int16 = new Int16Array(buffer, 0, 13)
-
-    this.floorHeight = int16[0]
-    this.ceilingHeight = int16[1]
-    this.floorPic = tostring(buffer, 4, 8)
-    this.ceilingPic = tostring(buffer, 12, 8)
-    this.lightLevel = int16[10]
-    this.special = int16[11]
-    this.tag = int16[12]
-  }
-}
-
 // BSP node structure.
 
 // Indicate a leaf.
