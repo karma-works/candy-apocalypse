@@ -1,5 +1,6 @@
 import { Demo } from '../game/demo'
 import { Palettes } from '../interfaces/palette'
+import { Patch } from '../rendering/defs/patch'
 import { Sfx } from '../doom/sounds/sfx'
 
 export interface LumpStatic {
@@ -8,9 +9,10 @@ export interface LumpStatic {
   type: LumpType
 }
 
-export type LumpType = 'demo' | 'palettes' | 'sfx' | 'unknown'
+export type LumpType = 'demo' | 'palettes' | 'sfx' | 'patch' | 'unknown'
 
 const lumpCandidates: LumpStatic[] = [
+  Patch,
   Sfx,
   Palettes,
   Demo,
