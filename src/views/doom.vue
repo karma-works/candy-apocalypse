@@ -1,13 +1,14 @@
 <template>
   <div class="screen-wrapper" ref="screenWrapper">
     <canvas width="320" height="320" ref="screen"
-      v-bind:style="{ transform: `scale3d(${ratio}, ${ratio}, 1)` }">
+      v-bind:style="{ transform: `scale3d(${xScale}, ${yScale}, 1)` }">
     </canvas>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { INTENDED_SCREENHEIGHT, SCREENWIDTH } from '@/doom/global/doomdef'
 import { fs } from '@/doom/system/fs'
 import { Doom as RawDoom } from '@/doom/doom'
 import { Params } from '@/doom/doom/params'
@@ -21,7 +22,8 @@ export default class Doom extends Vue {
 
   doomInst!: RawDoom
 
-  ratio = 1
+  xScale = 1
+  yScale = 1
 
   private defaultParams!: Params
 
@@ -59,9 +61,18 @@ export default class Doom extends Vue {
     const screen = this.$refs.screen
     const screenParent = screen.parentElement
     if (screenParent !== null) {
-      const horizontalRatio = screenParent.clientWidth / screen.width
-      const verticallRatio = screenParent.clientHeight / screen.height
-      this.ratio = Math.min(horizontalRatio, verticallRatio)
+      const ratio = SCREENWIDTH / INTENDED_SCREENHEIGHT
+
+      let width = screenParent.clientWidth
+      let height = width / ratio
+
+      if (height > screenParent.clientHeight) {
+        height = screenParent.clientHeight
+        width = height * ratio
+      }
+
+      this.xScale = width / screen.width
+      this.yScale = height / screen.height
     }
   }
 
