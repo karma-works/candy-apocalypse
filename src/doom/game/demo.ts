@@ -137,6 +137,10 @@ export class Demo {
     }
 
     this.ptr = ptr
+
+    if (this.buffer[this.buffer.length - 1] !== DEMO_MARKER) {
+      throw 'missing demo marker'
+    }
   }
 
   archive(): ArrayBuffer {
