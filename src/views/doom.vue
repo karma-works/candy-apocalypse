@@ -7,11 +7,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { INTENDED_SCREENHEIGHT, SCREENWIDTH } from '@/doom/global/doomdef'
-import { fs } from '@/doom/system/fs'
 import { Doom as RawDoom } from '@/doom/doom'
 import { Params } from '@/doom/doom/params'
+import { fs } from '@/doom/system/fs'
 
 @Component
 export default class Doom extends Vue {
@@ -43,6 +43,14 @@ export default class Doom extends Vue {
 
     window.addEventListener('resize', this.onResize)
     this.onResize()
+
+    const ctx = this.doomInst.iSound.audioCtx
+    if (ctx) {
+      ctx.addEventListener('statechange', e => {
+        this.sound = !!ctx && ctx.state === 'running'
+        this.$emit('soundChange', this.sound)
+      })
+    }
   }
 
   async restart(p: Partial<Params>): Promise<void> {
@@ -56,6 +64,19 @@ export default class Doom extends Vue {
     await this.doomInst.init()
 
     this.$refs.screen.focus()
+  }
+
+  @Prop() sound = false
+  @Watch('sound') setSound(a: boolean): void {
+    const ctx = this.doomInst.iSound.audioCtx
+    if (ctx === null) {
+      return
+    }
+    if (a) {
+      ctx.resume()
+    } else {
+      ctx.suspend()
+    }
   }
 
   onResize(): void {
@@ -81,10 +102,6 @@ export default class Doom extends Vue {
   beforeDestroy(): void {
     this.doomInst.quit()
     window.removeEventListener('resize', this.onResize)
-  }
-
-  toggleSound(): void {
-    this.doomInst.iSound.toggleSound()
   }
 }
 </script>

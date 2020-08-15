@@ -2,8 +2,8 @@ import { SfxInfo, sfxInfos } from '../doom/sounds/sfx-infos'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { LumpReader } from '../wad/lump-reader'
-import { SfxName } from '../doom/sounds/sfx-name'
 import { Sfx } from '../doom/sounds/sfx'
+import { SfxName } from '../doom/sounds/sfx-name'
 
 const NUM_CHANNELS = 8
 
@@ -36,7 +36,7 @@ export class Sound {
   private stepTable = new Int32Array(256)
   private volLookup = new Int32Array(128 * 256)
 
-  private audioCtx: AudioContext | null = null
+  audioCtx: AudioContext | null = null
 
   private get game(): Game {
     return this.doom.game
@@ -327,6 +327,7 @@ export class Sound {
     const audioCtx = new AudioContext({
       sampleRate: SAMPLE_RATE,
     })
+    audioCtx.suspend()
     this.audioCtx = audioCtx
 
     let sfxInfo: SfxInfo
@@ -342,19 +343,4 @@ export class Sound {
       }
     }
   }
-
-  toggleSound(): void {
-    if (this.audioCtx === null) {
-      return
-    }
-    switch (this.audioCtx.state) {
-    case 'running':
-      this.audioCtx.suspend()
-      break
-    case 'suspended':
-      this.audioCtx.resume()
-      break
-    }
-  }
-
 }
