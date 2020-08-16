@@ -125,26 +125,26 @@ export class Game {
   //
   // controls (have defaults)
   //
-  private keyRight = KEY_RIGHTARROW
-  private keyLeft = KEY_LEFTARROW
+  keyRight = KEY_RIGHTARROW
+  keyLeft = KEY_LEFTARROW
 
-  private keyUp = KEY_UPARROW
-  private keyDown = KEY_DOWNARROW
-  private keyStrafeLeft = ','.charCodeAt(0)
-  private keyStrafeRight = '.'.charCodeAt(0)
-  private keyFire = KEY_RCTRL
-  private keyUse = ' '.charCodeAt(0)
-  private keyStrafe = KEY_RALT
-  private keySpeed = KEY_RSHIFT
+  keyUp = KEY_UPARROW
+  keyDown = KEY_DOWNARROW
+  keyStrafeLeft = ','.charCodeAt(0)
+  keyStrafeRight = '.'.charCodeAt(0)
+  keyFire = KEY_RCTRL
+  keyUse = ' '.charCodeAt(0)
+  keyStrafe = KEY_RALT
+  keySpeed = KEY_RSHIFT
 
-  private mouseBFire = 0
-  private mouseBStrafe = 1
-  private mouseBForward = 2
+  mouseBFire = 0
+  mouseBStrafe = 1
+  mouseBForward = 2
 
-  private joyBFire = 0
-  private joyBStrafe = 1
-  private joyBUse = 3
-  private joyBSpeed = 2
+  joyBFire = 0
+  joyBStrafe = 1
+  joyBUse = 3
+  joyBSpeed = 2
 
   private forwardMove = [ 0x19, 0x32 ]
   private sideMove = [ 0x18, 0x28 ]

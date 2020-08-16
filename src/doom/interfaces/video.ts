@@ -77,6 +77,9 @@ export class Video {
   // to use ....
   private multiply = 1
 
+  useMouse = true
+  useJoystick = false
+
   private get rVideo(): RVideo {
     return this.doom.rendering.video
   }
@@ -243,7 +246,7 @@ export class Video {
       throw 'Could not open display'
     }
 
-    XListenEvent(this.screen)
+    XListenEvent(this.screen, this.useMouse)
 
     this.image = this.xScreen.createImageData(this.xWidth, this.xHeight)
 

@@ -432,6 +432,9 @@ export class Menu {
           this.iVideo.useGamma = 0
         }
         this.iVideo.uploadNewPalette()
+
+        this.saveDefaults()
+
         return true
       }
     }
@@ -648,6 +651,10 @@ export class Menu {
   setupNextMenu(menuDef: MenuStruct): void {
     this.currentMenu = menuDef
     this.itemOn = this.currentMenu.lastOn
+  }
+
+  saveDefaults(): void {
+    this.doom.defaults.save()
   }
 
   //
