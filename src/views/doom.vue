@@ -3,6 +3,12 @@
     <canvas width="320" height="320" ref="screen"
       v-bind:style="{ transform: `scale3d(${xScale}, ${yScale}, 1)` }">
     </canvas>
+
+    <v-btn icon absolute right bottom @click="toggleFullScreen()">
+      <v-icon>
+        {{ fullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen' }}
+      </v-icon>
+    </v-btn>
   </div>
 </template>
 
@@ -51,6 +57,10 @@ export default class Doom extends Vue {
         this.$emit('soundChange', this.sound)
       })
     }
+
+    this.doomInst.iVideo.onFullScreenChange(a => {
+      this.fullscreen = a
+    })
   }
 
   async restart(p: Partial<Params>): Promise<void> {
@@ -77,6 +87,11 @@ export default class Doom extends Vue {
     } else {
       ctx.suspend()
     }
+  }
+
+  fullscreen = false
+  async toggleFullScreen(): Promise<void> {
+    await this.doomInst.iVideo.toggleFullScreen()
   }
 
   onResize(): void {
