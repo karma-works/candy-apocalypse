@@ -210,6 +210,25 @@ export class Video {
     this.rVideo.screens[0] = new Uint8ClampedArray(SCREENWIDTH * SCREENHEIGHT)
   }
 
+  onFullScreenChange(cb: (a: boolean) => void): void {
+    if (this.screen && this.screen.parentElement) {
+      const el = this.screen.parentElement
+      el.addEventListener('fullscreenchange', () => {
+        cb(document.fullscreenElement === el)
+      })
+    }
+  }
+  async toggleFullScreen(): Promise<void> {
+    if (this.screen && this.screen.parentElement) {
+      const el = this.screen.parentElement
+      if (document.fullscreenElement === el) {
+        await document.exitFullscreen()
+      } else {
+        await this.screen.parentElement.requestFullscreen()
+      }
+    }
+  }
+
   quit(): void {
     if (this.screen === null || this.xScreen === null) {
       return

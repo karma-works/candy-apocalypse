@@ -3,15 +3,21 @@
     <canvas width="320" height="320" ref="screen"
       v-bind:style="{ transform: `scale3d(${xScale}, ${yScale}, 1)` }">
     </canvas>
+
+    <v-btn icon absolute right bottom @click="toggleFullScreen()">
+      <v-icon>
+        {{ fullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen' }}
+      </v-icon>
+    </v-btn>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { INTENDED_SCREENHEIGHT, SCREENWIDTH } from '@/doom/global/doomdef'
-import { fs } from '@/doom/system/fs'
 import { Doom as RawDoom } from '@/doom/doom'
 import { Params } from '@/doom/doom/params'
+import { fs } from '@/doom/system/fs'
 
 @Component
 export default class Doom extends Vue {
@@ -43,6 +49,18 @@ export default class Doom extends Vue {
 
     window.addEventListener('resize', this.onResize)
     this.onResize()
+
+    const ctx = this.doomInst.iSound.audioCtx
+    if (ctx) {
+      ctx.addEventListener('statechange', e => {
+        this.sound = !!ctx && ctx.state === 'running'
+        this.$emit('soundChange', this.sound)
+      })
+    }
+
+    this.doomInst.iVideo.onFullScreenChange(a => {
+      this.fullscreen = a
+    })
   }
 
   async restart(p: Partial<Params>): Promise<void> {
@@ -56,6 +74,24 @@ export default class Doom extends Vue {
     await this.doomInst.init()
 
     this.$refs.screen.focus()
+  }
+
+  @Prop() sound = false
+  @Watch('sound') setSound(a: boolean): void {
+    const ctx = this.doomInst.iSound.audioCtx
+    if (ctx === null) {
+      return
+    }
+    if (a) {
+      ctx.resume()
+    } else {
+      ctx.suspend()
+    }
+  }
+
+  fullscreen = false
+  async toggleFullScreen(): Promise<void> {
+    await this.doomInst.iVideo.toggleFullScreen()
   }
 
   onResize(): void {
@@ -81,10 +117,6 @@ export default class Doom extends Vue {
   beforeDestroy(): void {
     this.doomInst.quit()
     window.removeEventListener('resize', this.onResize)
-  }
-
-  toggleSound(): void {
-    this.doomInst.iSound.toggleSound()
   }
 }
 </script>

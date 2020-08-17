@@ -36,8 +36,10 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn icon v-on:click="toggleSound">
-        <v-icon>mdi-volume-source</v-icon>
+      <v-btn icon v-on:click="sound = !sound">
+        <v-icon>
+          {{ sound ? 'mdi-volume-high' : 'mdi-volume-off' }}
+        </v-icon>
       </v-btn>
 
       <v-btn icon v-bind:href="sourceUrl">
@@ -50,7 +52,10 @@
         <router-view/>
       </v-container>
 
-      <Doom ref="doomInst"></Doom>
+      <Doom ref="doomInst"
+        :sound="sound"
+        @soundChange="sound = $event"
+      ></Doom>
     </v-main>
   </v-app>
 </template>
@@ -62,7 +67,7 @@ import Doom from './views/doom.vue'
 @Component({
   components: {
     Doom,
-  }
+  },
 })
 export default class extends Vue {
   $refs!: {
@@ -75,8 +80,6 @@ export default class extends Vue {
 
   sourceUrl = process.env.VUE_APP_PROJECT_URL || ''
 
-  toggleSound(): void {
-    this.getDoom().toggleSound()
-  }
+  sound = false
 }
 </script>

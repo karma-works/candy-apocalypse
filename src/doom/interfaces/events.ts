@@ -64,7 +64,6 @@ export function XListenEvent(display: HTMLCanvasElement, mouse: boolean): void {
     if (mouse) {
       display.requestPointerLock()
     }
-    display.requestFullscreen()
   }
   const onBlur = () => {
     display.removeEventListener('keydown', listener)
@@ -91,7 +90,7 @@ export function XQuitEvent(display: HTMLCanvasElement): void {
   if (document.pointerLockElement === display) {
     document.exitPointerLock()
   }
-  if (document.fullscreenElement === display) {
+  if (document.fullscreenElement === display.parentElement) {
     document.exitFullscreen()
   }
 
@@ -104,6 +103,6 @@ export function XQuitEvent(display: HTMLCanvasElement): void {
   // eslint-disable-next-line no-extra-parens
   (Object.keys(l.listeners) as (keyof HTMLElementEventMap)[])
     .forEach(k => {
-      display.removeEventListener(k, (l.listeners[k] as any))
+      display.removeEventListener(k, l.listeners[k] as never)
     })
 }
