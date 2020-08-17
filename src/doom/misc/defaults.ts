@@ -212,7 +212,10 @@ export class Defaults extends AgnosticDefaults {
 
     screenblocks: {
       get: () => this.rendering.screenBlocks,
-      set: v => this.rendering.screenBlocks = v,
+      set: v => {
+        this.rendering.screenBlocks = v
+        this.rendering.screenSize = v - 3
+      },
     },
     detaillevel: {
       get: () => this.rendering.detailLevel,
