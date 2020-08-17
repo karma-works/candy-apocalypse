@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { KEY_DOWNARROW, KEY_LEFTARROW, KEY_RALT, KEY_RCTRL, KEY_RIGHTARROW, KEY_RSHIFT, KEY_UPARROW } from '../global/doomdef'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
 import { Video as IVideo } from '../interfaces/video'
 import { Rendering } from '../rendering/rendering'
+import { ScanCode } from '../interfaces/scancodes'
 import { fs } from '../system/fs'
 
 const defaultCfg = 'default.cfg'
@@ -22,16 +22,16 @@ export class AgnosticDefaults {
     music_volume: 8,
     show_messages: 1,
 
-    key_right: KEY_RIGHTARROW,
-    key_left: KEY_LEFTARROW,
-    key_up: KEY_UPARROW,
-    key_down: KEY_DOWNARROW,
-    key_strafeleft: ','.charCodeAt(0),
-    key_straferight: '.'.charCodeAt(0),
-    key_fire: KEY_RCTRL,
-    key_use: ' '.charCodeAt(0),
-    key_strafe: KEY_RALT,
-    key_speed: KEY_RSHIFT,
+    key_right: ScanCode.ArrowRight,
+    key_left: ScanCode.ArrowLeft,
+    key_up: ScanCode.ArrowUp,
+    key_down: ScanCode.ArrowDown,
+    key_strafeleft: ScanCode.Comma,
+    key_straferight: ScanCode.Period,
+    key_fire: ScanCode.ControlLeft,
+    key_use: ScanCode.Space,
+    key_strafe: ScanCode.AltLeft,
+    key_speed: ScanCode.ShiftRight,
 
     use_mouse: 1,
     mouseb_fire: 0,

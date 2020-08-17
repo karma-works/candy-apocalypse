@@ -1,4 +1,4 @@
-import { AmmoType, GameState, KEY_DOWNARROW, KEY_F12, KEY_LEFTARROW, KEY_PAUSE, KEY_RALT, KEY_RCTRL, KEY_RIGHTARROW, KEY_RSHIFT, KEY_UPARROW, MAX_PLAYERS, WeaponType } from '../global/doomdef'
+import { AmmoType, GameState, MAX_PLAYERS, WeaponType } from '../global/doomdef'
 import { ButtonCode, DEvent, EvType, GameAction } from '../doom/event'
 import { GameMode, GameVersion, Skill } from '../doom/mode'
 import { Player, PlayerState, WbStart } from '../doom/player'
@@ -19,6 +19,7 @@ import { Play } from '../play/setup'
 import { Rendering } from '../rendering/rendering'
 import { SKY_FLAT_NAME } from '../rendering/sky'
 import { SaveGame } from '../play/save-game'
+import { ScanCode } from '../interfaces/scancodes'
 import { StateNum } from '../doom/info/state-num'
 import { StatusBar } from '../status/stuff'
 import { Tick } from '../play/tick'
@@ -125,17 +126,16 @@ export class Game {
   //
   // controls (have defaults)
   //
-  keyRight = KEY_RIGHTARROW
-  keyLeft = KEY_LEFTARROW
-
-  keyUp = KEY_UPARROW
-  keyDown = KEY_DOWNARROW
-  keyStrafeLeft = ','.charCodeAt(0)
-  keyStrafeRight = '.'.charCodeAt(0)
-  keyFire = KEY_RCTRL
-  keyUse = ' '.charCodeAt(0)
-  keyStrafe = KEY_RALT
-  keySpeed = KEY_RSHIFT
+  keyRight = ScanCode.ArrowRight
+  keyLeft = ScanCode.ArrowLeft
+  keyUp = ScanCode.ArrowUp
+  keyDown = ScanCode.ArrowDown
+  keyStrafeLeft = ScanCode.Comma
+  keyStrafeRight = ScanCode.Period
+  keyFire = ScanCode.ControlLeft
+  keyUse = ScanCode.Space
+  keyStrafe = ScanCode.AltLeft
+  keySpeed = ScanCode.ShiftRight
 
   mouseBFire = 0
   mouseBStrafe = 1
@@ -457,7 +457,7 @@ export class Game {
   responder(ev: DEvent): boolean {
     // allow spy mode changes even during the demo
     if (this.gameState === GameState.Level && ev.type === EvType.KeyDown &&
-      ev.data1 === KEY_F12 && (this.singleDemo || !this.deathMatch)
+      ev.data1 === ScanCode.F12 && (this.singleDemo || !this.deathMatch)
     ) {
       // spy mode
       do {
@@ -502,7 +502,7 @@ export class Game {
 
     switch (ev.type) {
     case EvType.KeyDown:
-      if (ev.data1 === KEY_PAUSE) {
+      if (ev.data1 === ScanCode.Pause) {
         this.sendPause = true
         return true
       }

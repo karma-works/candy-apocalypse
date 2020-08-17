@@ -1,9 +1,9 @@
 import { ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table'
 import { DEvent, EvType } from '../doom/event'
 import { FRACBITS, FRACUNIT, div, mul } from '../misc/fixed'
-import { KEY_DOWNARROW, KEY_LEFTARROW, KEY_RIGHTARROW, KEY_TAB, KEY_UPARROW, MAX_PLAYERS, PowerType, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { Line, Point, cheatPlayerArrow, playerArrow, thinTriangleGuy } from './models'
 import { MAP_BLOCK_UNITS, PLAYER_RADIUS } from '../play/local'
+import { MAX_PLAYERS, PowerType, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { LumpReader } from '../wad/lump-reader'
@@ -12,6 +12,7 @@ import { MapLineFlag } from '../doom/data'
 import { Patch } from '../rendering/defs/patch'
 import { Play } from '../play/setup'
 import { Player } from '../doom/player'
+import { ScanCode } from '../interfaces/scancodes'
 import { StatusBar } from '../status/stuff'
 import { Strings } from '../translation/strings'
 import { Video } from '../rendering/video'
@@ -46,19 +47,19 @@ const XHAIR_COLORS = GRAYS
 // drawing stuff
 const FB = 0
 
-const PAN_DOWN_KEY = KEY_DOWNARROW
-const PAN_UP_KEY = KEY_UPARROW
-const PAN_RIGHT_KEY = KEY_RIGHTARROW
-const PAN_LEFT_KEY = KEY_LEFTARROW
-const ZOOM_IN_KEY = '='.charCodeAt(0)
-const AM_ZOOMOUTKEY = '-'.charCodeAt(0)
-const START_KEY = KEY_TAB
-const END_KEY = KEY_TAB
-const GO_BIG_KEY = '0'.charCodeAt(0)
-const FOLLOW_KEY = 'f'.charCodeAt(0)
-const GRID_KEY = 'g'.charCodeAt(0)
-const MARK_KEY = 'm'.charCodeAt(0)
-const CLEAR_MARK_KEY = 'c'.charCodeAt(0)
+const PAN_DOWN_KEY = ScanCode.ArrowDown
+const PAN_UP_KEY = ScanCode.ArrowUp
+const PAN_RIGHT_KEY = ScanCode.ArrowRight
+const PAN_LEFT_KEY = ScanCode.ArrowLeft
+const ZOOM_IN_KEY = ScanCode.Equal
+const ZOOM_OUT_KEY = ScanCode.Minus
+const START_KEY = ScanCode.Tab
+const END_KEY = ScanCode.Tab
+const GO_BIG_KEY = ScanCode.Digit0
+const FOLLOW_KEY = ScanCode.KeyF
+const GRID_KEY = ScanCode.KeyG
+const MARK_KEY = ScanCode.KeyM
+const CLEAR_MARK_KEY = ScanCode.KeyC
 
 const NUM_MARK_POINTS = 10
 
@@ -386,7 +387,6 @@ export class AutoMap {
 
   stop(): void {
     this.active = false
-    debugger
     this.statusBar.responder({
       type: 0,
       data1: EvType.KeyUp,
@@ -485,7 +485,7 @@ export class AutoMap {
           rc = false
         }
         break
-      case AM_ZOOMOUTKEY:
+      case ZOOM_OUT_KEY:
         // zoom out
         this.m2fZoomMul = ZOOM_OUT
         this.f2mZoomMul = ZOOM_IN
@@ -559,7 +559,7 @@ export class AutoMap {
           this.panInc.y = 0
         }
         break
-      case AM_ZOOMOUTKEY:
+      case ZOOM_OUT_KEY:
       case ZOOM_IN_KEY:
         this.m2fZoomMul = FRACUNIT
         this.f2mZoomMul = FRACUNIT
