@@ -9,6 +9,7 @@ import { MainMenu } from './main'
 import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
 import { Rendering } from '../rendering/rendering'
+import { ScanCode } from '../interfaces/scancodes'
 import { SfxName } from '../doom/sounds/sfx-name'
 import { SoundMenu } from './sound'
 import { Strings } from '../translation/strings'
@@ -132,7 +133,7 @@ export class OptionsMenu implements MenuStruct {
   // M_EndGame
   //
   private endGameResponse(ch: number): void {
-    if (ch !== 'y'.charCodeAt(0)) {
+    if (ch !== ScanCode.KeyY) {
       return
     }
 

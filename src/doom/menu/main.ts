@@ -13,6 +13,7 @@ import { NewGameMenu } from './new-game'
 import { OptionsMenu } from './options'
 import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
+import { ScanCode } from '../interfaces/scancodes'
 import { SfxName } from '../doom/sounds/sfx-name'
 import { Strings } from '../translation/strings'
 
@@ -198,7 +199,7 @@ export class MainMenu implements MenuStruct {
   }
 
   private quitResponse(ch: number): void {
-    if (ch !== 'y'.charCodeAt(0)) {
+    if (ch !== ScanCode.KeyY) {
       return
     }
     if (!this.game.netGame) {

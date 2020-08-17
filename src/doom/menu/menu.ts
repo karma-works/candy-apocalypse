@@ -316,8 +316,8 @@ export class Menu {
     if (this.messageToPrint) {
       if (this.messageNeedsInput &&
         !(key === ScanCode.Space ||
-          ch === 'n'.charCodeAt(0) ||
-          ch === 'y'.charCodeAt(0) ||
+          key === ScanCode.KeyN ||
+          key === ScanCode.KeyY ||
           key === ScanCode.Escape)) {
         return false
       }

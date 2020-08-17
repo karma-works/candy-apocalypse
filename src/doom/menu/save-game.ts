@@ -116,7 +116,7 @@ export class LoadGameMenu implements MenuStruct {
   // M_QuickLoad
   //
   private quickLoadResponse(choice: number): void {
-    if (choice === 'y'.charCodeAt(0)) {
+    if (choice === ScanCode.KeyY) {
       this.select(this.menu.quickSaveSlot)
       this.dSound.startSound(null, SfxName.Swtchx)
     }
@@ -227,7 +227,7 @@ export class SaveGameMenu extends LoadGameMenu {
   //      M_QuickSave
   //
   private quickSaveResponse(ch: number): void {
-    if (ch === 'y'.charCodeAt(0)) {
+    if (ch === ScanCode.KeyY) {
       this.doSave(this.menu.quickSaveSlot)
       this.dSound.startSound(null, SfxName.Swtchx)
     }
