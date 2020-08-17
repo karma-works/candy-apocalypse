@@ -323,6 +323,14 @@ export class Game {
       this.dClicks = 0
     }
 
+    // chainsaw overrides
+    for (let i = 0; i < WeaponType.NUM_WEAPONS - 1; i++) {
+      if (this.gameKeyDown[ScanCode.Digit1 + i]) {
+        cmd.buttons |= ButtonCode.Change
+        cmd.buttons |= i << ButtonCode.WeaponShift
+        break
+      }
+    }
 
     // mouse
     if (this.mouseButtons[this.mouseBForward]) {
