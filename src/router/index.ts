@@ -12,6 +12,10 @@ const routes: Array<RouteConfig> = [
     path: '/files-listing/:parent?',
     component: () => import('@/views/files-listing.vue'),
   },
+  {
+    path: '/configuration/:name?',
+    component: () => import('@/views/configuration.vue'),
+  },
 ]
 
 const router = new VueRouter({

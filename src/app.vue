@@ -21,6 +21,13 @@
           </v-list-item-content>
         </v-list-item>
 
+        <v-list-item link to="/configuration/default.cfg">
+          <v-list-item-icon><v-icon>mdi-cog</v-icon></v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>Configuration</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
       </v-list>
     </v-navigation-drawer>
 

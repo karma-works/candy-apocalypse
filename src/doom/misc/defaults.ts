@@ -54,14 +54,7 @@ export class AgnosticDefaults {
 
   async save(): Promise<unknown> {
     const lines = Object.keys(this.defaults).map(name => {
-      const def = this.defaults[name]
-      let value: number
-
-      if (def !== undefined && typeof def === 'object') {
-        value = def.get()
-      } else {
-        value = def
-      }
+      const value = this.get(name)
       return `${name} ${value}`
     })
 
@@ -94,14 +87,27 @@ export class AgnosticDefaults {
         }
 
         if (!isNaN(value)) {
-          const def = this.defaults[name]
-          if (def !== undefined && typeof def === 'object') {
-            def.set(value)
-          } else {
-            this.defaults[name] = value
-          }
+          this.set(name, value)
         }
       }
+    }
+  }
+
+  get(name: string): number {
+    const def = this.defaults[name]
+
+    if (def !== undefined && typeof def === 'object') {
+      return def.get()
+    } else {
+      return def
+    }
+  }
+  set(name: string, value: number): void {
+    const def = this.defaults[name]
+    if (def !== undefined && typeof def === 'object') {
+      def.set(value)
+    } else {
+      this.defaults[name] = value
     }
   }
 }

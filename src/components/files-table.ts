@@ -7,7 +7,7 @@ import { Wad } from '@/doom/wad/wad'
 
 const prefixes = [ 'B', 'kB', 'MB', 'GB' ]
 
-type FileType = 'wad' | 'save' | 'unknown' | LumpType
+type FileType = 'wad' | 'save' | 'config' | 'unknown' | LumpType
 
 type ExtendedFileInfo = FileInfo & { type: FileType }
 
@@ -21,6 +21,8 @@ function getType(item: FileInfo): FileType {
     return 'wad'
   } else if (ext.endsWith('dsg')) {
     return 'save'
+  } else if (ext.endsWith('cfg')) {
+    return 'config'
   } else if (ext.endsWith('lmp') &&
     item.buffer !== undefined
   ) {
@@ -101,13 +103,15 @@ export default class FilesTable extends Vue {
       return 'WAD'
     case 'save':
       return 'Save game'
+    case 'config':
+      return 'Configuration'
     default:
       return type[0].toUpperCase() + type.substr(1)
     }
   }
 
   canPlay(item: ExtendedFileInfo): boolean {
-    const playable: FileType[] = [ 'wad', 'demo' ]
+    const playable: FileType[] = [ 'wad', 'demo', 'config' ]
     return playable.includes(item.type)
   }
   canBrowse(item: ExtendedFileInfo): boolean {
@@ -123,6 +127,8 @@ export default class FilesTable extends Vue {
       return { wad: item.name }
     case 'demo':
       return { ...base, playDemo: item.name }
+    case 'config':
+      return { ...base, config: item.name }
     default:
       return { ...base }
     }
