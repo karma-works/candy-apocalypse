@@ -47,7 +47,7 @@ export class Sound {
   // following is set
   //  by the defaults code in M_misc:
   // number of channels available
-  private numChannels = 3
+  numChannels = 3
 
   private get game(): Game {
     return this.doom.game

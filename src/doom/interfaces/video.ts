@@ -1,65 +1,10 @@
 import { Button1, Button1Mask, Button2, Button2Mask, Button3, Button3Mask, XListenEvent, XNextEvent, XPending, XQuitEvent } from './events'
 import { Color, Palette } from './palette'
 import { DEvent, EvType } from '../doom/event'
-import { KEY_BACKSPACE, KEY_DOWNARROW, KEY_ENTER, KEY_EQUALS, KEY_ESCAPE, KEY_F1, KEY_F10, KEY_F11, KEY_F12, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_LEFTARROW, KEY_MINUS, KEY_PAUSE, KEY_RALT, KEY_RCTRL, KEY_RIGHTARROW, KEY_RSHIFT, KEY_TAB, KEY_UPARROW, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
+import { SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { Doom } from '../doom'
 import { Video as RVideo } from '../rendering/video'
-
-function xlateKey({ code, key }: KeyboardEvent): number {
-  let rc: number
-  switch (code) {
-  case 'ArrowLeft': rc = KEY_LEFTARROW; break
-  case 'ArrowRight': rc = KEY_RIGHTARROW; break
-  case 'ArrowDown': rc = KEY_DOWNARROW; break
-  case 'ArrowUp': rc = KEY_UPARROW; break
-  case 'Escape': rc = KEY_ESCAPE; break
-  case 'Enter': rc = KEY_ENTER; break
-  case 'Tab': rc = KEY_TAB; break
-  case 'F1': rc = KEY_F1; break
-  case 'F2': rc = KEY_F2; break
-  case 'F3': rc = KEY_F3; break
-  case 'F4': rc = KEY_F4; break
-  case 'F5': rc = KEY_F5; break
-  case 'F6': rc = KEY_F6; break
-  case 'F7': rc = KEY_F7; break
-  case 'F8': rc = KEY_F8; break
-  case 'F9': rc = KEY_F9; break
-  case 'F10': rc = KEY_F10; break
-  case 'F11': rc = KEY_F11; break
-  case 'F12': rc = KEY_F12; break
-
-  case 'Backspace':
-  case 'Delete': rc = KEY_BACKSPACE; break
-
-  case 'Pause': rc = KEY_PAUSE; break
-
-  case 'Equal': rc = KEY_EQUALS; break
-
-  case 'Minus': rc = KEY_MINUS; break
-
-  case 'ShiftLeft':
-  case 'ShiftRight':
-    rc = KEY_RSHIFT
-    break
-
-  case 'ControlLeft':
-  case 'ControlRight':
-    rc = KEY_RCTRL
-    break
-
-  case 'AltLeft':
-  case 'MetaLeft':
-  case 'OSLeft':
-  case 'AltRight':
-  case 'MetaRight':
-  case 'OSRight':
-    rc = KEY_RALT
-    break
-  default:
-    rc = key.toLowerCase().charCodeAt(0)
-  }
-  return rc
-}
+import { ScanCode } from './scancodes'
 
 export class Video {
   useGamma = 0
@@ -76,6 +21,9 @@ export class Video {
   // According to Dave Taylor, it still is a bonehead thing
   // to use ....
   private multiply = 1
+
+  useMouse = true
+  useJoystick = false
 
   private get rVideo(): RVideo {
     return this.doom.rendering.video
@@ -99,12 +47,14 @@ export class Video {
     switch (xEvent.type) {
     case 'keydown':
       event.type = EvType.KeyDown
-      event.data1 = xlateKey(keyEvent)
+      this.populateKeyEvent(event, keyEvent)
+
       this.doom.postEvent(event)
       break
     case 'keyup':
       event.type = EvType.KeyUp
-      event.data1 = xlateKey(keyEvent)
+      this.populateKeyEvent(event, keyEvent)
+
       this.doom.postEvent(event)
       break
     case 'mousedown':
@@ -155,6 +105,16 @@ export class Video {
       }
 
       break
+    }
+  }
+
+  private populateKeyEvent(event: DEvent, keyEvent: KeyboardEvent) {
+    event.data1 = ScanCode[keyEvent.code as keyof typeof ScanCode]
+    if (event.data1 === ScanCode.ShiftLeft) {
+      event.data1 = ScanCode.ShiftRight
+    }
+    if (keyEvent.key.length === 1) {
+      event.data2 = keyEvent.key.charCodeAt(0)
     }
   }
 
@@ -243,7 +203,7 @@ export class Video {
       throw 'Could not open display'
     }
 
-    XListenEvent(this.screen)
+    XListenEvent(this.screen, this.useMouse)
 
     this.image = this.xScreen.createImageData(this.xWidth, this.xHeight)
 

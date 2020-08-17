@@ -30,7 +30,7 @@ export function XNextEvent(display: HTMLCanvasElement): XEvent | never {
   }
 }
 
-export function XListenEvent(display: HTMLCanvasElement): void {
+export function XListenEvent(display: HTMLCanvasElement, mouse: boolean): void {
   const l: ScreenListener = { pending: [], listeners: {} }
   const pending = l.pending
   listeners.set(display, l)
@@ -51,27 +51,33 @@ export function XListenEvent(display: HTMLCanvasElement): void {
       l.listeners.keydown = listener
       display.addEventListener('keyup', listener)
       l.listeners.keyup = listener
-      display.addEventListener('mousedown', listener)
-      l.listeners.mousedown = listener
-      display.addEventListener('mouseup', listener)
-      l.listeners.mouseup = listener
-      display.addEventListener('mousemove', listener)
-      l.listeners.mousemove = listener
+      if (mouse) {
+        display.addEventListener('mousedown', listener)
+        l.listeners.mousedown = listener
+        display.addEventListener('mouseup', listener)
+        l.listeners.mouseup = listener
+        display.addEventListener('mousemove', listener)
+        l.listeners.mousemove = listener
+      }
     }, 0)
 
-    display.requestPointerLock()
+    if (mouse) {
+      display.requestPointerLock()
+    }
   }
   const onBlur = () => {
     display.removeEventListener('keydown', listener)
     delete l.listeners.keydown
     display.removeEventListener('keyup', listener)
     delete l.listeners.keyup
-    display.removeEventListener('mousedown', listener)
-    delete l.listeners.mousedown
-    display.removeEventListener('mouseup', listener)
-    delete l.listeners.mouseup
-    display.removeEventListener('mousemove', listener)
-    delete l.listeners.mousemove
+    if (mouse) {
+      display.removeEventListener('mousedown', listener)
+      delete l.listeners.mousedown
+      display.removeEventListener('mouseup', listener)
+      delete l.listeners.mouseup
+      display.removeEventListener('mousemove', listener)
+      delete l.listeners.mousemove
+    }
   }
 
   display.addEventListener('focus', onFocus)

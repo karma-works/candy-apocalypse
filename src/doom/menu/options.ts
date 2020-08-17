@@ -117,7 +117,6 @@ export class OptionsMenu implements MenuStruct {
   //      Toggle messages on/off
   //
   changeMessages(): void {
-    // TODO
     this.headsUp.showMessages = !this.headsUp.showMessages
     if (!this.headsUp.showMessages) {
       this.game.players[this.game.consolePlayer].message = this.strings.msgoff
@@ -125,6 +124,8 @@ export class OptionsMenu implements MenuStruct {
       this.game.players[this.game.consolePlayer].message = this.strings.msgon
     }
     this.headsUp.messageDontFuckWithMe = true
+
+    this.menu.saveDefaults()
   }
 
   //
@@ -164,6 +165,7 @@ export class OptionsMenu implements MenuStruct {
       }
       break
     }
+    this.menu.saveDefaults()
   }
 
   changeDetail(/* choice: number */): void {
@@ -188,6 +190,8 @@ export class OptionsMenu implements MenuStruct {
       this.rendering.screenBlocks,
       this.rendering.detailLevel,
     )
+
+    this.menu.saveDefaults()
   }
   private sound(): void {
     this.menu.setupNextMenu(this.soundMenu)

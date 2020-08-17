@@ -6,6 +6,7 @@ export interface Params {
   wad: string,
   gameVersion?: GameVersion
   pack?: string
+  config?: string
 
   deathMatch?: boolean
   altDeath?: boolean

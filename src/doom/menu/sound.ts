@@ -94,6 +94,7 @@ export class SoundMenu implements MenuStruct {
     }
 
     this.dSound.setSfxVolume(this.dSound.sfxVolume)
+    this.menu.saveDefaults()
   }
   private musicVol(choice: number): void {
     switch (choice) {
@@ -110,5 +111,6 @@ export class SoundMenu implements MenuStruct {
     }
 
     this.dSound.setMusicVolume(this.dSound.musicVolume)
+    this.menu.saveDefaults()
   }
 }

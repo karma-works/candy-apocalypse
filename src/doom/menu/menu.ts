@@ -1,7 +1,6 @@
 import { DEvent, EvType } from '../doom/event'
 import { GameMode, GameVersion } from '../doom/mode'
 import { HU_FONTSIZE, HU_FONTSTART, HeadsUp } from '../heads-up/stuff'
-import { KEY_BACKSPACE, KEY_DOWNARROW, KEY_ENTER, KEY_EQUALS, KEY_ESCAPE, KEY_F1, KEY_F10, KEY_F11, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_LEFTARROW, KEY_MINUS, KEY_RIGHTARROW, KEY_UPARROW, SCREENWIDTH } from '../global/doomdef'
 import { LoadGameMenu, SaveGameMenu } from './save-game'
 import { MainEnum, MainMenu } from './main'
 import { MenuItem, MenuStruct } from './typedefs'
@@ -17,6 +16,8 @@ import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
 import { ReadThisCommercialMenu } from './read-this'
 import { Rendering } from '../rendering/rendering'
+import { SCREENWIDTH } from '../global/doomdef'
+import { ScanCode } from '../interfaces/scancodes'
 import { SfxName } from '../doom/sounds/sfx-name'
 import { Strings } from '../translation/strings'
 import { getTime } from '../system/system'
@@ -234,95 +235,97 @@ export class Menu {
   private mousex = 0
   private lastx = 0
   responder(ev: DEvent): boolean {
+    let key = -1
     let ch = -1
 
     if (ev.type === EvType.Joystick && this.joywait < getTime()) {
       if (ev.data3 === -1) {
-        ch = KEY_UPARROW
+        key = ScanCode.ArrowUp
         this.joywait = getTime() + 5
       } else if (ev.data3 === 1) {
-        ch = KEY_DOWNARROW
+        key = ScanCode.ArrowDown
         this.joywait = getTime() + 5
       }
 
       if (ev.data2 === -1) {
-        ch = KEY_LEFTARROW
+        key = ScanCode.ArrowLeft
         this.joywait = getTime() + 2
       } else if (ev.data2 === 1) {
-        ch = KEY_RIGHTARROW
+        key = ScanCode.ArrowRight
         this.joywait = getTime() + 2
       }
 
       if (ev.data1 & 1) {
-        ch = KEY_ENTER
+        key = ScanCode.Enter
         this.joywait = getTime() + 5
       }
       if (ev.data1 & 2) {
-        ch = KEY_BACKSPACE
+        key = ScanCode.Backspace
         this.joywait = getTime() + 5
       }
     } else {
       if (ev.type === EvType.Mouse && this.mousewait < getTime()) {
         this.mousey += ev.data3
         if (this.mousey < this.lasty - 30) {
-          ch = KEY_DOWNARROW
+          key = ScanCode.ArrowDown
           this.mousewait = getTime() + 5
           this.mousey = this.lasty -= 30
         } else if (this.mousey > this.lasty + 30) {
-          ch = KEY_UPARROW
+          key = ScanCode.ArrowUp
           this.mousewait = getTime() + 5
           this.mousey = this.lasty += 30
         }
 
         this.mousex += ev.data2
         if (this.mousex < this.lastx - 30) {
-          ch = KEY_LEFTARROW
+          key = ScanCode.ArrowLeft
           this.mousewait = getTime() + 5
           this.mousex = this.lastx -= 30
         } else if (this.mousex > this.lastx + 30) {
-          ch = KEY_RIGHTARROW
+          key = ScanCode.ArrowRight
           this.mousewait = getTime() + 5
           this.mousex = this.lastx += 30
         }
 
         if (ev.data1 & 1) {
-          ch = KEY_ENTER
+          key = ScanCode.Enter
           this.mousewait = getTime() + 15
         }
         if (ev.data1 & 2) {
-          ch = KEY_BACKSPACE
+          key = ScanCode.Backspace
           this.mousewait = getTime() + 15
         }
       } else {
         if (ev.type === EvType.KeyDown) {
-          ch = ev.data1
+          key = ev.data1
+          ch = ev.data2
         }
       }
     }
 
-    if (ch === -1) {
+    if (key === -1) {
       return false
     }
 
     // Save Game string input
-    if (this.saveMenu.responder(ch)) {
+    if (this.saveMenu.responder(key, ch)) {
       return true
     }
 
     // Take care of any messages that need input
     if (this.messageToPrint) {
       if (this.messageNeedsInput &&
-        !(ch === ' '.charCodeAt(0) ||
+        !(key === ScanCode.Space ||
           ch === 'n'.charCodeAt(0) ||
           ch === 'y'.charCodeAt(0) ||
-          ch === KEY_ESCAPE)) {
+          key === ScanCode.Escape)) {
         return false
       }
 
       this.menuActive = this.messageLastMenuActive
       this.messageToPrint = false
       if (this.messageRoutine) {
-        this.messageRoutine.call(this.currentMenu, ch)
+        this.messageRoutine.call(this.currentMenu, key)
       }
 
       this.menuActive = false
@@ -332,9 +335,9 @@ export class Menu {
 
     // F-Keys
     if (!this.menuActive) {
-      switch (ch) {
+      switch (key) {
       // Screen size down
-      case KEY_MINUS:
+      case ScanCode.Minus:
         if (this.autoMap.active || this.headsUp.chatOn) {
           return false
         }
@@ -343,7 +346,7 @@ export class Menu {
         return true
 
       // Screen size up
-      case KEY_EQUALS:
+      case ScanCode.Equal:
         if (this.autoMap.active || this.headsUp.chatOn) {
           return false
         }
@@ -352,7 +355,7 @@ export class Menu {
         return true
 
       // Help key
-      case KEY_F1:
+      case ScanCode.F1:
         this.startControlPanel()
 
         if (this.doom.gameVersion >= GameVersion.Ultimate) {
@@ -366,21 +369,21 @@ export class Menu {
         return true
 
       // Save
-      case KEY_F2:
+      case ScanCode.F2:
         this.startControlPanel()
         this.dSound.startSound(null, SfxName.Swtchn)
         this.mainMenu.saveGame()
         return true
 
       // Load
-      case KEY_F3:
+      case ScanCode.F3:
         this.startControlPanel()
         this.dSound.startSound(null, SfxName.Swtchn)
         this.mainMenu.loadGame()
         return true
 
       // Sound Volume
-      case KEY_F4:
+      case ScanCode.F4:
         this.startControlPanel()
         this.currentMenu = this.soundMenu
         this.itemOn = Sound.SfxVol
@@ -388,19 +391,19 @@ export class Menu {
         return true
 
       // Detail toggle
-      case KEY_F5:
+      case ScanCode.F5:
         this.optionsMenu.changeDetail()
         this.dSound.startSound(null, SfxName.Swtchn)
         return true
 
       // Quicksave
-      case KEY_F6:
+      case ScanCode.F6:
         this.dSound.startSound(null, SfxName.Swtchn)
         this.saveMenu.quickSave()
         return true
 
       // End game
-      case KEY_F7:
+      case ScanCode.F7:
         this.dSound.startSound(null, SfxName.Swtchn)
         // Workaround
         this.currentMenu = this.optionsMenu
@@ -408,37 +411,40 @@ export class Menu {
         return true
 
       // Toggle messages
-      case KEY_F8:
+      case ScanCode.F8:
         this.optionsMenu.changeMessages()
         this.dSound.startSound(null, SfxName.Swtchn)
         return true
 
       // Quickload
-      case KEY_F9:
+      case ScanCode.F9:
         this.dSound.startSound(null, SfxName.Swtchn)
         this.loadMenu.quickLoad()
         return true
 
       // Quit DOOM
-      case KEY_F10:
+      case ScanCode.F10:
         this.dSound.startSound(null, SfxName.Swtchn)
         this.mainMenu.quitDOOM()
         return true
 
       // gamma toggle
-      case KEY_F11:
+      case ScanCode.F11:
         this.iVideo.useGamma++
         if (this.iVideo.useGamma > 4) {
           this.iVideo.useGamma = 0
         }
         this.iVideo.uploadNewPalette()
+
+        this.saveDefaults()
+
         return true
       }
     }
 
     // Pop-up menu?
     if (!this.menuActive) {
-      if (ch === KEY_ESCAPE) {
+      if (key === ScanCode.Escape) {
         this.startControlPanel()
         this.dSound.startSound(null, SfxName.Swtchn)
         return true
@@ -448,8 +454,8 @@ export class Menu {
 
     // Keys usable within menu
     let item: MenuItem
-    switch (ch) {
-    case KEY_DOWNARROW:
+    switch (key) {
+    case ScanCode.ArrowDown:
       do {
         if (this.itemOn + 1 > this.currentMenu.numItems - 1) {
           this.itemOn = 0
@@ -460,7 +466,7 @@ export class Menu {
       } while (this.currentMenu.menuItems[this.itemOn].status === -1)
       return true
 
-    case KEY_UPARROW:
+    case ScanCode.ArrowUp:
       do {
         if (!this.itemOn) {
           this.itemOn = this.currentMenu.numItems - 1
@@ -471,7 +477,7 @@ export class Menu {
       } while (this.currentMenu.menuItems[this.itemOn].status === -1)
       return true
 
-    case KEY_LEFTARROW: {
+    case ScanCode.ArrowLeft: {
       const item = this.currentMenu.menuItems[this.itemOn]
       if (item.status === 2) {
         this.dSound.startSound(null, SfxName.Stnmov)
@@ -480,7 +486,7 @@ export class Menu {
       return true
     }
 
-    case KEY_RIGHTARROW: {
+    case ScanCode.ArrowRight: {
       const item = this.currentMenu.menuItems[this.itemOn]
       if (item.status === 2) {
         this.dSound.startSound(null, SfxName.Stnmov)
@@ -489,7 +495,7 @@ export class Menu {
       return true
     }
 
-    case KEY_ENTER: {
+    case ScanCode.Enter: {
       const item = this.currentMenu.menuItems[this.itemOn]
       if (item.status === 1 || item.status === 2) {
         this.currentMenu.lastOn = this.itemOn
@@ -505,13 +511,13 @@ export class Menu {
       return true
     }
 
-    case KEY_ESCAPE:
+    case ScanCode.Escape:
       this.currentMenu.lastOn = this.itemOn
       this.clearMenus()
       this.dSound.startSound(null, SfxName.Swtchx)
       return true
 
-    case KEY_BACKSPACE:
+    case ScanCode.Backspace:
       this.currentMenu.lastOn = this.itemOn
       if (this.currentMenu.prevMenu) {
         this.currentMenu = this.currentMenu.prevMenu
@@ -524,7 +530,7 @@ export class Menu {
       for (let i = this.itemOn + 1; i < this.currentMenu.numItems; ++i) {
         item = this.currentMenu.menuItems[i]
         if ((item.status === 1 || item.status === 2) &&
-          item.alphaKey === String.fromCharCode(ch)
+          item.alphaKey === String.fromCharCode(key)
         ) {
           this.itemOn = i
           this.dSound.startSound(null, SfxName.Pstop)
@@ -534,7 +540,7 @@ export class Menu {
       for (let i = 0; i <= this.itemOn; ++i) {
         item = this.currentMenu.menuItems[i]
         if ((item.status === 1 || item.status === 2) &&
-          item.alphaKey === String.fromCharCode(ch)
+          item.alphaKey === String.fromCharCode(key)
         ) {
           this.itemOn = i
           this.dSound.startSound(null, SfxName.Pstop)
@@ -648,6 +654,10 @@ export class Menu {
   setupNextMenu(menuDef: MenuStruct): void {
     this.currentMenu = menuDef
     this.itemOn = this.currentMenu.lastOn
+  }
+
+  saveDefaults(): void {
+    this.doom.defaults.save()
   }
 
   //

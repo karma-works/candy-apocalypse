@@ -1,14 +1,15 @@
 import { Game, SAVE_GAME_NAME, SAVE_STRING_SIZE } from '../game/game'
-import { GameState, KEY_BACKSPACE, KEY_ENTER, KEY_ESCAPE } from '../global/doomdef'
 import { HU_FONTSIZE, HU_FONTSTART } from '../heads-up/stuff'
 import { LINEHEIGHT, Menu } from './menu'
 import { MenuItem, MenuStruct } from './typedefs'
 import { tostring, toupper } from '../utils/c'
 import { Sound as DSound } from '../doom/sound'
+import { GameState } from '../global/doomdef'
 import { LumpReader } from '../wad/lump-reader'
 import { MainMenu } from './main'
 import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
+import { ScanCode } from '../interfaces/scancodes'
 import { SfxName } from '../doom/sounds/sfx-name'
 import { Strings } from '../translation/strings'
 import { fs } from '../system/fs'
@@ -265,10 +266,10 @@ export class SaveGameMenu extends LoadGameMenu {
   // old save description before edit
   private saveOldString = ''
 
-  responder(ch: number): boolean {
+  responder(key: number, ch: number): boolean {
     if (this.saveStringEnter) {
-      switch (ch) {
-      case KEY_BACKSPACE:
+      switch (key) {
+      case ScanCode.Backspace:
         if (this.saveCharIndex > 0) {
           this.saveCharIndex--
           this.saveGameStrings[this.saveSlot] =
@@ -276,12 +277,12 @@ export class SaveGameMenu extends LoadGameMenu {
         }
         break
 
-      case KEY_ESCAPE:
+      case ScanCode.Escape:
         this.saveStringEnter = false
         this.saveGameStrings[this.saveSlot] = this.saveOldString
         break
 
-      case KEY_ENTER:
+      case ScanCode.Enter:
         this.saveStringEnter = false
         if (this.saveGameStrings[this.saveSlot].length > 0) {
           this.doSave(this.saveSlot)

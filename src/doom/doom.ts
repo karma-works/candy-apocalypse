@@ -3,6 +3,7 @@ import { GameMission, GameMode, GameVersion, Language, Skill, logicalGameMission
 import { GameState, SCREENHEIGHT, SCREENWIDTH } from './global/doomdef'
 import { AutoMap } from './auto-map/auto-map'
 import { Sound as DSound } from './doom/sound'
+import { Defaults } from './misc/defaults'
 import { EnglishStrings } from './translation/english'
 import { Game } from './game/game'
 import { HeadsUp } from './heads-up/stuff'
@@ -64,6 +65,7 @@ export class Doom {
   private title = ''
 
   public wad = new LumpReader()
+  public defaults = new Defaults(this)
   public net = new Net(this)
   public iNet = new INet(this)
   public dSound = new DSound(this)
@@ -720,6 +722,10 @@ export class Doom {
     // init subsystems
     console.log('V_Init: allocate screens.')
     this.rVideo.init()
+
+    console.log('M_LoadDefaults: Load system defaults.')
+    // load before initing other systems
+    this.defaults.load(this.params.config)
 
     this.addFile(this.params.wad)
     this.gameMission = this.identifyWadByName(this.params.wad)

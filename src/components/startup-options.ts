@@ -1,7 +1,7 @@
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { fs } from '@/doom/system/fs'
-import { Skill } from '@/doom/doom/mode'
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { Params } from '@/doom/doom/params'
+import { Skill } from '@/doom/doom/mode'
+import { fs } from '@/doom/system/fs'
 
 @Component
 export default class extends Vue {
@@ -35,6 +35,7 @@ export default class extends Vue {
     }
 
     this.wad = p.wad || ''
+    this.config = p.config || ''
 
     this.playDemo = p.playDemo || ''
     this.record = p.record || ''
@@ -47,7 +48,7 @@ export default class extends Vue {
     { text: 'Easy', value: Skill.Easy },
     { text: 'Medium', value: Skill.Medium },
     { text: 'Hard', value: Skill.Hard },
-    { text: 'Nightmare', value: Skill.Nightmare }
+    { text: 'Nightmare', value: Skill.Nightmare },
   ]
   episode = 1
   map = 1
@@ -57,6 +58,7 @@ export default class extends Vue {
   fast = false
 
   wad = ''
+  config = 'default.cfg'
 
   playDemo = ''
   record = ''
@@ -77,13 +79,16 @@ export default class extends Vue {
     if (this.wad) {
       p.wad = this.wad
     }
+    if (this.config) {
+      p.config = this.config
+    }
     p.playDemo = this.playDemo
     p.record = this.record
 
     this.$emit('input', p)
   }
 
-  async upload(file: File, input: 'playDemo' | 'wad'): Promise<void> {
+  async upload(file: File, input: 'playDemo' | 'wad' | 'config'): Promise<void> {
     const buf = await file.arrayBuffer()
     fs.write(file.name, buf)
 

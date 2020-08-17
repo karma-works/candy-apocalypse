@@ -69,6 +69,16 @@
           @change="upload($event, 'wad')">
         </v-file-input>
 
+        <v-text-field class="mx-2"
+          v-model="config"
+          label="Config"
+        ></v-text-field>
+
+        <v-file-input class="mx-2"
+          hide-input
+          @change="upload($event, 'config')">
+        </v-file-input>
+
         <v-col cols="12">
           <header> Demo </header>
         </v-col>
