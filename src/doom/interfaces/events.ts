@@ -40,7 +40,7 @@ export function XListenEvent(display: HTMLCanvasElement): void {
   const listener = (ev: XEvent): void => {
     pending.push(ev) && ev.preventDefault()
   }
-  
+
   display.addEventListener('contextmenu', preventDefault)
   l.listeners.contextmenu = preventDefault
 
@@ -60,7 +60,6 @@ export function XListenEvent(display: HTMLCanvasElement): void {
     }, 0)
 
     display.requestPointerLock()
-    display.requestFullscreen()
   }
   const onBlur = () => {
     display.removeEventListener('keydown', listener)
@@ -85,7 +84,7 @@ export function XQuitEvent(display: HTMLCanvasElement): void {
   if (document.pointerLockElement === display) {
     document.exitPointerLock()
   }
-  if (document.fullscreenElement === display) {
+  if (document.fullscreenElement === display.parentElement) {
     document.exitFullscreen()
   }
 
@@ -95,8 +94,9 @@ export function XQuitEvent(display: HTMLCanvasElement): void {
   }
 
   l.pending = [];
+  // eslint-disable-next-line no-extra-parens
   (Object.keys(l.listeners) as (keyof HTMLElementEventMap)[])
     .forEach(k => {
-      display.removeEventListener(k, (l.listeners[k] as any))
+      display.removeEventListener(k, l.listeners[k] as never)
     })
 }
