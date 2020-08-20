@@ -96,7 +96,7 @@ export class LoadGameMenu implements MenuStruct {
 
     for (let i = 0; i < Save.SaveEnd; ++i) {
       this.drawSaveLoadBorder(this.x, this.y + LINEHEIGHT * i)
-      this.menu.writeText(
+      this.menu.headsUp.lib.writeText(
         this.x,
         this.y + LINEHEIGHT * i,
         this.saveGameStrings[i],
@@ -189,8 +189,9 @@ export class SaveGameMenu extends LoadGameMenu {
     super.routine()
 
     if (this.saveStringEnter) {
-      const i = this.menu.stringWidth(this.saveGameStrings[this.saveSlot])
-      this.menu.writeText(
+      const i = this.menu.headsUp.lib.stringWidth(
+        this.saveGameStrings[this.saveSlot])
+      this.menu.headsUp.lib.writeText(
         this.x + i,
         this.y + LINEHEIGHT * this.saveSlot,
         '_',
@@ -299,7 +300,7 @@ export class SaveGameMenu extends LoadGameMenu {
         }
         if (ch >= 32 && ch <= 127 &&
           this.saveCharIndex < SAVE_STRING_SIZE - 1 &&
-          this.menu.stringWidth(this.saveGameStrings[this.saveSlot]) < (SAVE_STRING_SIZE - 2) * 8
+          this.menu.headsUp.lib.stringWidth(this.saveGameStrings[this.saveSlot]) < (SAVE_STRING_SIZE - 2) * 8
         ) {
           this.saveGameStrings[this.saveSlot] =
               this.saveGameStrings[this.saveSlot].substr(0, this.saveCharIndex) +

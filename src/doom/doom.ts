@@ -5,6 +5,7 @@ import { AutoMap } from './auto-map/auto-map'
 import { Sound as DSound } from './doom/sound'
 import { Defaults } from './misc/defaults'
 import { EnglishStrings } from './translation/english'
+import { Finale } from './finale/finale'
 import { Game } from './game/game'
 import { HeadsUp } from './heads-up/stuff'
 import { Net as INet } from './interfaces/net'
@@ -80,6 +81,7 @@ export class Doom {
   private wipe = new Wipe(this)
   public autoMap = new AutoMap(this)
   public win = new Win(this)
+  public finale = new Finale(this)
 
   private get rVideo(): RVIdeo {
     return this.rendering.video
@@ -194,6 +196,9 @@ export class Doom {
       break
     case GameState.Intermission:
       this.win.drawer()
+      break
+    case GameState.Finale:
+      this.finale.drawer()
       break
     case GameState.DemoScreen:
       this.pageDrawer()

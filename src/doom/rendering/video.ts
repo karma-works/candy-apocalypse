@@ -4,6 +4,11 @@ import { Column } from './defs/column'
 import { Patch } from './defs/patch'
 import { Post } from './defs/post'
 
+interface DrawPatchOptions {
+  flipped?: boolean
+  scale?: number
+}
+
 export class Video {
   // Each screen is [SCREENWIDTH*SCREENHEIGHT];
   screens = new Array<Uint8ClampedArray>(5)
@@ -48,10 +53,11 @@ export class Video {
   // Masks a column based masked pic to the screen.
   //
   drawPatch(x: number, y: number, scrn: number, patch: Patch,
-    scale = SCREEN_MUL,
+    { flipped = false, scale = SCREEN_MUL }: DrawPatchOptions = {},
   ): void {
     scale <<= FRACBITS
 
+    const w = patch.width
     const srcWidth = patch.width << FRACBITS
     const srcHeight = patch.height << FRACBITS
     const destWidth = mul(scale, srcWidth)
@@ -85,7 +91,11 @@ export class Video {
     const step = div(FRACUNIT, scale)
     let yFrac: number
     for (; xFrac < srcWidth; ++x, ++destTopPtr) {
-      column = patch.columns[xFrac >> FRACBITS]
+      column = patch.columns[
+        flipped ?
+          w - 1 - (xFrac >> FRACBITS) :
+          xFrac >> FRACBITS
+      ]
       xFrac += step
 
       // step through the posts in a column

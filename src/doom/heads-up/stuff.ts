@@ -265,7 +265,7 @@ export class HeadsUp {
     return this.doom.wad
   }
 
-  private lib = new Lib(this)
+  public lib = new Lib(this)
 
   constructor(public doom: Doom) { }
 

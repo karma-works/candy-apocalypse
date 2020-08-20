@@ -151,77 +151,6 @@ export class Menu {
   }
 
   //
-  // Find string width from hu_font chars
-  //
-  stringWidth(str: string): number {
-    let w = 0
-    let c: number
-    for (let i = 0; i < str.length; ++i) {
-      c = toupper(str.charCodeAt(i)) - HU_FONTSTART
-      if (c < 0 || c >= HU_FONTSIZE) {
-        w += 4
-      } else {
-        w += this.headsUp.font[i].width
-      }
-    }
-
-    return w
-  }
-
-  //
-  // Find string height from hu_font chars
-  //
-  stringHeight(str: string): number {
-    let h = 0
-    const height = this.headsUp.font[0].height
-    for (let i = 0; i < str.length; ++i) {
-      if (str.charAt(i) === '\n') {
-        h += height
-      }
-    }
-    return h
-  }
-
-  //
-  // Write a string using the hu_font
-  //
-  writeText(x: number, y: number, str: string): void {
-    let w: number
-    let ch = 0
-    let c: number
-
-    let cx = x
-    let cy = y
-
-    for (;;) {
-      c = str.charCodeAt(ch++)
-      if (!c) {
-        break
-      }
-      if (c === '\n'.charCodeAt(0)) {
-        cx = x
-        cy += 12
-        continue
-      }
-
-      c = toupper(c) - HU_FONTSTART
-      if (c < 0 || c >= HU_FONTSIZE) {
-        cx += 4
-        continue
-      }
-
-      w = this.headsUp.font[c].width
-      if (cx +w > SCREENWIDTH) {
-        break
-      }
-
-      this.rVideo.drawPatch(cx, cy, 0, this.headsUp.font[c])
-
-      cx += w
-    }
-  }
-
-  //
   // CONTROL PANEL
   //
 
@@ -581,7 +510,8 @@ export class Menu {
     if (this.messageToPrint && this.messageString !== null) {
       let start = 0
       let i = 0
-      this.y = 100 - Math.floor(this.stringHeight(this.messageString) / 2)
+      this.y = 100 - Math.floor(
+        this.headsUp.lib.stringHeight(this.messageString) / 2)
       let str = ''
 
       while (this.messageString.charAt(start)) {
@@ -598,8 +528,9 @@ export class Menu {
           start += i
         }
 
-        this.x = 160 - Math.floor(this.stringWidth(str) / 2)
-        this.writeText(this.x, this.y, str)
+        this.x = 160 - Math.floor(
+          this.headsUp.lib.stringWidth(str) / 2)
+        this.headsUp.lib.writeText(this.x, this.y, str)
         this.y += this.headsUp.font[0].height
       }
 
