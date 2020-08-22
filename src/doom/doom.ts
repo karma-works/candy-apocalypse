@@ -27,6 +27,7 @@ import { Wipe } from './wipe'
 import { getTime } from './system/system'
 
 export class Doom {
+  onError: (e: unknown) => void = () => ({})
 
   // Game Mode - identify IWAD as shareware, retail etc.
   gameMode: GameMode = GameMode.Indetermined
@@ -326,45 +327,48 @@ export class Doom {
     this.iVideo.initGraphics(this.params.screen)
 
     const w = () => {
-      if (this.wipeActive) {
-        this.displayWipe()
-        requestAnimationFrame(w.bind(this))
-        return
-      }
-
-      // process one or more tics
-      if (this.singleTics) {
-        this.iVideo.startTic()
-        this.processEvents()
-        this.game.buildTicCmd(
-          this.net.netCmds[this.game.consolePlayer][this.net.makeTic],
-        )
-        if (this.advancedemo) {
-          this.doAdvanceDemo()
+      try {
+        if (this.wipeActive) {
+          this.displayWipe()
+          requestAnimationFrame(w.bind(this))
+          return
         }
-        this.menu.ticker()
-        this.game.ticker()
-        this.game.gameTic++
-        this.net.makeTic++
-      } else {
-        // will run at least one tic
-        this.net.tryRunTics()
+
+        // process one or more tics
+        if (this.singleTics) {
+          this.iVideo.startTic()
+          this.processEvents()
+          this.game.buildTicCmd(
+            this.net.netCmds[this.game.consolePlayer][this.net.makeTic],
+          )
+          if (this.advancedemo) {
+            this.doAdvanceDemo()
+          }
+          this.menu.ticker()
+          this.game.ticker()
+          this.game.gameTic++
+          this.net.makeTic++
+        } else {
+          // will run at least one tic
+          this.net.tryRunTics()
+        }
+
+        if (this.quitted) {
+          this.quitted()
+          return
+        }
+
+        // move positional sounds
+        this.dSound.updateSounds(this.game.players[this.game.consolePlayer].mo)
+
+        // Update display, next frame, with current state.
+        this.display()
+
+        // Sound mixing for the buffer is snychronous.
+        this.iSound.updateSound()
+      } catch (e) {
+        this.onError(e)
       }
-
-      if (this.quitted) {
-        this.quitted()
-        return
-      }
-
-      // move positional sounds
-      this.dSound.updateSounds(this.game.players[this.game.consolePlayer].mo)
-
-      // Update display, next frame, with current state.
-      this.display()
-
-      // Sound mixing for the buffer is snychronous.
-      this.iSound.updateSound()
-
       requestAnimationFrame(w.bind(this))
     }
     w()
