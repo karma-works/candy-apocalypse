@@ -9,6 +9,10 @@
         {{ fullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen' }}
       </v-icon>
     </v-btn>
+
+    <v-snackbar app v-model="displayError">
+      {{ error }}
+    </v-snackbar>
   </div>
 </template>
 
@@ -43,37 +47,58 @@ export default class Doom extends Vue {
       wad: 'doom1.wad',
     }
 
-    this.doomInst = new RawDoom(this.defaultParams)
-
-    await this.doomInst.init()
+    await this.start()
 
     window.addEventListener('resize', this.onResize)
     this.onResize()
 
-    const ctx = this.doomInst.iSound.audioCtx
-    if (ctx) {
-      ctx.addEventListener('statechange', e => {
-        this.sound = !!ctx && ctx.state === 'running'
-        this.$emit('soundChange', this.sound)
-      })
-    }
-
-    this.doomInst.iVideo.onFullScreenChange(a => {
-      this.fullscreen = a
-    })
   }
 
   async restart(p: Partial<Params>): Promise<void> {
     await this.doomInst.quit()
 
-    this.doomInst = new RawDoom({
-      ...this.defaultParams,
-      ...p,
-    })
-
-    await this.doomInst.init()
+    await this.start(p)
 
     this.$refs.screen.focus()
+  }
+  async start(p: Partial<Params> = {}): Promise<void> {
+    try {
+      this.doomInst = new RawDoom({
+        ...this.defaultParams,
+        ...p
+      })
+      this.doomInst.onError = (e) => this.onError(e)
+
+      await this.doomInst.init()
+
+      const ctx = this.doomInst.iSound.audioCtx
+      if (ctx) {
+        ctx.addEventListener('statechange', e => {
+          this.sound = !!ctx && ctx.state === 'running'
+          this.$emit('soundChange', this.sound)
+        })
+      }
+
+      this.doomInst.iVideo.onFullScreenChange(a => {
+        this.fullscreen = a
+      })
+    } catch (e) {
+      this.onError(e)
+    }
+  }
+
+  displayError = false
+  error = ''
+  private onError(e: unknown): void {
+    if (e instanceof Error) {
+      e = e.message
+      console.error(e)
+    }
+
+    if (typeof e === 'string') {
+      this.error = e
+      this.displayError = true
+    }
   }
 
   @Prop() sound = false

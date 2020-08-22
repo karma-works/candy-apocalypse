@@ -1182,7 +1182,7 @@ export class Game {
 
   private writeDemoTicCmd(cmd: TickCmd): void {
     // press q to end demo recording
-    if (this.gameKeyDown['q'.charCodeAt(0)]) {
+    if (this.gameKeyDown[ScanCode.KeyQ]) {
       this.checkDemoStatus()
     }
 
@@ -1320,9 +1320,8 @@ export class Game {
 
       this.demoRecording = false
 
-      alert(`Demo ${this.demoName} recorded`)
       this.doom.quit()
-      return false
+      throw `Demo ${this.demoName} recorded`
     }
 
     return false
