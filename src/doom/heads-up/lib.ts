@@ -1,11 +1,12 @@
+import { HU_FONTSIZE, HU_FONTSTART, HeadsUp } from './stuff'
 import { AutoMap } from '../auto-map/auto-map'
 import { Draw } from '../rendering/draw'
-import { HeadsUp } from './stuff'
 import { IText } from './i-text'
 import { SCREENWIDTH } from '../global/doomdef'
 import { SText } from './s-text'
 import { TextLine } from './text-line'
 import { Video } from '../rendering/video'
+import { toupper } from '../utils/c'
 
 // background and foreground screen numbers
 // different from other modules.
@@ -148,5 +149,76 @@ export class Lib {
     }
     this.eraseTextLine(it.line)
     it.lastOn = it.on()
+  }
+
+  //
+  // Find string width from hu_font chars
+  //
+  stringWidth(str: string): number {
+    let w = 0
+    let c: number
+    for (let i = 0; i < str.length; ++i) {
+      c = toupper(str.charCodeAt(i)) - HU_FONTSTART
+      if (c < 0 || c >= HU_FONTSIZE) {
+        w += 4
+      } else {
+        w += this.headsUp.font[i].width
+      }
+    }
+
+    return w
+  }
+
+  //
+  // Find string height from hu_font chars
+  //
+  stringHeight(str: string): number {
+    let h = 0
+    const height = this.headsUp.font[0].height
+    for (let i = 0; i < str.length; ++i) {
+      if (str.charAt(i) === '\n') {
+        h += height
+      }
+    }
+    return h
+  }
+
+  //
+  // Write a string using the hu_font
+  //
+  writeText(x: number, y: number, str: string, lineHeight = 12): void {
+    let w: number
+    let ch = 0
+    let c: number
+
+    let cx = x
+    let cy = y
+
+    for (;;) {
+      c = str.charCodeAt(ch++)
+      if (!c) {
+        break
+      }
+      if (c === '\n'.charCodeAt(0)) {
+        cx = x
+        cy += lineHeight
+        continue
+      }
+
+      c = toupper(c) - HU_FONTSTART
+      if (c < 0 || c >= HU_FONTSIZE) {
+        cx += 4
+        continue
+      }
+
+      w = this.headsUp.font[c].width
+      if (cx + w > SCREENWIDTH) {
+        break
+      }
+
+      this.video.drawPatch(cx, cy, 0, this.headsUp.font[c])
+
+      cx += w
+    }
   }
 }

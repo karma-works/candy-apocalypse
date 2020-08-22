@@ -6,6 +6,7 @@ import { MainMenu } from './main'
 import { Menu } from './menu'
 import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
+import { ScanCode } from '../interfaces/scancodes'
 import { Skill } from '../doom/mode'
 import { Strings } from '../translation/strings'
 
@@ -91,7 +92,7 @@ export class NewGameMenu implements MenuStruct {
   }
 
   private verifyNightmare(ch: number): void {
-    if (ch !== 'y'.charCodeAt(0)) {
+    if (ch !== ScanCode.KeyY) {
       return
     }
 

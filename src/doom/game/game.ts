@@ -8,6 +8,7 @@ import { Sound as DSound } from '../doom/sound'
 import { Demo } from './demo'
 import { Doom } from '../doom'
 import { FRACUNIT } from '../misc/fixed'
+import { Finale } from '../finale/finale'
 import { HeadsUp } from '../heads-up/stuff'
 import { LumpReader } from '../wad/lump-reader'
 import { MAX_HEALTH } from '../play/local'
@@ -185,6 +186,9 @@ export class Game {
   }
   private get dSound(): DSound {
     return this.doom.dSound
+  }
+  private get finale(): Finale {
+    return this.doom.finale
   }
   private get headsUp(): HeadsUp {
     return this.doom.headsUp
@@ -508,6 +512,13 @@ export class Game {
       }
     }
 
+    if (this.gameState === GameState.Finale) {
+      if (this.finale.responder(ev)) {
+        // finale ate the event
+        return true
+      }
+    }
+
     switch (ev.type) {
     case EvType.KeyDown:
       if (ev.data1 === ScanCode.Pause) {
@@ -583,6 +594,9 @@ export class Game {
       case GameAction.Completed:
         this.doCompleted()
         break
+      case GameAction.Victory:
+        this.finale.start()
+        break
       case GameAction.WorldDone:
         this.doWorldDone()
         break
@@ -646,6 +660,9 @@ export class Game {
       break
     case GameState.Intermission:
       this.win.ticker()
+      break
+    case GameState.Finale:
+      this.finale.ticker()
       break
     case GameState.DemoScreen:
       this.doom.pageTicker()
@@ -884,7 +901,7 @@ export class Game {
       case 11:
       case 20:
       case 30:
-        debugger
+        this.finale.start()
         break
       }
     }

@@ -291,9 +291,9 @@ export class StatusBar {
   responder(ev: DEvent): boolean {
     // Filter automap on/off.
     if (ev.type === EvType.KeyUp &&
-      (ev.data1 & 0xffff0000) === AM_MSGHEADER
+      (ev.data2 & 0xffff0000) === AM_MSGHEADER
     ) {
-      switch (ev.data1) {
+      switch (ev.data2) {
       case AM_MSGENTERED:
         this.gameState = State.AutoMap
         this.firstTime = true
@@ -308,7 +308,7 @@ export class StatusBar {
 
       // if a user keypress...
       if (!this.game.netGame && this.game.gameSkill !== Skill.Nightmare) {
-        if (this.cheat.checkCheat(godCheat, ev.data1)) {
+        if (this.cheat.checkCheat(godCheat, ev.data2)) {
           // 'dqd' cheat for toggleable god mode
           plyr.cheats ^= PCheat.GodMode
           if (plyr.cheats & PCheat.GodMode) {
@@ -321,7 +321,7 @@ export class StatusBar {
           } else {
             plyr.message = this.strings.ststrDqdoff
           }
-        } else if (this.cheat.checkCheat(ammoNoKeyCheat, ev.data1)) {
+        } else if (this.cheat.checkCheat(ammoNoKeyCheat, ev.data2)) {
           // 'fa' cheat for killer fucking arsenal
           plyr.armorPoints = 200
           plyr.armorType = 2
@@ -335,7 +335,7 @@ export class StatusBar {
           }
 
           plyr.message = this.strings.ststrFaadded
-        } else if (this.cheat.checkCheat(ammoCheat, ev.data1)) {
+        } else if (this.cheat.checkCheat(ammoCheat, ev.data2)) {
           // 'kfa' cheat for key full ammo
           plyr.armorPoints = 200
           plyr.armorType = 2
@@ -353,7 +353,7 @@ export class StatusBar {
           }
 
           plyr.message = this.strings.ststrKfaadded
-        } else if (this.cheat.checkCheat(musCheat, ev.data1)) {
+        } else if (this.cheat.checkCheat(musCheat, ev.data2)) {
           // 'mus' cheat for changing music
 
           plyr.message = this.strings.ststrMus
@@ -373,9 +373,9 @@ export class StatusBar {
           }
 
         } else if (logicalGameMission(this.doom.gameMission) === GameMission.Doom &&
-          this.cheat.checkCheat(noClipCheat, ev.data1) ||
+          this.cheat.checkCheat(noClipCheat, ev.data2) ||
           logicalGameMission(this.doom.gameMission) !== GameMission.Doom &&
-          this.cheat.checkCheat(commercialNoClipCheat, ev.data1)
+          this.cheat.checkCheat(commercialNoClipCheat, ev.data2)
         ) {
           // Simplified, accepting both "noclip" and "idspispopd".
           // no clipping mode cheat
@@ -390,7 +390,7 @@ export class StatusBar {
 
         // 'behold?' power-up cheats
         for (let i = 0; i < 6; i++) {
-          if (this.cheat.checkCheat(powerupCheat[i], ev.data1)) {
+          if (this.cheat.checkCheat(powerupCheat[i], ev.data2)) {
             if (!plyr.powers[i]) {
               this.inter.givePower(plyr, i)
             } else if (i !== PowerType.Strength) {
@@ -403,15 +403,15 @@ export class StatusBar {
           }
         }
 
-        if (this.cheat.checkCheat(powerupCheat[6], ev.data1)) {
+        if (this.cheat.checkCheat(powerupCheat[6], ev.data2)) {
           // 'behold' power-up menu
           plyr.message = this.strings.ststrBehold
-        } else if (this.cheat.checkCheat(choppersCheat, ev.data1)) {
+        } else if (this.cheat.checkCheat(choppersCheat, ev.data2)) {
           // 'choppers' invulnerability & chainsaw
           plyr.weaponOwned[WeaponType.Chainsaw] = true
           plyr.powers[PowerType.Invulnerability] = 1
           plyr.message = this.strings.ststrChoppers
-        } else if (this.cheat.checkCheat(myPosCheat, ev.data1)) {
+        } else if (this.cheat.checkCheat(myPosCheat, ev.data2)) {
           // 'mypos' for player position
 
           if (plyr.mo === null) {
@@ -426,7 +426,7 @@ export class StatusBar {
       }
 
       // 'clev' change-level cheat
-      if (!this.game.netGame && this.cheat.checkCheat(clevCheat, ev.data1)) {
+      if (!this.game.netGame && this.cheat.checkCheat(clevCheat, ev.data2)) {
         const buf = this.cheat.getParam(clevCheat)
 
         let episode: number
