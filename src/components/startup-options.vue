@@ -85,17 +85,20 @@
       
         <v-text-field class="mx-2"
           v-model="playDemo"
+          :disabled="!!record"
           label="Play demo"
         ></v-text-field>
 
         <v-file-input class="mx-2"
           hide-input
+          :disabled="!!record"
           @change="upload($event, 'playDemo')">
         </v-file-input>
 
         <v-text-field class="mx-2"
           @change="autoStart = true"
           v-model="record"
+          :disabled="!!playDemo"
           label="Record demo"
         ></v-text-field>
 
