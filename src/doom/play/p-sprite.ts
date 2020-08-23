@@ -659,9 +659,8 @@ export class PSprite {
     let lineTarget: MObj | null
     let i: number
     let j: number
-    debugger
     for (i = 0; i < 40; ++i) {
-      an = mo.angle - ANG90 / 2 + ANG90 / 40 * i
+      an = mo.angle - ANG90 / 2 + (ANG90 / 40 * i >> 0) >>> 0
 
       // mo->target is the originator (player)
       //  of the missile
