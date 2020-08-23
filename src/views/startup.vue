@@ -1,14 +1,15 @@
 <template>
   <v-card>
-    <StartupOptions :value="$route.query" @input="restartDoom($event)"/>
+    <StartupOptions :value="params" @input="restartDoom($event)"/>
   </v-card>
 </template>
 
 <script lang="ts">
-import { Component, Inject, Vue } from 'vue-property-decorator'
+import { Component, Inject, Vue, Watch } from 'vue-property-decorator'
 import StartupOptions from '@/components/startup-options.vue';
 import Doom from './doom.vue';
 import { Params } from '@/doom/doom/params';
+import { Route } from 'vue-router';
 
 @Component({
   components: {
@@ -18,10 +19,27 @@ import { Params } from '@/doom/doom/params';
 export default class extends Vue {
   @Inject('doomGetter') doomGetter!: () => Doom
 
+  @Watch('$route') routeChange(r: Route): void {
+    this.updateParams()
+  }
+
+  mounted(): void {
+    this.updateParams()
+  }
+
+  params: Partial<Params> = {}
+  updateParams(): void {
+    this.params = {
+      ...this.doomGetter().params,
+      ...this.$route.query,
+    }
+  }
+
   restartDoom(p: Partial<Params>): void {
     const d = this.doomGetter()
 
-    d.restart(p)
+    d.params = { ...p }
+    d.restart()
   }
 
 }
