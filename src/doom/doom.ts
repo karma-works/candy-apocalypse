@@ -721,11 +721,17 @@ export class Doom {
 
     let playDemo = this.params.playDemo
     if (playDemo) {
-      if (playDemo.endsWith('.lmp')) {
+      if (playDemo.toLowerCase().endsWith('.lmp')) {
+        this.addFile(playDemo)
+        console.log(`Playing demo ${playDemo}`)
         playDemo = playDemo.substr(0, playDemo.length - 4)
+      } else if (playDemo === playDemo.toUpperCase()) {
+        this.addFile(`${playDemo}.LMP`)
+        console.log(`Playing demo ${playDemo}.LMP`)
+      } else {
+        this.addFile(`${playDemo}.lmp`)
+        console.log(`Playing demo ${playDemo}.lmp`)
       }
-      this.addFile(`${playDemo}.lmp`)
-      console.log(`Playing demo ${playDemo}.lmp`)
     }
 
     // init subsystems
