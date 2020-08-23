@@ -2,6 +2,7 @@ import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { FileInfo, fs } from '@/doom/system/fs'
 import { LumpType, guessLumpType } from '@/doom/wad/lump'
 import { DataTableHeader } from 'vuetify'
+import { Level } from '@/doom/level/level'
 import { Params } from '@/doom/doom/params'
 import { Wad } from '@/doom/wad/wad'
 
@@ -112,7 +113,7 @@ export default class FilesTable extends Vue {
   }
 
   canPlay(item: ExtendedFileInfo): boolean {
-    const playable: FileType[] = [ 'wad', 'demo', 'config' ]
+    const playable: FileType[] = [ 'wad', 'demo', 'config', 'level' ]
     return playable.includes(item.type)
   }
   canBrowse(item: ExtendedFileInfo): boolean {
@@ -130,6 +131,11 @@ export default class FilesTable extends Vue {
       return { ...base, playDemo: item.name }
     case 'config':
       return { ...base, config: item.name }
+    case 'level':
+    {
+      const level = new Level(item.buffer || new ArrayBuffer(0), item.name)
+      return { ...base, episode: level.episode, map: level.map }
+    }
     default:
       return { ...base }
     }
