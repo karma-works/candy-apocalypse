@@ -43,6 +43,10 @@ export class Lights {
   }
 
   spawnFireFlicker(sector: Sector): void {
+    // Note that we are resetting sector attributes.
+    // Nothing special about it during gameplay.
+    sector.special = 0
+
     const flick = new FireFlicker(
       sector,
       this.fireFlicker,

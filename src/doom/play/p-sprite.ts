@@ -94,8 +94,9 @@ export class PSprite {
         case PSprite:
           handler = this
           break
-        default:
-          debugger
+        case Enemy:
+          handler = this.enemy
+          break
         }
         state.action.call(handler, player, psp)
         if (!psp.state) {
@@ -439,8 +440,6 @@ export class PSprite {
       player.mo.y,
       this.map.lineTarget.x, this.map.lineTarget.y)
 
-    debugger
-
     if (angle - player.mo.angle >>> 0 > ANG180) {
       if (angle - player.mo.angle >>> 0 < -ANG90 / 20 >>> 0) {
         player.mo.angle = angle + (ANG90 / 21 >>> 0) >>> 0
@@ -620,7 +619,6 @@ export class PSprite {
     this.mObjHandler.setMObjState(player.mo, StateNum.PlayAtk2)
     player.ammo[weaponInfo[player.readyWeapon].ammo]--
 
-    debugger
     this.setPSprite(player,
       PSpriteNum.Flash,
       weaponInfo[player.readyWeapon].flashState +
@@ -659,9 +657,8 @@ export class PSprite {
     let lineTarget: MObj | null
     let i: number
     let j: number
-    debugger
     for (i = 0; i < 40; ++i) {
-      an = mo.angle - ANG90 / 2 + ANG90 / 40 * i
+      an = mo.angle - ANG90 / 2 + (ANG90 / 40 * i >> 0) >>> 0
 
       // mo->target is the originator (player)
       //  of the missile

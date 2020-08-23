@@ -38,34 +38,40 @@ export default class Doom extends Vue {
   private defaultParams!: Params
 
   async mounted(): Promise<void> {
-    await fs.write('doom1.wad', './doom1.wad', false)
-
-    const screen = this.$refs.screen
-
-    this.defaultParams = {
-      screen,
-      wad: 'doom1.wad',
+    const paramsStr = localStorage.getItem('params')
+    if (paramsStr !== null) {
+      const params = JSON.parse(paramsStr)
+      if (params !== null && typeof params === 'object') {
+        this.params = params
+      }
     }
+
+    await fs.write('doom1.wad', './doom1.wad', false)
 
     await this.start()
 
     window.addEventListener('resize', this.onResize)
     this.onResize()
-
   }
 
-  async restart(p: Partial<Params>): Promise<void> {
+  async restart(): Promise<void> {
     await this.doomInst.quit()
 
-    await this.start(p)
+    await this.start()
 
     this.$refs.screen.focus()
   }
-  async start(p: Partial<Params> = {}): Promise<void> {
+  params: Partial<Params> = {}
+  async start(): Promise<void> {
     try {
+      const screen = this.$refs.screen
+
+      localStorage.setItem('params', JSON.stringify(this.params))
+
       this.doomInst = new RawDoom({
-        ...this.defaultParams,
-        ...p
+        screen,
+        wad: 'doom1.wad',
+        ...this.params,
       })
       this.doomInst.onError = (e) => this.onError(e)
 

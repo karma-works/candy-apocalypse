@@ -625,7 +625,7 @@ export class Menu {
     }
 
     if (this.doom.gameMode === GameMode.Commercial) {
-      this.mainMenu.menuItems.splice(MainEnum.ReadThis)
+      this.mainMenu.menuItems.splice(MainEnum.ReadThis, 1)
       this.mainMenu.numItems--
       this.mainMenu.y += 8
 

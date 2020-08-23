@@ -2,7 +2,6 @@ import { LumpType } from '../wad/lump'
 import { MAX_PLAYERS } from '../global/doomdef'
 import { Skill } from '../doom/mode'
 import { TickCmd } from '../doom/tick-cmd'
-import { assertBoolean } from '../wad/lump-utils'
 
 const DEMO_MARKER = 0x80
 
@@ -116,9 +115,9 @@ export class Demo {
     this.map = buffer[ptr++]
     if (!this.old) {
       this.deathMatch = buffer[ptr++]
-      this.respawnParam = assertBoolean(buffer[ptr++])
-      this.fastParam = assertBoolean(buffer[ptr++])
-      this.noMonsters = assertBoolean(buffer[ptr++])
+      this.respawnParam = !!buffer[ptr++]
+      this.fastParam = !!buffer[ptr++]
+      this.noMonsters = !!buffer[ptr++]
       this.consolePlayer = buffer[ptr++]
     } else {
       this.deathMatch = 0
@@ -129,7 +128,7 @@ export class Demo {
     }
 
     for (let i = 0; i < MAX_PLAYERS; ++i) {
-      this.playerInGame[i] = assertBoolean(buffer[ptr++])
+      this.playerInGame[i] = !!buffer[ptr++]
     }
     if (this.playerInGame[1]) {
       this.netGame = true
