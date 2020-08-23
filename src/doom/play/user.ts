@@ -244,7 +244,6 @@ export class User {
     const cmd = player.cmd
 
     if (player.mo.flags & MObjFlag.JustAttacked) {
-      debugger
       cmd.angleTurn = 0
       cmd.forwardMove = 0xc800/512
       cmd.sideMove = 0

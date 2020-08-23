@@ -440,8 +440,6 @@ export class PSprite {
       player.mo.y,
       this.map.lineTarget.x, this.map.lineTarget.y)
 
-    debugger
-
     if (angle - player.mo.angle >>> 0 > ANG180) {
       if (angle - player.mo.angle >>> 0 < -ANG90 / 20 >>> 0) {
         player.mo.angle = angle + (ANG90 / 21 >>> 0) >>> 0
@@ -621,7 +619,6 @@ export class PSprite {
     this.mObjHandler.setMObjState(player.mo, StateNum.PlayAtk2)
     player.ammo[weaponInfo[player.readyWeapon].ammo]--
 
-    debugger
     this.setPSprite(player,
       PSpriteNum.Flash,
       weaponInfo[player.readyWeapon].flashState +
