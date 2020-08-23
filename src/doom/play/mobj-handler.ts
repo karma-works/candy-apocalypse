@@ -99,8 +99,9 @@ export class MObjHandler {
         case Enemy:
           handler = this.enemy
           break
-        default:
-          debugger
+        case PSprite:
+          handler = this.pSprite
+          break
         }
         st.action.call(handler, mobj)
       }

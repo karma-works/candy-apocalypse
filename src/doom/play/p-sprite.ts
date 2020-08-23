@@ -94,8 +94,9 @@ export class PSprite {
         case PSprite:
           handler = this
           break
-        default:
-          debugger
+        case Enemy:
+          handler = this.enemy
+          break
         }
         state.action.call(handler, player, psp)
         if (!psp.state) {
