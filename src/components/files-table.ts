@@ -161,5 +161,6 @@ export default class FilesTable extends Vue {
   }
   async remove({ name }: FileInfo): Promise<void> {
     await fs.rm(name)
+    await this.initFiles()
   }
 }
