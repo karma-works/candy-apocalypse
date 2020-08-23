@@ -63,6 +63,7 @@ export default class FilesTable extends Vue {
       text: 'Actions',
       value: 'actions',
       sortable: false,
+      width: 180,
     },
   ]
 
