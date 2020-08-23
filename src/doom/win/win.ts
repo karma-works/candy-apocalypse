@@ -732,8 +732,7 @@ export class Win {
       this.lNames = new Array(this.numCMaps)
 
       for (let i = 0; i < this.numCMaps; ++i) {
-        name = `CWILV${i.toString().padStart(2, ' ')}`
-        debugger
+        name = `CWILV${i.toString().padStart(2, '0')}`
         this.lNames[i] = this.wad.cacheLumpName(name, Patch)
       }
     } else {
