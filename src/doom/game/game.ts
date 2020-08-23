@@ -1,4 +1,4 @@
-import { AmmoType, GameState, MAX_PLAYERS, WeaponType } from '../global/doomdef'
+import { AmmoType, GameState, MAX_PLAYERS, TICRATE, WeaponType } from '../global/doomdef'
 import { ButtonCode, DEvent, EvType, GameAction } from '../doom/event'
 import { GameMode, GameVersion, Skill } from '../doom/mode'
 import { Player, PlayerState, WbStart } from '../doom/player'
@@ -870,9 +870,16 @@ export class Game {
     this.wmInfo.maxSecret = this.totalSecret
     this.wmInfo.maxFrags = 0
     if (this.doom.gameMode === GameMode.Commercial) {
-      this.wmInfo.parTime = 35 * cPars[this.gameMap - 1]
+      if (this.gameMap === 33) {
+        // wtf ?
+        this.wmInfo.parTime = 1835884871
+      } else {
+        this.wmInfo.parTime = TICRATE * cPars[this.gameMap - 1]
+      }
+    } else if (this.gameEpisode < 4) {
+      this.wmInfo.parTime = TICRATE * pars[this.gameEpisode][this.gameMap]
     } else {
-      this.wmInfo.parTime = 35 * pars[this.gameEpisode][this.gameMap]
+      this.wmInfo.parTime = TICRATE * cPars[this.gameMap]
     }
     this.wmInfo.pNum = this.consolePlayer
 
