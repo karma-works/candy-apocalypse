@@ -336,9 +336,8 @@ export class Switch {
 
     case 51:
       // Secret EXIT
-      // P_ChangeSwitchTexture(line, 0)
-      // G_SecretExitLevel()
-      debugger
+      this.changeSwitchTexture(line, false)
+      this.game.secretExitLevel()
       break
 
     case 55:

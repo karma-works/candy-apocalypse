@@ -766,6 +766,19 @@ export class Game {
     this.gameAction = GameAction.Completed
   }
 
+  // Here's for the german edition.
+  secretExitLevel(): void {
+    // IF NO WOLF3D LEVELS, NO SECRET EXIT!
+    if (this.doom.gameMode === GameMode.Commercial &&
+      this.wad.checkNumForName('map31') < 0
+    ) {
+      this.secretExit = false
+    } else {
+      this.secretExit = true
+      this.gameAction = GameAction.Completed
+    }
+  }
+
   private doCompleted(): void {
     this.gameAction = GameAction.Nothing
 

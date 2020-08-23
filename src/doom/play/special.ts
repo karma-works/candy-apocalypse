@@ -457,8 +457,7 @@ export class Special {
 
     case 124:
       // Secret EXIT
-      // G_SecretExitLevel();
-      debugger
+      this.game.secretExitLevel()
       break
 
     case 125:
