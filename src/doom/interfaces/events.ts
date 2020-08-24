@@ -41,8 +41,10 @@ export function XListenEvent(display: HTMLCanvasElement, mouse: boolean): void {
     pending.push(ev) && ev.preventDefault()
   }
 
-  display.addEventListener('contextmenu', preventDefault)
-  l.listeners.contextmenu = preventDefault
+  if (mouse) {
+    display.addEventListener('contextmenu', preventDefault)
+    l.listeners.contextmenu = preventDefault
+  }
 
   const onFocus = () => {
     // Delay to avoid triggering event while focusing
