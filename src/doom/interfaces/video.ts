@@ -1,8 +1,6 @@
 import { Button1, Button1Mask, Button2, Button2Mask, Button3, Button3Mask, XListenEvent, XNextEvent, XPending, XQuitEvent } from './events'
 import { Color, Palette } from './palette'
 import { DEvent, EvType } from '../doom/event'
-import { SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
-import { Doom } from '../doom'
 import { Video as RVideo } from '../rendering/video'
 import { ScanCode } from './scancodes'
 
@@ -25,13 +23,11 @@ export class Video {
   useMouse = true
   useJoystick = false
 
-  private get rVideo(): RVideo {
-    return this.doom.rendering.video
-  }
-
-  constructor(private doom: Doom) {
+  constructor(private rVideo: RVideo) {
     this.uploadNewPalette()
   }
+
+  postEvent: (ev: DEvent) => void = () => ({})
 
   getEvent(): void {
     if (this.screen === null) {
@@ -49,13 +45,13 @@ export class Video {
       event.type = EvType.KeyDown
       this.populateKeyEvent(event, keyEvent)
 
-      this.doom.postEvent(event)
+      this.postEvent(event)
       break
     case 'keyup':
       event.type = EvType.KeyUp
       this.populateKeyEvent(event, keyEvent)
 
-      this.doom.postEvent(event)
+      this.postEvent(event)
       break
     case 'mousedown':
       event.type = EvType.Mouse
@@ -67,7 +63,7 @@ export class Video {
           (mouseEvent.button === Button2 ? 2 : 0) |
           (mouseEvent.button === Button3 ? 4 : 0)
       event.data2 = event.data3 = 0
-      this.doom.postEvent(event)
+      this.postEvent(event)
       break
 
     case 'mouseup':
@@ -82,7 +78,7 @@ export class Video {
           (mouseEvent.button === Button2 ? 2 : 0) ^
           (mouseEvent.button === Button3 ? 4 : 0)
       event.data2 = event.data3 = 0
-      this.doom.postEvent(event)
+      this.postEvent(event)
       break
 
     case 'mousemove':
@@ -100,7 +96,7 @@ export class Video {
         if (mouseEvent.offsetX !== this.xWidth / 2 &&
             mouseEvent.offsetY !== this.xHeight / 2
         ) {
-          this.doom.postEvent(event)
+          this.postEvent(event)
         }
       }
 
@@ -147,13 +143,13 @@ export class Video {
       let oLinePtr = 0
       let iLinePtr = 0
       let x: number
-      let y = SCREENHEIGHT
+      let y = this.rVideo.height
 
       const reds = this.reds
       const greens = this.greens
       const blues = this.blues
       while (y--) {
-        x = SCREENWIDTH
+        x = this.rVideo.width
         do {
           oLine[oLinePtr++] = reds[iLine[iLinePtr]]
           oLine[oLinePtr++] = greens[iLine[iLinePtr]]
@@ -182,14 +178,14 @@ export class Video {
 
   private firstTime = 1
 
-  initGraphics(screen: HTMLCanvasElement): void {
+  init(screen: HTMLCanvasElement): void {
     if (!this.firstTime) {
       return
     }
     this.firstTime = 0
 
-    this.xWidth = SCREENWIDTH * this.multiply
-    this.xHeight = SCREENHEIGHT * this.multiply
+    this.xWidth = this.rVideo.width * this.multiply
+    this.xHeight = this.rVideo.height * this.multiply
 
     this.screen = screen
 
@@ -207,7 +203,7 @@ export class Video {
 
     this.image = this.xScreen.createImageData(this.xWidth, this.xHeight)
 
-    this.rVideo.screens[0] = new Uint8ClampedArray(SCREENWIDTH * SCREENHEIGHT)
+    this.rVideo.screens[0] = new Uint8ClampedArray(this.rVideo.width * this.rVideo.height)
   }
 
   onFullScreenChange(cb: (a: boolean) => void): void {
@@ -234,7 +230,7 @@ export class Video {
       return
     }
 
-    this.xScreen.clearRect(0, 0, SCREENWIDTH, SCREENHEIGHT)
+    this.xScreen.clearRect(0, 0, this.rVideo.width, this.rVideo.height)
 
     XQuitEvent(this.screen)
 

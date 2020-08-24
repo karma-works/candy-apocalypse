@@ -77,7 +77,6 @@ export class Doom {
   public play = new Play(this)
   public rendering = new Rendering(this)
   public game = new Game(this)
-  public iVideo = new IVideo(this)
   public menu = new Menu(this)
   private wipe = new Wipe(this)
   public autoMap = new AutoMap(this)
@@ -87,8 +86,11 @@ export class Doom {
   private get rVideo(): RVIdeo {
     return this.rendering.video
   }
+  public iVideo = new IVideo(this.rVideo)
 
-  constructor(public params: Params) { }
+  constructor(public params: Params) {
+    this.iVideo.postEvent = ev => this.postEvent(ev)
+  }
 
   //
   // EVENT HANDLING
@@ -329,7 +331,7 @@ export class Doom {
     if (this.game.demoRecording) {
       this.game.beginRecording()
     }
-    this.iVideo.initGraphics(this.params.screen)
+    this.iVideo.init(this.params.screen)
 
     const w = () => {
       try {

@@ -13,6 +13,11 @@ export class Video {
   // Each screen is [SCREENWIDTH*SCREENHEIGHT];
   screens = new Array<Uint8ClampedArray>(5)
 
+  constructor(
+    public width = SCREENWIDTH,
+    public height = SCREENHEIGHT,
+  ) { }
+
   //
   // V_CopyRect
   //
@@ -22,13 +27,13 @@ export class Video {
   ): void {
     if (RANGE_CHECK) {
       if (srcX < 0 ||
-        srcX + width > SCREENWIDTH ||
+        srcX + width > this.width ||
         srcY < 0 ||
-        srcY + height > SCREENHEIGHT ||
+        srcY + height > this.height ||
         destX < 0 ||
-        destX + width > SCREENWIDTH ||
+        destX + width > this.width ||
         destY < 0 ||
-        destY + height > SCREENHEIGHT ||
+        destY + height > this.height ||
         srcScreen > 4 ||
         destScreen > 4
       ) {
@@ -36,15 +41,15 @@ export class Video {
       }
     }
 
-    let srcPtr = SCREENWIDTH * srcY + srcX
-    let destPtr = SCREENWIDTH * destY + destX
+    let srcPtr = this.width * srcY + srcX
+    let destPtr = this.width * destY + destX
 
     for (; height > 0; --height) {
       this.screens[destScreen].set(
         this.screens[srcScreen].slice(srcPtr, srcPtr + width), destPtr,
       )
-      srcPtr += SCREENWIDTH
-      destPtr += SCREENWIDTH
+      srcPtr += this.width
+      destPtr += this.width
     }
   }
 
@@ -68,9 +73,9 @@ export class Video {
 
     if (RANGE_CHECK) {
       if (x < 0 ||
-        x + (destWidth >> FRACBITS) > SCREENWIDTH ||
+        x + (destWidth >> FRACBITS) > this.width ||
         y < 0 ||
-        y + (destHeight >> FRACBITS) > SCREENHEIGHT ||
+        y + (destHeight >> FRACBITS) > this.height ||
         scrn > 4
       ) {
         console.error(`Patch at ${x},${y} exceeds LFB`)
@@ -80,7 +85,7 @@ export class Video {
     }
 
     const screen = this.screens[scrn]
-    let destTopPtr = y * SCREENWIDTH + x
+    let destTopPtr = y * this.width + x
 
     let column: Column
     let post: Post
@@ -102,14 +107,14 @@ export class Video {
       for (post of column.posts) {
         destPtr = destTopPtr +
           (mul(post.topDelta << FRACBITS, scale) >> FRACBITS) *
-          SCREENWIDTH
+          this.width
         count = mul(post.length << FRACBITS, scale) >> FRACBITS
 
         yFrac = 0
         while (count--) {
           screen[destPtr] = post.bytes[yFrac >> FRACBITS]
 
-          destPtr += SCREENWIDTH
+          destPtr += this.width
           yFrac += step
         }
       }
@@ -125,9 +130,9 @@ export class Video {
 
     if (RANGE_CHECK) {
       if (x < 0 ||
-        x + width > SCREENWIDTH ||
+        x + width > this.width ||
         y < 0 ||
-        y + height > SCREENHEIGHT ||
+        y + height > this.height ||
         scrn > 4
       ) {
         throw 'Bad V_DrawBlock'
@@ -135,7 +140,7 @@ export class Video {
     }
 
     let srcPtr = 0
-    let destPtr = y * SCREENWIDTH + x
+    let destPtr = y * this.width + x
 
     while (height--) {
       this.screens[scrn].set(
@@ -143,7 +148,7 @@ export class Video {
       )
 
       srcPtr += width
-      destPtr += SCREENWIDTH
+      destPtr += this.width
     }
   }
 
@@ -152,7 +157,7 @@ export class Video {
   //
   init(): void {
     for (let i = 0; i < 4; ++i) {
-      this.screens[i] = new Uint8ClampedArray(SCREENWIDTH * SCREENHEIGHT)
+      this.screens[i] = new Uint8ClampedArray(this.width * this.height)
     }
   }
 }
