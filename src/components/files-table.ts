@@ -1,4 +1,4 @@
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
+import { Component, Prop, Vue, Watch, Emit } from 'vue-property-decorator'
 import { FileInfo, fs } from '@/doom/system/fs'
 import { LumpType, guessLumpType } from '@/doom/wad/lump'
 import { DataTableHeader } from 'vuetify'
@@ -9,7 +9,10 @@ const prefixes = [ 'B', 'kB', 'MB', 'GB' ]
 
 type FileType = 'wad' | 'save' | 'config' | 'unknown' | LumpType
 
-type ExtendedFileInfo = FileInfo & { type: FileType }
+export type ExtendedFileInfo = FileInfo & {
+  id: string
+  type: FileType
+}
 
 function getType(item: FileInfo): FileType {
   let fileName = item.name.toLowerCase()
@@ -31,12 +34,18 @@ function getType(item: FileInfo): FileType {
   return 'unknown'
 }
 
-function extend(f: FileInfo, wad = false): ExtendedFileInfo {
+function extend(f: FileInfo): ExtendedFileInfo {
   return {
     ...f,
-    type: wad && f.buffer ?
-      guessLumpType(f.buffer, f.name) :
-      getType(f),
+    id: f.name,
+    type: getType(f),
+  }
+}
+function extendWadLump(f: FileInfo, i: number, wad: string): ExtendedFileInfo {
+  return {
+    ...f,
+    id: `${wad}#${i}`,
+    type: f.buffer ? guessLumpType(f.buffer, f.name) : 'unknown',
   }
 }
 
@@ -66,6 +75,17 @@ export default class FilesTable extends Vue {
     },
   ]
 
+  selected: ExtendedFileInfo[] = []
+  select(value: ExtendedFileInfo): void {
+    if (value.type === 'patch') {
+      this.selected = [ value ]
+      this.$emit('selectedChange', value)
+    } else {
+      this.selected = []
+      this.$emit('selectedChange', null)
+    }
+  }
+
   wadName = ''
 
   async mounted(): Promise<void> {
@@ -81,7 +101,7 @@ export default class FilesTable extends Vue {
       if (buffer) {
         const wad = new Wad(buffer)
 
-        this.files = wad.lumps.map(f => extend(f, true))
+        this.files = wad.lumps.map((f, i) => extendWadLump(f, i, this.wadName))
         return
       }
     }

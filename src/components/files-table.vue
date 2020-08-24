@@ -1,5 +1,10 @@
 <template>
   <v-data-table
+    single-select
+    @click:row="select"
+    :value="[ selected ]"
+    item-key="id"
+
     :headers="headers"
     :items="files">
     <template v-slot:[`item.size`]="{ item }">
