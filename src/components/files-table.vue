@@ -12,12 +12,12 @@
 
     <template v-slot:[`item.actions`]="{ item }">
       <v-btn icon
-        v-if="canPlay(item)"
+        v-bind:class="{ hidden: !canPlay(item) }"
         link :to="{ path: '/', query: getParam(item)}"
       ><v-icon>mdi-play</v-icon></v-btn>
 
       <v-btn icon
-        v-if="canBrowse(item)"
+        v-bind:class="{ hidden: !canBrowse(item) }"
         link :to="{ params: { parent: item.name }}"
       ><v-icon>mdi-folder-open</v-icon></v-btn>
 
@@ -26,7 +26,7 @@
       ><v-icon>mdi-download</v-icon></v-btn>
 
       <v-btn icon
-        v-if="canRemove(item)"
+        v-bind:class="{ hidden: !canRemove(item) }"
         @click="remove(item)"
       ><v-icon>mdi-delete-forever</v-icon></v-btn>
     </template>
@@ -34,3 +34,9 @@
 </template>
 
 <script lang="ts" src="./files-table"></script>
+
+<style lang="scss" scoped>
+  .hidden {
+    visibility: hidden;
+  }
+</style>
