@@ -152,12 +152,13 @@ export default class Doom extends Vue {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .screen-wrapper {
   height: calc(100vh - 64px);
   text-align: center;
   > canvas {
     transform-origin: top;
+    image-rendering: pixelated;
     outline: none;
   }
 }
