@@ -366,7 +366,6 @@ export class Win {
 
     // if non-number, do not draw it
     if (n === 1994) {
-      debugger
       return 0
     }
 
@@ -764,7 +763,6 @@ export class Win {
               a.p[i] = this.wad.cacheLumpName(name, Patch)
             } else {
               // HACK ALERT!
-              debugger
               a.p[i] = anims[1][4].p[i]
             }
           }
