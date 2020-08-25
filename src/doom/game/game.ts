@@ -1121,7 +1121,7 @@ export class Game {
 
     random.clearRandom()
 
-    if (skill === Skill.Nightmare && this.doom.respawnParam) {
+    if (skill === Skill.Nightmare || this.doom.respawnParam) {
       this.respawnMonsters = true
     } else {
       this.respawnMonsters = false
