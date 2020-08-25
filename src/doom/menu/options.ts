@@ -171,6 +171,19 @@ export class OptionsMenu implements MenuStruct {
 
   changeDetail(/* choice: number */): void {
     this.rendering.detailLevel = !this.rendering.detailLevel ? 1 : 0
+
+    this.rendering.setViewSize(
+      this.rendering.screenBlocks,
+      this.rendering.detailLevel,
+    )
+
+    this.menu.saveDefaults()
+
+    if (!this.rendering.detailLevel) {
+      this.game.player.message = this.strings.detailhi
+    } else {
+      this.game.player.message = this.strings.detaillo
+    }
   }
   sizeDisplay(choice: number): void {
     switch (choice) {
