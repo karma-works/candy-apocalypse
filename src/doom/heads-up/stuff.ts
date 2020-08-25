@@ -291,7 +291,7 @@ export class HeadsUp {
       this.stop()
     }
 
-    this.plr = this.game.players[this.game.consolePlayer]
+    this.plr = this.game.player
     this.messageOn = false
     this.messageDontFuckWithMe = false
     this.messageNotToBeFuckedWith = false

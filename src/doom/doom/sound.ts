@@ -138,7 +138,7 @@ export class Sound {
       // priority = NORM_PRIORITY
     }
 
-    const player = this.game.players[this.game.consolePlayer]
+    const player = this.game.player
 
     // Check to see if it is audible,
     //  and if not, modify the params

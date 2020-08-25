@@ -98,6 +98,10 @@ export class Game {
   playerInGame = new Array<boolean>(MAX_PLAYERS).fill(false)
   players = Array.from({ length: MAX_PLAYERS }, () => new Player())
 
+  get player(): Player {
+    return this.players[this.consolePlayer]
+  }
+
   // player taking events and displaying
   consolePlayer = 0
   // view being displayed
@@ -813,7 +817,7 @@ export class Game {
       }
     }
 
-    this.wmInfo.didSecret = this.players[this.consolePlayer].didSecret
+    this.wmInfo.didSecret = this.player.didSecret
     this.wmInfo.episode = this.gameEpisode - 1
     this.wmInfo.last = this.gameMap - 1
 
@@ -906,7 +910,7 @@ export class Game {
     this.gameAction = GameAction.WorldDone
 
     if (this.secretExit) {
-      this.players[this.consolePlayer].didSecret = true
+      this.player.didSecret = true
     }
 
     if (this.doom.gameMode === GameMode.Commercial) {
@@ -1051,7 +1055,7 @@ export class Game {
     this.gameAction = GameAction.Nothing
     this.saveDescription = ''
 
-    this.players[this.consolePlayer].message = this.doom.strings.ggsaved
+    this.player.message = this.doom.strings.ggsaved
   }
 
   //

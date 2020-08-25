@@ -120,9 +120,9 @@ export class OptionsMenu implements MenuStruct {
   changeMessages(): void {
     this.headsUp.showMessages = !this.headsUp.showMessages
     if (!this.headsUp.showMessages) {
-      this.game.players[this.game.consolePlayer].message = this.strings.msgoff
+      this.game.player.message = this.strings.msgoff
     } else {
-      this.game.players[this.game.consolePlayer].message = this.strings.msgon
+      this.game.player.message = this.strings.msgon
     }
     this.headsUp.messageDontFuckWithMe = true
 

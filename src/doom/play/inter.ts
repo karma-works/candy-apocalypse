@@ -173,7 +173,7 @@ export class Inter {
       }
       player.pendingWeapon = weapon
 
-      if (player === this.game.players[this.game.consolePlayer]) {
+      if (player === this.game.player) {
         this.dSound.startSound(null, SfxName.Wpnup)
         return false
       }
@@ -680,7 +680,7 @@ export class Inter {
     this.mObjHandler.removeMObj(special)
     player.bonusCount += BONUS_ADD
 
-    if (player === this.game.players[this.game.consolePlayer]) {
+    if (player === this.game.player) {
       this.dSound.startSound(null, sound)
     }
   }
@@ -723,7 +723,7 @@ export class Inter {
       target.player.playerState = PlayerState.Dead
       this.pSprite.dropWeapon(target.player)
 
-      if (target.player === this.game.players[this.game.consolePlayer] &&
+      if (target.player === this.game.player &&
         this.autoMap.active
       ) {
         // don't die in auto map,

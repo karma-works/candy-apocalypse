@@ -911,7 +911,7 @@ export class StatusBar {
   // 1249
   private initData(): void {
     this.firstTime = true
-    this.player = this.game.players[this.game.consolePlayer]
+    this.player = this.game.player
 
     this.clock = 0
     this.gameState = State.FirstPerson
