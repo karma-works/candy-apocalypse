@@ -342,7 +342,7 @@ export class Rendering {
     } else {
       this.colFunc = this.baseColFunc = this.draw.drawColumnLow
       this.fuzzColFunc = this.draw.drawFuzzColumnLow
-      this.transColFunc = this.draw.drawTranslatedColumn
+      this.transColFunc = this.draw.drawTranslatedColumnLow
       this.spanFunc = this.draw.drawSpanLow
     }
 
