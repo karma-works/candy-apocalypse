@@ -1325,7 +1325,15 @@ export class Map {
     this.noFit = true
 
     if (this.crushChange && !(this.tick.levelTime & 3)) {
-      debugger
+      this.inter.damageMObj(thing, null, null, 10)
+
+      // spray blood in a random direction
+      const mo = this.mObjHandler.spawnMObj(
+        thing.x, thing.y, thing.z + (thing.height / 2 >> 0), MObjType.Blood,
+      )
+
+      mo.momX = random.pRandom() - random.pRandom() << 12
+      mo.momY = random.pRandom() - random.pRandom() << 12
     }
 
     // keep checking (crush other things)

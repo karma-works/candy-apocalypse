@@ -454,7 +454,7 @@ export class Play {
 
     // Initial height of PointOfView
     // will be set by player think.
-    this.doom.game.players[this.doom.game.consolePlayer].viewZ = 1
+    this.doom.game.player.viewZ = 1
 
     // Make sure all sounds are stopped before Z_FreeTags.
     this.dSound.start()

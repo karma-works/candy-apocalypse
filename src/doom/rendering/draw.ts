@@ -140,7 +140,49 @@ export class Draw {
     } while (count--)
   }
   drawColumnLow(): void {
-    debugger
+    let count = this.dcYh - this.dcYl
+
+    // Zero length.
+    if (count < 0) {
+      return
+    }
+
+    if (RANGE_CHECK) {
+      if (this.dcX >>> 0 >= SCREENWIDTH ||
+          this.dcYl < 0 ||
+          this.dcYh >= SCREENHEIGHT
+      ) {
+        throw `R_DrawColumn: ${this.dcYl} to ${this.dcYh} at ${this.dcX}`
+      }
+    }
+
+    // Blocky mode, need to multiply by 2.
+    const x = this.dcX << 1
+    let destPtr = this.yLookupPtr[this.dcYl] +
+        this.columnOfs[x]
+    let destPtr2 = this.yLookupPtr[this.dcYl] +
+        this.columnOfs[x + 1]
+    const dest = this.video.screens[0]
+
+    // Determine scaling,
+    //  which is the only mapping to be done.
+    const fracStep = this.dcIScale
+    let frac = this.dcTextureMid +
+        (this.dcYl - this.rendering.centerY) * fracStep
+
+    if (this.dcColorMap === null) {
+      throw 'this.dcColorMap = null'
+    }
+
+    do {
+      // Hack. Does not work corretly.
+      dest[destPtr] = dest[destPtr2] = this.dcColorMap[
+        this.dcSource.bytes[frac >> FRACBITS & 127]
+      ]
+      destPtr += SCREENWIDTH
+      destPtr2 += SCREENWIDTH
+      frac += fracStep
+    } while (count--)
   }
 
   fuzzPos = 0
@@ -205,6 +247,66 @@ export class Draw {
     } while (count--)
   }
 
+  drawFuzzColumnLow(): void {
+    // Adjust borders. Low...
+    if (!this.dcYl) {
+      this.dcYl = 1
+    }
+
+    // .. and high.
+    if (this.dcYh === this.viewHeight - 1) {
+      this.dcYh = this.viewHeight - 2
+    }
+
+    let count = this.dcYh - this.dcYl
+
+    // Zero length.
+    if (count < 0) {
+      return
+    }
+
+    // low detail mode, need to multiply by 2
+    const x = this.dcX << 1
+
+    if (RANGE_CHECK) {
+      if (x >>> 0 >= SCREENWIDTH ||
+        this.dcYl < 0 || this.dcYh >= SCREENHEIGHT
+      ) {
+        throw `R_DrawFuzzColumn: ${this.dcYl} to ${this.dcYh} at ${this.dcX}`
+      }
+    }
+
+    // Does not work with blocky mode.
+    let destPtr = this.yLookupPtr[this.dcYl] +
+      this.columnOfs[x]
+    let destPtr2 = this.yLookupPtr[this.dcYl] +
+      this.columnOfs[x + 1]
+    const dest = this.video.screens[0]
+
+    // Looks like an attempt at dithering,
+    //  using the colormap #6 (of 0-31, a bit
+    //  brighter than average).
+    do {
+      // Lookup framebuffer, and retrieve
+      //  a pixel that is either one column
+      //  left or right of the current one.
+      // Add index from colormap to index.
+      dest[destPtr] = this.data.colorMaps[6 * 256 +
+        dest[destPtr + fuzzOffset[this.fuzzPos]]
+      ]
+      dest[destPtr2] = this.data.colorMaps[6 * 256 +
+        dest[destPtr2 + fuzzOffset[this.fuzzPos]]
+      ]
+
+      // Clamp table lookup index.
+      if (++this.fuzzPos === FUZZ_TABLE) {
+        this.fuzzPos = 0
+      }
+
+      destPtr += SCREENWIDTH
+      destPtr2 += SCREENWIDTH
+    } while (count--)
+  }
 
   //
   // R_DrawTranslatedColumn
@@ -215,13 +317,101 @@ export class Draw {
   //  of the BaronOfHell, the HellKnight, uses
   //  identical sprites, kinda brightened up.
   //
-  dcTranslation = new ArrayBuffer(0)
-  translationTables = new ArrayBuffer(0)
+  dcTranslation = new Uint8Array()
+  translationTables = new Uint8Array()
 
   drawTranslatedColumn(): void {
-    debugger
+    let count = this.dcYh - this.dcYl
+    if (count < 0) {
+      return
+    }
+
+    if (RANGE_CHECK) {
+      if (this.dcX >>> 0 >= SCREENWIDTH ||
+        this.dcYl < 0 ||
+        this.dcYh >= SCREENHEIGHT
+      ) {
+        throw `R_DrawColumn: ${this.dcYl} to ${this.dcYh} at ${this.dcX}`
+      }
+    }
+
+    let destPtr = this.yLookupPtr[this.dcYl] +
+      this.columnOfs[this.dcX]
+    const dest = this.video.screens[0]
+
+    // Looks familiar.
+    const fracStep = this.dcIScale
+    let frac = this.dcTextureMid +
+      (this.dcYl - this.rendering.centerY) * fracStep
+
+    if (this.dcColorMap === null) {
+      throw 'this.dcColorMap = null'
+    }
+
+    // Here we do an additional index re-mapping.
+    do {
+      // Translation tables are used
+      //  to map certain colorramps to other ones,
+      //  used with PLAY sprites.
+      // Thus the "green" ramp of the player 0 sprite
+      //  is mapped to gray, red, black/indigo.
+      dest[destPtr] = this.dcColorMap[
+        this.dcTranslation[this.dcSource.bytes[frac >> FRACBITS]]
+      ]
+
+      destPtr += SCREENWIDTH
+      frac += fracStep
+    } while (count--)
   }
 
+  drawTranslatedColumnLow(): void {
+    let count = this.dcYh - this.dcYl
+    if (count < 0) {
+      return
+    }
+
+    // low detail, need to scale by 2
+    const x = this.dcX << 1
+
+    if (RANGE_CHECK) {
+      if (x >>> 0 >= SCREENWIDTH ||
+        this.dcYl < 0 ||
+        this.dcYh >= SCREENHEIGHT
+      ) {
+        throw `R_DrawColumn: ${this.dcYl} to ${this.dcYh} at ${x}`
+      }
+    }
+
+    let destPtr = this.yLookupPtr[this.dcYl] + this.columnOfs[x]
+    let destPtr2 = this.yLookupPtr[this.dcYl] + this.columnOfs[x + 1]
+    const dest = this.video.screens[0]
+
+    // Looks familiar.
+    const fracStep = this.dcIScale
+    let frac = this.dcTextureMid +
+      (this.dcYl - this.rendering.centerY) * fracStep
+
+    if (this.dcColorMap === null) {
+      throw 'this.dcColorMap = null'
+    }
+
+    // Here we do an additional index re-mapping.
+    do {
+      // Translation tables are used
+      //  to map certain colorramps to other ones,
+      //  used with PLAY sprites.
+      // Thus the "green" ramp of the player 0 sprite
+      //  is mapped to gray, red, black/indigo.
+      dest[destPtr] = dest[destPtr2] = this.dcColorMap[
+        this.dcTranslation[this.dcSource.bytes[frac >> FRACBITS]]
+      ]
+
+      destPtr += SCREENWIDTH
+      destPtr2 += SCREENWIDTH
+
+      frac += fracStep
+    } while (count--)
+  }
   //
   // R_InitTranslationTables
   // Creates the translation tables to map
@@ -231,7 +421,7 @@ export class Draw {
   //
   initTranslationTables(): void {
     this.translationTables = new Uint8Array(256 * 3 + 255)
-    const tt = new Uint8Array(this.translationTables)
+    const tt = this.translationTables
 
     // translate just the 16 green colors
     for (let i = 0; i < 256; ++i) {
@@ -290,8 +480,15 @@ export class Draw {
       }
     }
 
-    let xFrac = this.dsXFrac
-    let yFrac = this.dsYFrac
+    // Pack position and step variables into a single 32-bit integer,
+    // with x in the top 16 bits and y in the bottom 16 bits.  For
+    // each 16-bit part, the top 6 bits are the integer part and the
+    // bottom 10 bits are the fractional part of the pixel position.
+
+    let position = (this.dsXFrac << 10 & 0xffff0000 |
+      this.dsYFrac >>> 6 & 0x0000ffff) >>> 0
+    const step = (this.dsXStep << 10 & 0xffff0000 |
+      this.dsYStep >>> 6 & 0x0000ffff) >>> 0
 
     let destPtr = this.yLookupPtr[this.dsY] +
         this.columnOfs[this.dsX1]
@@ -302,17 +499,19 @@ export class Draw {
 
 
     let spot: number
+    let ytemp: number
+    let xtemp: number
     do {
-      // Current texture index in u,v.
-      spot = (yFrac >> 16 - 6 & 63 * 64) + (xFrac >> 16 & 63)
+      // Calculate current texture index in u,v.
+      ytemp = (position >>> 4 & 0x0fc0) >>> 0
+      xtemp = position >>> 26
+      spot = (xtemp | ytemp) >>> 0
 
       // Lookup pixel from flat texture tile,
       //  re-index using light/colormap.
       dest[destPtr++] = this.dsColorMap[this.dsSource[spot]]
 
-      // Next step in u,v.
-      xFrac += this.dsXStep
-      yFrac += this.dsYStep
+      position = position + step >>> 0
     } while (count--)
   }
 
@@ -320,7 +519,49 @@ export class Draw {
   // Again..
   //
   drawSpanLow(): void {
-    debugger
+    if (RANGE_CHECK) {
+      if (this.dsX2 < this.dsX1 ||
+          this.dsX1 < 0 ||
+          this.dsX2 >= SCREENWIDTH ||
+          this.dsY >>> 0 > SCREENHEIGHT
+      ) {
+        throw `R_DrawSpan: ${this.dsX1} to ${this.dsX2} at ${this.dsY}`
+      }
+    }
+
+    let position = (this.dsXFrac << 10 & 0xffff0000 |
+      this.dsYFrac >>> 6 & 0x0000ffff) >>> 0
+    const step = (this.dsXStep << 10 & 0xffff0000 |
+      this.dsYStep >>> 6 & 0x0000ffff) >>> 0
+
+    let count = this.dsX2 - this.dsX1
+
+    // Blocky mode, need to multiply by 2.
+    this.dsX1 <<= 1
+    this.dsX2 <<= 1
+
+    let destPtr = this.yLookupPtr[this.dsY] +
+        this.columnOfs[this.dsX1]
+    const dest = this.video.screens[0]
+
+    // We do not check for zero spans here?
+
+    let spot: number
+    let ytemp: number
+    let xtemp: number
+    do {
+      // Calculate current texture index in u,v.
+      ytemp = (position >>> 4 & 0x0fc0) >>> 0
+      xtemp = position >>> 26
+      spot = (xtemp | ytemp) >>> 0
+
+      // Lookup pixel from flat texture tile,
+      //  re-index using light/colormap.
+      dest[destPtr++] = this.dsColorMap[this.dsSource[spot]]
+      dest[destPtr++] = this.dsColorMap[this.dsSource[spot]]
+
+      position = position + step >>> 0
+    } while (count--)
   }
 
   //

@@ -1,8 +1,10 @@
 import { FRACBITS, div, mul } from '../misc/fixed'
 import { MapLineFlag, NF_SUBSECTOR } from '../doom/data'
+import { PT_ADD_LINES, PT_EARLY_OUT } from './local'
 import { DivLine } from './map-utils/div-line'
 import { Doom } from '../doom'
 import { GameVersion } from '../doom/mode'
+import { Intercept } from './map-utils/intercept'
 import { Line } from '../rendering/defs/line'
 import { MObj } from './mobj/mobj'
 import { MapUtils } from './map-utils'
@@ -40,6 +42,57 @@ export class Sight {
   }
 
   constructor(private play: Play) { }
+
+  // PTR_SightTraverse() for Doom 1.2 sight calculations
+  // taken from prboom-plus/src/p_sight.c:69-102
+  private ptrSightTraverse(inter: Intercept): boolean {
+    if (!inter.isALine) {
+      throw 'inter is not a line'
+    }
+
+    const li = inter.d
+
+    //
+    // crosses a two sided line
+    //
+    this.mapUtils.lineOpening(li)
+
+    // quick test for totally closed doors
+    if (this.mapUtils.openBottom >= this.mapUtils.openTop) {
+      // stop
+      return false
+    }
+
+    if (li.frontSector === null || li.backSector === null) {
+      throw 'li.(front|back)Sector = null'
+    }
+
+    if (li.frontSector.floorHeight !== li.backSector.floorHeight) {
+      const slope = div(
+        this.mapUtils.openBottom - this.sightZStart,
+        inter.frac)
+      if (slope > this.bottomSlope) {
+        this.bottomSlope = slope
+      }
+    }
+
+    if (li.frontSector.ceilingHeight !== li.backSector.ceilingHeight) {
+      const slope = div(
+        this.mapUtils.openTop - this.sightZStart,
+        inter.frac)
+      if (slope < this.topSlope) {
+        this.topSlope = slope
+      }
+    }
+
+    if (this.topSlope <= this.bottomSlope) {
+      // stop
+      return false
+    }
+
+    // keep going
+    return true
+  }
 
   //
   // P_DivlineSide
@@ -326,9 +379,8 @@ export class Sight {
     this.bottomSlope = t2.z - this.sightZStart
 
     if (this.doom.gameVersion <= GameVersion.Doom12) {
-      debugger
-      // return this.mapUtils.pathTraverse(t1.x, t1.y, t2.x, t2.y,
-      //   PT_EARLY_OUT | PT_ADD_LINES, this.sightTraverse, this)
+      return this.mapUtils.pathTraverse(t1.x, t1.y, t2.x, t2.y,
+        PT_EARLY_OUT | PT_ADD_LINES, this.ptrSightTraverse, this)
     }
 
     this.sTrace.x = t1.x

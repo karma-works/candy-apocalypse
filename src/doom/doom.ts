@@ -366,7 +366,7 @@ export class Doom {
         }
 
         // move positional sounds
-        this.dSound.updateSounds(this.game.players[this.game.consolePlayer].mo)
+        this.dSound.updateSounds(this.game.player.mo)
 
         // Update display, next frame, with current state.
         this.display()
@@ -421,7 +421,7 @@ export class Doom {
   //
   doAdvanceDemo(): void {
     // not reborn
-    this.game.players[this.game.consolePlayer].playerState = PlayerState.Live
+    this.game.player.playerState = PlayerState.Live
     this.advancedemo = false
     // no save / end game here
     this.game.userGame = false

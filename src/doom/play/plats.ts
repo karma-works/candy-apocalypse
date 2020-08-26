@@ -230,8 +230,6 @@ export class Plats {
         this.activePlats[i].status === PlatStatus.InStatis
       ) {
         this.activePlats[i].status = this.activePlats[i].oldStatus
-
-        debugger
         this.activePlats[i].func = this.platRaise
         this.activePlats[i].handler = this
       }
@@ -246,8 +244,6 @@ export class Plats {
       ) {
         this.activePlats[i].oldStatus = this.activePlats[i].status
         this.activePlats[i].status = PlatStatus.InStatis
-
-        debugger
         this.activePlats[i].func = null
         this.activePlats[i].handler = this
       }

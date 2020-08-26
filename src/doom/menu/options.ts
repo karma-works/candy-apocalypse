@@ -120,9 +120,9 @@ export class OptionsMenu implements MenuStruct {
   changeMessages(): void {
     this.headsUp.showMessages = !this.headsUp.showMessages
     if (!this.headsUp.showMessages) {
-      this.game.players[this.game.consolePlayer].message = this.strings.msgoff
+      this.game.player.message = this.strings.msgoff
     } else {
-      this.game.players[this.game.consolePlayer].message = this.strings.msgon
+      this.game.player.message = this.strings.msgon
     }
     this.headsUp.messageDontFuckWithMe = true
 
@@ -171,6 +171,19 @@ export class OptionsMenu implements MenuStruct {
 
   changeDetail(/* choice: number */): void {
     this.rendering.detailLevel = !this.rendering.detailLevel ? 1 : 0
+
+    this.rendering.setViewSize(
+      this.rendering.screenBlocks,
+      this.rendering.detailLevel,
+    )
+
+    this.menu.saveDefaults()
+
+    if (!this.rendering.detailLevel) {
+      this.game.player.message = this.strings.detailhi
+    } else {
+      this.game.player.message = this.strings.detaillo
+    }
   }
   sizeDisplay(choice: number): void {
     switch (choice) {

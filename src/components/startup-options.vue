@@ -45,7 +45,6 @@
         <v-switch class="mx-2"
           v-model="respawn"
           @change="autoStart = true"
-          :disabled="true"
           label="Respawn monsters"
         ></v-switch>
 

@@ -378,6 +378,72 @@ export class MObjHandler {
   }
 
   //
+  // P_NightmareRespawn
+  //
+  private nightmareRespawn(mobj: MObj): void {
+    const x = mobj.spawnPoint.x << FRACBITS
+    const y = mobj.spawnPoint.y << FRACBITS
+    let z: number
+
+    // somthing is occupying it's position?
+    if (!this.map.checkPosition(mobj, x, y)) {
+      // no respwan
+      return
+    }
+
+    if (mobj.subSector === null) {
+      throw 'mobj.subSector = null'
+    }
+    if (mobj.subSector.sector === null) {
+      throw 'mobj.subSector.sector = null'
+    }
+
+    // spawn a teleport fog at old spot
+    // because of removal of the body?
+    let mo = this.spawnMObj(mobj.x,
+      mobj.y,
+      mobj.subSector.sector.floorHeight, MObjType.Tfog)
+
+    // initiate teleport sound
+    this.dSound.startSound(mo, SfxName.Telept)
+
+    // spawn a teleport fog at the new spot
+    const ss = this.rendering.pointInSubSector(x, y)
+
+    if (ss.sector === null) {
+      throw 'ss.sector = null'
+    }
+
+    mo = this.spawnMObj(x, y, ss.sector.floorHeight, MObjType.Tfog)
+
+    this.dSound.startSound(mo, SfxName.Telept)
+
+    // spawn the new monster
+    const mThing = mobj.spawnPoint
+
+    // spawn it
+    if (mobj.info.flags & MObjFlag.SpawnCeiling) {
+      z = ON_CEILING_Z
+    } else {
+      z = ON_FLOOR_Z
+    }
+
+    // inherit attributes from deceased one
+    mo = this.spawnMObj(x, y, z, mobj.type)
+    mo.spawnPoint = mobj.spawnPoint
+    mo.angle = ANG45 * (mThing.angle / 45 >> 0) >>> 0
+
+    if (mThing.options & MTF_AMBUSH) {
+      mo.flags |= MObjFlag.Ambush
+    }
+
+    mo.reactionTime = 18
+
+    // remove the old monster,
+    this.removeMObj(mobj)
+  }
+
+  //
   // P_MobjThinker
   //
   thinker(mObj: MObj): void {
@@ -441,7 +507,7 @@ export class MObjHandler {
         return
       }
 
-      debugger
+      this.nightmareRespawn(mObj)
     }
   }
 
