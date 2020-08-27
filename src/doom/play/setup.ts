@@ -2,12 +2,12 @@ import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
 import { MapThing, ThingArray } from '../level/thing-array'
 import { AutoMap } from '../auto-map/auto-map'
 import { BBox } from '../misc/bbox'
+import { BlockMap } from '../level/block-map'
 import { Ceilings } from './ceilings'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom'
 import { Doors } from './doors'
 import { Enemy } from './enemy'
-import { FRACBITS } from '../misc/fixed'
 import { Floor } from './floor'
 import { Game } from '../game/game'
 import { GameMode } from '../doom/mode'
@@ -65,24 +65,8 @@ export class Play {
 
   sides = new Array<Side>()
 
-  // BLOCKMAP
-  // Created from axis aligned bounding box
-  // of the map, a rectangular array of
-  // blocks of size ...
-  // Used to speed up collision detection
-  // by spatial subdivision in 2D.
-  //
-  // Blockmap size.
-  bMapWidth = -1
-  // size in mapblocks
-  bMapHeight = -1
-  // int for larger maps
-  blockMap: Int16Array = new Int16Array(0)
-  // offsets in blockmap are from here
-  blockMapLump: Int16Array = new Int16Array(0)
-  // origin of block map
-  bMapOrgX = -1
-  bMapOrgY = -1
+  blockMap = new BlockMap()
+
   blockLinks = new Array<MObj>()
 
   // REJECT
@@ -232,14 +216,7 @@ export class Play {
   // P_LoadBlockMap
   //
   private loadBlockMap(lump: number): void {
-    const buffer = this.wad.cacheLumpNum(lump)
-    this.blockMapLump = new Int16Array(buffer)
-    this.blockMap = new Int16Array(buffer, 8)
-
-    this.bMapOrgX = this.blockMapLump[0] << FRACBITS
-    this.bMapOrgY = this.blockMapLump[1] << FRACBITS
-    this.bMapWidth = this.blockMapLump[2]
-    this.bMapHeight = this.blockMapLump[3]
+    this.blockMap = this.wad.cacheLumpNum(lump, BlockMap)
 
     // clear ou mobj chains
     this.blockLinks = []
@@ -310,19 +287,19 @@ export class Play {
       }
 
       // adjust bounding box to map blocks
-      block = bbox.top - this.bMapOrgY + MAX_RADIUS >> MAP_BLOCK_SHIFT
-      block = block >= this.bMapHeight ? this.bMapHeight-1 : block
+      block = bbox.top - this.blockMap.originY + MAX_RADIUS >> MAP_BLOCK_SHIFT
+      block = block >= this.blockMap.height ? this.blockMap.height - 1 : block
       sector.blockBox.top = block
 
-      block = bbox.bottom - this.bMapOrgY - MAX_RADIUS >> MAP_BLOCK_SHIFT
+      block = bbox.bottom - this.blockMap.originY - MAX_RADIUS >> MAP_BLOCK_SHIFT
       block = block < 0 ? 0 : block
       sector.blockBox.bottom = block
 
-      block = bbox.right - this.bMapOrgX + MAX_RADIUS >> MAP_BLOCK_SHIFT
-      block = block >= this.bMapWidth ? this.bMapWidth-1 : block
+      block = bbox.right - this.blockMap.originX + MAX_RADIUS >> MAP_BLOCK_SHIFT
+      block = block >= this.blockMap.width ? this.blockMap.width - 1 : block
       sector.blockBox.right = block
 
-      block = bbox.left - this.bMapOrgX - MAX_RADIUS >> MAP_BLOCK_SHIFT
+      block = bbox.left - this.blockMap.originX - MAX_RADIUS >> MAP_BLOCK_SHIFT
       block = block < 0 ? 0 : block
       sector.blockBox.left = block
     }

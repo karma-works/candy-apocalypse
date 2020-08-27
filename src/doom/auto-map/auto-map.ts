@@ -870,9 +870,9 @@ export class AutoMap {
 
     // Figure out start of vertical gridlines
     let start = this.mx
-    if ((start - this.play.bMapOrgX) % (MAP_BLOCK_UNITS << FRACBITS)) {
+    if ((start - this.play.blockMap.originX) % (MAP_BLOCK_UNITS << FRACBITS)) {
       start += (MAP_BLOCK_UNITS << FRACBITS) -
-        (start - this.play.bMapOrgX) % (MAP_BLOCK_UNITS << FRACBITS)
+        (start - this.play.blockMap.originX) % (MAP_BLOCK_UNITS << FRACBITS)
     }
     let end = this.mx + this.mw
 
@@ -887,9 +887,9 @@ export class AutoMap {
 
     // Figure out start of horizontal gridlines
     start = this.my
-    if ((start - this.play.bMapOrgY) % (MAP_BLOCK_UNITS << FRACBITS)) {
+    if ((start - this.play.blockMap.originY) % (MAP_BLOCK_UNITS << FRACBITS)) {
       start += (MAP_BLOCK_UNITS << FRACBITS) -
-        (start - this.play.bMapOrgY) % (MAP_BLOCK_UNITS << FRACBITS)
+        (start - this.play.blockMap.originY) % (MAP_BLOCK_UNITS << FRACBITS)
     }
     end = this.my + this.mh
 

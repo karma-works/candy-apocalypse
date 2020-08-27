@@ -1101,10 +1101,10 @@ export class Enemy {
       this.vileTryY =
         actor.y + actor.info.speed * ySpeed[actor.moveDir]
 
-      const xl = this.vileTryX - this.play.bMapOrgX - MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
-      const xh = this.vileTryX - this.play.bMapOrgX + MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
-      const yl = this.vileTryY - this.play.bMapOrgY - MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
-      const yh = this.vileTryY - this.play.bMapOrgY + MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
+      const xl = this.vileTryX - this.play.blockMap.originX - MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
+      const xh = this.vileTryX - this.play.blockMap.originX + MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
+      const yl = this.vileTryY - this.play.blockMap.originY - MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
+      const yh = this.vileTryY - this.play.blockMap.originY + MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
 
       let temp: MObj | null
       let info: MObjInfo
