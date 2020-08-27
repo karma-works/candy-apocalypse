@@ -7,7 +7,7 @@ import { ScanCode } from './scancodes'
 export class Video {
   useGamma = 0
 
-  private screen: HTMLCanvasElement | null = null
+  screen: HTMLCanvasElement | null = null
   private xScreen: CanvasRenderingContext2D | null = null
 
   private image: ImageData | null = null
@@ -206,25 +206,6 @@ export class Video {
     this.rVideo.screens[0] = new Uint8ClampedArray(this.rVideo.width * this.rVideo.height)
   }
 
-  onFullScreenChange(cb: (a: boolean) => void): void {
-    if (this.screen && this.screen.parentElement) {
-      const el = this.screen.parentElement
-      el.addEventListener('fullscreenchange', () => {
-        cb(document.fullscreenElement === el)
-      })
-    }
-  }
-  async toggleFullScreen(): Promise<void> {
-    if (this.screen && this.screen.parentElement) {
-      const el = this.screen.parentElement
-      if (document.fullscreenElement === el) {
-        await document.exitFullscreen()
-      } else {
-        await this.screen.parentElement.requestFullscreen()
-      }
-    }
-  }
-
   quit(): void {
     if (this.screen === null || this.xScreen === null) {
       return
@@ -234,7 +215,6 @@ export class Video {
 
     XQuitEvent(this.screen)
 
-    this.screen = null
     this.xScreen = null
   }
 }

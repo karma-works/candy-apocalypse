@@ -1,24 +1,24 @@
 <template>
-  <div class="screen-wrapper" ref="screenWrapper">
-    <canvas width="320" height="320" ref="screen"
-      v-bind:style="{ transform: `scale3d(${xScale}, ${yScale}, 1)` }">
-    </canvas>
+  <div class="screen-root" ref="screenRoot">
+    <div class="screen-wrapper" v-bind:class="{ fullscreen: fullscreen }">
+      <canvas width="320" height="320" ref="screen">
+      </canvas>
 
-    <v-btn icon absolute right bottom @click="toggleFullScreen()">
-      <v-icon>
-        {{ fullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen' }}
-      </v-icon>
-    </v-btn>
+      <v-btn icon absolute right bottom @click="toggleFullScreen()">
+        <v-icon>
+          {{ fullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen' }}
+        </v-icon>
+      </v-btn>
 
-    <v-snackbar app v-model="displayError">
-      {{ error }}
-    </v-snackbar>
+      <v-snackbar app v-model="displayError">
+        {{ error }}
+      </v-snackbar>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
-import { INTENDED_SCREENHEIGHT, SCREENWIDTH } from '@/doom/global/doomdef'
 import { Doom as RawDoom } from '@/doom/doom'
 import { Params } from '@/doom/doom/params'
 import { fs } from '@/doom/system/fs'
@@ -27,13 +27,10 @@ import { fs } from '@/doom/system/fs'
 export default class Doom extends Vue {
   $refs!: {
     screen: HTMLCanvasElement
-    screenWrapper: HTMLDivElement
+    screenRoot: HTMLDivElement
   }
 
   doomInst!: RawDoom
-
-  xScale = 1
-  yScale = 1
 
   private defaultParams!: Params
 
@@ -50,8 +47,7 @@ export default class Doom extends Vue {
 
     await this.start()
 
-    window.addEventListener('resize', this.onResize)
-    this.onResize()
+    this.registerFullScreenChange()
   }
 
   async restart(): Promise<void> {
@@ -84,10 +80,6 @@ export default class Doom extends Vue {
           this.$emit('soundChange', this.sound)
         })
       }
-
-      this.doomInst.iVideo.onFullScreenChange(a => {
-        this.fullscreen = a
-      })
     } catch (e) {
       this.onError(e)
     }
@@ -121,43 +113,43 @@ export default class Doom extends Vue {
   }
 
   fullscreen = false
-  async toggleFullScreen(): Promise<void> {
-    await this.doomInst.iVideo.toggleFullScreen()
+  registerFullScreenChange(): void {
+    const el = this.$refs.screenRoot
+    el.addEventListener('fullscreenchange', () => {
+      this.fullscreen = document.fullscreenElement === el
+    })
   }
-
-  onResize(): void {
-    const screenWrapper = this.$refs.screenWrapper
-    const screen = this.$refs.screen
-    const screenParent = screen.parentElement
-    if (screenParent !== null) {
-      const ratio = SCREENWIDTH / INTENDED_SCREENHEIGHT
-
-      let width = screenParent.clientWidth
-      let height = width / ratio
-
-      if (height > screenParent.clientHeight) {
-        height = screenParent.clientHeight
-        width = height * ratio
+  async toggleFullScreen(): Promise<void> {
+    const el = this.$refs.screenRoot
+    if (el) {
+      if (document.fullscreenElement === el) {
+        await document.exitFullscreen()
+      } else {
+        await el.requestFullscreen()
       }
-
-      this.xScale = width / screen.width
-      this.yScale = height / screen.height
     }
   }
 
   beforeDestroy(): void {
     this.doomInst.quit()
-    window.removeEventListener('resize', this.onResize)
   }
 }
 </script>
 
 <style lang="scss" scoped>
 .screen-wrapper {
+  width: calc((100vh - 64px) * 4 / 3);
   height: calc(100vh - 64px);
-  text-align: center;
+
+  &.fullscreen {
+    width: calc((100vh) * 4 / 3);
+    height: calc(100vh);
+  }
+
+  margin: 0 auto;
   > canvas {
-    transform-origin: top;
+    width: 100%;
+    height: 100%;
     image-rendering: pixelated;
     outline: none;
   }
