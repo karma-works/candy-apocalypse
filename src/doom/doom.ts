@@ -25,6 +25,7 @@ import { StatusBar } from './status/stuff'
 import { Strings } from './translation/strings'
 import { Win } from './win/win'
 import { Wipe } from './wipe'
+import { displayEndoom } from './misc/endoom'
 import { getTime } from './system/system'
 
 export class Doom {
@@ -854,6 +855,15 @@ export class Doom {
     await quitting
 
     this.iVideo.quit()
+
+    try {
+      if (this.iVideo.screen) {
+        const endoom = this.wad.cacheLumpName('ENDOOM')
+        displayEndoom(endoom, this.iVideo.screen)
+      }
+    } catch { /* */ }
+
+    this.iVideo.screen = null
 
     return
   }

@@ -7,7 +7,7 @@ import { ScanCode } from './scancodes'
 export class Video {
   useGamma = 0
 
-  private screen: HTMLCanvasElement | null = null
+  screen: HTMLCanvasElement | null = null
   private xScreen: CanvasRenderingContext2D | null = null
 
   private image: ImageData | null = null
@@ -215,7 +215,6 @@ export class Video {
 
     XQuitEvent(this.screen)
 
-    this.screen = null
     this.xScreen = null
   }
 }
