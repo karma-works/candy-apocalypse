@@ -1,19 +1,15 @@
 import { Column } from './defs/column'
 import { FRACBITS } from '../misc/fixed'
-import { Game } from '../game/game'
+import { FlatArray } from '../textures/flat-array'
 import { LumpReader } from '../wad/lump-reader'
-import { MObjHandler } from '../play/mobj-handler'
 import { MapPatch } from './data/map-patch'
 import { MapTexture } from './data/map-texture'
 import { Patch } from './defs/patch'
 import { Play } from '../play/setup'
 import { Post } from './defs/post'
 import { Rendering } from './rendering'
-import { Sky } from './sky'
 import { TexPatch } from './data/tex-patch'
 import { Texture } from './data/texture'
-import { Things } from './things'
-import { Tick } from '../play/tick'
 import { tostring } from '../utils/c'
 
 //
@@ -25,38 +21,18 @@ import { tostring } from '../utils/c'
 //
 
 export class Data {
-  private get game(): Game {
-    return this.rendering.game
-  }
-  private get mObjHandler(): MObjHandler {
-    return this.play.mObjHandler
-  }
+
   private get play(): Play {
     return this.rendering.play
   }
-  private get sky(): Sky {
-    return this.rendering.sky
-  }
-  private get things(): Things {
-    return this.rendering.things
-  }
-  private get tick(): Tick {
-    return this.rendering.tick
-  }
+
   private get wad(): LumpReader {
     return this.rendering.wad
   }
 
   constructor(private rendering: Rendering) { }
 
-
-  firstFlat = 0
-  private lastFlat = 0
-  private numFlats = 0
-
-  private firstPatch = 0
-  private lastPatch = 0
-  private numPatchs = 0
+  flats = new FlatArray()
 
   firstSpriteLump = 0
   lastSpriteLump = 0
@@ -74,7 +50,6 @@ export class Data {
   private textureComposite = new Array<Patch>()
 
   // for global animation
-  flatTranslation: number[] = []
   textureTranslation: number[] = []
 
   // needed for pre rendering
@@ -389,23 +364,6 @@ export class Data {
   }
 
   //
-  // R_InitFlats
-  //
-  private initFlats(): void {
-
-    this.firstFlat = this.wad.getNumForName('F_START') + 1
-    this.lastFlat = this.wad.getNumForName('F_END') - 1
-    this.numFlats = this.lastFlat - this.firstFlat + 1
-
-    // Create translation table for global animation.
-    this.flatTranslation = new Array(this.numFlats + 1).fill(0)
-
-    for (let i = 0; i < this.numFlats; ++i) {
-      this.flatTranslation[i] = i
-    }
-  }
-
-  //
   // R_InitSpriteLumps
   // Finds the width and hoffset of all sprites in the wad,
   //  so the sprite does not need to be cached completely
@@ -453,25 +411,12 @@ export class Data {
   initData(): void {
     this.initTextures()
     console.log('InitTextures')
-    this.initFlats()
+    this.flats = new FlatArray(this.wad)
     console.log('InitFlats')
     this.initSpriteLumps()
     console.log('InitSprites')
     this.initColorMaps()
     console.log('InitColormaps')
-  }
-
-  //
-  // R_FlatNumForName
-  // Retrieval, get a flat number for a flat name.
-  //
-  flatNumForName(name: string): number {
-
-    const i = this.wad.checkNumForName(name)
-    if (i === -1) {
-      throw `R_FlatNumForName: ${name} not found`
-    }
-    return i - this.firstFlat
   }
 
   //

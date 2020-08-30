@@ -111,8 +111,8 @@ export class Special {
           continue
         }
 
-        this.lastAnim.picNum = this.data.flatNumForName(animDefs[i].endName)
-        this.lastAnim.basePic = this.data.flatNumForName(animDefs[i].startName)
+        this.lastAnim.picNum = this.data.flats.numForName(animDefs[i].endName)
+        this.lastAnim.basePic = this.data.flats.numForName(animDefs[i].startName)
       }
 
       this.lastAnim.isTexture = animDefs[i].isTexture
@@ -795,7 +795,7 @@ export class Special {
         if (anim.isTexture) {
           this.data.textureTranslation[i] = pic
         } else {
-          this.data.flatTranslation[i] = pic
+          this.data.flats.translate(i, pic)
         }
       }
     }

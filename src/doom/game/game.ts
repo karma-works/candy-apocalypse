@@ -416,7 +416,7 @@ export class Game {
     //  setting one.
     const rendering = this.rendering
 
-    rendering.sky.skyFlatNum = rendering.data.flatNumForName(SKY_FLAT_NAME)
+    rendering.sky.skyFlatNum = rendering.data.flats.numForName(SKY_FLAT_NAME)
 
     // DOOM determines the sky texture to be used
     // depending on the current episode, and the game version.

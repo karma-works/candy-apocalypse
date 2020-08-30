@@ -146,7 +146,7 @@ export class Play {
   //
   private loadSectors(lump: number): void {
     const data = this.wad.cacheLumpNum(lump, SectorArray)
-    this.sectors = data.getSectors(this.rendering.data)
+    this.sectors = data.getSectors(this.rendering.data.flats)
   }
 
   //

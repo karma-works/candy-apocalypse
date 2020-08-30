@@ -1,5 +1,6 @@
 import { BlockMap } from '../level/block-map'
 import { Demo } from '../game/demo'
+import { Flat } from '../textures/flat'
 import { Level } from '../level/level'
 import { LineArray } from '../level/line-array'
 import { NodeArray } from '../level/node-array'
@@ -19,7 +20,7 @@ export interface LumpStatic {
   type: LumpType
 }
 
-export type LumpType = 'demo' | 'palettes' | 'sfx' | 'patch' | 'unknown' |
+export type LumpType = 'demo' | 'palettes' | 'sfx' | 'patch' | 'flat' | 'unknown' |
   'level' | 'things' | 'vertexes' | 'sub-sectors' | 'segs' | 'sectors' | 'nodes' | 'lines' | 'sides' | 'block-map'
 
 const lumpCandidates: LumpStatic[] = [
@@ -34,6 +35,7 @@ const lumpCandidates: LumpStatic[] = [
   SideArray,
   BlockMap,
   Patch,
+  Flat,
   Sfx,
   Palettes,
   Demo,

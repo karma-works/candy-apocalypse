@@ -1,5 +1,5 @@
-import { Data } from '../rendering/data'
 import { FRACBITS } from '../misc/fixed'
+import { FlatArray } from '../textures/flat-array'
 import { LumpType } from '../wad/lump'
 import { Sector } from '../rendering/defs/sector'
 import { tostring } from '../utils/c'
@@ -30,14 +30,14 @@ export class SectorArray extends Array<MapSector> {
   }
 
   getSectors(
-    data: Data,
+    flats: FlatArray,
   ): Sector[] {
     return this.map(ms =>
       new Sector(
         ms.floorHeight << FRACBITS,
         ms.ceilingHeight << FRACBITS,
-        data.flatNumForName(ms.floorPic),
-        data.flatNumForName(ms.ceilingPic),
+        flats.numForName(ms.floorPic),
+        flats.numForName(ms.ceilingPic),
         ms.lightLevel,
         ms.special,
         ms.tag,

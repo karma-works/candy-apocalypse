@@ -2,6 +2,7 @@ import { RANGE_CHECK, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { Data } from './data'
 import { Doom } from '../doom'
 import { FRACBITS } from '../misc/fixed'
+import { Flat } from '../textures/flat'
 import { GameMode } from '../doom/mode'
 import { LumpReader } from '../wad/lump-reader'
 import { Patch } from './defs/patch'
@@ -462,7 +463,7 @@ export class Draw {
   dsYStep = 0
 
   // start of a 64*64 tile image
-  dsSource = new Uint8ClampedArray(8)
+  dsSource = new Flat()
 
   // just for profiling
   private dsCount = 0

@@ -368,9 +368,7 @@ export class Plane {
       }
 
       // regular flat
-      this.draw.dsSource = new Uint8ClampedArray(
-        this.wad.cacheLumpNum(this.data.firstFlat + this.data.flatTranslation[pl.picNum]),
-      )
+      this.draw.dsSource = this.data.flats.get(pl.picNum)
 
       this.planeHeight = Math.abs(pl.height - this.rendering.viewZ)
       light = (pl.lightLevel >> LIGHT_SEG_SHIFT) + this.rendering.extraLight
