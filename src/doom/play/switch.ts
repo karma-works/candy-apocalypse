@@ -85,8 +85,8 @@ export class Switch {
       }
 
       if (alphSwitchList[i][2] <= episode) {
-        this.switchList[index++] = this.data.textureNumForName(alphSwitchList[i][0])
-        this.switchList[index++] = this.data.textureNumForName(alphSwitchList[i][1])
+        this.switchList[index++] = this.data.textures.numForName(alphSwitchList[i][0])
+        this.switchList[index++] = this.data.textures.numForName(alphSwitchList[i][1])
       }
     }
   }

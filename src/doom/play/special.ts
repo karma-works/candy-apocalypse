@@ -100,12 +100,12 @@ export class Special {
     for (let i = 0; animDefs[i]; i++) {
       if (animDefs[i].isTexture) {
         // different episode ?
-        if (this.data.checkTextureNumForName(animDefs[i].startName) === -1) {
+        if (this.data.textures.checkNumForName(animDefs[i].startName) === -1) {
           continue
         }
 
-        this.lastAnim.picNum = this.data.textureNumForName(animDefs[i].endName)
-        this.lastAnim.basePic = this.data.textureNumForName(animDefs[i].startName)
+        this.lastAnim.picNum = this.data.textures.numForName(animDefs[i].endName)
+        this.lastAnim.basePic = this.data.textures.numForName(animDefs[i].startName)
       } else {
         if (this.wad.checkNumForName(animDefs[i].startName) === -1) {
           continue
@@ -793,7 +793,7 @@ export class Special {
         pic = anim.basePic +
           ((this.tick.levelTime / anim.speed >> 0) + i) % anim.numPics
         if (anim.isTexture) {
-          this.data.textureTranslation[i] = pic
+          this.data.textures.translate(i, pic)
         } else {
           this.data.flats.translate(i, pic)
         }

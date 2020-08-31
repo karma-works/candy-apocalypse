@@ -209,7 +209,7 @@ export class Play {
   //
   private loadSideDefs(lump: number): void {
     const data = this.wad.cacheLumpNum(lump, SideArray)
-    this.sides = data.getSides(this.rendering.data, this.sectors)
+    this.sides = data.getSides(this.rendering.data.textures, this.sectors)
   }
 
   //

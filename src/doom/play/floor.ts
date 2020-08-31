@@ -313,14 +313,14 @@ export class Floor {
             if (this.special.twoSided(secNum, i)) {
               side = this.special.getSide(secNum, i, 0)
               if (side.bottomTexture >= 0) {
-                if (this.data.textureHeight[side.bottomTexture] < minSize) {
-                  minSize = this.data.textureHeight[side.bottomTexture]
+                if (this.data.textures.getHeight(side.bottomTexture) < minSize) {
+                  minSize = this.data.textures.getHeight(side.bottomTexture)
                 }
               }
               side = this.special.getSide(secNum, i, 1)
               if (side.bottomTexture >= 0) {
-                if (this.data.textureHeight[side.bottomTexture] < minSize) {
-                  minSize = this.data.textureHeight[side.bottomTexture]
+                if (this.data.textures.getHeight(side.bottomTexture) < minSize) {
+                  minSize = this.data.textures.getHeight(side.bottomTexture)
                 }
               }
             }
