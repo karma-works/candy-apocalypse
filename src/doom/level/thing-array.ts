@@ -9,7 +9,7 @@ export class ThingArray extends Array<MapThing> {
     return Array
   }
 
-  constructor(buffer: ArrayBuffer) {
+  constructor(buffer = new ArrayBuffer(0)) {
     const numThings = buffer.byteLength / MapThing.sizeOf
     if (numThings !== Math.floor(numThings)) {
       throw 'invalid length of map things'

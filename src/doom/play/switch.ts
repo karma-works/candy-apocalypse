@@ -10,6 +10,7 @@ import { Floor } from './floor'
 import { FloorType } from './floor/floor-type'
 import { Game } from '../game/game'
 import { GameMode } from '../doom/mode'
+import { Level } from '../level/level'
 import { Lights } from './lights'
 import { Line } from '../rendering/defs/line'
 import { MObj } from './mobj/mobj'
@@ -50,6 +51,9 @@ export class Switch {
   }
   private get game(): Game {
     return this.play.game
+  }
+  private get level(): Level {
+    return this.play.level
   }
   private get lights(): Lights {
     return this.play.lights
@@ -130,9 +134,9 @@ export class Switch {
     if (!useAgain) {
       line.special = 0
 
-      const texTop = this.play.sides[line.sideNum[0]].topTexture
-      const texMid = this.play.sides[line.sideNum[0]].midTexture
-      const texBot = this.play.sides[line.sideNum[0]].bottomTexture
+      const texTop = this.level.sides[line.sideNum[0]].topTexture
+      const texMid = this.level.sides[line.sideNum[0]].midTexture
+      const texBot = this.level.sides[line.sideNum[0]].bottomTexture
 
       let sound = SfxName.Swtchn
 
@@ -144,7 +148,7 @@ export class Switch {
       for (let i = 0; i < this.numSwitches * 2; ++i) {
         if (this.switchList[i] === texTop) {
           this.dSound.startSound(this.buttonList[0].soundOrg, sound)
-          this.play.sides[line.sideNum[0]].topTexture = this.switchList[i ^ 1]
+          this.level.sides[line.sideNum[0]].topTexture = this.switchList[i ^ 1]
 
           if (useAgain) {
             this.startButton(line, Where.Top, this.switchList[i], BUTTON_TIME)
@@ -153,7 +157,7 @@ export class Switch {
           return
         } else if (this.switchList[i] === texMid) {
           this.dSound.startSound(this.buttonList[0].soundOrg, sound)
-          this.play.sides[line.sideNum[0]].midTexture = this.switchList[i ^ 1]
+          this.level.sides[line.sideNum[0]].midTexture = this.switchList[i ^ 1]
 
           if (useAgain) {
             this.startButton(line, Where.Middle, this.switchList[i], BUTTON_TIME)
@@ -162,7 +166,7 @@ export class Switch {
           return
         } else if (this.switchList[i] === texBot) {
           this.dSound.startSound(this.buttonList[0].soundOrg, sound)
-          this.play.sides[line.sideNum[0]].bottomTexture = this.switchList[i ^ 1]
+          this.level.sides[line.sideNum[0]].bottomTexture = this.switchList[i ^ 1]
 
           if (useAgain) {
             this.startButton(line, Where.Bottom, this.switchList[i], BUTTON_TIME)

@@ -1,6 +1,7 @@
 import { GLOW_SPEED, SLOW_DARK, STROBE_BRIGHT, Special } from './special'
 import { FireFlicker } from './lights/fire-flicker'
 import { Glow } from './lights/glow'
+import { Level } from '../level/level'
 import { LightFlash } from './lights/light-flash'
 import { Line } from '../rendering/defs/line'
 import { Play } from './setup'
@@ -11,8 +12,8 @@ import { random } from '../misc/random'
 
 export class Lights {
 
-  get sectors(): readonly Sector[] {
-    return this.play.sectors
+  get level(): Level {
+    return this.play.level
   }
   private get special(): Special {
     return this.play.special
@@ -146,7 +147,7 @@ export class Lights {
     let secNum = -1
     let sec: Sector
     while ((secNum = this.special.findSectorFromLineTag(line, secNum)) >= 0) {
-      sec = this.sectors[secNum]
+      sec = this.level.sectors[secNum]
       if (sec.specialData) {
         continue
       }
@@ -163,9 +164,9 @@ export class Lights {
     let tSec: Sector | null
     let tempLine: Line
 
-    for (let i = 0, sector = this.sectors[i];
-      i < this.play.sectors.length;
-      i++, sector = this.sectors[i]) {
+    for (let i = 0, sector = this.level.sectors[i];
+      i < this.level.sectors.length;
+      i++, sector = this.level.sectors[i]) {
       if (sector.tag === line.tag) {
         min = sector.lightLevel
         for (i = 0; i < sector.lineCount; i++) {
@@ -190,9 +191,9 @@ export class Lights {
     let tempLine: Line
     let temp: Sector | null
 
-    for (let i = 0, sector = this.sectors[i];
-      i < this.play.sectors.length;
-      i++, sector = this.sectors[i]) {
+    for (let i = 0, sector = this.level.sectors[i];
+      i < this.level.sectors.length;
+      i++, sector = this.level.sectors[i]) {
       if (sector.tag === line.tag) {
         // bright = 0 means to search
         // for highest light level

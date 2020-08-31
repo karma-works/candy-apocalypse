@@ -8,6 +8,7 @@ import { Game } from '../game/game'
 import { GameVersion } from '../doom/mode'
 import { Inter } from './inter'
 import { Intercept } from './map-utils/intercept'
+import { Level } from '../level/level'
 import { Line } from '../rendering/defs/line'
 import { MObj } from './mobj/mobj'
 import { MObjFlag } from './mobj/mobj-flag'
@@ -65,6 +66,9 @@ export class Map {
   }
   private get inter(): Inter {
     return this.play.inter
+  }
+  private get level(): Level {
+    return this.play.level
   }
   private get mapUtils(): MapUtils {
     return this.play.mapUtils
@@ -166,10 +170,10 @@ export class Map {
     this.numSpecHit = 0
 
     // stomp on any things contacted
-    const xl = this.tmBBox.left - this.play.blockMap.originX - MAX_RADIUS >> MAP_BLOCK_SHIFT
-    const xh = this.tmBBox.right - this.play.blockMap.originX + MAX_RADIUS >> MAP_BLOCK_SHIFT
-    const yl = this.tmBBox.bottom - this.play.blockMap.originY - MAX_RADIUS >> MAP_BLOCK_SHIFT
-    const yh = this.tmBBox.top - this.play.blockMap.originY + MAX_RADIUS >> MAP_BLOCK_SHIFT
+    const xl = this.tmBBox.left - this.level.blockMap.originX - MAX_RADIUS >> MAP_BLOCK_SHIFT
+    const xh = this.tmBBox.right - this.level.blockMap.originX + MAX_RADIUS >> MAP_BLOCK_SHIFT
+    const yl = this.tmBBox.bottom - this.level.blockMap.originY - MAX_RADIUS >> MAP_BLOCK_SHIFT
+    const yh = this.tmBBox.top - this.level.blockMap.originY + MAX_RADIUS >> MAP_BLOCK_SHIFT
 
     for (let bx = xl; bx <= xh; bx++) {
       for (let by = yl; by <= yh; by++) {
@@ -439,10 +443,10 @@ export class Map {
     // because mobj_ts are grouped into mapblocks
     // based on their origin point, and can overlap
     // into adjacent blocks by up to MAXRADIUS units.
-    let xl = this.tmBBox.left - this.play.blockMap.originX - MAX_RADIUS >> MAP_BLOCK_SHIFT
-    let xh = this.tmBBox.right - this.play.blockMap.originX + MAX_RADIUS >> MAP_BLOCK_SHIFT
-    let yl = this.tmBBox.bottom - this.play.blockMap.originY - MAX_RADIUS >> MAP_BLOCK_SHIFT
-    let yh = this.tmBBox.top - this.play.blockMap.originY + MAX_RADIUS >> MAP_BLOCK_SHIFT
+    let xl = this.tmBBox.left - this.level.blockMap.originX - MAX_RADIUS >> MAP_BLOCK_SHIFT
+    let xh = this.tmBBox.right - this.level.blockMap.originX + MAX_RADIUS >> MAP_BLOCK_SHIFT
+    let yl = this.tmBBox.bottom - this.level.blockMap.originY - MAX_RADIUS >> MAP_BLOCK_SHIFT
+    let yh = this.tmBBox.top - this.level.blockMap.originY + MAX_RADIUS >> MAP_BLOCK_SHIFT
     let bx: number
     let by: number
     for (bx = xl; bx <= xh; ++bx) {
@@ -454,10 +458,10 @@ export class Map {
     }
 
     // check lines
-    xl = this.tmBBox.left - this.play.blockMap.originX >> MAP_BLOCK_SHIFT
-    xh = this.tmBBox.right - this.play.blockMap.originX >> MAP_BLOCK_SHIFT
-    yl = this.tmBBox.bottom - this.play.blockMap.originY >> MAP_BLOCK_SHIFT
-    yh = this.tmBBox.top - this.play.blockMap.originY >> MAP_BLOCK_SHIFT
+    xl = this.tmBBox.left - this.level.blockMap.originX >> MAP_BLOCK_SHIFT
+    xh = this.tmBBox.right - this.level.blockMap.originX >> MAP_BLOCK_SHIFT
+    yl = this.tmBBox.bottom - this.level.blockMap.originY >> MAP_BLOCK_SHIFT
+    yh = this.tmBBox.top - this.level.blockMap.originY >> MAP_BLOCK_SHIFT
     for (bx = xl; bx <= xh; ++bx) {
       for (by = yl; by <= yh; ++by) {
         if (!this.mapUtils.blockLinesIterator(bx, by, this.checkLine, this)) {
@@ -538,7 +542,7 @@ export class Map {
         if (side !== oldSide) {
           if (ld.special) {
             this.special.crossSpecialLine(
-              this.play.lines.indexOf(ld),
+              this.level.lines.indexOf(ld),
               oldSide,
               thing,
             )
@@ -1254,10 +1258,10 @@ export class Map {
   radiusAttack(spot: MObj, source: MObj | null, damage: number): void {
     const dist = damage + MAX_RADIUS << FRACBITS
 
-    const yh = spot.y + dist - this.play.blockMap.originY >> MAP_BLOCK_SHIFT
-    const yl = spot.y - dist - this.play.blockMap.originY >> MAP_BLOCK_SHIFT
-    const xh = spot.x + dist - this.play.blockMap.originX >> MAP_BLOCK_SHIFT
-    const xl = spot.x - dist - this.play.blockMap.originX >> MAP_BLOCK_SHIFT
+    const yh = spot.y + dist - this.level.blockMap.originY >> MAP_BLOCK_SHIFT
+    const yl = spot.y - dist - this.level.blockMap.originY >> MAP_BLOCK_SHIFT
+    const xh = spot.x + dist - this.level.blockMap.originX >> MAP_BLOCK_SHIFT
+    const xl = spot.x - dist - this.level.blockMap.originX >> MAP_BLOCK_SHIFT
 
     this.bombSpot = spot
     this.bombSource = source

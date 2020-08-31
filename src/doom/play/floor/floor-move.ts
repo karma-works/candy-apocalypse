@@ -47,7 +47,7 @@ export class FloorMove extends Thinker<Floor, [FloorMove]> {
       this.crush = !!int32a[4]
 
       const sectorNum = int32a[5]
-      this.sector = floor.sectors[sectorNum]
+      this.sector = floor.level.sectors[sectorNum]
       this.sector.specialData = this
 
       this.direction = int32a[6] as -1 | 0 | 1
@@ -61,7 +61,7 @@ export class FloorMove extends Thinker<Floor, [FloorMove]> {
   }
 
   archive(): ArrayBuffer {
-    const sector = this.handler.sectors.indexOf(this.sector)
+    const sector = this.handler.level.sectors.indexOf(this.sector)
 
     const buffer = new ArrayBuffer(FloorMove.sizeOf)
     const int32a = new Int32Array(buffer, 0, 8)

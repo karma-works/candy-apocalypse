@@ -6,12 +6,12 @@ import { Data } from './data'
 import { Doom } from '../doom'
 import { Draw } from './draw'
 import { Game } from '../game/game'
+import { Level } from '../level/level'
 import { LumpReader } from '../wad/lump-reader'
 import { NF_SUBSECTOR } from '../doom/data'
 import { Net } from '../doom/net'
 import { Node } from './bsp/node'
 import { Plane } from './plane'
-import { Play } from '../play/setup'
 import { Player } from '../doom/player'
 import { Segs } from './segs'
 import { Sky } from './sky'
@@ -129,11 +129,11 @@ export class Rendering {
   get game(): Game {
     return this.doom.game
   }
+  get level(): Level {
+    return this.doom.play.level
+  }
   get net(): Net {
     return this.doom.net
-  }
-  get play(): Play {
-    return this.doom.play
   }
   get tick(): Tick {
     return this.doom.play.tick
@@ -432,19 +432,19 @@ export class Rendering {
   //
   pointInSubSector(x: number, y: number): SubSector {
     // single subsector is a special case
-    if (!this.play.nodes.length) {
-      return this.play.subSectors[0]
+    if (!this.level.nodes.length) {
+      return this.level.subSectors[0]
     }
 
     let node: Node
     let side: 0 | 1
-    let nodeNum = this.play.nodes.length - 1
+    let nodeNum = this.level.nodes.length - 1
     while (!(nodeNum & NF_SUBSECTOR)) {
-      node = this.play.nodes[nodeNum]
+      node = this.level.nodes[nodeNum]
       side = node.pointOnSide(x, y)
       nodeNum = node.children[side]
     }
-    return this.play.subSectors[nodeNum & ~NF_SUBSECTOR]
+    return this.level.subSectors[nodeNum & ~NF_SUBSECTOR]
   }
 
   //
@@ -499,7 +499,7 @@ export class Rendering {
     this.net.netUpdate()
 
     // The head node is the last node output.
-    this.bsp.renderBSPNode(this.play.nodes.length - 1)
+    this.bsp.renderBSPNode(this.level.nodes.length - 1)
 
     // Check for new console commands.
     this.net.netUpdate()

@@ -16,8 +16,9 @@ import { TextureArray } from '../textures/texture-array'
 import { ThingArray } from '../level/thing-array'
 import { VertexArray } from '../level/vertex-array'
 
-export interface LumpStatic {
-  new(buffer: ArrayBuffer, name: string): unknown
+export type LumpCtor<T> = { new(b: ArrayBuffer, name: string, lump: number): T; }
+
+export interface LumpStatic extends LumpCtor<unknown> {
   isType(buffer: ArrayBuffer, name?: string): boolean
   type: LumpType
 }

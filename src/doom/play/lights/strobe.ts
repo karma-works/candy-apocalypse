@@ -47,7 +47,7 @@ export class Strobe extends Thinker<Lights, [Strobe]> {
       int32Ptr += 3
 
       const sectorNum = int32[int32Ptr++]
-      this.sector = lights.sectors[sectorNum]
+      this.sector = lights.level.sectors[sectorNum]
       this.count = int32[int32Ptr++]
       this.minLight = int32[int32Ptr++]
       this.maxLight = int32[int32Ptr++]
@@ -57,7 +57,7 @@ export class Strobe extends Thinker<Lights, [Strobe]> {
   }
 
   archive(): ArrayBuffer {
-    const sector = this.handler.sectors.indexOf(this.sector)
+    const sector = this.handler.level.sectors.indexOf(this.sector)
 
     return new Int32Array([
       0, 0, 0,

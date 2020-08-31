@@ -52,7 +52,7 @@ export class Door extends Thinker<Doors, [Door]> {
       this.type = int32[int32Ptr++]
 
       const sectorNum = int32[int32Ptr++]
-      this.sector = doors.sectors[sectorNum]
+      this.sector = doors.level.sectors[sectorNum]
       this.sector.specialData = this
 
       this.topHeight = int32[int32Ptr++]
@@ -64,7 +64,7 @@ export class Door extends Thinker<Doors, [Door]> {
   }
 
   archive(): ArrayBuffer {
-    const sector = this.handler.sectors.indexOf(this.sector)
+    const sector = this.handler.level.sectors.indexOf(this.sector)
 
     return new Int32Array([
       0, 0, 0,

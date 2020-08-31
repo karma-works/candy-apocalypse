@@ -32,7 +32,7 @@ export class Glow extends Thinker<Lights, [Glow]> {
       int32Ptr += 3
 
       const sectorNum = int32[int32Ptr++]
-      this.sector = lights.sectors[sectorNum]
+      this.sector = lights.level.sectors[sectorNum]
       this.minLight = int32[int32Ptr++]
       this.maxLight = int32[int32Ptr++]
       this.direction = int32[int32Ptr++]
@@ -40,7 +40,7 @@ export class Glow extends Thinker<Lights, [Glow]> {
   }
 
   archive(): ArrayBuffer {
-    const sector = this.handler.sectors.indexOf(this.sector)
+    const sector = this.handler.level.sectors.indexOf(this.sector)
 
     return new Int32Array([
       0, 0, 0,

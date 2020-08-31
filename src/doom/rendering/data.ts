@@ -2,7 +2,6 @@ import { FRACBITS } from '../misc/fixed'
 import { FlatArray } from '../textures/flat-array'
 import { LumpReader } from '../wad/lump-reader'
 import { Patch } from './defs/patch'
-import { Play } from '../play/setup'
 import { Rendering } from './rendering'
 import { Textures } from '../textures/textures'
 
@@ -15,11 +14,6 @@ import { Textures } from '../textures/textures'
 //
 
 export class Data {
-
-  private get play(): Play {
-    return this.rendering.play
-  }
-
   private get wad(): LumpReader {
     return this.rendering.wad
   }

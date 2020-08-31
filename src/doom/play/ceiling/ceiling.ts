@@ -50,7 +50,7 @@ export class Ceiling extends Thinker<Ceilings, [Ceiling]> {
 
       this.type = int32[int32Ptr++]
       const sector = int32[int32Ptr++]
-      this.sector = ceilings.sectors[sector]
+      this.sector = ceilings.level.sectors[sector]
       this.sector.specialData = this
       this.bottomHeight = int32[int32Ptr++]
       this.topHeight = int32[int32Ptr++]
@@ -63,7 +63,7 @@ export class Ceiling extends Thinker<Ceilings, [Ceiling]> {
   }
 
   archive(): ArrayBuffer {
-    const sector = this.handler.sectors.indexOf(this.sector)
+    const sector = this.handler.level.sectors.indexOf(this.sector)
 
     return new Int32Array([
       0, 0, 0,
