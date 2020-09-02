@@ -50,8 +50,8 @@ export default class extends Vue {
     { text: 'Hard', value: Skill.Hard },
     { text: 'Nightmare', value: Skill.Nightmare },
   ]
-  episode = 1
-  map = 1
+  episode: number | string = 1
+  map: number | string = 1
 
   noMonsters = false
   respawn = false
@@ -68,8 +68,8 @@ export default class extends Vue {
 
     if (this.autoStart) {
       p.skill = this.skill
-      p.episode = this.episode
-      p.map = this.map
+      p.episode = Number(this.episode)
+      p.map = Number(this.map)
 
       p.noMonsters = this.noMonsters
       p.respawn = this.respawn
