@@ -10,6 +10,7 @@ import { MObj } from '../play/mobj/mobj'
 import { MapLumpOrder } from './map-lump-order'
 import { Node } from '../rendering/bsp/node'
 import { NodeArray } from './node-array'
+import { Reject } from './reject'
 import { Sector } from '../rendering/defs/sector'
 import { SectorArray } from './sector-array'
 import { Seg } from '../rendering/segs/seg'
@@ -59,7 +60,7 @@ export class Level {
   // Without special effect, this could be
   //  used as a PVS lookup as well.
   //
-  rejectMatrix: Uint8Array = new Uint8Array(0)
+  rejectMatrix: Reject = new Reject()
 
   constructor(_?: ArrayBuffer, name = '', private lump = 0) {
     if (!name) {
@@ -98,7 +99,7 @@ export class Level {
     this.loadSegs(lumpReader, lumpNum + MapLumpOrder.Segs)
 
     this.rejectMatrix =
-      lumpReader.cacheLumpNum(lumpNum + MapLumpOrder.Reject, Uint8Array)
+      lumpReader.cacheLumpNum(lumpNum + MapLumpOrder.Reject, Reject)
 
     this.groupLines()
 

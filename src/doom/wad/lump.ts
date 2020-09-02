@@ -7,6 +7,7 @@ import { NodeArray } from '../level/node-array'
 import { PNameArray } from '../textures/pname-array'
 import { Palettes } from '../interfaces/palette'
 import { Patch } from '../rendering/defs/patch'
+import { Reject } from '../level/reject'
 import { SectorArray } from '../level/sector-array'
 import { SegArray } from '../level/seg-array'
 import { Sfx } from '../doom/sounds/sfx'
@@ -25,7 +26,7 @@ export interface LumpStatic extends LumpCtor<unknown> {
 
 export type LumpType = 'demo' | 'palettes' | 'sfx' | 'patch' | 'flat' | 'unknown' |
   'pnames' | 'textures' |
-  'level' | 'things' | 'vertexes' | 'sub-sectors' | 'segs' | 'sectors' | 'nodes' | 'lines' | 'sides' | 'block-map'
+  'level' | 'things' | 'vertexes' | 'sub-sectors' | 'segs' | 'sectors' | 'nodes' | 'lines' | 'sides' | 'block-map' | 'reject'
 
 const lumpCandidates: LumpStatic[] = [
   Level,
@@ -38,6 +39,7 @@ const lumpCandidates: LumpStatic[] = [
   LineArray,
   SideArray,
   BlockMap,
+  Reject,
   Patch,
   Flat,
   PNameArray,
