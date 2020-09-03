@@ -14,6 +14,7 @@ import { FloorType } from './floor/floor-type'
 import { Game } from '../game/game'
 import { GameVersion } from '../doom/mode'
 import { Inter } from './inter'
+import { Level } from '../level/level'
 import { Lights } from './lights'
 import { Line } from '../rendering/defs/line'
 import { LumpReader } from '../wad/lump-reader'
@@ -64,6 +65,9 @@ export class Special {
   private get inter(): Inter {
     return this.play.inter
   }
+  private get level(): Level {
+    return this.play.level
+  }
   private get lights(): Lights {
     return this.play.lights
   }
@@ -100,19 +104,19 @@ export class Special {
     for (let i = 0; animDefs[i]; i++) {
       if (animDefs[i].isTexture) {
         // different episode ?
-        if (this.data.checkTextureNumForName(animDefs[i].startName) === -1) {
+        if (this.data.textures.checkNumForName(animDefs[i].startName) === -1) {
           continue
         }
 
-        this.lastAnim.picNum = this.data.textureNumForName(animDefs[i].endName)
-        this.lastAnim.basePic = this.data.textureNumForName(animDefs[i].startName)
+        this.lastAnim.picNum = this.data.textures.numForName(animDefs[i].endName)
+        this.lastAnim.basePic = this.data.textures.numForName(animDefs[i].startName)
       } else {
         if (this.wad.checkNumForName(animDefs[i].startName) === -1) {
           continue
         }
 
-        this.lastAnim.picNum = this.data.flatNumForName(animDefs[i].endName)
-        this.lastAnim.basePic = this.data.flatNumForName(animDefs[i].startName)
+        this.lastAnim.picNum = this.data.flats.numForName(animDefs[i].endName)
+        this.lastAnim.basePic = this.data.flats.numForName(animDefs[i].startName)
       }
 
       this.lastAnim.isTexture = animDefs[i].isTexture
@@ -138,8 +142,8 @@ export class Special {
   //  the line number, and the side (0/1) that you want.
   //
   getSide(currentSector: number, line: number, side: 0 | 1): Side {
-    return this.play.sides[
-      this.play.sectors[currentSector].lines[line].sideNum[side]
+    return this.level.sides[
+      this.level.sectors[currentSector].lines[line].sideNum[side]
     ]
   }
 
@@ -150,8 +154,8 @@ export class Special {
   //  the line number and the side (0/1) that you want.
   //
   getSector(currentSector: number, line: number, side: 0 | 1): Sector {
-    return this.play.sides[
-      this.play.sectors[currentSector].lines[line].sideNum[side]
+    return this.level.sides[
+      this.level.sectors[currentSector].lines[line].sideNum[side]
     ].sector
   }
 
@@ -161,7 +165,7 @@ export class Special {
   //  it will tell you whether the line is two-sided or not.
   //
   twoSided(sector: number, line: number): number {
-    return this.play.sectors[sector].lines[line]
+    return this.level.sectors[sector].lines[line]
       .flags & MapLineFlag.TwoSided
   }
 
@@ -169,8 +173,8 @@ export class Special {
   // RETURN NEXT SECTOR # THAT LINE TAG REFERS TO
   //
   findSectorFromLineTag(line: Line, start: number): number {
-    for (let i = start + 1; i < this.play.numSectors; ++i) {
-      if (this.play.sectors[i].tag === line.tag) {
+    for (let i = start + 1; i < this.level.sectors.length; ++i) {
+      if (this.level.sectors[i].tag === line.tag) {
         return i
       }
     }
@@ -191,7 +195,7 @@ export class Special {
   crossSpecialLine(lineNum: number, side: 0 | 1, thing: MObj): void {
     let ok = false
 
-    const line = this.play.lines[lineNum]
+    const line = this.level.lines[lineNum]
 
     if (this.doom.gameVersion <= GameVersion.Doom12) {
       if (line.special > 98 && line.special !== 104) {
@@ -793,9 +797,9 @@ export class Special {
         pic = anim.basePic +
           ((this.tick.levelTime / anim.speed >> 0) + i) % anim.numPics
         if (anim.isTexture) {
-          this.data.textureTranslation[i] = pic
+          this.data.textures.translate(i, pic)
         } else {
-          this.data.flatTranslation[i] = pic
+          this.data.flats.translate(i, pic)
         }
       }
     }
@@ -807,7 +811,7 @@ export class Special {
       switch (line.special) {
       case 48:
         // EFFECT FIRSTCOL SCROLL +
-        this.play.sides[line.sideNum[0]].textureOffset += FRACUNIT
+        this.level.sides[line.sideNum[0]].textureOffset += FRACUNIT
         break
       }
     }
@@ -826,17 +830,17 @@ export class Special {
 
           switch (button.where) {
           case Where.Top:
-            this.play.sides[button.line.sideNum[0]].topTexture =
+            this.level.sides[button.line.sideNum[0]].topTexture =
                 button.bTexture
             break
 
           case Where.Middle:
-            this.play.sides[button.line.sideNum[0]].midTexture =
+            this.level.sides[button.line.sideNum[0]].midTexture =
                 button.bTexture
             break
 
           case Where.Bottom:
-            this.play.sides[button.line.sideNum[0]].bottomTexture =
+            this.level.sides[button.line.sideNum[0]].bottomTexture =
                 button.bTexture
             break
           }
@@ -864,8 +868,8 @@ export class Special {
   spawnSpecials(): void {
     // Init special SECTORs.
     let sector: Sector
-    for (let i = 0; i < this.play.numSectors; ++i) {
-      sector = this.play.sectors[i]
+    for (let i = 0; i < this.level.sectors.length; ++i) {
+      sector = this.level.sectors[i]
 
       if (!sector.special) {
         continue
@@ -922,12 +926,12 @@ export class Special {
 
     // Init line EFFECTs
     this.numLineSpecials = 0
-    for (let i = 0; i < this.play.numLines; ++i) {
-      switch (this.play.lines[i].special) {
+    for (let i = 0; i < this.level.lines.length; ++i) {
+      switch (this.level.lines[i].special) {
       case 48:
         // EFFECT FIRSTCOL SCROLL+
         this.lineSpecialList[this.numLineSpecials] =
-          this.play.lines[i]
+          this.level.lines[i]
         this.numLineSpecials++
         break
       }

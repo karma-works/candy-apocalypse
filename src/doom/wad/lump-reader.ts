@@ -1,3 +1,4 @@
+import { LumpCtor } from './lump'
 import { LumpInfo } from './types'
 import { Wad } from './wad'
 import { fs } from '../system/fs'
@@ -167,17 +168,17 @@ export class LumpReader {
   // W_CacheLumpNum
   //
   cacheLumpNum(lump: number): ArrayBuffer
-  cacheLumpNum<T>(lump: number, klass?: { new(b: ArrayBuffer): T; }): T
-  cacheLumpNum<T>(lump: number, klass?: { new(b: ArrayBuffer): T; }): T | ArrayBuffer {
+  cacheLumpNum<T>(lump: number, klass?: LumpCtor<T>): T
+  cacheLumpNum<T>(lump: number, klass?: LumpCtor<T>): T | ArrayBuffer {
     if (lump >= this.numLumps) {
       throw `W_CacheLumpNum: ${lump} >= numlumps`
     }
 
-    const buffer = this.readLump(lump)
+    const { buffer, name } = this.lumpInfo[lump]
 
     if (klass) {
       if (!this.lumpCache[lump]) {
-        this.lumpCache[lump] = new klass(buffer)
+        this.lumpCache[lump] = new klass(buffer, name, lump)
       }
       return this.lumpCache[lump] as T
     } else {
@@ -189,8 +190,8 @@ export class LumpReader {
   // W_CacheLumpName
   //
   cacheLumpName(name: string): ArrayBuffer
-  cacheLumpName<T>(name: string, klass?: { new(b: ArrayBuffer): T; }): T
-  cacheLumpName<T>(name: string, klass?: { new(b: ArrayBuffer): T; }): T | ArrayBuffer {
+  cacheLumpName<T>(name: string, klass?: LumpCtor<T>): T
+  cacheLumpName<T>(name: string, klass?: LumpCtor<T>): T | ArrayBuffer {
     return this.cacheLumpNum(this.getNumForName(name), klass)
   }
 }

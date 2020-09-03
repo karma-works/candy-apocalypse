@@ -1,5 +1,4 @@
 import { FRACBITS, mul } from '../../misc/fixed'
-import { MapLineFlag, MapSeg } from '../../doom/data'
 import { Line } from '../defs/line'
 import { Sector } from '../defs/sector'
 import { Side } from '../defs/side'
@@ -9,39 +8,19 @@ import { Vertex } from '../data/vertex'
 // The LineSeg.
 //
 export class Seg {
-  v1: Vertex;
-  v2: Vertex;
-  offset: number;
-  angle: number;
-  sideDef: Side;
-  lineDef: Line;
-  // Sector references.
-  // Could be retrieved from linedef, too.
-  // backsector is NULL for one sided lines
-  frontSector: Sector;
-  backSector: Sector | null;
-
   constructor(
-    ml: MapSeg,
-    vertexes: readonly Vertex[],
-    lines: readonly Line[],
-    sides: readonly Side[],
-  ) {
-    this.v1 = vertexes[ml.v1]
-    this.v2 = vertexes[ml.v2]
-    this.offset = ml.offset << 16
-    this.angle = ml.angle << 16 >>> 0
-    const lineDef = lines[ml.lineDef]
-    this.lineDef = lineDef
-    this.sideDef = sides[lineDef.sideNum[ml.side]]
-
-    this.frontSector = sides[lineDef.sideNum[ml.side]].sector
-    if (lineDef.flags & MapLineFlag.TwoSided) {
-      this.backSector = sides[lineDef.sideNum[ml.side ^ 1]].sector
-    } else {
-      this.backSector = null
-    }
-  }
+    public v1: Vertex,
+    public v2: Vertex,
+    public offset: number,
+    public angle: number,
+    public sideDef: Side,
+    public lineDef: Line,
+    // Sector references.
+    // Could be retrieved from linedef, too.
+    // backsector is NULL for one sided lines
+    public frontSector: Sector,
+    public backSector: Sector | null,
+  ) { }
 
   pointOnSegSide(x: number, y: number): 0 | 1 {
     const lX = this.v1.x

@@ -1,97 +1,35 @@
-import { MAP_BLOCK_SHIFT, MAX_RADIUS } from './local'
-import { MapLineDef, MapLumpOrder, MapNode, MapSector, MapSeg, MapSideDef, MapSubSector, MapThing, MapVertex } from '../doom/data'
 import { AutoMap } from '../auto-map/auto-map'
-import { BBox } from '../misc/bbox'
 import { Ceilings } from './ceilings'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom'
 import { Doors } from './doors'
 import { Enemy } from './enemy'
-import { FRACBITS } from '../misc/fixed'
 import { Floor } from './floor'
 import { Game } from '../game/game'
 import { GameMode } from '../doom/mode'
 import { Inter } from './inter'
+import { Level } from '../level/level'
 import { Lights } from './lights'
-import { Line } from '../rendering/defs/line'
 import { LumpReader } from '../wad/lump-reader'
 import { MAX_PLAYERS } from '../global/doomdef'
-import { MObj } from './mobj/mobj'
 import { MObjHandler } from './mobj-handler'
 import { Map } from './map'
+import { MapThing } from '../level/thing-array'
 import { MapUtils } from './map-utils'
-import { Node } from '../rendering/bsp/node'
 import { PSprite } from './p-sprite'
 import { Plats } from './plats'
 import { Rendering } from '../rendering/rendering'
 import { SaveGame } from './save-game'
-import { Sector } from '../rendering/defs/sector'
-import { Seg } from '../rendering/segs/seg'
-import { Side } from '../rendering/defs/side'
 import { Sight } from './sight'
 import { Special } from './special'
-import { SubSector } from '../rendering/defs/sub-sector'
 import { Switch } from './switch'
 import { Teleport } from './teleport'
 import { Tick } from './tick'
 import { User } from './user'
-import { Vertex } from '../rendering/data/vertex'
 import { sprNames } from '../doom/info/spr-names'
 
 export class Play {
-  //
-  // MAP related Lookup tables.
-  // Store VERTEXES, LINEDEFS, SIDEDEFS, etc.
-  //
-  numVertexes = -1
-  vertexes = new Array<Vertex>()
-
-  numSegs = -1
-  segs = new Array<Seg>()
-
-  numSectors = -1
-  sectors = new Array<Sector>()
-
-  numSubSectors = -1
-  subSectors = new Array<SubSector>()
-
-  numNodes = -1
-  nodes = new Array<Node>()
-
-  numLines = -1
-  lines = new Array<Line>()
-
-  numSides = -1
-  sides = new Array<Side>()
-
-  // BLOCKMAP
-  // Created from axis aligned bounding box
-  // of the map, a rectangular array of
-  // blocks of size ...
-  // Used to speed up collision detection
-  // by spatial subdivision in 2D.
-  //
-  // Blockmap size.
-  bMapWidth = -1
-  // size in mapblocks
-  bMapHeight = -1
-  // int for larger maps
-  blockMap: Int16Array = new Int16Array(0)
-  // offsets in blockmap are from here
-  blockMapLump: Int16Array = new Int16Array(0)
-  // origin of block map
-  bMapOrgX = -1
-  bMapOrgY = -1
-  blockLinks = new Array<MObj>()
-
-  // REJECT
-  // For fast sight rejection.
-  // Speeds up enemy AI by skipping detailed
-  //  LineOf Sight calculation.
-  // Without special effect, this could be
-  //  used as a PVS lookup as well.
-  //
-  rejectMatrix: Uint8Array = new Uint8Array(0)
+  public level = new Level()
 
   public tick = new Tick(this)
   public ceilings = new Ceilings(this)
@@ -131,122 +69,12 @@ export class Play {
   constructor(public doom: Doom) { }
 
   //
-  // P_LoadVertexes
-  //
-  private loadVertexes(lump: number): void {
-    // Determine number of lumps:
-    //  total lump length / vertex record length.
-    this.numVertexes = this.wad.lumpLength(lump) / MapVertex.sizeOf
-
-    // Allocate zone memory for buffer.
-    this.vertexes = new Array(this.numVertexes)
-
-    // Load data into cache.
-    const data = this.wad.cacheLumpNum(lump)
-    let ml: MapVertex
-    let mlPtr = 0
-    // Copy and convert vertex coordinates,
-    // internal representation as fixed.
-    for (let i = 0; i < this.numVertexes; ++i, mlPtr += MapVertex.sizeOf) {
-      ml = new MapVertex(data.slice(mlPtr))
-      this.vertexes[i] = new Vertex(
-        ml.x << FRACBITS,
-        ml.y << FRACBITS,
-      )
-    }
-  }
-
-  //
-  // P_LoadSegs
-  //
-  private loadSegs(lump: number): void {
-    this.numSegs = this.wad.lumpLength(lump) / MapSeg.sizeOf
-    this.segs = new Array(this.numSegs)
-    const data = this.wad.cacheLumpNum(lump)
-
-    let ml: MapSeg
-    let mlIdx = 0
-    for (let i = 0; i < this.numSegs; ++i, mlIdx += MapSeg.sizeOf) {
-      ml = new MapSeg(data.slice(mlIdx))
-      this.segs[i] = new Seg(ml, this.vertexes, this.lines, this.sides)
-    }
-  }
-
-  //
-  // P_LoadSubsectors
-  //
-  private loadSubSectors(lump: number): void {
-    this.numSubSectors = this.wad.lumpLength(lump) / MapSubSector.sizeOf
-    this.subSectors = new Array(this.numSubSectors)
-    const data = this.wad.cacheLumpNum(lump)
-
-    let ms: MapSubSector
-    let msPtr = 0
-    for (let i = 0; i < this.numSubSectors; ++i, msPtr += MapSubSector.sizeOf) {
-      ms = new MapSubSector(data.slice(msPtr))
-      this.subSectors[i] = {
-        numLines: ms.numSegs,
-        firstLine: ms.firstSeg,
-        sector: null,
-      }
-    }
-  }
-
-
-  //
-  // P_LoadSectors
-  //
-  private loadSectors(lump: number): void {
-    this.numSectors = this.wad.lumpLength(lump) / MapSector.sizeOf
-    this.sectors = new Array(this.numSectors)
-    const data = this.wad.cacheLumpNum(lump)
-
-    let ms: MapSector
-    let msPtr = 0
-    for (let i = 0; i < this.numSectors; ++i, msPtr += MapSector.sizeOf) {
-      ms = new MapSector(data.slice(msPtr))
-      this.sectors[i] = new Sector(
-        ms.floorHeight << FRACBITS,
-        ms.ceilingHeight << FRACBITS,
-        this.rendering.data.flatNumForName(ms.floorPic),
-        this.rendering.data.flatNumForName(ms.ceilingPic),
-        ms.lightLevel,
-        ms.special,
-        ms.tag,
-        null,
-      )
-    }
-  }
-
-  //
-  // P_LoadNodes
-  //
-  private loadNodes(lump: number): void {
-    this.numNodes = this.wad.lumpLength(lump) / MapNode.sizeOf
-    this.nodes = new Array(this.numNodes)
-    const data = this.wad.cacheLumpNum(lump)
-
-    let mn: MapNode
-    let mnPtr = 0
-    for (let i = 0; i < this.numNodes; ++i, mnPtr += MapNode.sizeOf) {
-      mn = new MapNode(data.slice(mnPtr))
-
-      this.nodes[i] = new Node(mn)
-    }
-  }
-
-  //
   // P_LoadThings
   //
-  private loadThings(lump: number) {
-    const data = this.wad.cacheLumpNum(lump)
-    const numThings = this.wad.lumpLength(lump) / MapThing.sizeOf
-
+  private spawnThings(level: Level) {
     let mt: MapThing
-    let mtPtr = 0
     let spawn: boolean
-    for (let i = 0; i < numThings; ++i, mtPtr += MapThing.sizeOf) {
-      mt = new MapThing(data.slice(mtPtr))
+    for (mt of level.things) {
       spawn = true
 
       // Do not spawn cool, new monsters if !commercial
@@ -273,168 +101,6 @@ export class Play {
       }
 
       this.mObjHandler.spawnMapThing(mt)
-    }
-  }
-
-  //
-  // P_LoadLineDefs
-  // Also counts secret lines for intermissions.
-  //
-  private loadLineDefs(lump: number): void {
-    this.numLines = this.wad.lumpLength(lump) / MapLineDef.sizeOf
-    this.lines = new Array(this.numLines)
-    const data = this.wad.cacheLumpNum(lump)
-
-    let mld: MapLineDef
-    let mldPtr = 0
-    let ld: Line
-    let v1: Vertex, v2: Vertex
-    for (let i = 0; i < this.numLines; ++i, mldPtr += MapLineDef.sizeOf) {
-      mld = new MapLineDef(data.slice(mldPtr))
-      v1 = this.vertexes[mld.v1]
-      v2 = this.vertexes[mld.v2]
-      ld = new Line(v1, v2, mld.flags, mld.special, mld.tag)
-
-      ld.sideNum[0] = mld.sideNum[0]
-      ld.sideNum[1] = mld.sideNum[1]
-
-      if (ld.sideNum[0] !== -1) {
-        ld.frontSector = this.sides[ld.sideNum[0]].sector
-      } else {
-        ld.frontSector = null
-      }
-
-      if (ld.sideNum[1] !== -1) {
-        ld.backSector = this.sides[ld.sideNum[1]].sector
-      } else {
-        ld.backSector = null
-      }
-
-      this.lines[i] = ld
-    }
-  }
-
-  //
-  // P_LoadSideDefs
-  //
-  private loadSideDefs(lump: number): void {
-    this.numSides = this.wad.lumpLength(lump) / MapSideDef.sizeOf
-    this.sides = new Array(this.numSides)
-    const data = this.wad.cacheLumpNum(lump)
-
-    let msd: MapSideDef
-    let msdPtr = 0
-    for (let i = 0; i < this.numSides; ++i, msdPtr += MapSideDef.sizeOf) {
-      msd = new MapSideDef(data.slice(msdPtr))
-
-      this.sides[i] = new Side(
-        msd.textureOffset << FRACBITS,
-        msd.rowOffset << FRACBITS,
-        this.rendering.data.textureNumForName(msd.topTexture),
-        this.rendering.data.textureNumForName(msd.bottomTexture),
-        this.rendering.data.textureNumForName(msd.midTexture),
-        this.sectors[msd.sector],
-      )
-    }
-  }
-
-  //
-  // P_LoadBlockMap
-  //
-  private loadBlockMap(lump: number): void {
-    const buffer = this.wad.cacheLumpNum(lump)
-    this.blockMapLump = new Int16Array(buffer)
-    this.blockMap = new Int16Array(buffer, 8)
-
-    this.bMapOrgX = this.blockMapLump[0] << FRACBITS
-    this.bMapOrgY = this.blockMapLump[1] << FRACBITS
-    this.bMapWidth = this.blockMapLump[2]
-    this.bMapHeight = this.blockMapLump[3]
-
-    // clear ou mobj chains
-    this.blockLinks = []
-  }
-
-  //
-  // P_GroupLines
-  // Builds sector line lists and subsector sector numbers.
-  // Finds block bounding boxes for sectors.
-  //
-  private groupLines(): void {
-    let i: number
-    // look up sector number for each subsector
-    let ss: SubSector
-    let ssPtr = 0
-    let seg : Seg
-    for (i = 0; i < this.numSubSectors; ++i, ++ssPtr) {
-      ss = this.subSectors[ssPtr]
-      seg = this.segs[ss.firstLine]
-      ss.sector = seg.sideDef.sector
-    }
-
-    // count number of lines in each sector
-    let li: Line
-    let liPtr = 0
-    let total = 0
-    for (i = 0; i < this.numLines; ++i, ++liPtr) {
-      li = this.lines[liPtr]
-
-      ++total
-      if (li.frontSector !== null) {
-        li.frontSector.lineCount++
-      }
-
-      if (li.backSector && li.backSector !== li.frontSector) {
-        li.backSector.lineCount++
-        ++total
-      }
-    }
-
-    // build line tables for each sector
-    const lineBuffer = new Array<Line>(total * 4)
-    let lineBufferPtr = 0
-    let sector: Sector
-    let sectorPtr = 0
-    let sectorLinePtr = 0
-    const bbox = new BBox()
-
-    let block: number
-    for (i = 0; i < this.numSectors; ++i, ++sectorPtr) {
-      sector = this.sectors[sectorPtr]
-      bbox.clear()
-      // sector.lines = lineBuffer TODO
-      sectorLinePtr = lineBufferPtr
-
-      liPtr = 0
-      for (let j = 0; j < this.numLines; ++j, ++liPtr) {
-        li = this.lines[liPtr]
-        if (li.frontSector === sector || li.backSector === sector) {
-          lineBuffer[lineBufferPtr++] = li
-          bbox.add(li.v1.x, li.v1.y)
-          bbox.add(li.v2.x, li.v2.y)
-        }
-      }
-      sector.lines = lineBuffer.slice(sectorLinePtr, lineBufferPtr)
-      if (lineBufferPtr - sectorLinePtr !== sector.lineCount) {
-        throw 'P_GroupLines: miscounted'
-      }
-
-      // adjust bounding box to map blocks
-      block = bbox.top - this.bMapOrgY + MAX_RADIUS >> MAP_BLOCK_SHIFT
-      block = block >= this.bMapHeight ? this.bMapHeight-1 : block
-      sector.blockBox.top = block
-
-      block = bbox.bottom - this.bMapOrgY - MAX_RADIUS >> MAP_BLOCK_SHIFT
-      block = block < 0 ? 0 : block
-      sector.blockBox.bottom = block
-
-      block = bbox.right - this.bMapOrgX + MAX_RADIUS >> MAP_BLOCK_SHIFT
-      block = block >= this.bMapWidth ? this.bMapWidth-1 : block
-      sector.blockBox.right = block
-
-      block = bbox.left - this.bMapOrgX - MAX_RADIUS >> MAP_BLOCK_SHIFT
-      block = block < 0 ? 0 : block
-      sector.blockBox.left = block
     }
   }
 
@@ -473,28 +139,17 @@ export class Play {
       lumpName = `E${episode}M${map}`
     }
 
-    const lumpNum = this.wad.getNumForName(lumpName)
+    const level = this.wad.cacheLumpName(lumpName, Level)
+    this.level = level
 
     this.tick.levelTime = 0
-
-    // note: most of this ordering is important
-    this.loadBlockMap(lumpNum + MapLumpOrder.BlockMap)
-    this.loadVertexes(lumpNum + MapLumpOrder.Vertexes)
-    this.loadSectors(lumpNum + MapLumpOrder.Sectors)
-    this.loadSideDefs(lumpNum + MapLumpOrder.SideDefs)
-
-    this.loadLineDefs(lumpNum + MapLumpOrder.LineDefs)
-    this.loadSubSectors(lumpNum + MapLumpOrder.SSectors)
-    this.loadNodes(lumpNum + MapLumpOrder.Nodes)
-    this.loadSegs(lumpNum + MapLumpOrder.Segs)
-
-    this.rejectMatrix = new Uint8Array(
-      this.wad.cacheLumpNum(lumpNum + MapLumpOrder.Reject),
-    )
-    this.groupLines()
-
     this.game.bodyQueSlot = 0
-    this.loadThings(lumpNum + MapLumpOrder.Things)
+
+    level.load(this.wad,
+      this.rendering.data.flats,
+      this.rendering.data.textures)
+
+    this.spawnThings(level)
 
     // set up world state
     this.special.spawnSpecials()

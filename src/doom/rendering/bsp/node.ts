@@ -1,6 +1,5 @@
 import { FRACBITS, mul } from '../../misc/fixed'
 import { BBox } from '../../misc/bbox'
-import { MapNode } from '../../doom/data'
 
 //
 // BSP node.
@@ -16,21 +15,28 @@ export class Node {
   // If NF_SUBSECTOR its a subsector.
   children: [ number, number ];
 
-  constructor(node: MapNode) {
-    this.x = node.x << FRACBITS
-    this.y = node.y << FRACBITS
-    this.dX = node.dX << FRACBITS
-    this.dY = node.dY << FRACBITS
+  constructor(
+    x: number,
+    y: number,
+    dX: number,
+    dY: number,
+    children: number[],
+    bbox: number[][],
+  ) {
+    this.x = x
+    this.y = y
+    this.dX = dX
+    this.dY = dY
 
     this.bbox = [ new BBox(), new BBox() ]
     this.children = [ 0, 0 ]
 
     for (let j = 0; j < 2; ++j) {
-      this.children[j] = node.children[j]
-      this.bbox[j].top = node.bbox[j][0] << FRACBITS
-      this.bbox[j].bottom = node.bbox[j][1] << FRACBITS
-      this.bbox[j].left = node.bbox[j][2] << FRACBITS
-      this.bbox[j].right = node.bbox[j][3] << FRACBITS
+      this.children[j] = children[j]
+      this.bbox[j].top = bbox[j][0] << FRACBITS
+      this.bbox[j].bottom = bbox[j][1] << FRACBITS
+      this.bbox[j].left = bbox[j][2] << FRACBITS
+      this.bbox[j].right = bbox[j][3] << FRACBITS
     }
   }
 

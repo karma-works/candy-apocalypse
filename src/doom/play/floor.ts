@@ -5,6 +5,7 @@ import { Doom } from '../doom'
 import { FRACUNIT } from '../misc/fixed'
 import { FloorType } from './floor/floor-type'
 import { GameVersion } from '../doom/mode'
+import { Level } from '../level/level'
 import { Line } from '../rendering/defs/line'
 import { Map } from './map'
 import { MapLineFlag } from '../doom/data'
@@ -31,11 +32,11 @@ export class Floor {
   private get dSound(): DSound {
     return this.play.dSound
   }
+  get level(): Level {
+    return this.play.level
+  }
   private get map(): Map {
     return this.play.map
-  }
-  get sectors(): readonly Sector[] {
-    return this.play.sectors
   }
   private get special(): Special {
     return this.play.special
@@ -222,7 +223,7 @@ export class Floor {
     let floor: FloorMove
 
     while ((secNum = this.special.findSectorFromLineTag(line, secNum)) >= 0) {
-      sec = this.sectors[secNum]
+      sec = this.level.sectors[secNum]
 
       // ALREADY MOVING?  IF SO, KEEP GOING...
       if (sec.specialData) {
@@ -313,14 +314,14 @@ export class Floor {
             if (this.special.twoSided(secNum, i)) {
               side = this.special.getSide(secNum, i, 0)
               if (side.bottomTexture >= 0) {
-                if (this.data.textureHeight[side.bottomTexture] < minSize) {
-                  minSize = this.data.textureHeight[side.bottomTexture]
+                if (this.data.textures.getHeight(side.bottomTexture) < minSize) {
+                  minSize = this.data.textures.getHeight(side.bottomTexture)
                 }
               }
               side = this.special.getSide(secNum, i, 1)
               if (side.bottomTexture >= 0) {
-                if (this.data.textureHeight[side.bottomTexture] < minSize) {
-                  minSize = this.data.textureHeight[side.bottomTexture]
+                if (this.data.textures.getHeight(side.bottomTexture) < minSize) {
+                  minSize = this.data.textures.getHeight(side.bottomTexture)
                 }
               }
             }
@@ -338,7 +339,7 @@ export class Floor {
           for (let i = 0; i < sec.lineCount; ++i) {
             if (this.special.twoSided(secNum, i)) {
               if (
-                this.sectors.indexOf(
+                this.level.sectors.indexOf(
                   this.special.getSide(secNum, i, 0).sector,
                 ) === secNum
               ) {
@@ -391,7 +392,7 @@ export class Floor {
     let speed: number
 
     while ((secNum = this.special.findSectorFromLineTag(line, secNum)) >= 0) {
-      sec = this.sectors[secNum]
+      sec = this.level.sectors[secNum]
 
       // ALREADY MOVING?  IF SO, KEEP GOING...
       if (sec.specialData) {
@@ -435,7 +436,7 @@ export class Floor {
             continue
           }
 
-          newSecNum = this.sectors.indexOf(tsec)
+          newSecNum = this.level.sectors.indexOf(tsec)
 
           if (secNum !== newSecNum) {
             continue
@@ -445,7 +446,7 @@ export class Floor {
           if (tsec === null) {
             continue
           }
-          newSecNum = this.sectors.indexOf(tsec)
+          newSecNum = this.level.sectors.indexOf(tsec)
 
           if (tsec.floorPic !== texture) {
             continue
@@ -488,7 +489,7 @@ export class Floor {
     let floor: FloorMove
 
     while ((secNum = this.special.findSectorFromLineTag(line, secNum)) >= 0) {
-      s1 = this.sectors[secNum]
+      s1 = this.level.sectors[secNum]
 
       // ALREADY MOVING?  IF SO, KEEP GOING...
       if (s1.specialData) {

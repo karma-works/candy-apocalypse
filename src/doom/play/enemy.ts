@@ -11,6 +11,7 @@ import { Floor } from './floor'
 import { FloorType } from './floor/floor-type'
 import { Game } from '../game/game'
 import { Inter } from './inter'
+import { Level } from '../level/level'
 import { Line } from '../rendering/defs/line'
 import { MAX_PLAYERS } from '../global/doomdef'
 import { MObj } from './mobj/mobj'
@@ -64,6 +65,9 @@ export class Enemy {
   }
   private get inter(): Inter {
     return this.play.inter
+  }
+  private get level(): Level {
+    return this.play.level
   }
   private get map(): Map {
     return this.play.map
@@ -127,10 +131,10 @@ export class Enemy {
         continue
       }
 
-      if (this.play.sides[check.sideNum[0]].sector === sec) {
-        other = this.play.sides[check.sideNum[1]].sector
+      if (this.level.sides[check.sideNum[0]].sector === sec) {
+        other = this.level.sides[check.sideNum[1]].sector
       } else {
-        other = this.play.sides[check.sideNum[0]].sector
+        other = this.level.sides[check.sideNum[0]].sector
       }
 
       if (check.flags & MapLineFlag.SoundBlock) {
@@ -1101,10 +1105,10 @@ export class Enemy {
       this.vileTryY =
         actor.y + actor.info.speed * ySpeed[actor.moveDir]
 
-      const xl = this.vileTryX - this.play.bMapOrgX - MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
-      const xh = this.vileTryX - this.play.bMapOrgX + MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
-      const yl = this.vileTryY - this.play.bMapOrgY - MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
-      const yh = this.vileTryY - this.play.bMapOrgY + MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
+      const xl = this.vileTryX - this.level.blockMap.originX - MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
+      const xh = this.vileTryX - this.level.blockMap.originX + MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
+      const yl = this.vileTryY - this.level.blockMap.originY - MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
+      const yh = this.vileTryY - this.level.blockMap.originY + MAX_RADIUS * 2 >> MAP_BLOCK_SHIFT
 
       let temp: MObj | null
       let info: MObjInfo

@@ -6,6 +6,7 @@ import { Floor } from './floor'
 import { FloorMove } from './floor/floor-move'
 import { Game } from '../game/game'
 import { Glow } from './lights/glow'
+import { Level } from '../level/level'
 import { LightFlash } from './lights/light-flash'
 import { Lights } from './lights'
 import { Line } from '../rendering/defs/line'
@@ -56,6 +57,9 @@ export class SaveGame {
   }
   private get game(): Game {
     return this.play.game
+  }
+  private get level(): Level {
+    return this.play.level
   }
   private get lights(): Lights {
     return this.play.lights
@@ -127,9 +131,9 @@ export class SaveGame {
     let temp: Uint8Array
 
     // do sectors
-    for (let i = 0, sec = this.play.sectors[i];
-      i < this.play.numSectors;
-      ++i, sec = this.play.sectors[i]
+    for (let i = 0, sec = this.level.sectors[i];
+      i < this.level.sectors.length;
+      ++i, sec = this.level.sectors[i]
     ) {
       temp = new Uint8Array(sec.archive())
       int8.set(temp, saveP)
@@ -137,9 +141,9 @@ export class SaveGame {
     }
 
     // do lines
-    for (let i = 0, li = this.play.lines[i];
-      i < this.play.numLines;
-      ++i, li = this.play.lines[i]
+    for (let i = 0, li = this.level.lines[i];
+      i < this.level.lines.length;
+      ++i, li = this.level.lines[i]
     ) {
       temp = new Uint8Array(li.archive())
       int8.set(temp, saveP)
@@ -150,7 +154,7 @@ export class SaveGame {
           continue
         }
 
-        temp = new Uint8Array(this.play.sides[li.sideNum[j]].archive())
+        temp = new Uint8Array(this.level.sides[li.sideNum[j]].archive())
         int8.set(temp, saveP)
         saveP += temp.length
       }
@@ -164,18 +168,18 @@ export class SaveGame {
   //
   unArchiveWorld(buffer: ArrayBuffer, saveP: number): number {
     // do sectors
-    for (let i = 0, sec = this.play.sectors[i];
-      i < this.play.numSectors;
-      ++i, sec = this.play.sectors[i]
+    for (let i = 0, sec = this.level.sectors[i];
+      i < this.level.sectors.length;
+      ++i, sec = this.level.sectors[i]
     ) {
       sec.unArchive(buffer.slice(saveP))
       saveP += Sector.sizeOf
     }
 
     // do lines
-    for (let i = 0, li = this.play.lines[i];
-      i < this.play.numLines;
-      ++i, li = this.play.lines[i]
+    for (let i = 0, li = this.level.lines[i];
+      i < this.level.lines.length;
+      ++i, li = this.level.lines[i]
     ) {
       li.unArchive(buffer.slice(saveP))
       saveP += Line.sizeOf
@@ -185,7 +189,7 @@ export class SaveGame {
           continue
         }
 
-        this.play.sides[li.sideNum[j]].unArchive(buffer.slice(saveP))
+        this.level.sides[li.sideNum[j]].unArchive(buffer.slice(saveP))
         saveP += Side.sizeOf
       }
     }

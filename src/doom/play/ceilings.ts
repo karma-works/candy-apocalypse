@@ -3,6 +3,7 @@ import { CeilingType } from './ceiling/ceiling-type'
 import { Sound as DSound } from '../doom/sound'
 import { FRACUNIT } from '../misc/fixed'
 import { Floor } from './floor'
+import { Level } from '../level/level'
 import { Line } from '../rendering/defs/line'
 import { Play } from './setup'
 import { Result } from './specials/result'
@@ -24,8 +25,8 @@ export class Ceilings {
   private get floor(): Floor {
     return this.play.floor
   }
-  get sectors(): readonly Sector[] {
-    return this.play.sectors
+  get level(): Level {
+    return this.play.level
   }
   private get special(): Special {
     return this.play.special
@@ -163,7 +164,7 @@ export class Ceilings {
     }
 
     while ((secNum = this.special.findSectorFromLineTag(line, secNum)) >= 0) {
-      sec = this.sectors[secNum]
+      sec = this.level.sectors[secNum]
 
       if (sec.specialData) {
         continue

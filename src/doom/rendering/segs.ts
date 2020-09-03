@@ -106,7 +106,7 @@ export class Segs {
     this.bsp.curLine = curLine
     this.bsp.frontSector = curLine.frontSector
     this.bsp.backSector = curLine.backSector
-    const textNum = this.data.textureTranslation[curLine.sideDef.midTexture]
+    const textNum = this.data.textures.getNum(curLine.sideDef.midTexture)
 
     let lightNum = (this.bsp.frontSector.lightLevel >> LIGHT_SEG_SHIFT) + this.rendering.extraLight
 
@@ -145,7 +145,7 @@ export class Segs {
           this.bsp.frontSector.floorHeight : this.bsp.backSector.floorHeight
 
       this.draw.dcTextureMid = this.draw.dcTextureMid +
-        this.data.textureHeight[textNum] -
+        this.data.textures.getHeight(textNum) -
         this.rendering.viewZ
     } else {
       this.draw.dcTextureMid =
@@ -181,7 +181,7 @@ export class Segs {
         this.draw.dcIScale = 0xffffffff / this.things.sprYScale >>> 0
 
         // draw the texture
-        col = this.data.getColumn(
+        col = this.data.textures.getColumn(
           textNum,
           this.maskedTextureCol[this.draw.dcX],
         )
@@ -288,7 +288,7 @@ export class Segs {
         this.draw.dcYh = yh
         this.draw.dcTextureMid = this.rwMidTextureMid
         this.draw.dcSource =
-          this.data.getColumn(this.midTexture, textureColumn).posts[0]
+          this.data.textures.getColumn(this.midTexture, textureColumn).posts[0]
         this.rendering.colFunc.apply(this.draw)
         this.plane.ceilingClip[this.rwX] = this.draw.viewHeight
         this.plane.floorClip[this.rwX] = -1
@@ -308,7 +308,7 @@ export class Segs {
             this.draw.dcYh = mid
             this.draw.dcTextureMid = this.rwTopTextureMid
             this.draw.dcSource =
-              this.data.getColumn(this.topTexture, textureColumn).posts[0]
+              this.data.textures.getColumn(this.topTexture, textureColumn).posts[0]
             this.rendering.colFunc.apply(this.draw)
             this.plane.ceilingClip[this.rwX] = mid
           } else {
@@ -336,7 +336,7 @@ export class Segs {
             this.draw.dcYh = yh
             this.draw.dcTextureMid = this.rwBottomTextureMid
             this.draw.dcSource =
-              this.data.getColumn(this.bottomTexture, textureColumn).posts[0]
+              this.data.textures.getColumn(this.bottomTexture, textureColumn).posts[0]
             this.rendering.colFunc.apply(this.draw)
             this.plane.floorClip[this.rwX] = mid
           } else {
@@ -446,12 +446,12 @@ export class Segs {
     let vTop: number
     if (!this.bsp.backSector) {
       // single sided line
-      this.midTexture = this.data.textureTranslation[this.bsp.sideDef.midTexture]
+      this.midTexture = this.data.textures.getNum(this.bsp.sideDef.midTexture)
       // a single sided line is terminal, so it must mark ends
       this.markFloor = this.markCeiling = true
       if (this.bsp.lineDef.flags & MapLineFlag.DontPegBottom) {
         vTop = this.bsp.frontSector.floorHeight +
-          this.data.textureHeight[this.bsp.sideDef.midTexture]
+          this.data.textures.getHeight(this.bsp.sideDef.midTexture)
         // bottom of texture at bottom
         this.rwMidTextureMid = vTop - this.rendering.viewZ
       } else {
@@ -540,13 +540,13 @@ export class Segs {
       if (this.worldHigh < this.worldTop) {
         // top texture
         this.topTexture =
-            this.data.textureTranslation[this.bsp.sideDef.topTexture]
+            this.data.textures.getNum(this.bsp.sideDef.topTexture)
         if (this.bsp.lineDef.flags & MapLineFlag.DontPegTop) {
           // top of texture at top
           this.rwTopTextureMid = this.worldTop
         } else {
           vTop = this.bsp.backSector.ceilingHeight +
-            this.data.textureHeight[this.bsp.sideDef.topTexture]
+            this.data.textures.getHeight(this.bsp.sideDef.topTexture)
 
           // bottom of texture
           this.rwTopTextureMid = vTop - this.rendering.viewZ
@@ -555,7 +555,7 @@ export class Segs {
       if (this.worldLow > this.worldBottom) {
         // bottom texture
         this.bottomTexture =
-            this.data.textureTranslation[this.bsp.sideDef.bottomTexture]
+            this.data.textures.getNum(this.bsp.sideDef.bottomTexture)
 
         if (this.bsp.lineDef.flags & MapLineFlag.DontPegBottom) {
           // bottom of texture at bottom

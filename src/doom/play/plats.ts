@@ -2,6 +2,7 @@ import { PLAT_SPEED, PLAT_WAIT, Plat } from './plats/plat'
 import { Sound as DSound } from '../doom/sound'
 import { FRACUNIT } from '../misc/fixed'
 import { Floor } from './floor'
+import { Level } from '../level/level'
 import { Line } from '../rendering/defs/line'
 import { PlatStatus } from './plats/plat-status'
 import { PlatType } from './plats/plat-type'
@@ -24,8 +25,8 @@ export class Plats {
   private get floor(): Floor {
     return this.play.floor
   }
-  get sectors(): readonly Sector[] {
-    return this.play.sectors
+  get level(): Level {
+    return this.play.level
   }
   private get special(): Special {
     return this.play.special
@@ -133,7 +134,7 @@ export class Plats {
     }
 
     while ((secNum = this.special.findSectorFromLineTag(line, secNum)) >= 0) {
-      sec = this.sectors[secNum]
+      sec = this.level.sectors[secNum]
 
       if (sec.specialData) {
         continue
@@ -150,7 +151,7 @@ export class Plats {
       switch (type) {
       case PlatType.RaiseToNearestAndChange:
         plat.speed = PLAT_SPEED / 2
-        sec.floorPic = this.play.sides[line.sideNum[0]].sector.floorPic
+        sec.floorPic = this.level.sides[line.sideNum[0]].sector.floorPic
         plat.high = sec.findNextHighestFloor()
         plat.wait = 0
         plat.status = PlatStatus.Up
@@ -162,7 +163,7 @@ export class Plats {
 
       case PlatType.RaiseAndChange:
         plat.speed = PLAT_SPEED / 2
-        sec.floorPic = this.play.sides[line.sideNum[0]].sector.floorPic
+        sec.floorPic = this.level.sides[line.sideNum[0]].sector.floorPic
         plat.high = sec.floorHeight + amount * FRACUNIT
         plat.wait = 0
         plat.status = PlatStatus.Up

@@ -5,6 +5,7 @@ import { DivLine } from './map-utils/div-line'
 import { Doom } from '../doom'
 import { GameVersion } from '../doom/mode'
 import { Intercept } from './map-utils/intercept'
+import { Level } from '../level/level'
 import { Line } from '../rendering/defs/line'
 import { MObj } from './mobj/mobj'
 import { MapUtils } from './map-utils'
@@ -33,6 +34,9 @@ export class Sight {
 
   private get doom(): Doom {
     return this.play.doom
+  }
+  private get level(): Level {
+    return this.play.level
   }
   private get mapUtils(): MapUtils {
     return this.play.mapUtils
@@ -167,16 +171,16 @@ export class Sight {
   //
   private crossSubSector(num: number) {
     if (RANGE_CHECK) {
-      if (num >= this.play.numSubSectors) {
-        throw `P_CrossSubsector: ss ${num} with numss = ${this.play.numSubSectors}`
+      if (num >= this.level.subSectors.length) {
+        throw `P_CrossSubsector: ss ${num} with numss = ${this.level.subSectors.length}`
       }
     }
 
-    const sub = this.play.subSectors[num]
+    const sub = this.level.subSectors[num]
 
     // check lines
     let segPtr = sub.firstLine
-    let seg = this.play.segs[segPtr]
+    let seg = this.level.segs[segPtr]
     let line: Line
     let s1: 0 | 1 | 2
     let s2: 0 | 1 | 2
@@ -191,7 +195,7 @@ export class Sight {
     let frac: number
     let slope: number
     for (; count;
-      segPtr++, count--, seg = this.play.segs[segPtr]
+      segPtr++, count--, seg = this.level.segs[segPtr]
     ) {
       line = seg.lineDef
 
@@ -307,7 +311,7 @@ export class Sight {
       }
     }
 
-    const bsp = this.play.nodes[bspNum]
+    const bsp = this.level.nodes[bspNum]
 
     // decide which side the start point is on
     let side = this.divLineSide(this.sTrace.x, this.sTrace.y, bsp)
@@ -354,14 +358,14 @@ export class Sight {
     // First check for trivial rejection.
 
     // Determine subsector entries in REJECT table.
-    const s1 = this.play.sectors.indexOf(t1.subSector.sector)
-    const s2 = this.play.sectors.indexOf(t2.subSector.sector)
-    const pNum = s1 * this.play.numSectors + s2
+    const s1 = this.level.sectors.indexOf(t1.subSector.sector)
+    const s2 = this.level.sectors.indexOf(t2.subSector.sector)
+    const pNum = s1 * this.level.sectors.length + s2
     const byteNum = pNum >> 3
     const bitNum = 1 << (pNum & 7)
 
     // Check in REJECT table.
-    if (this.play.rejectMatrix[byteNum] & bitNum) {
+    if (this.level.rejectMatrix[byteNum] & bitNum) {
       this.sightCounts[0]++
 
       // can't possibly be connected
@@ -391,6 +395,6 @@ export class Sight {
     this.sTrace.dY = t2.y - t1.y
 
     // the head node is the last node output
-    return this.crossBSPNode(this.play.numNodes - 1)
+    return this.crossBSPNode(this.level.nodes.length - 1)
   }
 }

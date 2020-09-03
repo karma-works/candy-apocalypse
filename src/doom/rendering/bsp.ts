@@ -3,10 +3,10 @@ import { DrawSeg, MAX_DRAW_SEGS } from './defs/draw-seg'
 import { BBox } from '../misc/bbox'
 import { ClipRange } from './bsp/clip-range'
 import { Draw } from './draw'
+import { Level } from '../level/level'
 import { Line } from './defs/line'
 import { NF_SUBSECTOR } from '../doom/data'
 import { Plane } from './plane'
-import { Play } from '../play/setup'
 import { RANGE_CHECK } from '../global/doomdef'
 import { Rendering } from './rendering'
 import { Sector } from './defs/sector'
@@ -56,11 +56,11 @@ export class BSP {
   private get draw(): Draw {
     return this.rendering.draw
   }
+  private get level(): Level {
+    return this.rendering.level
+  }
   private get plane(): Plane {
     return this.rendering.plane
-  }
-  private get play(): Play {
-    return this.rendering.play
   }
   private get segs(): Segs {
     return this.rendering.segsHandler
@@ -448,20 +448,20 @@ export class BSP {
   private subSector(num: number) {
 
     if (RANGE_CHECK) {
-      if (num >= this.play.numSubSectors) {
-        throw `R_Subsector: ss ${num} with numss = ${this.play.numSubSectors}`
+      if (num >= this.level.subSectors.length) {
+        throw `R_Subsector: ss ${num} with numss = ${this.level.subSectors.length}`
       }
     }
 
     this.rendering.ssCount++
-    const sub = this.play.subSectors[num]
+    const sub = this.level.subSectors[num]
     this.frontSector = sub.sector
     if (this.frontSector === null) {
       throw 'this.frontSector = null'
     }
     let count = sub.numLines
     let linePtr = sub.firstLine
-    let line = this.play.segs[linePtr]
+    let line = this.level.segs[linePtr]
 
     if (this.frontSector.floorHeight < this.rendering.viewZ) {
       this.plane.floorPlane = this.plane.findPlane(
@@ -488,7 +488,7 @@ export class BSP {
     this.things.addSprites(this.frontSector)
 
     while (count--) {
-      line = this.play.segs[linePtr]
+      line = this.level.segs[linePtr]
       this.addLine(line)
       linePtr++
     }
@@ -510,7 +510,7 @@ export class BSP {
       return
     }
 
-    const bsp = this.play.nodes[bspNum]
+    const bsp = this.level.nodes[bspNum]
 
     // Decide which side the view point is on.
     const side = bsp.pointOnSide(this.rendering.viewX, this.rendering.viewY)

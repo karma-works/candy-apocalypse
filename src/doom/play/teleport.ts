@@ -2,6 +2,7 @@ import { ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom'
 import { GameVersion } from '../doom/mode'
+import { Level } from '../level/level'
 import { Line } from '../rendering/defs/line'
 import { MObj } from './mobj/mobj'
 import { MObjFlag } from './mobj/mobj-flag'
@@ -21,6 +22,9 @@ export class Teleport {
   }
   private get dSound(): DSound {
     return this.play.dSound
+  }
+  private get level(): Level {
+    return this.play.level
   }
   private get map(): Map {
     return this.play.map
@@ -56,8 +60,8 @@ export class Teleport {
     let oldY: number
     let oldZ: number
     let an: number
-    for (let i = 0; i < this.play.numSectors; i++) {
-      if (this.play.sectors[i].tag === tag) {
+    for (let i = 0; i < this.level.sectors.length; i++) {
+      if (this.level.sectors[i].tag === tag) {
         for (thinker = this.tick.thinkerCap.next;
           thinker !== null && thinker !== this.tick.thinkerCap;
           thinker = thinker.next
@@ -80,7 +84,7 @@ export class Teleport {
 
           sector = m.subSector.sector
           // wrong sector
-          if (sector === null || this.play.sectors.indexOf(sector) !== i) {
+          if (sector === null || this.level.sectors.indexOf(sector) !== i) {
             continue
           }
 

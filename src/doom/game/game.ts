@@ -416,7 +416,7 @@ export class Game {
     //  setting one.
     const rendering = this.rendering
 
-    rendering.sky.skyFlatNum = rendering.data.flatNumForName(SKY_FLAT_NAME)
+    rendering.sky.skyFlatNum = rendering.data.flats.numForName(SKY_FLAT_NAME)
 
     // DOOM determines the sky texture to be used
     // depending on the current episode, and the game version.
@@ -424,11 +424,11 @@ export class Game {
     const gameVersion = this.doom.gameVersion
     if (gameMode as GameMode === GameMode.Commercial &&
         (gameVersion === GameVersion.Final2 || gameVersion === GameVersion.Chex)) {
-      rendering.sky.skyTexture = rendering.data.textureNumForName('SKY3')
+      rendering.sky.skyTexture = rendering.data.textures.numForName('SKY3')
       if (this.gameMap < 12) {
-        rendering.sky.skyTexture = rendering.data.textureNumForName('SKY1')
+        rendering.sky.skyTexture = rendering.data.textures.numForName('SKY1')
       } else if (this.gameMap < 21) {
-        rendering.sky.skyTexture = rendering.data.textureNumForName('SKY2')
+        rendering.sky.skyTexture = rendering.data.textures.numForName('SKY2')
       }
     }
 
@@ -1168,26 +1168,26 @@ export class Game {
     // set the sky map for the episode
     const rendering = this.rendering
     if (this.doom.gameMode === GameMode.Commercial) {
-      rendering.sky.skyTexture = rendering.data.textureNumForName('SKY3')
+      rendering.sky.skyTexture = rendering.data.textures.numForName('SKY3')
       if (map < 12) {
-        rendering.sky.skyTexture = rendering.data.textureNumForName('SKY1')
+        rendering.sky.skyTexture = rendering.data.textures.numForName('SKY1')
       } else if (map < 21) {
-        rendering.sky.skyTexture = rendering.data.textureNumForName('SKY2')
+        rendering.sky.skyTexture = rendering.data.textures.numForName('SKY2')
       }
     } else {
       switch (episode) {
       case 1:
-        rendering.sky.skyTexture = rendering.data.textureNumForName('SKY1')
+        rendering.sky.skyTexture = rendering.data.textures.numForName('SKY1')
         break
       case 2:
-        rendering.sky.skyTexture = rendering.data.textureNumForName('SKY2')
+        rendering.sky.skyTexture = rendering.data.textures.numForName('SKY2')
         break
       case 3:
-        rendering.sky.skyTexture = rendering.data.textureNumForName('SKY3')
+        rendering.sky.skyTexture = rendering.data.textures.numForName('SKY3')
         break
       case 4:
         // Special Edition sky
-        rendering.sky.skyTexture = rendering.data.textureNumForName('SKY4')
+        rendering.sky.skyTexture = rendering.data.textures.numForName('SKY4')
         break
       }
     }

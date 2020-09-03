@@ -6,11 +6,11 @@ import { MAP_BLOCK_UNITS, PLAYER_RADIUS } from '../play/local'
 import { MAX_PLAYERS, PowerType, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
+import { Level } from '../level/level'
 import { LumpReader } from '../wad/lump-reader'
 import { MObj } from '../play/mobj/mobj'
 import { MapLineFlag } from '../doom/data'
 import { Patch } from '../rendering/defs/patch'
-import { Play } from '../play/setup'
 import { Player } from '../doom/player'
 import { ScanCode } from '../interfaces/scancodes'
 import { StatusBar } from '../status/stuff'
@@ -177,8 +177,8 @@ export class AutoMap {
   private get game(): Game {
     return this.doom.game
   }
-  private get play(): Play {
-    return this.doom.play
+  private get level(): Level {
+    return this.doom.play.level
   }
   private get rVideo(): Video {
     return this.doom.rendering.video
@@ -253,9 +253,9 @@ export class AutoMap {
     this.minX = this.minY = 0x7fffffff
     this.maxX = this.maxY = -0x7fffffff
 
-    const vertexes = this.play.vertexes
+    const vertexes = this.level.vertexes
 
-    for (let i = 0; i < this.play.numVertexes; i++) {
+    for (let i = 0; i < this.level.vertexes.length; i++) {
       if (vertexes[i].x < this.minX) {
         this.minX = vertexes[i].x
       } else if (vertexes[i].x > this.maxX) {
@@ -870,9 +870,9 @@ export class AutoMap {
 
     // Figure out start of vertical gridlines
     let start = this.mx
-    if ((start - this.play.bMapOrgX) % (MAP_BLOCK_UNITS << FRACBITS)) {
+    if ((start - this.level.blockMap.originX) % (MAP_BLOCK_UNITS << FRACBITS)) {
       start += (MAP_BLOCK_UNITS << FRACBITS) -
-        (start - this.play.bMapOrgX) % (MAP_BLOCK_UNITS << FRACBITS)
+        (start - this.level.blockMap.originX) % (MAP_BLOCK_UNITS << FRACBITS)
     }
     let end = this.mx + this.mw
 
@@ -887,9 +887,9 @@ export class AutoMap {
 
     // Figure out start of horizontal gridlines
     start = this.my
-    if ((start - this.play.bMapOrgY) % (MAP_BLOCK_UNITS << FRACBITS)) {
+    if ((start - this.level.blockMap.originY) % (MAP_BLOCK_UNITS << FRACBITS)) {
       start += (MAP_BLOCK_UNITS << FRACBITS) -
-        (start - this.play.bMapOrgY) % (MAP_BLOCK_UNITS << FRACBITS)
+        (start - this.level.blockMap.originY) % (MAP_BLOCK_UNITS << FRACBITS)
     }
     end = this.my + this.mh
 
@@ -911,10 +911,10 @@ export class AutoMap {
   private drawWalls(): void {
     const l = new Line()
 
-    const lines = this.play.lines
+    const lines = this.level.lines
     let line = lines[0]
 
-    for (let i = 0; i < this.play.numLines; i++) {
+    for (let i = 0; i < this.level.lines.length; i++) {
       line = lines[i]
       l.a.x = line.v1.x
       l.a.y = line.v1.y
@@ -1075,9 +1075,9 @@ export class AutoMap {
   }
 
   private drawThings(colors: number): void {
-    const sectors = this.play.sectors
+    const sectors = this.level.sectors
     let t: MObj | null
-    for (let i = 0; i < this.play.numSectors; i++) {
+    for (let i = 0; i < this.level.sectors.length; i++) {
       t = sectors[i].thingList
       while (t) {
         this.drawLineCharacter(thinTriangleGuy, thinTriangleGuy.length,

@@ -6,8 +6,11 @@ import { Sector } from './sector'
 //  indicating the visible walls that define
 //  (all or some) sides of a convex BSP leaf.
 //
-export interface SubSector {
-  sector: Sector | null;
-  numLines: number;
-  firstLine: number;
+export class SubSector {
+  sector: Sector | null = null
+
+  constructor(
+    public numLines: number,
+    public firstLine: number,
+  ) { }
 }

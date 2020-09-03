@@ -48,7 +48,7 @@ export class Plat extends Thinker<Plats, [Plat]> {
       int32Ptr += 3
 
       const sector = int32[int32Ptr++]
-      this.sector = plats.sectors[sector]
+      this.sector = plats.level.sectors[sector]
       this.sector.specialData = this
 
       this.speed = int32[int32Ptr++]
@@ -65,7 +65,7 @@ export class Plat extends Thinker<Plats, [Plat]> {
   }
 
   archive(): ArrayBuffer {
-    const sector = this.handler.sectors.indexOf(this.sector)
+    const sector = this.handler.level.sectors.indexOf(this.sector)
 
     return new Int32Array([
       0, 0, 0,

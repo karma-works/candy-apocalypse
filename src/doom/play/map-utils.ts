@@ -3,6 +3,7 @@ import { MAP_BLOCK_SHIFT, MAP_BLOCK_SIZE, MAP_B_TO_FRAC, MAX_INTERCEPTS, PT_ADD_
 import { BBox } from '../misc/bbox'
 import { DivLine } from './map-utils/div-line'
 import { Intercept } from './map-utils/intercept'
+import { Level } from '../level/level'
 import { Line } from '../rendering/defs/line'
 import { MObj } from './mobj/mobj'
 import { MObjFlag } from './mobj/mobj-flag'
@@ -11,6 +12,9 @@ import { Rendering } from '../rendering/rendering'
 import { SlopeType } from '../rendering/defs/slope-type'
 
 export class MapUtils {
+  private get level(): Level {
+    return this.play.level
+  }
   private get rendering(): Rendering {
     return this.play.rendering
   }
@@ -261,17 +265,17 @@ export class MapUtils {
       if (thing.bPrev) {
         thing.bPrev.bNext = thing.bNext
       } else {
-        const blockX = thing.x - this.play.bMapOrgX >> MAP_BLOCK_SHIFT
-        const blockY = thing.y - this.play.bMapOrgY >> MAP_BLOCK_SHIFT
+        const blockX = thing.x - this.level.blockMap.originX >> MAP_BLOCK_SHIFT
+        const blockY = thing.y - this.level.blockMap.originY >> MAP_BLOCK_SHIFT
 
-        if (blockX >= 0 && blockX < this.play.bMapWidth &&
-          blockY >= 0 && blockY <this.play.bMapHeight
+        if (blockX >= 0 && blockX < this.level.blockMap.width &&
+          blockY >= 0 && blockY <this.level.blockMap.height
         ) {
           if (thing.bNext === null) {
             throw 'thing.bNext = null'
           }
 
-          this.play.blockLinks[blockY * this.play.bMapWidth + blockX] = thing.bNext
+          this.level.blockLinks[blockY * this.level.blockMap.width + blockX] = thing.bNext
         }
       }
     }
@@ -307,22 +311,22 @@ export class MapUtils {
     // link into blockmap
     if (!(thing.flags & MObjFlag.NoBlockMap)) {
       // inert things don't need to be in blockmap
-      const blockX = thing.x - this.play.bMapOrgX >> MAP_BLOCK_SHIFT
-      const blockY = thing.y - this.play.bMapOrgY >> MAP_BLOCK_SHIFT
+      const blockX = thing.x - this.level.blockMap.originX >> MAP_BLOCK_SHIFT
+      const blockY = thing.y - this.level.blockMap.originY >> MAP_BLOCK_SHIFT
 
       if (blockX >= 0 &&
-          blockX < this.play.bMapWidth &&
+          blockX < this.level.blockMap.width &&
           blockY >= 0 &&
-          blockY < this.play.bMapHeight
+          blockY < this.level.blockMap.height
       ) {
-        const blockIdx = blockY * this.play.bMapWidth + blockX
-        const link = this.play.blockLinks[blockIdx]
+        const blockIdx = blockY * this.level.blockMap.width + blockX
+        const link = this.level.blockLinks[blockIdx]
         thing.bPrev = null
         thing.bNext = link
         if (link) {
           link.bPrev = thing
         }
-        this.play.blockLinks[blockIdx] = thing
+        this.level.blockLinks[blockIdx] = thing
       } else {
         // thing is off the map
         thing.bNext = thing.bPrev = null
@@ -353,22 +357,16 @@ export class MapUtils {
   ): boolean {
     if (x < 0 ||
       y < 0 ||
-      x >= this.play.bMapWidth ||
-      y >= this.play.bMapHeight
+      x >= this.level.blockMap.width ||
+      y >= this.level.blockMap.height
     ) {
       return true
     }
 
-    let offset = y * this.play.bMapWidth + x
-
-    offset = this.play.blockMap[offset]
-
     let ld: Line
-    for (let list = this.play.blockMapLump[offset];
-      list !== -1;
-      offset++, list = this.play.blockMapLump[offset]
-    ) {
-      ld = this.play.lines[list]
+    let line: number
+    for (line of this.level.blockMap.getLines(x, y)) {
+      ld = this.level.lines[line]
 
       if (ld.validCount === this.rendering.validCount) {
         // line has already been checked
@@ -394,14 +392,14 @@ export class MapUtils {
   ): boolean {
     if (x < 0 ||
       y < 0 ||
-      x >= this.play.bMapWidth ||
-      y >= this.play.bMapHeight
+      x >= this.level.blockMap.width ||
+      y >= this.level.blockMap.height
     ) {
       return true
     }
 
     let mObj: MObj | null
-    for (mObj = this.play.blockLinks[y * this.play.bMapWidth + x];
+    for (mObj = this.level.blockLinks[y * this.level.blockMap.width + x];
       mObj;
       mObj = mObj.bNext
     ) {
@@ -604,12 +602,12 @@ export class MapUtils {
     this.rendering.validCount++
     this.interceptPtr = 0
 
-    if ((x1 - this.play.bMapOrgX & MAP_BLOCK_SIZE - 1) === 0) {
+    if ((x1 - this.level.blockMap.originX & MAP_BLOCK_SIZE - 1) === 0) {
       // don't side exactly on a line
       x1 += FRACUNIT
     }
 
-    if ((y1 - this.play.bMapOrgY & MAP_BLOCK_SIZE - 1) === 0) {
+    if ((y1 - this.level.blockMap.originY & MAP_BLOCK_SIZE - 1) === 0) {
       // don't side exactly on a line
       y1 += FRACUNIT
     }
@@ -619,13 +617,13 @@ export class MapUtils {
     this.trace.dX = x2 - x1
     this.trace.dY = y2 - y1
 
-    x1 -= this.play.bMapOrgX
-    y1 -= this.play.bMapOrgY
+    x1 -= this.level.blockMap.originX
+    y1 -= this.level.blockMap.originY
     const xt1 = x1>>MAP_BLOCK_SHIFT
     const yt1 = y1>>MAP_BLOCK_SHIFT
 
-    x2 -= this.play.bMapOrgX
-    y2 -= this.play.bMapOrgY
+    x2 -= this.level.blockMap.originX
+    y2 -= this.level.blockMap.originY
     const xt2 = x2>>MAP_BLOCK_SHIFT
     const yt2 = y2>>MAP_BLOCK_SHIFT
 
