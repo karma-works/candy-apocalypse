@@ -11,6 +11,7 @@ import { HeadsUp } from './heads-up/stuff'
 import { Net as INet } from './interfaces/net'
 import { Sound as ISound } from './interfaces/sound'
 import { Video as IVideo } from './interfaces/video'
+import { Input } from './interfaces/input'
 import { LumpReader } from './wad/lump-reader'
 import { Menu } from './menu/menu'
 import { Net } from './doom/net'
@@ -88,9 +89,10 @@ export class Doom {
     return this.rendering.video
   }
   public iVideo = new IVideo(this.rVideo)
+  public input = new Input()
 
   constructor(public params: Params) {
-    this.iVideo.postEvent = ev => this.postEvent(ev)
+    this.input.postEvent = ev => this.postEvent(ev)
   }
 
   //
@@ -333,6 +335,7 @@ export class Doom {
       this.game.beginRecording()
     }
     this.iVideo.init(this.params.screen)
+    this.input.init(this.params.screen)
 
     const w = () => {
       try {
@@ -344,7 +347,7 @@ export class Doom {
 
         // process one or more tics
         if (this.singleTics) {
-          this.iVideo.startTic()
+          this.input.startTic()
           this.processEvents()
           this.game.buildTicCmd(
             this.net.netCmds[this.game.consolePlayer][this.net.makeTic],
@@ -855,6 +858,7 @@ export class Doom {
     await quitting
 
     this.iVideo.quit()
+    this.input.quit()
 
     try {
       if (this.iVideo.screen) {

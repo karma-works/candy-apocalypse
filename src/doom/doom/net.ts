@@ -4,10 +4,10 @@ import { Doom } from '../doom'
 import { DoomCom } from './net/doom-com'
 import { Game } from '../game/game'
 import { Net as INet } from '../interfaces/net'
+import { Input } from '../interfaces/input'
 import { MAX_PLAYERS } from '../global/doomdef'
 import { Menu } from '../menu/menu'
 import { TickCmd } from './tick-cmd'
-import { Video } from '../interfaces/video'
 import { getTime } from '../system/system'
 
 const NCMD_EXIT = 0x80000000
@@ -74,8 +74,8 @@ export class Net {
   private get iNet(): INet {
     return this.doom.iNet
   }
-  private get iVideo(): Video {
-    return this.doom.iVideo
+  private get input(): Input {
+    return this.doom.input
   }
   private get menu(): Menu {
     return this.doom.menu
@@ -246,7 +246,7 @@ export class Net {
     // build new ticcmds for console player
     const gameTicDiv = this.game.gameTic / this.ticDup >> 0
     for (let i = 0; i < newTics; ++i) {
-      this.iVideo.startTic()
+      this.input.startTic()
       this.doom.processEvents()
 
       if (this.makeTic - gameTicDiv >= BACKUP_TICS / 2 - 1) {
