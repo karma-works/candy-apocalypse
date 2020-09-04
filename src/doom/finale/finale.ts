@@ -12,6 +12,7 @@ import { MObjInfo } from '../doom/info/mobj-info'
 import { MObjType } from '../doom/info/mobj-type'
 import { Patch } from '../rendering/defs/patch'
 import { Post } from '../rendering/defs/post'
+import { Data as RData } from '../rendering/data'
 import { Video as RVideo } from '../rendering/video'
 import { Rendering } from '../rendering/rendering'
 import { SfxName } from '../doom/sounds/sfx-name'
@@ -112,6 +113,9 @@ export class Finale {
   }
   private get rendering(): Rendering {
     return this.doom.rendering
+  }
+  private get rData(): RData {
+    return this.doom.rData
   }
   private get rVideo(): RVideo {
     return this.doom.rVideo
@@ -470,7 +474,7 @@ export class Finale {
     const lump = sprFrame.lump[0]
     const flip = !!sprFrame.flip[0]
 
-    const patch = this.wad.cacheLumpNum(lump + this.rendering.data.firstSpriteLump, Patch)
+    const patch = this.wad.cacheLumpNum(lump + this.rData.firstSpriteLump, Patch)
     this.rVideo.drawPatch(160, 170, 0, patch, { flipped: flip })
   }
 

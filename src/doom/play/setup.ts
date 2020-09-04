@@ -18,6 +18,7 @@ import { MapThing } from '../level/thing-array'
 import { MapUtils } from './map-utils'
 import { PSprite } from './p-sprite'
 import { Plats } from './plats'
+import { Data as RData } from '../rendering/data'
 import { Rendering } from '../rendering/rendering'
 import { SaveGame } from './save-game'
 import { Sight } from './sight'
@@ -55,6 +56,9 @@ export class Play {
   }
   get dSound(): DSound {
     return this.doom.dSound
+  }
+  get rData(): RData {
+    return this.doom.rData
   }
   get rendering(): Rendering {
     return this.doom.rendering
@@ -146,8 +150,8 @@ export class Play {
     this.game.bodyQueSlot = 0
 
     level.load(this.wad,
-      this.rendering.data.flats,
-      this.rendering.data.textures)
+      this.rData.flats,
+      this.rData.textures)
 
     this.spawnThings(level)
 

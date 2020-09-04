@@ -2,7 +2,6 @@ import { BUTTON_TIME, Button, MAX_BUTTONS, Where } from './switch/button'
 import { CeilingType } from './ceiling/ceiling-type'
 import { Ceilings } from './ceilings'
 import { Sound as DSound } from '../doom/sound'
-import { Data } from '../rendering/data'
 import { Doom } from '../doom'
 import { DoorType } from './doors/door-type'
 import { Doors } from './doors'
@@ -18,6 +17,7 @@ import { MapLineFlag } from '../doom/data'
 import { PlatType } from './plats/plat-type'
 import { Plats } from './plats'
 import { Play } from './setup'
+import { Data as RData } from '../rendering/data'
 import { SfxName } from '../doom/sounds/sfx-name'
 import { StairType } from './floor/stair-type'
 import { alphSwitchList } from './switch/switch-list'
@@ -34,8 +34,8 @@ export class Switch {
   private get ceilings(): Ceilings {
     return this.play.ceilings
   }
-  private get data(): Data {
-    return this.play.rendering.data
+  private get rData(): RData {
+    return this.play.rData
   }
   private get doom(): Doom {
     return this.play.doom
@@ -89,8 +89,8 @@ export class Switch {
       }
 
       if (alphSwitchList[i][2] <= episode) {
-        this.switchList[index++] = this.data.textures.numForName(alphSwitchList[i][0])
-        this.switchList[index++] = this.data.textures.numForName(alphSwitchList[i][1])
+        this.switchList[index++] = this.rData.textures.numForName(alphSwitchList[i][0])
+        this.switchList[index++] = this.rData.textures.numForName(alphSwitchList[i][1])
       }
     }
   }

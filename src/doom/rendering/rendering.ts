@@ -118,13 +118,15 @@ export class Rendering {
 
 
   public draw = new Draw(this)
-  public data = new Data(this)
   public sky = new Sky()
   public plane = new Plane(this)
   public things = new Things(this)
   public segsHandler = new Segs(this)
   public bsp = new BSP(this)
 
+  get data(): Data {
+    return this.doom.rData
+  }
   get game(): Game {
     return this.doom.game
   }

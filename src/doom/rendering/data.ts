@@ -2,7 +2,6 @@ import { FRACBITS } from '../misc/fixed'
 import { FlatArray } from '../textures/flat-array'
 import { LumpReader } from '../wad/lump-reader'
 import { Patch } from './defs/patch'
-import { Rendering } from './rendering'
 import { Textures } from '../textures/textures'
 
 //
@@ -14,11 +13,7 @@ import { Textures } from '../textures/textures'
 //
 
 export class Data {
-  private get wad(): LumpReader {
-    return this.rendering.wad
-  }
-
-  constructor(private rendering: Rendering) { }
+  constructor(private lumpReader: LumpReader) { }
 
   flats = new FlatArray()
   textures = new Textures()
@@ -42,8 +37,8 @@ export class Data {
   //
   private initSpriteLumps(): void {
 
-    this.firstSpriteLump = this.wad.getNumForName('S_START') + 1
-    this.lastSpriteLump = this.wad.getNumForName('S_END') - 1
+    this.firstSpriteLump = this.lumpReader.getNumForName('S_START') + 1
+    this.lastSpriteLump = this.lumpReader.getNumForName('S_END') - 1
 
     this.numSpriteLumps = this.lastSpriteLump - this.firstSpriteLump + 1
     this.spriteWidth = new Array(this.numSpriteLumps).fill(0)
@@ -52,7 +47,7 @@ export class Data {
 
     let patch: Patch
     for (let i = 0; i < this.numSpriteLumps; ++i) {
-      patch = this.wad.cacheLumpNum(this.firstSpriteLump + i, Patch)
+      patch = this.lumpReader.cacheLumpNum(this.firstSpriteLump + i, Patch)
 
       this.spriteWidth[i] = patch.width << FRACBITS
       this.spriteOffset[i] = patch.leftOffset << FRACBITS
@@ -67,10 +62,10 @@ export class Data {
     // Load in the light tables,
     //  256 byte align tables.
 
-    const lump = this.wad.getNumForName('COLORMAP')
+    const lump = this.lumpReader.getNumForName('COLORMAP')
 
     // const colorMaps
-    this.colorMaps = new Uint8ClampedArray(this.wad.readLump(lump))
+    this.colorMaps = new Uint8ClampedArray(this.lumpReader.readLump(lump))
   }
 
   //
@@ -80,9 +75,9 @@ export class Data {
   // Must be called after W_Init.
   //
   initData(): void {
-    this.textures = new Textures(this.wad)
+    this.textures = new Textures(this.lumpReader)
     console.log('InitTextures')
-    this.flats = new FlatArray(this.wad)
+    this.flats = new FlatArray(this.lumpReader)
     console.log('InitFlats')
     this.initSpriteLumps()
     console.log('InitSprites')

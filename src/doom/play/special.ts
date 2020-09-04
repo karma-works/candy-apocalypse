@@ -4,7 +4,6 @@ import { Cheat, Player } from '../doom/player'
 import { CeilingType } from './ceiling/ceiling-type'
 import { Ceilings } from './ceilings'
 import { Sound as DSound } from '../doom/sound'
-import { Data } from '../rendering/data'
 import { Doom } from '../doom'
 import { DoorType } from './doors/door-type'
 import { Doors } from './doors'
@@ -25,6 +24,7 @@ import { PlatType } from './plats/plat-type'
 import { Plats } from './plats'
 import { Play } from './setup'
 import { PowerType } from '../global/doomdef'
+import { Data as RData } from '../rendering/data'
 import { Sector } from '../rendering/defs/sector'
 import { SfxName } from '../doom/sounds/sfx-name'
 import { Side } from '../rendering/defs/side'
@@ -44,8 +44,8 @@ export class Special {
   private get ceilings(): Ceilings {
     return this.play.ceilings
   }
-  private get data(): Data {
-    return this.play.rendering.data
+  private get rData(): RData {
+    return this.play.rData
   }
   private get doom(): Doom {
     return this.play.doom
@@ -104,19 +104,19 @@ export class Special {
     for (let i = 0; animDefs[i]; i++) {
       if (animDefs[i].isTexture) {
         // different episode ?
-        if (this.data.textures.checkNumForName(animDefs[i].startName) === -1) {
+        if (this.rData.textures.checkNumForName(animDefs[i].startName) === -1) {
           continue
         }
 
-        this.lastAnim.picNum = this.data.textures.numForName(animDefs[i].endName)
-        this.lastAnim.basePic = this.data.textures.numForName(animDefs[i].startName)
+        this.lastAnim.picNum = this.rData.textures.numForName(animDefs[i].endName)
+        this.lastAnim.basePic = this.rData.textures.numForName(animDefs[i].startName)
       } else {
         if (this.wad.checkNumForName(animDefs[i].startName) === -1) {
           continue
         }
 
-        this.lastAnim.picNum = this.data.flats.numForName(animDefs[i].endName)
-        this.lastAnim.basePic = this.data.flats.numForName(animDefs[i].startName)
+        this.lastAnim.picNum = this.rData.flats.numForName(animDefs[i].endName)
+        this.lastAnim.basePic = this.rData.flats.numForName(animDefs[i].startName)
       }
 
       this.lastAnim.isTexture = animDefs[i].isTexture
@@ -797,9 +797,9 @@ export class Special {
         pic = anim.basePic +
           ((this.tick.levelTime / anim.speed >> 0) + i) % anim.numPics
         if (anim.isTexture) {
-          this.data.textures.translate(i, pic)
+          this.rData.textures.translate(i, pic)
         } else {
-          this.data.flats.translate(i, pic)
+          this.rData.flats.translate(i, pic)
         }
       }
     }

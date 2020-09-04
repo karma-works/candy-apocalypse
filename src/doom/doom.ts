@@ -20,6 +20,7 @@ import { Params } from './doom/params'
 import { Patch } from './rendering/defs/patch'
 import { Play } from './play/setup'
 import { PlayerState } from './doom/player'
+import { Data as RData } from './rendering/data'
 import { Video as RVIdeo } from './rendering/video'
 import { Rendering } from './rendering/rendering'
 import { StatusBar } from './status/stuff'
@@ -78,6 +79,7 @@ export class Doom {
   public statusBar = new StatusBar(this)
   public play = new Play(this)
   public rVideo = new RVIdeo()
+  public rData = new RData(this.wad)
   public rendering = new Rendering(this)
   public game = new Game(this)
   public menu = new Menu(this)

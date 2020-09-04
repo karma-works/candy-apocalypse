@@ -17,6 +17,7 @@ import { MObjType } from '../doom/info/mobj-type'
 import { Menu } from '../menu/menu'
 import { Net } from '../doom/net'
 import { Play } from '../play/setup'
+import { Data as RData } from '../rendering/data'
 import { Rendering } from '../rendering/rendering'
 import { SKY_FLAT_NAME } from '../rendering/sky'
 import { SaveGame } from '../play/save-game'
@@ -205,6 +206,9 @@ export class Game {
   }
   private get play(): Play {
     return this.doom.play
+  }
+  private get rData(): RData {
+    return this.doom.rData
   }
   private get rendering(): Rendering {
     return this.doom.rendering
@@ -415,8 +419,9 @@ export class Game {
     //  we look for an actual index, instead of simply
     //  setting one.
     const rendering = this.rendering
+    const rData = this.rData
 
-    rendering.sky.skyFlatNum = rendering.data.flats.numForName(SKY_FLAT_NAME)
+    rendering.sky.skyFlatNum = rData.flats.numForName(SKY_FLAT_NAME)
 
     // DOOM determines the sky texture to be used
     // depending on the current episode, and the game version.
@@ -424,11 +429,11 @@ export class Game {
     const gameVersion = this.doom.gameVersion
     if (gameMode as GameMode === GameMode.Commercial &&
         (gameVersion === GameVersion.Final2 || gameVersion === GameVersion.Chex)) {
-      rendering.sky.skyTexture = rendering.data.textures.numForName('SKY3')
+      rendering.sky.skyTexture = rData.textures.numForName('SKY3')
       if (this.gameMap < 12) {
-        rendering.sky.skyTexture = rendering.data.textures.numForName('SKY1')
+        rendering.sky.skyTexture = rData.textures.numForName('SKY1')
       } else if (this.gameMap < 21) {
-        rendering.sky.skyTexture = rendering.data.textures.numForName('SKY2')
+        rendering.sky.skyTexture = rData.textures.numForName('SKY2')
       }
     }
 
@@ -1167,27 +1172,28 @@ export class Game {
 
     // set the sky map for the episode
     const rendering = this.rendering
+    const rData = this.rData
     if (this.doom.gameMode === GameMode.Commercial) {
-      rendering.sky.skyTexture = rendering.data.textures.numForName('SKY3')
+      rendering.sky.skyTexture = rData.textures.numForName('SKY3')
       if (map < 12) {
-        rendering.sky.skyTexture = rendering.data.textures.numForName('SKY1')
+        rendering.sky.skyTexture = rData.textures.numForName('SKY1')
       } else if (map < 21) {
-        rendering.sky.skyTexture = rendering.data.textures.numForName('SKY2')
+        rendering.sky.skyTexture = rData.textures.numForName('SKY2')
       }
     } else {
       switch (episode) {
       case 1:
-        rendering.sky.skyTexture = rendering.data.textures.numForName('SKY1')
+        rendering.sky.skyTexture = rData.textures.numForName('SKY1')
         break
       case 2:
-        rendering.sky.skyTexture = rendering.data.textures.numForName('SKY2')
+        rendering.sky.skyTexture = rData.textures.numForName('SKY2')
         break
       case 3:
-        rendering.sky.skyTexture = rendering.data.textures.numForName('SKY3')
+        rendering.sky.skyTexture = rData.textures.numForName('SKY3')
         break
       case 4:
         // Special Edition sky
-        rendering.sky.skyTexture = rendering.data.textures.numForName('SKY4')
+        rendering.sky.skyTexture = rData.textures.numForName('SKY4')
         break
       }
     }

@@ -23,8 +23,8 @@ import { Tick } from './tick'
 //
 export class Floor {
 
-  private get data(): Data {
-    return this.play.rendering.data
+  private get rData(): Data {
+    return this.doom.rData
   }
   private get doom(): Doom {
     return this.play.doom
@@ -314,14 +314,14 @@ export class Floor {
             if (this.special.twoSided(secNum, i)) {
               side = this.special.getSide(secNum, i, 0)
               if (side.bottomTexture >= 0) {
-                if (this.data.textures.getHeight(side.bottomTexture) < minSize) {
-                  minSize = this.data.textures.getHeight(side.bottomTexture)
+                if (this.rData.textures.getHeight(side.bottomTexture) < minSize) {
+                  minSize = this.rData.textures.getHeight(side.bottomTexture)
                 }
               }
               side = this.special.getSide(secNum, i, 1)
               if (side.bottomTexture >= 0) {
-                if (this.data.textures.getHeight(side.bottomTexture) < minSize) {
-                  minSize = this.data.textures.getHeight(side.bottomTexture)
+                if (this.rData.textures.getHeight(side.bottomTexture) < minSize) {
+                  minSize = this.rData.textures.getHeight(side.bottomTexture)
                 }
               }
             }
