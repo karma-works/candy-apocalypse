@@ -181,7 +181,7 @@ export class AutoMap {
     return this.doom.play.level
   }
   private get rVideo(): Video {
-    return this.doom.rendering.video
+    return this.doom.rVideo
   }
   private get statusBar(): StatusBar {
     return this.doom.statusBar

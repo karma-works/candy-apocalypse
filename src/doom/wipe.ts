@@ -18,7 +18,7 @@ export class Wipe {
   }
 
   private get rVideo(): RVideo {
-    return this.doom.rendering.video
+    return this.doom.rVideo
   }
 
   constructor(private doom: Doom) { }

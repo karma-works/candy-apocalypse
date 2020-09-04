@@ -23,7 +23,7 @@ export class Lib {
     return this.headsUp.doom.rendering.draw
   }
   private get video(): Video {
-    return this.headsUp.doom.rendering.video
+    return this.headsUp.doom.rVideo
   }
 
   constructor(private headsUp: HeadsUp) { }

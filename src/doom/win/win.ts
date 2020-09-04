@@ -150,7 +150,7 @@ export class Win {
     return this.doom.game
   }
   private get rVideo(): Video {
-    return this.doom.rendering.video
+    return this.doom.rVideo
   }
   private get wad(): LumpReader {
     return this.doom.wad

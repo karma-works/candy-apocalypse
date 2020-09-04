@@ -254,7 +254,7 @@ export class StatusBar {
     return this.doom.rendering
   }
   public get rVideo(): RVideo {
-    return this.rendering.video
+    return this.doom.rVideo
   }
   private get iVideo(): IVideo {
     return this.doom.iVideo

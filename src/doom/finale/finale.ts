@@ -114,7 +114,7 @@ export class Finale {
     return this.doom.rendering
   }
   private get rVideo(): RVideo {
-    return this.rendering.video
+    return this.doom.rVideo
   }
   private get strings(): Strings {
     return this.doom.strings

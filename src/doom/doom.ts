@@ -77,6 +77,7 @@ export class Doom {
   public headsUp = new HeadsUp(this)
   public statusBar = new StatusBar(this)
   public play = new Play(this)
+  public rVideo = new RVIdeo()
   public rendering = new Rendering(this)
   public game = new Game(this)
   public menu = new Menu(this)
@@ -85,9 +86,6 @@ export class Doom {
   public win = new Win(this)
   public finale = new Finale(this)
 
-  private get rVideo(): RVIdeo {
-    return this.rendering.video
-  }
   public iVideo = new IVideo(this.rVideo)
   public input = new Input()
 

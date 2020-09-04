@@ -117,7 +117,6 @@ export class Rendering {
   spanFunc: ((this: Draw) => void) | null = null
 
 
-  public video = new Video()
   public draw = new Draw(this)
   public data = new Data(this)
   public sky = new Sky()
@@ -137,6 +136,9 @@ export class Rendering {
   }
   get tick(): Tick {
     return this.doom.play.tick
+  }
+  get video(): Video {
+    return this.doom.rVideo
   }
   get wad(): LumpReader {
     return this.doom.wad

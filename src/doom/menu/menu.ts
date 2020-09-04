@@ -91,7 +91,7 @@ export class Menu {
     return this.doom.rendering
   }
   get rVideo(): RVideo {
-    return this.rendering.video
+    return this.doom.rVideo
   }
   get strings(): Strings {
     return this.doom.strings
