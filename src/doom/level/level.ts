@@ -18,6 +18,7 @@ import { Seg } from '../rendering/segs/seg'
 import { SegArray } from './seg-array'
 import { Side } from '../rendering/defs/side'
 import { SideArray } from './side-array'
+import { Sky } from './sky'
 import { SubSector } from '../rendering/defs/sub-sector'
 import { SubSectorArray } from './sub-sector-array'
 import { Textures } from '../textures/textures'
@@ -62,6 +63,8 @@ export class Level {
   //  used as a PVS lookup as well.
   //
   rejectMatrix: Reject = new Reject()
+
+  sky = new Sky()
 
   constructor(_?: ArrayBuffer, name = '', private lump = 0) {
     if (!name) {

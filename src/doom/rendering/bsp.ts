@@ -13,7 +13,6 @@ import { Sector } from './defs/sector'
 import { Seg } from './segs/seg'
 import { Segs } from './segs'
 import { Side } from './defs/side'
-import { Sky } from './sky'
 import { Things } from './things'
 
 
@@ -64,9 +63,6 @@ export class BSP {
   }
   private get segs(): Segs {
     return this.rendering.segsHandler
-  }
-  private get sky(): Sky {
-    return this.rendering.sky
   }
   private get things(): Things {
     return this.rendering.things
@@ -474,7 +470,7 @@ export class BSP {
     }
 
     if (this.frontSector.ceilingHeight > this.rendering.viewZ ||
-        this.frontSector.ceilingPic === this.sky.skyFlatNum
+        this.frontSector.ceilingPic === this.level.sky.flatNum
     ) {
       this.plane.ceilingPlane = this.plane.findPlane(
         this.frontSector.ceilingHeight,

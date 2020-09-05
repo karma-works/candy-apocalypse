@@ -1058,14 +1058,14 @@ export class Map {
       throw 'li.frontSector = null'
     }
 
-    if (li.frontSector.ceilingPic === this.rendering.sky.skyFlatNum) {
+    if (li.frontSector.ceilingPic === this.level.sky.flatNum) {
       // don't shoot the sky!
       if (z > li.frontSector.ceilingHeight) {
         return false
       }
 
       // it's a sky hack wall
-      if (li.backSector && li.backSector.ceilingPic === this.rendering.sky.skyFlatNum) {
+      if (li.backSector && li.backSector.ceilingPic === this.level.sky.flatNum) {
         return false
       }
     }

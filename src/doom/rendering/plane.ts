@@ -1,12 +1,12 @@
 import { ANG90, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table'
-import { ANGLE_TO_SKY_SHIFT, Sky } from './sky'
 import { LIGHT_LEVELS, LIGHT_SEG_SHIFT, LIGHT_Z_SHIFT, MAX_LIGHT_Z, Rendering } from './rendering'
 import { RANGE_CHECK, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { div, mul } from '../misc/fixed'
+import { ANGLE_TO_SKY_SHIFT } from '../level/sky'
 import { BSP } from './bsp'
 import { Data } from './data'
 import { Draw } from './draw'
-import { LumpReader } from '../wad/lump-reader'
+import { Level } from '../level/level'
 import { MAX_DRAW_SEGS } from './defs/draw-seg'
 import { Things } from './things'
 import { VisPlane } from './plane/vis-plane'
@@ -79,14 +79,11 @@ export class Plane {
   private get draw(): Draw {
     return this.rendering.draw
   }
-  private get sky(): Sky {
-    return this.rendering.sky
+  private get level(): Level {
+    return this.rendering.level
   }
   private get things(): Things {
     return this.rendering.things
-  }
-  private get wad(): LumpReader {
-    return this.rendering.wad
   }
 
   constructor(private rendering: Rendering) { }
@@ -189,7 +186,7 @@ export class Plane {
   // R_FindPlane
   //
   findPlane(height: number, picNum: number, lightLevel: number): VisPlane {
-    if (picNum === this.sky.skyFlatNum) {
+    if (picNum === this.level.sky.flatNum) {
       // all skys map together
       height = 0
       lightLevel = 0
@@ -339,7 +336,7 @@ export class Plane {
       }
 
       // sky flat
-      if (pl.picNum === this.sky.skyFlatNum) {
+      if (pl.picNum === this.level.sky.flatNum) {
         this.draw.dcIScale = this.things.pSpriteIScale >> this.rendering.detailShift
 
         // Sky is allways drawn full bright,
@@ -347,7 +344,7 @@ export class Plane {
         // Because of this hack, sky is not affected
         //  by INVUL inverse mapping.
         this.draw.dcColorMap = this.data.colorMaps
-        this.draw.dcTextureMid = this.sky.skyTextureMid
+        this.draw.dcTextureMid = this.level.sky.textureMid
         for (x = pl.minX; x <= pl.maxX; ++x) {
           this.draw.dcYl = pl.top[x]
           this.draw.dcYh = pl.bottom[x]
@@ -356,7 +353,7 @@ export class Plane {
             angle = this.rendering.viewAngle + this.rendering.xToViewAngle[x] >> ANGLE_TO_SKY_SHIFT
             this.draw.dcX = x
             this.draw.dcSource =
-              this.data.textures.getColumn(this.sky.skyTexture, angle).posts[0]
+              this.data.textures.getColumn(this.level.sky.texture, angle).posts[0]
 
             if (this.rendering.colFunc === null) {
               throw 'this.rendering.colFunc = null'

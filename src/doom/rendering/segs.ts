@@ -7,9 +7,9 @@ import { BSP } from './bsp'
 import { Column } from './defs/column'
 import { Data } from './data'
 import { Draw } from './draw'
+import { Level } from '../level/level'
 import { MapLineFlag } from '../doom/data'
 import { Plane } from './plane'
-import { Sky } from './sky'
 import { Things } from './things'
 
 const HEIGHT_BITS = 12
@@ -79,11 +79,11 @@ export class Segs {
   private get draw(): Draw {
     return this.rendering.draw
   }
+  private get level(): Level {
+    return this.rendering.level
+  }
   private get plane(): Plane {
     return this.rendering.plane
-  }
-  private get sky(): Sky {
-    return this.rendering.sky
   }
   private get things(): Things {
     return this.rendering.things
@@ -504,8 +504,8 @@ export class Segs {
       this.worldLow = this.bsp.backSector.floorHeight - this.rendering.viewZ
 
       // hack to allow height changes in outdoor areas
-      if (this.bsp.frontSector.ceilingPic === this.sky.skyFlatNum &&
-        this.bsp.backSector.ceilingPic === this.sky.skyFlatNum
+      if (this.bsp.frontSector.ceilingPic === this.level.sky.flatNum &&
+        this.bsp.backSector.ceilingPic === this.level.sky.flatNum
       ) {
         this.worldTop = this.worldHigh
       }
@@ -640,7 +640,7 @@ export class Segs {
     }
 
     if (this.bsp.frontSector.ceilingHeight <= this.rendering.viewZ &&
-      this.bsp.frontSector.ceilingPic !== this.sky.skyFlatNum
+      this.bsp.frontSector.ceilingPic !== this.level.sky.flatNum
     ) {
       // below view plane
       this.markCeiling = false

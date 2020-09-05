@@ -18,7 +18,6 @@ import { MapThing } from '../level/thing-array'
 import { MapUtils } from './map-utils'
 import { PSprite } from './p-sprite'
 import { Play } from './setup'
-import { Rendering } from '../rendering/rendering'
 import { SfxName } from '../doom/sounds/sfx-name'
 import { State } from '../doom/info/state'
 import { StateNum } from '../doom/info/state-num'
@@ -63,9 +62,6 @@ export class MObjHandler {
   }
   private get pSprite(): PSprite {
     return this.play.pSprite
-  }
-  private get rendering(): Rendering {
-    return this.play.rendering
   }
   private get statusBar(): StatusBar {
     return this.doom.statusBar
@@ -190,7 +186,7 @@ export class MObjHandler {
           // explode a missile
           if (this.map.ceilingLine &&
             this.map.ceilingLine.backSector &&
-            this.map.ceilingLine.backSector.ceilingPic === this.rendering.sky.skyFlatNum
+            this.map.ceilingLine.backSector.ceilingPic === this.level.sky.flatNum
           ) {
             // Hack to prevent missiles exploding
             // against the sky.

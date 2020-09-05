@@ -2,6 +2,7 @@ import { AmmoType, GameState, MAX_PLAYERS, TICRATE, WeaponType } from '../global
 import { ButtonCode, DEvent, EvType, GameAction } from '../doom/event'
 import { GameMode, GameVersion, Skill } from '../doom/mode'
 import { Player, PlayerState, WbStart } from '../doom/player'
+import { SKY_FLAT_NAME, Sky } from '../level/sky'
 import { AutoMap } from '../auto-map/auto-map'
 import { BACKUP_TICS } from '../doom/net/doom-data'
 import { Sound as DSound } from '../doom/sound'
@@ -19,7 +20,6 @@ import { Net } from '../doom/net'
 import { Play } from '../play/setup'
 import { Data as RData } from '../rendering/data'
 import { Rendering } from '../rendering/rendering'
-import { SKY_FLAT_NAME } from '../rendering/sky'
 import { SaveGame } from '../play/save-game'
 import { ScanCode } from '../interfaces/scancodes'
 import { StateNum } from '../doom/info/state-num'
@@ -413,30 +413,6 @@ export class Game {
   // G_DoLoadLevel
   //
   private doLoadLevel(): void {
-    // Set the sky map.
-    // First thing, we have a dummy sky texture name,
-    //  a flat. The data is in the WAD only because
-    //  we look for an actual index, instead of simply
-    //  setting one.
-    const rendering = this.rendering
-    const rData = this.rData
-
-    rendering.sky.skyFlatNum = rData.flats.numForName(SKY_FLAT_NAME)
-
-    // DOOM determines the sky texture to be used
-    // depending on the current episode, and the game version.
-    const gameMode = this.doom.gameMode
-    const gameVersion = this.doom.gameVersion
-    if (gameMode as GameMode === GameMode.Commercial &&
-        (gameVersion === GameVersion.Final2 || gameVersion === GameVersion.Chex)) {
-      rendering.sky.skyTexture = rData.textures.numForName('SKY3')
-      if (this.gameMap < 12) {
-        rendering.sky.skyTexture = rData.textures.numForName('SKY1')
-      } else if (this.gameMap < 21) {
-        rendering.sky.skyTexture = rData.textures.numForName('SKY2')
-      }
-    }
-
     // for time calculation
     this.levelStartTic = this.gameTic
 
@@ -469,6 +445,8 @@ export class Game {
     this.sendPause = this.sendSave = this.paused = false
     this.mouseButtons.fill(false)
     this.joyButtons.fill(false)
+
+    this.setSkyMap(this.play.level.sky)
   }
 
   //
@@ -1170,35 +1148,55 @@ export class Game {
 
     this.viewActive = true
 
-    // set the sky map for the episode
-    const rendering = this.rendering
+    this.doLoadLevel()
+  }
+
+  private setSkyMap(sky: Sky): void {
     const rData = this.rData
+
+    // set the sky map for the episode
     if (this.doom.gameMode === GameMode.Commercial) {
-      rendering.sky.skyTexture = rData.textures.numForName('SKY3')
-      if (map < 12) {
-        rendering.sky.skyTexture = rData.textures.numForName('SKY1')
-      } else if (map < 21) {
-        rendering.sky.skyTexture = rData.textures.numForName('SKY2')
+      sky.texture = rData.textures.numForName('SKY3')
+      if (this.gameMap < 12) {
+        sky.texture = rData.textures.numForName('SKY1')
+      } else if (this.gameMap < 21) {
+        sky.texture = rData.textures.numForName('SKY2')
       }
     } else {
-      switch (episode) {
+      switch (this.gameEpisode) {
       case 1:
-        rendering.sky.skyTexture = rData.textures.numForName('SKY1')
+        sky.texture = rData.textures.numForName('SKY1')
         break
       case 2:
-        rendering.sky.skyTexture = rData.textures.numForName('SKY2')
+        sky.texture = rData.textures.numForName('SKY2')
         break
       case 3:
-        rendering.sky.skyTexture = rData.textures.numForName('SKY3')
+        sky.texture = rData.textures.numForName('SKY3')
         break
       case 4:
         // Special Edition sky
-        rendering.sky.skyTexture = rData.textures.numForName('SKY4')
+        sky.texture = rData.textures.numForName('SKY4')
         break
       }
     }
 
-    this.doLoadLevel()
+    // Set the sky map.
+    // First thing, we have a dummy sky texture name,
+    //  a flat. The data is in the WAD only because
+    //  we look for an actual index, instead of simply
+    //  setting one.
+
+    sky.flatNum = rData.flats.numForName(SKY_FLAT_NAME)
+
+    if (this.doom.gameMode as GameMode === GameMode.Commercial &&
+      (this.doom.gameVersion === GameVersion.Final2 || this.doom.gameVersion === GameVersion.Chex)) {
+      sky.texture = rData.textures.numForName('SKY3')
+      if (this.gameMap < 12) {
+        sky.texture = rData.textures.numForName('SKY1')
+      } else if (this.gameMap < 21) {
+        sky.texture = rData.textures.numForName('SKY2')
+      }
+    }
   }
 
   //

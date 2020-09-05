@@ -12,7 +12,6 @@ import { Net } from '../doom/net'
 import { Plane } from './plane'
 import { Player } from '../doom/player'
 import { Segs } from './segs'
-import { Sky } from './sky'
 import { Things } from './things'
 import { Tick } from '../play/tick'
 import { Video } from './video'
@@ -113,9 +112,7 @@ export class Rendering {
   transColFunc: ((this: Draw) => void) | null = null
   spanFunc: ((this: Draw) => void) | null = null
 
-
   public draw = new Draw(this)
-  public sky = new Sky()
   public plane = new Plane(this)
   public things = new Things(this)
   public segsHandler = new Segs(this)
@@ -419,8 +416,6 @@ export class Rendering {
     console.log('R_InitPlanes')
     this.initLightTables()
     console.log('R_InitLightTables')
-    this.sky.initSkyMap()
-    console.log('R_InitSkyMap')
     this.draw.initTranslationTables()
     console.log('R_InitTranslationsTables')
 
