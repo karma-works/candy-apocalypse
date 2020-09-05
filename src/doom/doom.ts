@@ -26,6 +26,7 @@ import { Rendering } from './rendering/rendering'
 import { RenderingInterface } from './rendering/rendering-interface'
 import { StatusBar } from './status/stuff'
 import { Strings } from './translation/strings'
+import { VideoInterface } from './interfaces/video-interface'
 import { Win } from './win/win'
 import { Wipe } from './wipe'
 import { displayEndoom } from './misc/endoom'
@@ -89,7 +90,7 @@ export class Doom {
   public win = new Win(this)
   public finale = new Finale(this)
 
-  public iVideo = new IVideo(this.rVideo)
+  public iVideo: VideoInterface = new IVideo(this.rVideo)
   public input = new Input()
 
   constructor(public params: Params) {

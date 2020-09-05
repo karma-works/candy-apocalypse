@@ -3,10 +3,10 @@ import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
-import { Video as IVideo } from '../interfaces/video'
 import { Input } from '../interfaces/input'
 import { RenderingInterface } from '../rendering/rendering-interface'
 import { ScanCode } from '../interfaces/scancodes'
+import { VideoInterface } from '../interfaces/video-interface'
 import { fs } from '../system/fs'
 
 const defaultCfg = 'default.cfg'
@@ -241,7 +241,7 @@ export class Defaults extends AgnosticDefaults {
   private get input(): Input {
     return this.doom.input
   }
-  private get iVideo(): IVideo {
+  private get iVideo(): VideoInterface {
     return this.doom.iVideo
   }
   private get rendering(): RenderingInterface {

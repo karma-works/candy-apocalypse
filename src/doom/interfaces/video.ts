@@ -1,8 +1,16 @@
 import { Color, Palette } from './palette'
 import { Video as RVideo } from '../rendering/video'
+import { VideoInterface } from './video-interface'
 
-export class Video {
-  useGamma = 0
+export class Video implements VideoInterface {
+  private _useGamma = 0
+  public get useGamma(): number {
+    return this._useGamma
+  }
+  public set useGamma(value: number) {
+    this._useGamma = value
+    this.uploadNewPalette()
+  }
 
   screen: HTMLCanvasElement | null = null
   private xScreen: CanvasRenderingContext2D | null = null
