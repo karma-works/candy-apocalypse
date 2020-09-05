@@ -19,7 +19,6 @@ import { Palettes } from '../interfaces/palette'
 import { Patch } from '../rendering/defs/patch'
 import { PercentWidget } from './percent-widget'
 import { Video as RVideo } from '../rendering/video'
-import { Rendering } from '../rendering/rendering'
 import { State } from './states'
 import { Strings } from '../translation/strings'
 import { pointToAngle } from '../misc/angle'
@@ -249,9 +248,6 @@ export class StatusBar {
   }
   private get inter(): Inter {
     return this.doom.play.inter
-  }
-  public get rendering(): Rendering {
-    return this.doom.rendering
   }
   public get rVideo(): RVideo {
     return this.doom.rVideo

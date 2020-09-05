@@ -686,16 +686,6 @@ export class Draw {
   }
 
   //
-  // Copy a screen buffer.
-  //
-  videoErase(ofs: number, count: number): void {
-    this.video.screens[0].set(
-      this.video.screens[1].slice(ofs, ofs + count),
-      ofs,
-    )
-  }
-
-  //
   // R_DrawViewBorder
   // Draws the border around the view
   //  for different size windows?
@@ -709,18 +699,18 @@ export class Draw {
     let side = (SCREENWIDTH - this.scaledViewWidth) / 2 >> 0
 
     // copy top and one line of left side
-    this.videoErase(0, top * SCREENWIDTH + side)
+    this.video.erase(0, top * SCREENWIDTH + side)
 
     // copy one line of right side and bottom
     let ofs = (this.viewHeight + top) * SCREENWIDTH - side
-    this.videoErase(ofs, top * SCREENWIDTH + side)
+    this.video.erase(ofs, top * SCREENWIDTH + side)
 
     // copy sides using wraparound
     ofs = top * SCREENWIDTH + SCREENWIDTH - side
     side <<= 1
 
     for (let i = 1; i < this.viewHeight; ++i) {
-      this.videoErase(ofs, side)
+      this.video.erase(ofs, side)
       ofs += SCREENWIDTH
     }
   }

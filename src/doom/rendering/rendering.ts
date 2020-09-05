@@ -11,6 +11,7 @@ import { LumpReader } from '../wad/lump-reader'
 import { Net } from '../doom/net'
 import { Plane } from './plane'
 import { Player } from '../doom/player'
+import { RenderingInterface } from './rendering-interface'
 import { Segs } from './segs'
 import { Things } from './things'
 import { Tick } from '../play/tick'
@@ -37,7 +38,7 @@ const FIELD_OF_VIEW = 2048
 
 const DIST_MAP = 2
 
-export class Rendering {
+export class Rendering implements RenderingInterface {
   viewAngleOffset = 0;
 
   fixedColorMap: Uint8ClampedArray | null = null
@@ -107,6 +108,25 @@ export class Rendering {
   transColFunc: ((this: Draw) => void) | null = null
   spanFunc: ((this: Draw) => void) | null = null
 
+  get fullScreen(): boolean {
+    return this.draw.viewHeight === this.video.height
+  }
+  get viewWindowX(): number {
+    return this.draw.viewWindowX
+  }
+  get viewWindowY(): number {
+    return this.draw.viewWindowY
+  }
+  get scaledViewWidth(): number {
+    return this.draw.scaledViewWidth
+  }
+  get viewWidth(): number {
+    return this.draw.viewWidth
+  }
+  get viewHeight(): number {
+    return this.draw.viewHeight
+  }
+
   public draw = new Draw(this)
   public plane = new Plane(this)
   public things = new Things(this)
@@ -138,10 +158,24 @@ export class Rendering {
   constructor(public doom: Doom) { }
 
   // Blocky mode, has default, 0 = high, 1 = normal
-  detailLevel = 0
-  screenBlocks = 9
+  private _detailLevel = false
+  get highDetails(): boolean {
+    return this._detailLevel
+  }
+  set highDetails(value: boolean) {
+    this._detailLevel = value
+    this.setSizeNeeded = true
+  }
+
+  private screenBlocks = 9
   // temp for screenblocks (0-9)
-  screenSize = this.screenBlocks - 3
+  get screenSize(): number {
+    return this.screenBlocks - 3
+  }
+  set screenSize(value: number) {
+    this.screenBlocks = value + 3
+    this.setSizeNeeded = true
+  }
 
   pointToAngle(x: number, y: number): number {
     return pointToAngle(this.viewX, this.viewY, x, y)
@@ -295,14 +329,6 @@ export class Rendering {
   // The change will take effect next refresh.
   //
   setSizeNeeded = false
-  private setBlocks = 0
-  private setDetail = 0
-
-  setViewSize(blocks: number, detail: number): void {
-    this.setSizeNeeded = true
-    this.setBlocks = blocks
-    this.setDetail = detail
-  }
 
   //
   // R_ExecuteSetViewSize
@@ -310,15 +336,15 @@ export class Rendering {
   executeSetViewSize(): void {
     this.setSizeNeeded = false
 
-    if (this.setBlocks === 11) {
+    if (this.screenBlocks === 11) {
       this.draw.scaledViewWidth = SCREENWIDTH
       this.draw.viewHeight = SCREENHEIGHT
     } else {
-      this.draw.scaledViewWidth = this.setBlocks * 32
-      this.draw.viewHeight = this.setBlocks * 168 / 10 & ~7
+      this.draw.scaledViewWidth = this.screenBlocks * 32
+      this.draw.viewHeight = this.screenBlocks * 168 / 10 & ~7
     }
 
-    this.detailShift = this.setDetail
+    this.detailShift = this.highDetails ? 1 : 0
     this.draw.viewWidth = this.draw.scaledViewWidth >> this.detailShift
 
     this.centerY = this.draw.viewHeight / 2
@@ -406,7 +432,7 @@ export class Rendering {
     // viewwidth / viewheight / detailLevel are set by the defaults
     console.log('R_InitTables')
 
-    this.setViewSize(this.screenBlocks, this.detailLevel)
+    this.setSizeNeeded = true
     // this.plane.initPlanes()
     console.log('R_InitPlanes')
     this.initLightTables()
@@ -484,5 +510,12 @@ export class Rendering {
 
     // Check for new console commands.
     this.net.netUpdate()
+  }
+
+  fillBackScreen(): void {
+    return this.draw.fillBackScreen()
+  }
+  drawViewBorder(): void {
+    return this.draw.drawViewBorder()
   }
 }

@@ -19,7 +19,7 @@ import { Menu } from '../menu/menu'
 import { Net } from '../doom/net'
 import { Play } from '../play/setup'
 import { Data as RData } from '../rendering/data'
-import { Rendering } from '../rendering/rendering'
+import { RenderingInterface } from '../rendering/rendering-interface'
 import { SaveGame } from '../play/save-game'
 import { ScanCode } from '../interfaces/scancodes'
 import { StateNum } from '../doom/info/state-num'
@@ -210,7 +210,7 @@ export class Game {
   private get rData(): RData {
     return this.doom.rData
   }
-  private get rendering(): Rendering {
+  private get rendering(): RenderingInterface {
     return this.doom.rendering
   }
   private get saveGame(): SaveGame {

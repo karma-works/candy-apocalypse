@@ -1,7 +1,7 @@
 import { HU_FONTSIZE, HU_FONTSTART, HeadsUp } from './stuff'
 import { AutoMap } from '../auto-map/auto-map'
-import { Draw } from '../rendering/draw'
 import { IText } from './i-text'
+import { RenderingInterface } from '../rendering/rendering-interface'
 import { SCREENWIDTH } from '../global/doomdef'
 import { SText } from './s-text'
 import { TextLine } from './text-line'
@@ -19,10 +19,10 @@ export class Lib {
   private get autoMap(): AutoMap {
     return this.headsUp.autoMap
   }
-  private get draw(): Draw {
-    return this.headsUp.doom.rendering.draw
+  private get rendering(): RenderingInterface {
+    return this.headsUp.doom.rendering
   }
-  private get video(): Video {
+  private get rVideo(): Video {
     return this.headsUp.doom.rVideo
   }
 
@@ -45,7 +45,7 @@ export class Lib {
           break
         }
 
-        this.video.drawPatch(x, l.y, FG, l.font[c - l.startChar])
+        this.rVideo.drawPatch(x, l.y, FG, l.font[c - l.startChar])
         x += w
       } else {
         x += 4
@@ -59,7 +59,7 @@ export class Lib {
     if (drawCursor &&
       x + l.font[US - l.startChar].width <= SCREENWIDTH
     ) {
-      this.video.drawPatch(x, l.y, FG, l.font[US - l.startChar])
+      this.rVideo.drawPatch(x, l.y, FG, l.font[US - l.startChar])
     }
   }
 
@@ -72,25 +72,25 @@ export class Lib {
     // and the text must either need updating or refreshing
     // (because of a recent change back from the automap)
     if (!this.autoMap.active &&
-      this.draw.viewWindowX && l.needsUpdate
+      this.rendering.viewWindowX && l.needsUpdate
     ) {
       const lh = l.font[0].height + 1
       for (let y = l.y, yOffset = y * SCREENWIDTH;
         y < l.y + lh;
         ++y, yOffset += SCREENWIDTH
       ) {
-        if (y < this.draw.viewWindowY ||
-          y >= this.draw.viewWindowY + this.draw.viewHeight
+        if (y < this.rendering.viewWindowY ||
+          y >= this.rendering.viewWindowY + this.rendering.viewHeight
         ) {
           // erase entire line
-          this.draw.videoErase(yOffset, SCREENWIDTH)
+          this.rVideo.erase(yOffset, SCREENWIDTH)
         } else {
           // erase left border
-          this.draw.videoErase(yOffset, this.draw.viewWindowX)
+          this.rVideo.erase(yOffset, this.rendering.viewWindowX)
           // erase right border
-          this.draw.videoErase(
-            yOffset + this.draw.viewWindowX + this.draw.viewWidth,
-            this.draw.viewWindowX,
+          this.rVideo.erase(
+            yOffset + this.rendering.viewWindowX + this.rendering.viewWidth,
+            this.rendering.viewWindowX,
           )
         }
       }
@@ -216,7 +216,7 @@ export class Lib {
         break
       }
 
-      this.video.drawPatch(cx, cy, 0, this.headsUp.font[c])
+      this.rVideo.drawPatch(cx, cy, 0, this.headsUp.font[c])
 
       cx += w
     }

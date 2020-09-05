@@ -5,7 +5,7 @@ import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
 import { Video as IVideo } from '../interfaces/video'
 import { Input } from '../interfaces/input'
-import { Rendering } from '../rendering/rendering'
+import { RenderingInterface } from '../rendering/rendering-interface'
 import { ScanCode } from '../interfaces/scancodes'
 import { fs } from '../system/fs'
 
@@ -212,15 +212,12 @@ export class Defaults extends AgnosticDefaults {
     },
 
     screenblocks: {
-      get: () => this.rendering.screenBlocks,
-      set: v => {
-        this.rendering.screenBlocks = v
-        this.rendering.screenSize = v - 3
-      },
+      get: () => this.rendering.screenSize + 3,
+      set: v => this.rendering.screenSize = v - 3,
     },
     detaillevel: {
-      get: () => this.rendering.detailLevel,
-      set: v => this.rendering.detailLevel = v,
+      get: () => this.rendering.highDetails ? 1 : 0,
+      set: v => this.rendering.highDetails = !!v,
     },
     snd_channels: {
       get: () => this.dSound.numChannels,
@@ -247,7 +244,7 @@ export class Defaults extends AgnosticDefaults {
   private get iVideo(): IVideo {
     return this.doom.iVideo
   }
-  private get rendering(): Rendering {
+  private get rendering(): RenderingInterface {
     return this.doom.rendering
   }
 

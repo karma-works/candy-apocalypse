@@ -23,6 +23,7 @@ import { PlayerState } from './doom/player'
 import { Data as RData } from './rendering/data'
 import { Video as RVIdeo } from './rendering/video'
 import { Rendering } from './rendering/rendering'
+import { RenderingInterface } from './rendering/rendering-interface'
 import { StatusBar } from './status/stuff'
 import { Strings } from './translation/strings'
 import { Win } from './win/win'
@@ -80,7 +81,7 @@ export class Doom {
   public play = new Play(this)
   public rVideo = new RVIdeo()
   public rData = new RData(this.wad)
-  public rendering = new Rendering(this)
+  public rendering: RenderingInterface = new Rendering(this)
   public game = new Game(this)
   public menu = new Menu(this)
   private wipe = new Wipe(this)
@@ -189,7 +190,7 @@ export class Doom {
         this.autoMap.drawer()
       }
       if (wipe ||
-        this.rendering.draw.viewHeight !== SCREENHEIGHT && this.fullScreen
+        !this.rendering.fullScreen && this.fullScreen
       ) {
         redrawsBar = true
       }
@@ -197,8 +198,8 @@ export class Doom {
       if (this.inHelpScreenState && !this.menu.inHelpScreens) {
         redrawsBar = true
       }
-      this.statusBar.drawer(this.rendering.draw.viewHeight === SCREENHEIGHT, redrawsBar)
-      this.fullScreen = this.rendering.draw.viewHeight === SCREENHEIGHT
+      this.statusBar.drawer(this.rendering.fullScreen, redrawsBar)
+      this.fullScreen = this.rendering.fullScreen
       break
     case GameState.Intermission:
       this.win.drawer()
@@ -239,20 +240,20 @@ export class Doom {
       // view was not active
       this.viewActiveState = false
       // draw the pattern into the back screen
-      this.rendering.draw.fillBackScreen()
+      this.rendering.fillBackScreen()
     }
 
     // see if the border needs to be updated to the screen
     if (this.game.gameState === GameState.Level &&
       !this.autoMap.active &&
-      this.rendering.draw.scaledViewWidth !== SCREENWIDTH
+      !this.rendering.fullScreen
     ) {
       if (this.menu.menuActive || this.menuActiveState || !this.viewActiveState) {
         this.borderDrawCount = 3
       }
       if (this.borderDrawCount) {
         // erase old menu stuff
-        this.rendering.draw.drawViewBorder()
+        this.rendering.drawViewBorder()
         this.borderDrawCount--
       }
     }
@@ -268,10 +269,10 @@ export class Doom {
       if (this.autoMap.active) {
         y = 4
       } else {
-        y = this.rendering.draw.viewWindowY + 4
+        y = this.rendering.viewWindowY + 4
       }
-      const x = this.rendering.draw.viewWindowX +
-        (this.rendering.draw.scaledViewWidth - 68) / 2
+      const x = this.rendering.viewWindowX +
+        (this.rendering.scaledViewWidth - 68) / 2
       this.rVideo.drawPatch(x, y, 0,
         this.wad.cacheLumpName('M_PAUSE', Patch))
     }
