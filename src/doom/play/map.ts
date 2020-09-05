@@ -152,7 +152,7 @@ export class Map {
     this.tmBBox.right = x + this.tmThing.radius
     this.tmBBox.left = x - this.tmThing.radius
 
-    const newsubsec = this.rendering.pointInSubSector(x, y)
+    const newsubsec = this.level.pointInSubSector(x, y)
     this.ceilingLine = null
 
     if (newsubsec.sector === null) {
@@ -416,7 +416,7 @@ export class Map {
     this.tmBBox.right = x + this.tmThing.radius
     this.tmBBox.left = x - this.tmThing.radius
 
-    const newSubSec = this.rendering.pointInSubSector(x, y)
+    const newSubSec = this.level.pointInSubSector(x, y)
     this.ceilingLine = null
 
     if (newSubSec.sector === null) {

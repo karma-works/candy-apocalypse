@@ -289,7 +289,7 @@ export class MapUtils {
   //
   setThingPosition(thing: MObj): void {
     // link into subsector
-    const ss = this.rendering.pointInSubSector(thing.x, thing.y)
+    const ss = this.level.pointInSubSector(thing.x, thing.y)
     thing.subSector = ss
 
     if (!(thing.flags & MObjFlag.NoSector)) {

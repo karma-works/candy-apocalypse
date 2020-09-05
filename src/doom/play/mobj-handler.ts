@@ -8,6 +8,7 @@ import { Doom } from '../doom'
 import { Enemy } from './enemy'
 import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
+import { Level } from '../level/level'
 import { MObj } from './mobj/mobj'
 import { MObjFlag } from './mobj/mobj-flag'
 import { MObjType } from '../doom/info/mobj-type'
@@ -47,6 +48,9 @@ export class MObjHandler {
   }
   private get headsUp(): HeadsUp {
     return this.doom.headsUp
+  }
+  private get level(): Level {
+    return this.play.level
   }
   private get map(): Map {
     return this.play.map
@@ -408,7 +412,7 @@ export class MObjHandler {
     this.dSound.startSound(mo, SfxName.Telept)
 
     // spawn a teleport fog at the new spot
-    const ss = this.rendering.pointInSubSector(x, y)
+    const ss = this.level.pointInSubSector(x, y)
 
     if (ss.sector === null) {
       throw 'ss.sector = null'
@@ -590,7 +594,7 @@ export class MObjHandler {
     const y = mThing.y << FRACBITS
 
     // spawn a teleport fog at the new spot
-    const ss = this.rendering.pointInSubSector(x, y)
+    const ss = this.level.pointInSubSector(x, y)
     if (ss.sector === null) {
       throw 'ss.sector = null'
     }

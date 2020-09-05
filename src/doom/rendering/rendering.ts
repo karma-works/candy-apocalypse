@@ -8,14 +8,11 @@ import { Draw } from './draw'
 import { Game } from '../game/game'
 import { Level } from '../level/level'
 import { LumpReader } from '../wad/lump-reader'
-import { NF_SUBSECTOR } from '../doom/data'
 import { Net } from '../doom/net'
-import { Node } from './bsp/node'
 import { Plane } from './plane'
 import { Player } from '../doom/player'
 import { Segs } from './segs'
 import { Sky } from './sky'
-import { SubSector } from './defs/sub-sector'
 import { Things } from './things'
 import { Tick } from '../play/tick'
 import { Video } from './video'
@@ -430,27 +427,6 @@ export class Rendering {
     this.things.initSprites()
 
     this.frameCount = 0
-  }
-
-
-  //
-  // R_PointInSubsector
-  //
-  pointInSubSector(x: number, y: number): SubSector {
-    // single subsector is a special case
-    if (!this.level.nodes.length) {
-      return this.level.subSectors[0]
-    }
-
-    let node: Node
-    let side: 0 | 1
-    let nodeNum = this.level.nodes.length - 1
-    while (!(nodeNum & NF_SUBSECTOR)) {
-      node = this.level.nodes[nodeNum]
-      side = node.pointOnSide(x, y)
-      nodeNum = node.children[side]
-    }
-    return this.level.subSectors[nodeNum & ~NF_SUBSECTOR]
   }
 
   //
