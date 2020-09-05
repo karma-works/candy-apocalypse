@@ -27,7 +27,6 @@ import { Switch } from './switch'
 import { Teleport } from './teleport'
 import { Tick } from './tick'
 import { User } from './user'
-import { sprNames } from '../doom/info/spr-names'
 
 export class Play {
   public level = new Level()
@@ -165,6 +164,5 @@ export class Play {
   init(): void {
     this.switch.initSwitchList()
     this.special.initPicAnims()
-    this.rendering.things.initSprites(sprNames)
   }
 }

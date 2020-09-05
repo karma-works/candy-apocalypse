@@ -14,9 +14,10 @@ import { Patch } from '../rendering/defs/patch'
 import { Post } from '../rendering/defs/post'
 import { Data as RData } from '../rendering/data'
 import { Video as RVideo } from '../rendering/video'
-import { Rendering } from '../rendering/rendering'
 import { SfxName } from '../doom/sounds/sfx-name'
 import { Sound } from '../doom/sound'
+import { SpriteArray } from '../sprites/sprite-array'
+import { SpriteDefsArray } from '../sprites/sprite-defs-array'
 import { State } from '../doom/info/state'
 import { StateNum } from '../doom/info/state-num'
 import { Strings } from '../translation/strings'
@@ -111,14 +112,17 @@ export class Finale {
   private get headsUp(): HeadsUp {
     return this.doom.headsUp
   }
-  private get rendering(): Rendering {
-    return this.doom.rendering
-  }
   private get rData(): RData {
     return this.doom.rData
   }
   private get rVideo(): RVideo {
     return this.doom.rVideo
+  }
+  private get sprites(): SpriteArray {
+    return this.rData.sprites
+  }
+  private get spriteDefs(): SpriteDefsArray {
+    return this.rData.spriteDefs
   }
   private get strings(): Strings {
     return this.doom.strings
@@ -469,12 +473,12 @@ export class Finale {
     }
 
     // draw the current frame in the middle of the screen
-    const sprDef = this.rendering.things.sprites[this.castState.sprite]
-    const sprFrame = sprDef.spriteFrames[this.castState.frame & FF_FRAMEMASK]
+    const sprDef = this.spriteDefs[this.castState.sprite]
+    const sprFrame = sprDef.frames[this.castState.frame & FF_FRAMEMASK]
     const lump = sprFrame.lump[0]
     const flip = !!sprFrame.flip[0]
 
-    const patch = this.wad.cacheLumpNum(lump + this.rData.firstSpriteLump, Patch)
+    const patch = this.sprites[lump].patch
     this.rVideo.drawPatch(160, 170, 0, patch, { flipped: flip })
   }
 

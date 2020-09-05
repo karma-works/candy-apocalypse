@@ -427,6 +427,8 @@ export class Rendering {
     this.draw.initTranslationTables()
     console.log('R_InitTranslationsTables')
 
+    this.things.initSprites()
+
     this.frameCount = 0
   }
 

@@ -7,17 +7,15 @@ import { ANG45 } from '../misc/table'
 import { BSP } from './bsp'
 import { Column } from './defs/column'
 import { Data } from './data'
-import { Doom } from '../doom'
 import { Draw } from './draw'
 import { LumpReader } from '../wad/lump-reader'
 import { MObj } from '../play/mobj/mobj'
 import { MObjFlag } from '../play/mobj/mobj-flag'
-import { Patch } from './defs/patch'
 import { Post } from './defs/post'
 import { Sector } from './defs/sector'
 import { Segs } from './segs'
-import { SpriteDef } from './things/sprite-def'
-import { SpriteFrame } from './things/sprite-frame'
+import { SpriteArray } from '../sprites/sprite-array'
+import { SpriteDefsArray } from '../sprites/sprite-defs-array'
 import { VisSprite } from './things/vis-sprite'
 
 export const MINZ = FRACUNIT*4
@@ -32,14 +30,17 @@ export class Things {
   private get data(): Data {
     return this.rendering.data
   }
-  private get doom(): Doom {
-    return this.rendering.doom
-  }
   private get draw(): Draw {
     return this.rendering.draw
   }
   private get segs(): Segs {
     return this.rendering.segsHandler
+  }
+  private get sprites(): SpriteArray {
+    return this.data.sprites
+  }
+  private get spriteDefs(): SpriteDefsArray {
+    return this.data.spriteDefs
   }
   private get wad(): LumpReader {
     return this.rendering.wad
@@ -67,164 +68,6 @@ export class Things {
   // INITIALIZATION FUNCTIONS
   //
 
-  // variables used to look up
-  //  and range check thing_t sprites patches
-  sprites = new Array<SpriteDef>()
-  numSprites = 0
-
-  private sprTemp = Array.from({ length: 29 }, () => new SpriteFrame())
-  private maxFrame = 0
-  private spriteName = ''
-
-  //
-  // R_InstallSpriteLump
-  // Local function for R_InitSprites.
-  //
-  installSpriteLump(lump: number, frame: number, rotation: number, flipped: boolean): void {
-    if (frame >= 29 || rotation > 8) {
-      throw `R_InstallSpriteLump: Bad frame characters in lump ${lump}`
-    }
-
-    if (frame > this.maxFrame) {
-      this.maxFrame = frame
-    }
-
-    const frameChar = String.fromCharCode('A'.charCodeAt(0) + frame)
-    if (rotation === 0) {
-      // the lump should be used for all rotations
-      if (this.sprTemp[frame].rotate === 0) {
-        throw `R_InitSprites: Sprite ${this.spriteName} frame ${frameChar} has multip rot=0 lump`
-      }
-      if (this.sprTemp[frame].rotate === 1) {
-        throw `R_InitSprites: Sprite ${this.spriteName} frame ${frameChar} has rotations and a rot=0 lump`
-      }
-
-      this.sprTemp[frame].rotate = 0
-      for (let r = 0; r < 8; ++r) {
-        this.sprTemp[frame].lump[r] = lump - this.data.firstSpriteLump
-        this.sprTemp[frame].flip[r] = flipped ? 1 : 0
-      }
-      return
-    }
-
-    // the lump is only used for one rotation
-    if (this.sprTemp[frame].rotate === 0) {
-      throw `R_InitSprites: Sprite ${this.spriteName} frame ${frameChar} has rotations and a rot=0 lump`
-    }
-    this.sprTemp[frame].rotate = 1
-
-    // make 0 based
-    --rotation
-
-    if (this.sprTemp[frame].lump[rotation] !== -1) {
-      throw `R_InitSprites: Sprite ${this.spriteName} : ${frameChar} : ${rotation + 1} has two lumps mapped to it`
-    }
-
-    this.sprTemp[frame].lump[rotation] = lump - this.data.firstSpriteLump
-    this.sprTemp[frame].flip[rotation] = flipped ? 1 : 0
-  }
-
-  //
-  // R_InitSpriteDefs
-  // Pass a null terminated list of sprite names
-  //  (4 chars exactly) to be used.
-  // Builds the sprite rotation matrixes to account
-  //  for horizontally flipped sprites.
-  // Will report an error if the lumps are inconsistant.
-  // Only called at startup.
-  //
-  // Sprite lump names are 4 characters for the actor,
-  //  a letter for the frame, and a number for the rotation.
-  // A sprite that is flippable will have an additional
-  //  letter/number appended.
-  // The rotation character can be 0 to signify no rotations.
-  //
-  initSpriteDefs(nameList: string[]): void {
-    // count the number of sprite names
-    this.numSprites = nameList.length
-
-    if (!this.numSprites) {
-      return
-    }
-
-    this.sprites = Array.from({ length: this.numSprites },
-      () => new SpriteDef(),
-    )
-
-    const start = this.data.firstSpriteLump - 1
-    const end = this.data.lastSpriteLump + 1
-
-    // scan all the lump names for each of the names,
-    //  noting the highest frame letter.
-    // Just compare 4 characters as ints
-
-    const lumpInfo = this.wad.lumpInfo
-    let frame: number
-    let rotation: number
-    let patched: number
-    for (let i = 0; i < this.numSprites; ++i) {
-      this.spriteName = nameList[i]
-      this.sprTemp = Array.from({ length: 29 }, () => new SpriteFrame())
-
-      this.maxFrame = -1
-
-      // scan the lumps,
-      //  filling in the frames for whatever is found
-      for (let l = start + 1; l < end; ++l) {
-        if (lumpInfo[l].name.substr(0, 4) === nameList[i].substr(0, 4)) {
-          frame = lumpInfo[l].name.charCodeAt(4) - 'A'.charCodeAt(0)
-          rotation = lumpInfo[l].name.charCodeAt(5) - '0'.charCodeAt(0)
-
-          if (this.doom.modifiedGame) {
-            patched = this.wad.getNumForName(lumpInfo[l].name)
-          } else {
-            patched = l
-          }
-
-          this.installSpriteLump(patched, frame, rotation, false)
-
-          if (lumpInfo[l].name.charAt(6)) {
-            frame = lumpInfo[l].name.charCodeAt(6) - 'A'.charCodeAt(0)
-            rotation = lumpInfo[l].name.charCodeAt(7) - '0'.charCodeAt(0)
-            this.installSpriteLump(l, frame, rotation, true)
-          }
-        }
-      }
-
-      // check the frames that were found for completeness
-      if (this.maxFrame === -1) {
-        this.sprites[i].numFrames = 0
-        continue
-      }
-
-      ++this.maxFrame
-
-      for (frame = 0; frame < this.maxFrame; ++frame) {
-        const frameChar = String.fromCharCode('A'.charCodeAt(0) + frame)
-        switch (this.sprTemp[frame].rotate) {
-        case -1:
-          // no rotations were found for that frame at all
-          throw `R_InitSprites: No patches found for ${nameList[i]} frame ${frameChar}`
-          break
-        case 0:
-          // only the first rotation is needed
-          break
-        case 1:
-          // must have all 8 frames
-          for (rotation = 0; rotation < 8; ++rotation) {
-            if (this.sprTemp[frame].lump[rotation] === -1) {
-              throw `R_InitSprites: Sprite ${nameList[i]} frame ${frameChar} is missing rotations`
-            }
-          }
-          break
-        }
-      }
-
-      // allocate space for the frames present and copy sprtemp to it
-      this.sprites[i].numFrames = this.maxFrame
-      this.sprites[i].spriteFrames = this.sprTemp.slice(0, this.maxFrame)
-    }
-  }
 
   //
   // GAME FUNCTIONS
@@ -237,11 +80,10 @@ export class Things {
   // R_InitSprites
   // Called at program start.
   //
-  initSprites(nameList: string[]): void {
+  initSprites(): void {
     for (let i = 0; i < SCREENWIDTH; ++i) {
       this.negoneArray[i] = -1
     }
-    this.initSpriteDefs(nameList)
   }
 
   //
@@ -330,8 +172,7 @@ export class Things {
   //  mfloorclip and mceilingclip should also be set.
   //
   drawVisSprite(vis: VisSprite): void {
-    const patch =
-      this.wad.cacheLumpNum(vis.patch + this.data.firstSpriteLump, Patch)
+    const patch = this.sprites[vis.patch].patch
 
     this.draw.dcColorMap = vis.colorMap
 
@@ -404,20 +245,20 @@ export class Things {
 
     // decide which patch to use for sprite relative to player
     if (RANGE_CHECK) {
-      if (thing.sprite >= this.numSprites) {
+      if (thing.sprite >= this.spriteDefs.length) {
         throw `R_ProjectSprite: invalid sprite number ${thing.sprite}`
       }
     }
 
-    const sprDef = this.sprites[thing.sprite]
+    const sprDef = this.spriteDefs[thing.sprite]
 
     if (RANGE_CHECK) {
-      if ((thing.frame & FF_FRAMEMASK) >= sprDef.numFrames) {
+      if ((thing.frame & FF_FRAMEMASK) >= sprDef.frames.length) {
         throw `R_ProjectSprite: invalid sprite frame ${thing.sprite} : ${thing.frame} `
       }
     }
 
-    const sprFrame = sprDef.spriteFrames[thing.frame & FF_FRAMEMASK]
+    const sprFrame = sprDef.frames[thing.frame & FF_FRAMEMASK]
 
     let lump: number
     let flip: boolean
@@ -434,7 +275,7 @@ export class Things {
     }
 
     // calculate edges of the shape
-    tx -= this.data.spriteOffset[lump]
+    tx -= this.sprites[lump].leftOffset
     const x1 = this.rendering.centerXFrac + mul(tx, xScale) >> FRACBITS
 
     // off the right side?
@@ -442,7 +283,7 @@ export class Things {
       return
     }
 
-    tx += this.data.spriteWidth[lump]
+    tx += this.sprites[lump].width
     const x2 = (this.rendering.centerXFrac + mul(tx, xScale) >> FRACBITS) - 1
 
     // off the left side
@@ -457,14 +298,14 @@ export class Things {
     vis.gX = thing.x
     vis.gY = thing.y
     vis.gZ = thing.z
-    vis.gZt = thing.z + this.data.spriteTopOffset[lump]
+    vis.gZt = thing.z + this.sprites[lump].topOffset
     vis.textureMid = vis.gZt - this.rendering.viewZ
     vis.x1 = x1 < 0 ? 0 : x1
     vis.x2 = x2 >= this.draw.viewWidth ? this.draw.viewWidth - 1 : x2
     const iScale = div(FRACUNIT, xScale)
 
     if (flip) {
-      vis.startFrac = this.data.spriteWidth[lump] - 1
+      vis.startFrac = this.sprites[lump].width - 1
       vis.xIScale = -iScale
     } else {
       vis.startFrac = 0
@@ -539,17 +380,17 @@ export class Things {
 
     // decide which patch to use
     if (RANGE_CHECK) {
-      if (psp.state.sprite >= this.numSprites) {
+      if (psp.state.sprite >= this.spriteDefs.length) {
         throw `R_ProjectSprite: invalid sprite number ${psp.state.sprite} `
       }
     }
-    const sprDef = this.sprites[psp.state.sprite]
+    const sprDef = this.spriteDefs[psp.state.sprite]
     if (RANGE_CHECK) {
-      if ((psp.state.frame & FF_FRAMEMASK) >= sprDef.numFrames) {
+      if ((psp.state.frame & FF_FRAMEMASK) >= sprDef.frames.length) {
         throw `R_ProjectSprite: invalid sprite frame ${psp.state.sprite} : ${psp.state.frame} `
       }
     }
-    const sprFrame = sprDef.spriteFrames[psp.state.frame & FF_FRAMEMASK]
+    const sprFrame = sprDef.frames[psp.state.frame & FF_FRAMEMASK]
 
     const lump = sprFrame.lump[0]
     const flip = !!sprFrame.flip[0]
@@ -558,7 +399,7 @@ export class Things {
     // calculate edges of the shape
     let tx = psp.sX - 160 * FRACUNIT
 
-    tx -= this.data.spriteOffset[lump]
+    tx -= this.sprites[lump].leftOffset
     const x1 = this.rendering.centerXFrac + mul(tx, this.pSpriteScale) >> FRACBITS
 
     // off the right side?
@@ -566,7 +407,7 @@ export class Things {
       return
     }
 
-    tx += this.data.spriteWidth[lump]
+    tx += this.sprites[lump].width
     const x2 = (this.rendering.centerXFrac + mul(tx, this.pSpriteScale) >> FRACBITS) - 1
 
     // off the left side
@@ -578,14 +419,14 @@ export class Things {
     const vis = new VisSprite()
     vis.mobjFlags = 0
     vis.textureMid = (BASE_Y_CENTER << FRACBITS) + FRACUNIT / 2 -
-        (psp.sY - this.data.spriteTopOffset[lump])
+        (psp.sY - this.sprites[lump].topOffset)
     vis.x1 = x1 < 0 ? 0 : x1
     vis.x2 = x2 >= this.draw.viewWidth ? this.draw.viewWidth - 1 : x2
     vis.scale = this.pSpriteScale << this.rendering.detailShift
 
     if (flip) {
       vis.xIScale = -this.pSpriteIScale
-      vis.startFrac = this.data.spriteWidth[lump] - 1
+      vis.startFrac = this.sprites[lump].width - 1
     } else {
       vis.xIScale = this.pSpriteIScale
       vis.startFrac = 0
