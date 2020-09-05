@@ -153,6 +153,16 @@ export class Video {
   }
 
   //
+  // Copy a screen buffer.
+  //
+  erase(ofs: number, count: number): void {
+    this.screens[0].set(
+      this.screens[1].slice(ofs, ofs + count),
+      ofs,
+    )
+  }
+
+  //
   // V_Init
   //
   init(): void {

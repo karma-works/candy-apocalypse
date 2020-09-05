@@ -4,7 +4,8 @@ import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
 import { Video as IVideo } from '../interfaces/video'
-import { Rendering } from '../rendering/rendering'
+import { Input } from '../interfaces/input'
+import { RenderingInterface } from '../rendering/rendering-interface'
 import { ScanCode } from '../interfaces/scancodes'
 import { fs } from '../system/fs'
 
@@ -173,8 +174,8 @@ export class Defaults extends AgnosticDefaults {
     },
 
     use_mouse: {
-      get: () => this.iVideo.useMouse ? 1 : 0,
-      set: v => this.iVideo.useMouse = !!v,
+      get: () => this.input.useMouse ? 1 : 0,
+      set: v => this.input.useMouse = !!v,
     },
     mouseb_fire: {
       get: () => this.game.mouseBFire,
@@ -190,8 +191,8 @@ export class Defaults extends AgnosticDefaults {
     },
 
     use_joystick: {
-      get: () => this.iVideo.useJoystick ? 1 : 0,
-      set: v => this.iVideo.useJoystick = !!v,
+      get: () => this.input.useJoystick ? 1 : 0,
+      set: v => this.input.useJoystick = !!v,
     },
     joyb_fire: {
       get: () => this.game.joyBFire,
@@ -211,15 +212,12 @@ export class Defaults extends AgnosticDefaults {
     },
 
     screenblocks: {
-      get: () => this.rendering.screenBlocks,
-      set: v => {
-        this.rendering.screenBlocks = v
-        this.rendering.screenSize = v - 3
-      },
+      get: () => this.rendering.screenSize + 3,
+      set: v => this.rendering.screenSize = v - 3,
     },
     detaillevel: {
-      get: () => this.rendering.detailLevel,
-      set: v => this.rendering.detailLevel = v,
+      get: () => this.rendering.highDetails ? 1 : 0,
+      set: v => this.rendering.highDetails = !!v,
     },
     snd_channels: {
       get: () => this.dSound.numChannels,
@@ -240,10 +238,13 @@ export class Defaults extends AgnosticDefaults {
   private get headsUp(): HeadsUp {
     return this.doom.headsUp
   }
+  private get input(): Input {
+    return this.doom.input
+  }
   private get iVideo(): IVideo {
     return this.doom.iVideo
   }
-  private get rendering(): Rendering {
+  private get rendering(): RenderingInterface {
     return this.doom.rendering
   }
 

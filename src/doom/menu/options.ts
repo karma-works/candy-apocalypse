@@ -8,7 +8,7 @@ import { LumpReader } from '../wad/lump-reader'
 import { MainMenu } from './main'
 import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
-import { Rendering } from '../rendering/rendering'
+import { RenderingInterface } from '../rendering/rendering-interface'
 import { ScanCode } from '../interfaces/scancodes'
 import { SfxName } from '../doom/sounds/sfx-name'
 import { SoundMenu } from './sound'
@@ -98,7 +98,7 @@ export class OptionsMenu implements MenuStruct {
   public get menu(): Menu {
     return this.prevMenu.menu
   }
-  private get rendering(): Rendering {
+  private get rendering(): RenderingInterface {
     return this.menu.rendering
   }
   public get rVideo(): RVideo {
@@ -170,16 +170,11 @@ export class OptionsMenu implements MenuStruct {
   }
 
   changeDetail(/* choice: number */): void {
-    this.rendering.detailLevel = !this.rendering.detailLevel ? 1 : 0
-
-    this.rendering.setViewSize(
-      this.rendering.screenBlocks,
-      this.rendering.detailLevel,
-    )
+    this.rendering.highDetails = !this.rendering.highDetails
 
     this.menu.saveDefaults()
 
-    if (!this.rendering.detailLevel) {
+    if (!this.rendering.highDetails) {
       this.game.player.message = this.strings.detailhi
     } else {
       this.game.player.message = this.strings.detaillo
@@ -189,21 +184,15 @@ export class OptionsMenu implements MenuStruct {
     switch (choice) {
     case 0:
       if (this.rendering.screenSize > 0) {
-        --this.rendering.screenBlocks
         --this.rendering.screenSize
       }
       break
     case 1:
       if (this.rendering.screenSize < 8) {
-        ++this.rendering.screenBlocks
         ++this.rendering.screenSize
       }
       break
     }
-    this.rendering.setViewSize(
-      this.rendering.screenBlocks,
-      this.rendering.detailLevel,
-    )
 
     this.menu.saveDefaults()
   }
@@ -219,12 +208,12 @@ export class OptionsMenu implements MenuStruct {
 
     this.rVideo.drawPatch(
       this.x + 175, this.y + LINEHEIGHT * Options.Detail, 0,
-      this.wad.cacheLumpName(detailNames[this.rendering.detailLevel], Patch),
+      this.wad.cacheLumpName(detailNames[this.rendering.highDetails ? 1 : 0], Patch),
     )
 
     this.rVideo.drawPatch(
       this.x + 120, this.y + LINEHEIGHT * Options.Messages, 0,
-      this.wad.cacheLumpName(msgNames[this.headsUp.showMessages ? 0 : 1], Patch),
+      this.wad.cacheLumpName(msgNames[this.headsUp.showMessages ? 1 : 0], Patch),
     )
 
     this.menu.drawThermo(

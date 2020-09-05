@@ -8,6 +8,7 @@ import { Doom } from '../doom'
 import { Enemy } from './enemy'
 import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
+import { Level } from '../level/level'
 import { MObj } from './mobj/mobj'
 import { MObjFlag } from './mobj/mobj-flag'
 import { MObjType } from '../doom/info/mobj-type'
@@ -17,7 +18,6 @@ import { MapThing } from '../level/thing-array'
 import { MapUtils } from './map-utils'
 import { PSprite } from './p-sprite'
 import { Play } from './setup'
-import { Rendering } from '../rendering/rendering'
 import { SfxName } from '../doom/sounds/sfx-name'
 import { State } from '../doom/info/state'
 import { StateNum } from '../doom/info/state-num'
@@ -48,6 +48,9 @@ export class MObjHandler {
   private get headsUp(): HeadsUp {
     return this.doom.headsUp
   }
+  private get level(): Level {
+    return this.play.level
+  }
   private get map(): Map {
     return this.play.map
   }
@@ -59,9 +62,6 @@ export class MObjHandler {
   }
   private get pSprite(): PSprite {
     return this.play.pSprite
-  }
-  private get rendering(): Rendering {
-    return this.play.rendering
   }
   private get statusBar(): StatusBar {
     return this.doom.statusBar
@@ -186,7 +186,7 @@ export class MObjHandler {
           // explode a missile
           if (this.map.ceilingLine &&
             this.map.ceilingLine.backSector &&
-            this.map.ceilingLine.backSector.ceilingPic === this.rendering.sky.skyFlatNum
+            this.map.ceilingLine.backSector.ceilingPic === this.level.sky.flatNum
           ) {
             // Hack to prevent missiles exploding
             // against the sky.
@@ -408,7 +408,7 @@ export class MObjHandler {
     this.dSound.startSound(mo, SfxName.Telept)
 
     // spawn a teleport fog at the new spot
-    const ss = this.rendering.pointInSubSector(x, y)
+    const ss = this.level.pointInSubSector(x, y)
 
     if (ss.sector === null) {
       throw 'ss.sector = null'
@@ -590,7 +590,7 @@ export class MObjHandler {
     const y = mThing.y << FRACBITS
 
     // spawn a teleport fog at the new spot
-    const ss = this.rendering.pointInSubSector(x, y)
+    const ss = this.level.pointInSubSector(x, y)
     if (ss.sector === null) {
       throw 'ss.sector = null'
     }

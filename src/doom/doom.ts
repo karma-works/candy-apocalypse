@@ -11,6 +11,7 @@ import { HeadsUp } from './heads-up/stuff'
 import { Net as INet } from './interfaces/net'
 import { Sound as ISound } from './interfaces/sound'
 import { Video as IVideo } from './interfaces/video'
+import { Input } from './interfaces/input'
 import { LumpReader } from './wad/lump-reader'
 import { Menu } from './menu/menu'
 import { Net } from './doom/net'
@@ -19,8 +20,10 @@ import { Params } from './doom/params'
 import { Patch } from './rendering/defs/patch'
 import { Play } from './play/setup'
 import { PlayerState } from './doom/player'
+import { Data as RData } from './rendering/data'
 import { Video as RVIdeo } from './rendering/video'
 import { Rendering } from './rendering/rendering'
+import { RenderingInterface } from './rendering/rendering-interface'
 import { StatusBar } from './status/stuff'
 import { Strings } from './translation/strings'
 import { Win } from './win/win'
@@ -76,7 +79,9 @@ export class Doom {
   public headsUp = new HeadsUp(this)
   public statusBar = new StatusBar(this)
   public play = new Play(this)
-  public rendering = new Rendering(this)
+  public rVideo = new RVIdeo()
+  public rData = new RData(this.wad)
+  public rendering: RenderingInterface = new Rendering(this)
   public game = new Game(this)
   public menu = new Menu(this)
   private wipe = new Wipe(this)
@@ -84,13 +89,11 @@ export class Doom {
   public win = new Win(this)
   public finale = new Finale(this)
 
-  private get rVideo(): RVIdeo {
-    return this.rendering.video
-  }
   public iVideo = new IVideo(this.rVideo)
+  public input = new Input()
 
   constructor(public params: Params) {
-    this.iVideo.postEvent = ev => this.postEvent(ev)
+    this.input.postEvent = ev => this.postEvent(ev)
   }
 
   //
@@ -187,7 +190,7 @@ export class Doom {
         this.autoMap.drawer()
       }
       if (wipe ||
-        this.rendering.draw.viewHeight !== SCREENHEIGHT && this.fullScreen
+        !this.rendering.fullScreen && this.fullScreen
       ) {
         redrawsBar = true
       }
@@ -195,8 +198,8 @@ export class Doom {
       if (this.inHelpScreenState && !this.menu.inHelpScreens) {
         redrawsBar = true
       }
-      this.statusBar.drawer(this.rendering.draw.viewHeight === SCREENHEIGHT, redrawsBar)
-      this.fullScreen = this.rendering.draw.viewHeight === SCREENHEIGHT
+      this.statusBar.drawer(this.rendering.fullScreen, redrawsBar)
+      this.fullScreen = this.rendering.fullScreen
       break
     case GameState.Intermission:
       this.win.drawer()
@@ -216,6 +219,7 @@ export class Doom {
       this.rendering.renderPlayerView(
         this.game.players[this.game.displayPlayer],
       )
+      this.play.validCount++
     }
 
     if (this.game.gameState === GameState.Level && this.game.gameTic) {
@@ -236,20 +240,20 @@ export class Doom {
       // view was not active
       this.viewActiveState = false
       // draw the pattern into the back screen
-      this.rendering.draw.fillBackScreen()
+      this.rendering.fillBackScreen()
     }
 
     // see if the border needs to be updated to the screen
     if (this.game.gameState === GameState.Level &&
       !this.autoMap.active &&
-      this.rendering.draw.scaledViewWidth !== SCREENWIDTH
+      !this.rendering.fullScreen
     ) {
       if (this.menu.menuActive || this.menuActiveState || !this.viewActiveState) {
         this.borderDrawCount = 3
       }
       if (this.borderDrawCount) {
         // erase old menu stuff
-        this.rendering.draw.drawViewBorder()
+        this.rendering.drawViewBorder()
         this.borderDrawCount--
       }
     }
@@ -265,10 +269,10 @@ export class Doom {
       if (this.autoMap.active) {
         y = 4
       } else {
-        y = this.rendering.draw.viewWindowY + 4
+        y = this.rendering.viewWindowY + 4
       }
-      const x = this.rendering.draw.viewWindowX +
-        (this.rendering.draw.scaledViewWidth - 68) / 2
+      const x = this.rendering.viewWindowX +
+        (this.rendering.scaledViewWidth - 68) / 2
       this.rVideo.drawPatch(x, y, 0,
         this.wad.cacheLumpName('M_PAUSE', Patch))
     }
@@ -333,6 +337,7 @@ export class Doom {
       this.game.beginRecording()
     }
     this.iVideo.init(this.params.screen)
+    this.input.init(this.params.screen)
 
     const w = () => {
       try {
@@ -344,7 +349,7 @@ export class Doom {
 
         // process one or more tics
         if (this.singleTics) {
-          this.iVideo.startTic()
+          this.input.startTic()
           this.processEvents()
           this.game.buildTicCmd(
             this.net.netCmds[this.game.consolePlayer][this.net.makeTic],
@@ -855,6 +860,7 @@ export class Doom {
     await quitting
 
     this.iVideo.quit()
+    this.input.quit()
 
     try {
       if (this.iVideo.screen) {

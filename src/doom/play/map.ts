@@ -18,7 +18,6 @@ import { MapLineFlag } from '../doom/data'
 import { MapUtils } from './map-utils'
 import { Play } from './setup'
 import { Player } from '../doom/player'
-import { Rendering } from '../rendering/rendering'
 import { Sector } from '../rendering/defs/sector'
 import { SfxName } from '../doom/sounds/sfx-name'
 import { Sight } from './sight'
@@ -75,9 +74,6 @@ export class Map {
   }
   private get mObjHandler(): MObjHandler {
     return this.play.mObjHandler
-  }
-  private get rendering(): Rendering {
-    return this.play.rendering
   }
   private get sight(): Sight {
     return this.play.sight
@@ -152,7 +148,7 @@ export class Map {
     this.tmBBox.right = x + this.tmThing.radius
     this.tmBBox.left = x - this.tmThing.radius
 
-    const newsubsec = this.rendering.pointInSubSector(x, y)
+    const newsubsec = this.level.pointInSubSector(x, y)
     this.ceilingLine = null
 
     if (newsubsec.sector === null) {
@@ -166,7 +162,7 @@ export class Map {
     this.tmFloorZ = this.tmDropOffZ = newsubsec.sector.floorHeight
     this.tmCeilingZ = newsubsec.sector.ceilingHeight
 
-    this.rendering.validCount++
+    this.play.validCount++
     this.numSpecHit = 0
 
     // stomp on any things contacted
@@ -416,7 +412,7 @@ export class Map {
     this.tmBBox.right = x + this.tmThing.radius
     this.tmBBox.left = x - this.tmThing.radius
 
-    const newSubSec = this.rendering.pointInSubSector(x, y)
+    const newSubSec = this.level.pointInSubSector(x, y)
     this.ceilingLine = null
 
     if (newSubSec.sector === null) {
@@ -431,7 +427,7 @@ export class Map {
       newSubSec.sector.floorHeight
     this.tmCeilingZ = newSubSec.sector.ceilingHeight
 
-    this.rendering.validCount++
+    this.play.validCount++
     this.numSpecHit = 0
 
     if (this.tmFlags & MObjFlag.NoClip) {
@@ -1058,14 +1054,14 @@ export class Map {
       throw 'li.frontSector = null'
     }
 
-    if (li.frontSector.ceilingPic === this.rendering.sky.skyFlatNum) {
+    if (li.frontSector.ceilingPic === this.level.sky.flatNum) {
       // don't shoot the sky!
       if (z > li.frontSector.ceilingHeight) {
         return false
       }
 
       // it's a sky hack wall
-      if (li.backSector && li.backSector.ceilingPic === this.rendering.sky.skyFlatNum) {
+      if (li.backSector && li.backSector.ceilingPic === this.level.sky.flatNum) {
         return false
       }
     }

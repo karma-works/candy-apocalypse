@@ -1,8 +1,7 @@
-import { FRACBITS } from '../misc/fixed'
 import { FlatArray } from '../textures/flat-array'
 import { LumpReader } from '../wad/lump-reader'
-import { Patch } from './defs/patch'
-import { Rendering } from './rendering'
+import { SpriteArray } from '../sprites/sprite-array'
+import { SpriteDefsArray } from '../sprites/sprite-defs-array'
 import { Textures } from '../textures/textures'
 
 //
@@ -14,51 +13,14 @@ import { Textures } from '../textures/textures'
 //
 
 export class Data {
-  private get wad(): LumpReader {
-    return this.rendering.wad
-  }
-
-  constructor(private rendering: Rendering) { }
+  constructor(private lumpReader: LumpReader) { }
 
   flats = new FlatArray()
   textures = new Textures()
-
-  firstSpriteLump = 0
-  lastSpriteLump = 0
-  private numSpriteLumps = 0
-
-  // needed for pre rendering
-  spriteWidth = new Array<number>()
-  spriteOffset = new Array<number>()
-  spriteTopOffset = new Array<number>()
+  sprites = new SpriteArray()
+  spriteDefs = new SpriteDefsArray()
 
   colorMaps = new Uint8ClampedArray(0)
-
-  //
-  // R_InitSpriteLumps
-  // Finds the width and hoffset of all sprites in the wad,
-  //  so the sprite does not need to be cached completely
-  //  just for having the header info ready during rendering.
-  //
-  private initSpriteLumps(): void {
-
-    this.firstSpriteLump = this.wad.getNumForName('S_START') + 1
-    this.lastSpriteLump = this.wad.getNumForName('S_END') - 1
-
-    this.numSpriteLumps = this.lastSpriteLump - this.firstSpriteLump + 1
-    this.spriteWidth = new Array(this.numSpriteLumps).fill(0)
-    this.spriteOffset = new Array(this.numSpriteLumps).fill(0)
-    this.spriteTopOffset = new Array(this.numSpriteLumps).fill(0)
-
-    let patch: Patch
-    for (let i = 0; i < this.numSpriteLumps; ++i) {
-      patch = this.wad.cacheLumpNum(this.firstSpriteLump + i, Patch)
-
-      this.spriteWidth[i] = patch.width << FRACBITS
-      this.spriteOffset[i] = patch.leftOffset << FRACBITS
-      this.spriteTopOffset[i] = patch.topOffset << FRACBITS
-    }
-  }
 
   //
   // R_InitColormaps
@@ -67,10 +29,10 @@ export class Data {
     // Load in the light tables,
     //  256 byte align tables.
 
-    const lump = this.wad.getNumForName('COLORMAP')
+    const lump = this.lumpReader.getNumForName('COLORMAP')
 
     // const colorMaps
-    this.colorMaps = new Uint8ClampedArray(this.wad.readLump(lump))
+    this.colorMaps = new Uint8ClampedArray(this.lumpReader.readLump(lump))
   }
 
   //
@@ -80,11 +42,12 @@ export class Data {
   // Must be called after W_Init.
   //
   initData(): void {
-    this.textures = new Textures(this.wad)
+    this.textures = new Textures(this.lumpReader)
     console.log('InitTextures')
-    this.flats = new FlatArray(this.wad)
+    this.flats = new FlatArray(this.lumpReader)
     console.log('InitFlats')
-    this.initSpriteLumps()
+    this.sprites = new SpriteArray(this.lumpReader)
+    this.spriteDefs = new SpriteDefsArray(this.sprites)
     console.log('InitSprites')
     this.initColorMaps()
     console.log('InitColormaps')

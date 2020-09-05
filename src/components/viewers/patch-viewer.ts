@@ -72,7 +72,6 @@ export default class PatchViewer extends Vue {
 
     const iVideo = new IVideo(rVideo)
     this.iVideo = iVideo
-    iVideo.useMouse = iVideo.useJoystick = false
     iVideo.init(this.$refs.screen)
     iVideo.uploadNewPalette(this.palette)
 

@@ -18,7 +18,7 @@ import { MapThing } from '../level/thing-array'
 import { MapUtils } from './map-utils'
 import { PSprite } from './p-sprite'
 import { Plats } from './plats'
-import { Rendering } from '../rendering/rendering'
+import { Data as RData } from '../rendering/data'
 import { SaveGame } from './save-game'
 import { Sight } from './sight'
 import { Special } from './special'
@@ -26,9 +26,11 @@ import { Switch } from './switch'
 import { Teleport } from './teleport'
 import { Tick } from './tick'
 import { User } from './user'
-import { sprNames } from '../doom/info/spr-names'
 
 export class Play {
+  // increment every time a check is made
+  validCount = 1;
+
   public level = new Level()
 
   public tick = new Tick(this)
@@ -56,8 +58,8 @@ export class Play {
   get dSound(): DSound {
     return this.doom.dSound
   }
-  get rendering(): Rendering {
-    return this.doom.rendering
+  get rData(): RData {
+    return this.doom.rData
   }
   get wad(): LumpReader {
     return this.doom.wad
@@ -146,8 +148,8 @@ export class Play {
     this.game.bodyQueSlot = 0
 
     level.load(this.wad,
-      this.rendering.data.flats,
-      this.rendering.data.textures)
+      this.rData.flats,
+      this.rData.textures)
 
     this.spawnThings(level)
 
@@ -161,6 +163,5 @@ export class Play {
   init(): void {
     this.switch.initSwitchList()
     this.special.initPicAnims()
-    this.rendering.things.initSprites(sprNames)
   }
 }

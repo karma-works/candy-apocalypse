@@ -1,6 +1,5 @@
 import { DEvent, EvType } from '../doom/event'
 import { GameMode, GameVersion } from '../doom/mode'
-import { HU_FONTSIZE, HU_FONTSTART, HeadsUp } from '../heads-up/stuff'
 import { LoadGameMenu, SaveGameMenu } from './save-game'
 import { MainEnum, MainMenu } from './main'
 import { MenuItem, MenuStruct } from './typedefs'
@@ -9,19 +8,18 @@ import { AutoMap } from '../auto-map/auto-map'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
+import { HeadsUp } from '../heads-up/stuff'
 import { Video as IVideo } from '../interfaces/video'
 import { LumpReader } from '../wad/lump-reader'
 import { OptionsMenu } from './options'
 import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
 import { ReadThisCommercialMenu } from './read-this'
-import { Rendering } from '../rendering/rendering'
-import { SCREENWIDTH } from '../global/doomdef'
+import { RenderingInterface } from '../rendering/rendering-interface'
 import { ScanCode } from '../interfaces/scancodes'
 import { SfxName } from '../doom/sounds/sfx-name'
 import { Strings } from '../translation/strings'
 import { getTime } from '../system/system'
-import { toupper } from '../utils/c'
 
 const SKULLOFF = -32
 export const LINEHEIGHT = 16
@@ -87,11 +85,11 @@ export class Menu {
   private get iVideo(): IVideo {
     return this.doom.iVideo
   }
-  get rendering(): Rendering {
+  get rendering(): RenderingInterface {
     return this.doom.rendering
   }
   get rVideo(): RVideo {
-    return this.rendering.video
+    return this.doom.rVideo
   }
   get strings(): Strings {
     return this.doom.strings

@@ -11,17 +11,17 @@ export const Button3 = 2
 interface ScreenListener {
   pending: XEvent[],
   listeners: {
-    [K in keyof HTMLElementEventMap]?: (this: HTMLCanvasElement, ev: HTMLElementEventMap[K]) => any
+    [K in keyof HTMLElementEventMap]?: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any
   },
 }
-const listeners = new Map<HTMLCanvasElement, ScreenListener>()
+const listeners = new Map<HTMLElement, ScreenListener>()
 
-export function XPending(display: HTMLCanvasElement): number {
+export function XPending(display: HTMLElement): number {
   const l = listeners.get(display)
   return l === void 0 ? 0 : l.pending.length
 }
 
-export function XNextEvent(display: HTMLCanvasElement): XEvent | never {
+export function XNextEvent(display: HTMLElement): XEvent | never {
   for (;;) {
     const l = listeners.get(display)
     if (l !== undefined && l.pending.length > 0) {
@@ -30,7 +30,7 @@ export function XNextEvent(display: HTMLCanvasElement): XEvent | never {
   }
 }
 
-export function XListenEvent(display: HTMLCanvasElement, mouse: boolean): void {
+export function XListenEvent(display: HTMLElement, mouse: boolean): void {
   const l: ScreenListener = { pending: [], listeners: {} }
   const pending = l.pending
   listeners.set(display, l)
@@ -88,7 +88,7 @@ export function XListenEvent(display: HTMLCanvasElement, mouse: boolean): void {
   l.listeners.blur = onBlur
 }
 
-export function XQuitEvent(display: HTMLCanvasElement): void {
+export function XQuitEvent(display: HTMLElement): void {
   if (document.pointerLockElement === display) {
     document.exitPointerLock()
   }

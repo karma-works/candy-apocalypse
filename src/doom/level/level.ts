@@ -8,6 +8,7 @@ import { LumpReader } from '../wad/lump-reader'
 import { LumpType } from '../wad/lump'
 import { MObj } from '../play/mobj/mobj'
 import { MapLumpOrder } from './map-lump-order'
+import { NF_SUBSECTOR } from '../doom/data'
 import { Node } from '../rendering/bsp/node'
 import { NodeArray } from './node-array'
 import { Reject } from './reject'
@@ -17,6 +18,7 @@ import { Seg } from '../rendering/segs/seg'
 import { SegArray } from './seg-array'
 import { Side } from '../rendering/defs/side'
 import { SideArray } from './side-array'
+import { Sky } from './sky'
 import { SubSector } from '../rendering/defs/sub-sector'
 import { SubSectorArray } from './sub-sector-array'
 import { Textures } from '../textures/textures'
@@ -61,6 +63,8 @@ export class Level {
   //  used as a PVS lookup as well.
   //
   rejectMatrix: Reject = new Reject()
+
+  sky = new Sky()
 
   constructor(_?: ArrayBuffer, name = '', private lump = 0) {
     if (!name) {
@@ -264,6 +268,26 @@ export class Level {
       block = block < 0 ? 0 : block
       sector.blockBox.left = block
     }
+  }
+
+  //
+  // R_PointInSubsector
+  //
+  pointInSubSector(x: number, y: number): SubSector {
+    // single subsector is a special case
+    if (!this.nodes.length) {
+      return this.subSectors[0]
+    }
+
+    let node: Node
+    let side: 0 | 1
+    let nodeNum = this.nodes.length - 1
+    while (!(nodeNum & NF_SUBSECTOR)) {
+      node = this.nodes[nodeNum]
+      side = node.pointOnSide(x, y)
+      nodeNum = node.children[side]
+    }
+    return this.subSectors[nodeNum & ~NF_SUBSECTOR]
   }
 
 }
