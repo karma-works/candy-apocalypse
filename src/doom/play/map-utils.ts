@@ -8,15 +8,11 @@ import { Line } from '../rendering/defs/line'
 import { MObj } from './mobj/mobj'
 import { MObjFlag } from './mobj/mobj-flag'
 import { Play } from './setup'
-import { Rendering } from '../rendering/rendering'
 import { SlopeType } from '../rendering/defs/slope-type'
 
 export class MapUtils {
   private get level(): Level {
     return this.play.level
-  }
-  private get rendering(): Rendering {
-    return this.play.rendering
   }
   constructor(private play: Play) {}
 
@@ -368,12 +364,12 @@ export class MapUtils {
     for (line of this.level.blockMap.getLines(x, y)) {
       ld = this.level.lines[line]
 
-      if (ld.validCount === this.rendering.validCount) {
+      if (ld.validCount === this.play.validCount) {
         // line has already been checked
         continue
       }
 
-      ld.validCount = this.rendering.validCount
+      ld.validCount = this.play.validCount
 
       if (!func.call(thisArg, ld)) {
         return false
@@ -599,7 +595,7 @@ export class MapUtils {
 
     this.earlyOut = !!(flags & PT_EARLY_OUT)
 
-    this.rendering.validCount++
+    this.play.validCount++
     this.interceptPtr = 0
 
     if ((x1 - this.level.blockMap.originX & MAP_BLOCK_SIZE - 1) === 0) {

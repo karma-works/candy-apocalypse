@@ -11,7 +11,6 @@ import { MObj } from './mobj/mobj'
 import { MapUtils } from './map-utils'
 import { Play } from './setup'
 import { RANGE_CHECK } from '../global/doomdef'
-import { Rendering } from '../rendering/rendering'
 import { Sector } from '../rendering/defs/sector'
 import { Vertex } from '../rendering/data/vertex'
 
@@ -40,9 +39,6 @@ export class Sight {
   }
   private get mapUtils(): MapUtils {
     return this.play.mapUtils
-  }
-  private get rendering(): Rendering {
-    return this.play.rendering
   }
 
   constructor(private play: Play) { }
@@ -200,11 +196,11 @@ export class Sight {
       line = seg.lineDef
 
       // allready checked other side?
-      if (line.validCount === this.rendering.validCount) {
+      if (line.validCount === this.play.validCount) {
         continue
       }
 
-      line.validCount = this.rendering.validCount
+      line.validCount = this.play.validCount
 
       v1 = line.v1
       v2 = line.v2
@@ -376,7 +372,7 @@ export class Sight {
     // Now look from eyes of t1 to any part of t2.
     this.sightCounts[1]++
 
-    this.rendering.validCount++
+    this.play.validCount++
 
     this.sightZStart = t1.z + t1.height - (t1.height >> 2)
     this.topSlope = t2.z + t2.height - this.sightZStart

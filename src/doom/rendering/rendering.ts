@@ -38,12 +38,7 @@ const FIELD_OF_VIEW = 2048
 const DIST_MAP = 2
 
 export class Rendering {
-
-
   viewAngleOffset = 0;
-
-  // increment every time a check is made
-  validCount = 1;
 
   fixedColorMap: Uint8ClampedArray | null = null
 
@@ -457,7 +452,6 @@ export class Rendering {
     }
 
     this.frameCount++
-    this.validCount++
   }
 
   //

@@ -18,7 +18,6 @@ import { MapLineFlag } from '../doom/data'
 import { MapUtils } from './map-utils'
 import { Play } from './setup'
 import { Player } from '../doom/player'
-import { Rendering } from '../rendering/rendering'
 import { Sector } from '../rendering/defs/sector'
 import { SfxName } from '../doom/sounds/sfx-name'
 import { Sight } from './sight'
@@ -75,9 +74,6 @@ export class Map {
   }
   private get mObjHandler(): MObjHandler {
     return this.play.mObjHandler
-  }
-  private get rendering(): Rendering {
-    return this.play.rendering
   }
   private get sight(): Sight {
     return this.play.sight
@@ -166,7 +162,7 @@ export class Map {
     this.tmFloorZ = this.tmDropOffZ = newsubsec.sector.floorHeight
     this.tmCeilingZ = newsubsec.sector.ceilingHeight
 
-    this.rendering.validCount++
+    this.play.validCount++
     this.numSpecHit = 0
 
     // stomp on any things contacted
@@ -431,7 +427,7 @@ export class Map {
       newSubSec.sector.floorHeight
     this.tmCeilingZ = newSubSec.sector.ceilingHeight
 
-    this.rendering.validCount++
+    this.play.validCount++
     this.numSpecHit = 0
 
     if (this.tmFlags & MObjFlag.NoClip) {

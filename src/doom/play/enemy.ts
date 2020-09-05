@@ -25,7 +25,6 @@ import { MapUtils } from './map-utils'
 import { PSprite } from './p-sprite'
 import { Play } from './setup'
 import { Player } from '../doom/player'
-import { Rendering } from '../rendering/rendering'
 import { Sector } from '../rendering/defs/sector'
 import { SfxName } from '../doom/sounds/sfx-name'
 import { Sight } from './sight'
@@ -78,9 +77,6 @@ export class Enemy {
   private get mObjHandler(): MObjHandler {
     return this.play.mObjHandler
   }
-  private get rendering(): Rendering {
-    return this.play.rendering
-  }
   private get pSprite(): PSprite {
     return this.play.pSprite
   }
@@ -105,14 +101,14 @@ export class Enemy {
 
   private recursiveSound(sec: Sector, soundBlocks: number): void {
     // wake up all monsters in this sector
-    if (sec.validCount === this.rendering.validCount &&
+    if (sec.validCount === this.play.validCount &&
       sec.soundTraversed <= soundBlocks + 1
     ) {
       // already flooded
       return
     }
 
-    sec.validCount = this.rendering.validCount
+    sec.validCount = this.play.validCount
     sec.soundTraversed = soundBlocks + 1
     sec.soundTarget = this.soundTarget
 
@@ -154,7 +150,7 @@ export class Enemy {
   //
   noiseAlert(target: MObj, emmiter: MObj): void {
     this.soundTarget = target
-    this.rendering.validCount++
+    this.play.validCount++
     if (emmiter.subSector === null) {
       throw 'emmiter.subSector = null'
     }

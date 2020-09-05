@@ -8,9 +8,9 @@ import { BSP } from './bsp'
 import { Column } from './defs/column'
 import { Data } from './data'
 import { Draw } from './draw'
-import { LumpReader } from '../wad/lump-reader'
 import { MObj } from '../play/mobj/mobj'
 import { MObjFlag } from '../play/mobj/mobj-flag'
+import { Play } from '../play/setup'
 import { Post } from './defs/post'
 import { Sector } from './defs/sector'
 import { Segs } from './segs'
@@ -33,6 +33,9 @@ export class Things {
   private get draw(): Draw {
     return this.rendering.draw
   }
+  private get play(): Play {
+    return this.rendering.doom.play
+  }
   private get segs(): Segs {
     return this.rendering.segsHandler
   }
@@ -41,9 +44,6 @@ export class Things {
   }
   private get spriteDefs(): SpriteDefsArray {
     return this.data.spriteDefs
-  }
-  private get wad(): LumpReader {
-    return this.rendering.wad
   }
   constructor(private rendering: Rendering) { }
 
@@ -347,12 +347,12 @@ export class Things {
     // A sector might have been split into several
     //  subsectors during BSP building.
     // Thus we check whether its already added.
-    if (sec.validCount === this.rendering.validCount) {
+    if (sec.validCount === this.play.validCount) {
       return
     }
 
     // Well, now it will be done.
-    sec.validCount = this.rendering.validCount
+    sec.validCount = this.play.validCount
 
     const lightNum = (sec.lightLevel >> LIGHT_SEG_SHIFT) + this.rendering.extraLight
 

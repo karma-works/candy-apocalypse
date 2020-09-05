@@ -19,7 +19,6 @@ import { MapUtils } from './map-utils'
 import { PSprite } from './p-sprite'
 import { Plats } from './plats'
 import { Data as RData } from '../rendering/data'
-import { Rendering } from '../rendering/rendering'
 import { SaveGame } from './save-game'
 import { Sight } from './sight'
 import { Special } from './special'
@@ -29,6 +28,9 @@ import { Tick } from './tick'
 import { User } from './user'
 
 export class Play {
+  // increment every time a check is made
+  validCount = 1;
+
   public level = new Level()
 
   public tick = new Tick(this)
@@ -58,9 +60,6 @@ export class Play {
   }
   get rData(): RData {
     return this.doom.rData
-  }
-  get rendering(): Rendering {
-    return this.doom.rendering
   }
   get wad(): LumpReader {
     return this.doom.wad

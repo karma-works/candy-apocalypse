@@ -218,6 +218,7 @@ export class Doom {
       this.rendering.renderPlayerView(
         this.game.players[this.game.displayPlayer],
       )
+      this.play.validCount++
     }
 
     if (this.game.gameState === GameState.Level && this.game.gameTic) {
