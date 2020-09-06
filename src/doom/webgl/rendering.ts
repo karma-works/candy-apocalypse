@@ -1,9 +1,11 @@
 import {
+  DoubleSide,
   Face3,
   Geometry,
   Mesh,
-  MeshBasicMaterial,
+  MeshPhongMaterial,
   PerspectiveCamera,
+  PointLight,
   Scene,
   Vector2,
   Vector3,
@@ -32,6 +34,7 @@ export class Rendering implements RenderingInterface {
   private camera = new PerspectiveCamera(
     64, 320 / 200, 0.1, 10000,
   )
+  private cameraLight = new PointLight(0xffffff, 0.2, 0, 2)
 
   get level(): Level {
     return this.doom.play.level
@@ -53,9 +56,16 @@ export class Rendering implements RenderingInterface {
     }
 
     this.iVideo.camera = this.camera
-    this.camera.position.x = pl.mo.x / FRACUNIT
-    this.camera.position.y = pl.mo.y / FRACUNIT
-    this.camera.position.z = pl.viewZ / FRACUNIT
+    this.camera.position.set(
+      pl.mo.x / FRACUNIT,
+      pl.mo.y / FRACUNIT,
+      pl.viewZ / FRACUNIT,
+    )
+    this.cameraLight.position.set(
+      pl.mo.x / FRACUNIT,
+      pl.mo.y / FRACUNIT,
+      pl.viewZ / FRACUNIT,
+    )
 
     this.camera.rotation.x = Math.PI / 2
     this.camera.rotation.y = toRad(pl.mo.angle) - Math.PI / 2
@@ -70,6 +80,8 @@ export class Rendering implements RenderingInterface {
   private renderLevel(level: Level): void {
     const scene = new Scene()
     this.iVideo.scene = scene
+
+    scene.add(this.cameraLight)
 
     level.sectors.forEach(sec => {
       this.drawSector(sec, scene)
@@ -107,11 +119,14 @@ export class Rendering implements RenderingInterface {
       ],
     ])
 
+    geometry.computeFaceNormals()
+    geometry.computeVertexNormals()
+
     const mesh = new Mesh(
       geometry,
-      new MeshBasicMaterial({
-        wireframe: true,
-        wireframeLinewidth: 2,
+      new MeshPhongMaterial({
+        color: 0xffffff,
+        side: DoubleSide,
       }),
     )
 
