@@ -117,11 +117,8 @@ export class Rendering implements RenderingInterface {
   get viewWindowY(): number {
     return this.draw.viewWindowY
   }
-  get scaledViewWidth(): number {
-    return this.draw.scaledViewWidth
-  }
   get viewWidth(): number {
-    return this.draw.viewWidth
+    return this.draw.scaledViewWidth
   }
   get viewHeight(): number {
     return this.draw.viewHeight

@@ -32,6 +32,9 @@ import { Wipe } from './wipe'
 import { displayEndoom } from './misc/endoom'
 import { getTime } from './system/system'
 
+import { Rendering as WebglRendering } from './webgl/rendering'
+import { Video as WebGLVideo } from './webgl/video'
+
 export class Doom {
   onError: (e: unknown) => void = () => ({})
 
@@ -273,7 +276,7 @@ export class Doom {
         y = this.rendering.viewWindowY + 4
       }
       const x = this.rendering.viewWindowX +
-        (this.rendering.scaledViewWidth - 68) / 2
+        (this.rendering.viewWidth - 68) / 2
       this.rVideo.drawPatch(x, y, 0,
         this.wad.cacheLumpName('M_PAUSE', Patch))
     }
@@ -807,7 +810,11 @@ export class Doom {
     this.menu.init()
 
     console.log('R_Init: Init DOOM refresh daemon - ')
+    const iVideo = new WebGLVideo()
+    this.iVideo = iVideo
+    this.rendering = new WebglRendering(this, iVideo)
     this.rendering.init()
+    this.rData.initData()
 
     console.log('P_Init: Init Playloop state.')
     this.play.init()

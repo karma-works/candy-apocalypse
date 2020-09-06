@@ -4,7 +4,6 @@ export interface RenderingInterface {
   readonly fullScreen: boolean
   readonly viewWindowX: number
   readonly viewWindowY: number
-  readonly scaledViewWidth: number
   readonly viewWidth: number
   readonly viewHeight: number
 
