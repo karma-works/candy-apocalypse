@@ -1,5 +1,4 @@
 import {
-  DoubleSide,
   Face3,
   Geometry,
   Mesh,
@@ -13,10 +12,10 @@ import {
 import { Doom } from '../doom'
 import { FRACUNIT } from '../misc/fixed'
 import { Level } from '../level/level'
-import { Line } from '../rendering/defs/line'
 import { Player } from '../doom/player'
 import { RenderingInterface } from '../rendering/rendering-interface'
 import { Sector } from '../rendering/defs/sector'
+import { Seg } from '../rendering/segs/seg'
 import { Video } from './video'
 import { toRad } from '../misc/table'
 
@@ -83,24 +82,37 @@ export class Rendering implements RenderingInterface {
 
     scene.add(this.cameraLight)
 
-    level.sectors.forEach(sec => {
-      this.drawSector(sec, scene)
+    let segs: Seg[]
+    level.subSectors.forEach(ss => {
+      segs = level.segs.slice(ss.firstSeg, ss.firstSeg + ss.numSegs)
+      if (ss.sector) {
+        this.drawSector(ss.sector, segs, scene)
+      }
     })
   }
 
-  private drawSector(sec: Sector, scene: Scene): void {
-    sec.lines.forEach(l => {
-      this.drawLine(l, sec, scene)
+  private drawSector(sec: Sector, segs: Seg[], scene: Scene): void {
+    segs.forEach(l => {
+      if (l.sideDef.midTexture) {
+        this.drawWall(l, sec.floorHeight, sec.ceilingHeight, scene)
+      } else {
+        if (l.sideDef.bottomTexture && l.backSector) {
+          this.drawWall(l, l.frontSector.floorHeight, l.backSector.floorHeight, scene)
+        }
+        if (l.sideDef.topTexture && l.backSector) {
+          this.drawWall(l, l.backSector.ceilingHeight, l.frontSector.ceilingHeight, scene)
+        }
+      }
     })
   }
 
-  private drawLine(l: Line, sec: Sector, scene: Scene): void {
+  private drawWall(l: Seg, bottom: number, top: number, scene: Scene): void {
     const geometry = new Geometry()
     geometry.vertices.push(
-      new Vector3(l.v1.x / FRACUNIT, l.v1.y / FRACUNIT, sec.ceilingHeight / FRACUNIT),
-      new Vector3(l.v2.x / FRACUNIT, l.v2.y / FRACUNIT, sec.ceilingHeight / FRACUNIT),
-      new Vector3(l.v1.x / FRACUNIT, l.v1.y / FRACUNIT, sec.floorHeight / FRACUNIT),
-      new Vector3(l.v2.x / FRACUNIT, l.v2.y / FRACUNIT, sec.floorHeight / FRACUNIT),
+      new Vector3(l.v1.x / FRACUNIT, l.v1.y / FRACUNIT, top / FRACUNIT),
+      new Vector3(l.v2.x / FRACUNIT, l.v2.y / FRACUNIT, top / FRACUNIT),
+      new Vector3(l.v1.x / FRACUNIT, l.v1.y / FRACUNIT, bottom / FRACUNIT),
+      new Vector3(l.v2.x / FRACUNIT, l.v2.y / FRACUNIT, bottom / FRACUNIT),
     )
     geometry.faces.push(
       new Face3(0, 2, 1),
@@ -126,7 +138,6 @@ export class Rendering implements RenderingInterface {
       geometry,
       new MeshPhongMaterial({
         color: 0xffffff,
-        side: DoubleSide,
       }),
     )
 
