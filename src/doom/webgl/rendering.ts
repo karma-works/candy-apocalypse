@@ -1,6 +1,7 @@
 import {
   Face3,
   Geometry,
+  Material,
   Mesh,
   MeshPhongMaterial,
   PerspectiveCamera,
@@ -9,6 +10,7 @@ import {
   Vector2,
   Vector3,
 } from 'three'
+import { HeightObserver, Observer, ObserverType } from './observers'
 import { Doom } from '../doom'
 import { FRACUNIT } from '../misc/fixed'
 import { Level } from '../level/level'
@@ -40,6 +42,8 @@ export class Rendering implements RenderingInterface {
   }
   private renderedLevel: Level | null = null
 
+  private observers = new Array<Observer>()
+
   constructor(private doom: Doom, private iVideo: Video) {
     this.viewWidth = iVideo.xWidth
     this.viewHeight = iVideo.xHeight
@@ -70,10 +74,14 @@ export class Rendering implements RenderingInterface {
     this.camera.rotation.y = toRad(pl.mo.angle) - Math.PI / 2
 
     if (this.renderedLevel !== this.level) {
+      this.observers.length = 0
+
       this.renderedLevel = this.level
 
       this.renderLevel(this.level)
     }
+
+    this.updateObserved()
   }
 
   private renderLevel(level: Level): void {
@@ -91,22 +99,83 @@ export class Rendering implements RenderingInterface {
     })
   }
 
-  private drawSector(sec: Sector, segs: Seg[], scene: Scene): void {
-    segs.forEach(l => {
-      if (l.sideDef.midTexture) {
-        this.drawWall(l, sec.floorHeight, sec.ceilingHeight, scene)
-      } else {
-        if (l.sideDef.bottomTexture && l.backSector) {
-          this.drawWall(l, l.frontSector.floorHeight, l.backSector.floorHeight, scene)
-        }
-        if (l.sideDef.topTexture && l.backSector) {
-          this.drawWall(l, l.backSector.ceilingHeight, l.frontSector.ceilingHeight, scene)
-        }
+  private updateObserved(): void {
+    this.observers.forEach(o => {
+      switch (o.type) {
+      case ObserverType.BottomHeight:
+      case ObserverType.TopHeight:
+        this.updateWall(o)
+        break
       }
     })
   }
 
-  private drawWall(l: Seg, bottom: number, top: number, scene: Scene): void {
+  private drawSector(sec: Sector, segs: Seg[], scene: Scene): void {
+    const meshes: Mesh<Geometry, Material>[] = []
+    segs.forEach(l => {
+      if (l.sideDef.midTexture) {
+        meshes.push(this.drawWall(l, l.frontSector.floorHeight, l.frontSector.ceilingHeight))
+        if (l.frontSector.tag) {
+          this.observers.push({
+            type: ObserverType.BottomHeight,
+            mesh: meshes[meshes.length - 1],
+            sector: l.frontSector,
+            height: 'floorHeight',
+          }, {
+            type: ObserverType.TopHeight,
+            mesh: meshes[meshes.length - 1],
+            sector: l.frontSector,
+            height: 'ceilingHeight',
+          })
+        }
+      } else {
+        if (l.sideDef.bottomTexture && l.backSector) {
+          meshes.push(this.drawWall(l, l.frontSector.floorHeight, l.backSector.floorHeight))
+          if (l.frontSector.tag) {
+            this.observers.push({
+              type: ObserverType.BottomHeight,
+              mesh: meshes[meshes.length - 1],
+              sector: l.frontSector,
+              height: 'floorHeight',
+            })
+          }
+          if (l.backSector.tag) {
+            this.observers.push({
+              type: ObserverType.TopHeight,
+              mesh: meshes[meshes.length - 1],
+              sector: l.backSector,
+              height: 'floorHeight',
+            })
+          }
+        }
+        if (l.sideDef.topTexture && l.backSector) {
+          meshes.push(this.drawWall(l, l.backSector.ceilingHeight, l.frontSector.ceilingHeight))
+          if (l.backSector.tag) {
+            this.observers.push({
+              type: ObserverType.BottomHeight,
+              mesh: meshes[meshes.length - 1],
+              sector: l.backSector,
+              height: 'ceilingHeight',
+            })
+          }
+          if (l.frontSector.tag) {
+            this.observers.push({
+              type: ObserverType.TopHeight,
+              mesh: meshes[meshes.length - 1],
+              sector: l.frontSector,
+              height: 'ceilingHeight',
+            })
+          }
+        }
+      }
+    })
+
+    if (meshes.length > 0) {
+      scene.add(...meshes)
+    }
+  }
+
+  private drawWall(l: Seg, bottom: number, top: number): Mesh<Geometry, Material> {
     const geometry = new Geometry()
     geometry.vertices.push(
       new Vector3(l.v1.x / FRACUNIT, l.v1.y / FRACUNIT, top / FRACUNIT),
@@ -141,7 +210,27 @@ export class Rendering implements RenderingInterface {
       }),
     )
 
-    scene.add(mesh)
+    return mesh
+  }
+  private updateWall(o: HeightObserver): void {
+    let vertices = []
+    switch (o.type) {
+    case ObserverType.BottomHeight:
+      vertices = [ o.mesh.geometry.vertices[2], o.mesh.geometry.vertices[3] ]
+      break
+    case ObserverType.TopHeight:
+      vertices = [ o.mesh.geometry.vertices[0], o.mesh.geometry.vertices[1] ]
+      break
+    }
+
+    const newZ = o.sector[o.height] / FRACUNIT
+
+    vertices.forEach(v => {
+      if (v.z !== newZ) {
+        v.z = newZ
+        o.mesh.geometry.verticesNeedUpdate = true
+      }
+    })
   }
 
   fillBackScreen(): void {
