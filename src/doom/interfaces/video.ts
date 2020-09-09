@@ -39,31 +39,34 @@ export class Video implements VideoInterface {
 
     // scales the screen size before blitting it
     if (this.multiply === 1) {
-      const oLine = this.image.data
-      const iLine = new Uint8ClampedArray(this.rVideo.screens[0].buffer)
-
-      let oLinePtr = 0
-      let iLinePtr = 0
-      let x: number
-      let y = this.rVideo.height
-
-      const reds = this.reds
-      const greens = this.greens
-      const blues = this.blues
-      while (y--) {
-        x = this.rVideo.width
-        do {
-          oLine[oLinePtr++] = reds[iLine[iLinePtr]]
-          oLine[oLinePtr++] = greens[iLine[iLinePtr]]
-          oLine[oLinePtr++] = blues[iLine[iLinePtr]]
-          oLine[oLinePtr++] = 255
-          iLinePtr++
-        // eslint-disable-next-line no-cond-assign
-        } while (x -= 1)
-      }
+      this.drawInImageData(this.image.data)
     }
 
     this.xScreen.putImageData(this.image, 0, 0)
+  }
+
+  drawInImageData(oLine: Uint8ClampedArray): void {
+    const iLine = new Uint8ClampedArray(this.rVideo.screens[0].buffer)
+
+    let oLinePtr = 0
+    let iLinePtr = 0
+    let x: number
+    let y = this.rVideo.height
+
+    const reds = this.reds
+    const greens = this.greens
+    const blues = this.blues
+    while (y--) {
+      x = this.rVideo.width
+      do {
+        oLine[oLinePtr++] = reds[iLine[iLinePtr]]
+        oLine[oLinePtr++] = greens[iLine[iLinePtr]]
+        oLine[oLinePtr++] = blues[iLine[iLinePtr]]
+        oLine[oLinePtr++] = 255
+        iLinePtr++
+      // eslint-disable-next-line no-cond-assign
+      } while (x -= 1)
+    }
   }
 
   private palette = new Palette()

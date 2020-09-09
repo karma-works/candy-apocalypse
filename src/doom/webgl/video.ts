@@ -29,15 +29,9 @@ export class Video implements VideoInterface {
     this.renderer.render(this.scene, this.camera)
   }
 
-  private palette = new Palette()
-  private reds = new Uint8ClampedArray()
-  private greens = new Uint8ClampedArray()
-  private blues = new Uint8ClampedArray()
+  palette = new Palette()
 
   uploadNewPalette(palette: Palette = this.palette): void {
-    this.reds = palette.getColors(Color.Red, this.useGamma)
-    this.greens = palette.getColors(Color.Green, this.useGamma)
-    this.blues = palette.getColors(Color.Blue, this.useGamma)
     this.palette = palette
   }
 

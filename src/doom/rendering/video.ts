@@ -165,8 +165,8 @@ export class Video {
   //
   // V_Init
   //
-  init(): void {
-    for (let i = 0; i < 4; ++i) {
+  init(screenCount = 4): void {
+    for (let i = 0; i < screenCount; ++i) {
       this.screens[i] = new Uint8ClampedArray(this.width * this.height)
     }
   }
