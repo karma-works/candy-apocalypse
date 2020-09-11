@@ -103,6 +103,8 @@ export class Textures extends Array<TextureLump> {
     // this.textureCompositeSize[textNum] = 0
     const columns = Array.from({ length: texture.width },
       () => new Column([ new Post(texture.height) ]))
+    const rawColumns = Array.from({ length: texture.width },
+      () => new Array<Column>())
 
     const p = new Patch(columns)
     p.width = texture.width
@@ -137,8 +139,16 @@ export class Textures extends Array<TextureLump> {
           patch.originY,
           texture.height,
         )
+
+        rawColumns[x].push(patchCol)
       }
     }
+
+    rawColumns.forEach((cc, i) => {
+      if (cc.length === 1) {
+        columns[i] = cc[0]
+      }
+    })
 
     return p
   }
