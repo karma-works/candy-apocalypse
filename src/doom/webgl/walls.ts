@@ -23,7 +23,7 @@ type WallMesh = Mesh<Geometry, MeshBasicMaterial>
 interface Wall {
   seg: Seg
   top?: WallMesh
-  mid?: WallMesh
+  mid: WallMesh
   bottom?: WallMesh
 }
 
@@ -43,13 +43,16 @@ export class Walls {
   constructor(private rendering: Rendering) { }
 
   drawSeg(segId: number, seg: Seg, scene: Scene): void {
-    const wall: Wall = { seg }
+    const wall: Wall = {
+      seg,
+      mid: new Mesh(this.createGeometry(), new MeshBasicMaterial()),
+    }
     this.walls[segId] = wall
 
-    if (!seg.backSector) {
-      wall.mid = new Mesh(this.createGeometry(), new MeshBasicMaterial())
-      scene.add(wall.mid)
-    } else {
+    wall.mid.visible = false
+    scene.add(wall.mid)
+
+    if (seg.backSector) {
       wall.top = new Mesh(this.createGeometry(), new MeshBasicMaterial())
       scene.add(wall.top)
       wall.bottom = new Mesh(this.createGeometry(), new MeshBasicMaterial())
@@ -108,14 +111,15 @@ export class Walls {
     })
   }
   private updateWallVertices({
-    seg: { v1, v2, frontSector, backSector },
+    seg: { v1, v2, frontSector, backSector, sideDef },
     bottom, mid, top,
   }: Wall): void {
-    if (mid) {
+    if (!backSector) {
       this.updateGeometryVertices(
         mid.geometry,
         this.getVertices(v1, v2, frontSector.floorHeight, frontSector.ceilingHeight),
       )
+      mid.visible = true
     } else if (backSector) {
       if (top) {
         this.updateGeometryVertices(
@@ -129,6 +133,20 @@ export class Walls {
           this.getVertices(v1, v2, frontSector.floorHeight, backSector.floorHeight),
         )
       }
+
+      if (sideDef.midTexture) {
+        this.updateGeometryVertices(
+          mid.geometry,
+          this.getVertices(v1, v2,
+            Math.max(frontSector.floorHeight, backSector.floorHeight),
+            Math.min(frontSector.ceilingHeight, backSector.ceilingHeight),
+          ),
+        )
+        mid.visible = true
+      } else {
+        mid.visible = false
+      }
+
     }
   }
 
@@ -139,6 +157,17 @@ export class Walls {
       return frontSector.floorHeight + textureHeight - frontSector.ceilingHeight
     } else {
       // top of texture at top
+      return 0
+    }
+  }
+  private getMaskedMidOffset(frontSector: Sector, backSector: Sector, lineDef: Line, tex: number): number {
+    if (lineDef.flags & MapLineFlag.DontPegBottom) {
+      const textureHeight = this.rData.textures.getHeight(tex) << FRACBITS
+
+      return Math.max(frontSector.floorHeight, backSector.floorHeight) +
+        textureHeight -
+        Math.min(frontSector.ceilingHeight, backSector.ceilingHeight)
+    } else {
       return 0
     }
   }
@@ -220,7 +249,7 @@ export class Walls {
     const leftOffset = sideDef.textureOffset
     let topOffset: number
 
-    if (mid) {
+    if (!backSector) {
       wallHeight = frontSector.ceilingHeight - frontSector.floorHeight
       topOffset = this.getMidOffset(frontSector, lineDef, sideDef.midTexture)
       topOffset += sideDef.rowOffset
@@ -229,7 +258,7 @@ export class Walls {
         mid.geometry,
         this.getUvs(wallWidth, wallHeight, leftOffset, topOffset, sideDef.midTexture),
       )
-    } else if (backSector) {
+    } else {
       if (top) {
         wallHeight = frontSector.ceilingHeight - backSector.ceilingHeight
         topOffset = this.getTopOffset(frontSector, backSector, lineDef, sideDef.topTexture)
@@ -250,6 +279,18 @@ export class Walls {
           this.getUvs(wallWidth, wallHeight, leftOffset, topOffset, sideDef.bottomTexture),
         )
       }
+
+      if (sideDef.midTexture) {
+        wallHeight = Math.min(frontSector.ceilingHeight, backSector.ceilingHeight) -
+          Math.max(frontSector.floorHeight, backSector.floorHeight)
+        topOffset = this.getMaskedMidOffset(frontSector, backSector, lineDef, sideDef.midTexture)
+        topOffset += sideDef.rowOffset
+
+        this.updateGeometryUVs(
+          mid.geometry,
+          this.getUvs(wallWidth, wallHeight, leftOffset, topOffset, sideDef.midTexture),
+        )
+      }
     }
   }
 
@@ -257,9 +298,8 @@ export class Walls {
     seg: { backSector, sideDef },
     bottom, mid, top,
   }: Wall): void {
-    if (mid) {
-      mid.material.map = this.textures.getTexture(sideDef.midTexture)
-    } else if (backSector) {
+    mid.material.map = this.textures.getTexture(sideDef.midTexture)
+    if (backSector) {
       if (top) {
         top.material.map = this.textures.getTexture(sideDef.topTexture)
       }
