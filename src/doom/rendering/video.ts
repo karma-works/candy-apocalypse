@@ -12,6 +12,7 @@ interface DrawPatchOptions {
 export class Video {
   // Each screen is [SCREENWIDTH*SCREENHEIGHT];
   screens = new Array<Uint8ClampedArray>(5)
+  alpha = new Uint8ClampedArray()
 
   constructor(
     public width = SCREENWIDTH,
@@ -48,6 +49,7 @@ export class Video {
       this.screens[destScreen].set(
         this.screens[srcScreen].slice(srcPtr, srcPtr + width), destPtr,
       )
+      this.alpha.fill(255, destPtr, destPtr + width)
       srcPtr += this.width
       destPtr += this.width
     }
@@ -113,6 +115,7 @@ export class Video {
         yFrac = 0
         while (count--) {
           screen[destPtr] = post.bytes[yFrac >> FRACBITS]
+          this.alpha[destPtr] = 255
 
           destPtr += this.width
           yFrac += step
@@ -146,6 +149,7 @@ export class Video {
       this.screens[scrn].set(
         src.slice(srcPtr, srcPtr + width), destPtr,
       )
+      this.alpha.fill(255, destPtr, destPtr + width)
 
       srcPtr += width
       destPtr += this.width
@@ -160,6 +164,7 @@ export class Video {
       this.screens[1].slice(ofs, ofs + count),
       ofs,
     )
+    this.alpha.fill(0, ofs, ofs + count)
   }
 
   //
@@ -169,5 +174,6 @@ export class Video {
     for (let i = 0; i < screenCount; ++i) {
       this.screens[i] = new Uint8ClampedArray(this.width * this.height)
     }
+    this.alpha = new Uint8ClampedArray(this.width * this.height)
   }
 }

@@ -47,6 +47,7 @@ export class Video implements VideoInterface {
 
   drawInImageData(oLine: Uint8ClampedArray): void {
     const iLine = new Uint8ClampedArray(this.rVideo.screens[0].buffer)
+    const alpha = this.rVideo.alpha
 
     let oLinePtr = 0
     let iLinePtr = 0
@@ -62,7 +63,7 @@ export class Video implements VideoInterface {
         oLine[oLinePtr++] = reds[iLine[iLinePtr]]
         oLine[oLinePtr++] = greens[iLine[iLinePtr]]
         oLine[oLinePtr++] = blues[iLine[iLinePtr]]
-        oLine[oLinePtr++] = 255
+        oLine[oLinePtr++] = alpha[iLinePtr]
         iLinePtr++
       // eslint-disable-next-line no-cond-assign
       } while (x -= 1)

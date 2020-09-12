@@ -219,12 +219,11 @@ export class Walls {
     const texHeight = this.rData.textures[tex].patch.height << FRACBITS
 
     const uvs = [
-      topOffset / texHeight,
+      1 - topOffset / texHeight,
       (leftOffset + wallWidth) / texWidth,
-      (topOffset + wallHeight) / texHeight,
+      1 - (topOffset + wallHeight) / texHeight,
       leftOffset / texWidth,
     ]
-    // if (wallHeight < 0) debugger
     return [
       [ new Vector2(uvs[3], uvs[0]), new Vector2(uvs[3], uvs[2]), new Vector2(uvs[1], uvs[0]) ],
       [ new Vector2(uvs[3], uvs[2]), new Vector2(uvs[1], uvs[2]), new Vector2(uvs[1], uvs[0]) ],

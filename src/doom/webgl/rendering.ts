@@ -6,10 +6,12 @@ import { Doom } from '../doom'
 import { FRACBITS } from '../misc/fixed'
 import { Level } from '../level/level'
 import { Observer } from './observers'
+import { Play } from '../play/setup'
 import { Player } from '../doom/player'
 import { Data as RData } from '../rendering/data'
 import { RenderingInterface } from '../rendering/rendering-interface'
 import { Textures } from './textures'
+import { Things } from './things'
 import { Video } from './video'
 import { Walls } from './walls'
 import { toRad } from '../misc/table'
@@ -36,11 +38,15 @@ export class Rendering implements RenderingInterface {
 
   private observers = new Array<Observer>()
 
+  public get play(): Play {
+    return this.doom.play
+  }
   public get rData(): RData {
     return this.doom.rData
   }
 
   textures = new Textures(this)
+  things = new Things(this)
   walls = new Walls(this)
 
   constructor(private doom: Doom, public iVideo: Video) {
@@ -76,6 +82,7 @@ export class Rendering implements RenderingInterface {
     }
 
     this.walls.refreshWalls()
+    this.things.refresh()
   }
 
   private renderLevel(level: Level): void {
@@ -83,6 +90,8 @@ export class Rendering implements RenderingInterface {
     this.iVideo.scene = scene
 
     level.segs.forEach((seg, i) => this.walls.drawSeg(i, seg, scene))
+
+    this.things.reset(scene, this.camera)
   }
 
   fillBackScreen(): void {
