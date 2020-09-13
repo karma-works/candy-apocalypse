@@ -240,10 +240,13 @@ export class Walls {
     })
   }
   private updateWallUvs({
-    seg: { frontSector, backSector, sideDef, lineDef },
+    seg: { v1, v2, frontSector, backSector, sideDef, lineDef },
     bottom, mid, top,
   }: Wall): void {
-    const wallWidth = Math.sqrt(lineDef.dX * lineDef.dX + lineDef.dY * lineDef.dY)
+    const wallWidth = Math.sqrt(
+      (v1.x - v2.x) * (v1.x - v2.x) +
+      (v1.y - v2.y) * (v1.y - v2.y),
+    )
     let wallHeight: number
     const leftOffset = sideDef.textureOffset
     let topOffset: number
