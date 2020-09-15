@@ -4,6 +4,7 @@ import {
 } from 'three'
 import { Doom } from '../doom'
 import { FRACBITS } from '../misc/fixed'
+import { FloorsAndCeilings } from './floors'
 import { Level } from '../level/level'
 import { Observer } from './observers'
 import { Play } from '../play/setup'
@@ -45,6 +46,7 @@ export class Rendering implements RenderingInterface {
     return this.doom.rData
   }
 
+  floors = new FloorsAndCeilings(this)
   textures = new Textures(this)
   things = new Things(this)
   walls = new Walls(this)
@@ -82,6 +84,7 @@ export class Rendering implements RenderingInterface {
     }
 
     this.walls.refreshWalls()
+    this.floors.refresh()
     this.things.refresh()
   }
 
@@ -90,6 +93,13 @@ export class Rendering implements RenderingInterface {
     this.iVideo.scene = scene
 
     level.segs.forEach((seg, i) => this.walls.drawSeg(i, seg, scene))
+
+    level.sectors.forEach((sec, i) => {
+      const lines = level.lines.filter(({ frontSector, backSector }) =>
+        frontSector === sec || backSector === sec)
+
+      this.floors.drawSector(i, sec, lines, scene)
+    })
 
     this.things.reset(scene, this.camera)
   }

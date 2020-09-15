@@ -8,6 +8,7 @@ import {
 import { ANG45 } from '../misc/table'
 import { FF_FRAMEMASK } from '../play/sprite'
 import { FRACBITS } from '../misc/fixed'
+import { Flat } from '../textures/flat'
 import { Video as IVideo } from '../interfaces/video'
 import { MObj } from '../play/mobj/mobj'
 import { Palette } from '../interfaces/palette'
@@ -19,10 +20,10 @@ import { Rendering } from './rendering'
 import { pointToAngle } from '../misc/angle'
 
 export class Textures {
-
   private patchCache: DataTexture[] = []
   private flipPatchCache: DataTexture[] = []
   private textureCache: DataTexture[] = []
+  private flatCache: DataTexture[] = []
 
   private get palette(): Palette {
     return this.rendering.iVideo.palette
@@ -60,6 +61,32 @@ export class Textures {
 
     return t
   }
+  private createTextureFromFlat(flat: Flat, palette: Palette): DataTexture {
+    const rVideo = new RVideo(64, 64)
+    rVideo.init(1)
+    const iVideo = new IVideo(rVideo)
+    iVideo.uploadNewPalette(palette)
+    rVideo.drawFlat(0, 0, 0, flat)
+
+    const data = new Uint8ClampedArray(64 * 64 * 4)
+
+    iVideo.drawInImageData(data)
+
+    const t = new DataTexture(
+      data,
+      64,
+      64,
+      RGBAFormat,
+    )
+
+
+    t.wrapS = RepeatWrapping
+    t.wrapT = RepeatWrapping
+
+    t.magFilter = NearestFilter
+
+    return t
+  }
 
   getTexture(num: number): DataTexture {
     const palette = this.palette
@@ -70,6 +97,17 @@ export class Textures {
       this.textureCache[num] = this.createTextureFromPatch(patch, palette)
     }
     return this.textureCache[num]
+  }
+
+  getFlat(num: number): DataTexture {
+    const palette = this.palette
+    num = this.rData.flats.getNum(num)
+
+    if (!this.flatCache[num]) {
+      const flat = this.rData.flats[num].flat
+      this.flatCache[num] = this.createTextureFromFlat(flat, palette)
+    }
+    return this.flatCache[num]
   }
 
   getSprite(thing: MObj, pov: Object3D): DataTexture {

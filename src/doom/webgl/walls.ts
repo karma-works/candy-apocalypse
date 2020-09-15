@@ -107,6 +107,8 @@ export class Walls {
       if (!geometry.vertices[i].equals(v)) {
         geometry.vertices[i].copy(v)
         geometry.verticesNeedUpdate = true
+
+        geometry.computeBoundingSphere()
       }
     })
   }

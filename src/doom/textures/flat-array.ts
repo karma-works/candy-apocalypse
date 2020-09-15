@@ -59,6 +59,9 @@ export class FlatArray extends Array<FlatLump> {
     return i
   }
 
+  getNum(num: number): number {
+    return this.translation[num]
+  }
   get(num: number): Flat {
     return this[this.translation[num]].flat
   }

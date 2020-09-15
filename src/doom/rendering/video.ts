@@ -1,6 +1,7 @@
 import { FRACBITS, FRACUNIT, div, mul } from '../misc/fixed'
 import { RANGE_CHECK, SCREENHEIGHT, SCREENWIDTH, SCREEN_MUL } from '../global/doomdef'
 import { Column } from './defs/column'
+import { Flat } from '../textures/flat'
 import { Patch } from './defs/patch'
 import { Post } from './defs/post'
 
@@ -123,6 +124,15 @@ export class Video {
       }
     }
 
+  }
+
+  drawFlat(x: number, y: number, scrn: number, flat: Flat): void {
+    const dest = this.screens[scrn]
+    let destPtr = y * this.width + x
+    for (let yy = 0; yy < 64; ++yy) {
+      dest.set(flat.slice(yy * 64, yy * 64 + 64), destPtr)
+      destPtr += this.width
+    }
   }
 
   //
