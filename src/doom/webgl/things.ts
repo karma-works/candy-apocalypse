@@ -78,7 +78,8 @@ export class Things {
   private updateThing({ sprite, thing }: ThingItem): void {
     const map = this.textures.getSprite(thing, this.pov)
 
-    sprite.position.set(thing.x >> FRACBITS, thing.y >> FRACBITS, thing.z >> FRACBITS)
+    // y, z, x
+    sprite.position.set(thing.y >> FRACBITS, thing.z >> FRACBITS, thing.x >> FRACBITS)
 
     sprite.material.map = map
     sprite.scale.set(map.image.width, map.image.height, 1)

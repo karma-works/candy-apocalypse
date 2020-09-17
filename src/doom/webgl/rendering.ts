@@ -66,14 +66,14 @@ export class Rendering implements RenderingInterface {
     }
 
     this.iVideo.camera = this.camera
+    // axis are y, z, x
     this.camera.position.set(
-      pl.mo.x >> FRACBITS,
       pl.mo.y >> FRACBITS,
       pl.viewZ >> FRACBITS,
+      pl.mo.x >> FRACBITS,
     )
 
-    this.camera.rotation.x = Math.PI / 2
-    this.camera.rotation.y = toRad(pl.mo.angle) - Math.PI / 2
+    this.camera.rotation.y = toRad(pl.mo.angle) + Math.PI
 
     if (this.renderedLevel !== this.level) {
       this.observers.length = 0

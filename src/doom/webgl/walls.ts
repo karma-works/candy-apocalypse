@@ -95,11 +95,12 @@ export class Walls {
     if (top < bottom) {
       bottom = top
     }
+    // y, z, x
     return [
-      new Vector3(v1.x >> FRACBITS, v1.y >> FRACBITS, top >> FRACBITS),
-      new Vector3(v2.x >> FRACBITS, v2.y >> FRACBITS, top >> FRACBITS),
-      new Vector3(v1.x >> FRACBITS, v1.y >> FRACBITS, bottom >> FRACBITS),
-      new Vector3(v2.x >> FRACBITS, v2.y >> FRACBITS, bottom >> FRACBITS),
+      new Vector3(v1.y >> FRACBITS, top >> FRACBITS, v1.x >> FRACBITS),
+      new Vector3(v2.y >> FRACBITS, top >> FRACBITS, v2.x >> FRACBITS),
+      new Vector3(v1.y >> FRACBITS, bottom >> FRACBITS, v1.x >> FRACBITS),
+      new Vector3(v2.y >> FRACBITS, bottom >> FRACBITS, v2.x >> FRACBITS),
     ]
   }
   private updateGeometryVertices(geometry: Geometry, vertices: Vector3[]): void {

@@ -1,6 +1,7 @@
 import {
   BackSide,
   FrontSide,
+  Matrix4,
   Mesh,
   MeshBasicMaterial,
   Object3D,
@@ -23,6 +24,21 @@ interface FloorAndCeiling {
   ceiling: FloorOrCeilingMesh
 }
 
+const rotate1 = new Matrix4()
+rotate1.set(
+  1, 0, 0, 0,
+  0, 0, 1, 0,
+  0, -1, 0, 0,
+  0, 0, 0, 1,
+)
+const rotate2 = new Matrix4()
+rotate2.set(
+  0, 0, -1, 0,
+  0, 1, 0, 0,
+  1, 0, 0, 0,
+  0, 0, 0, 1,
+)
+
 export class FloorsAndCeilings {
   private facs = new Array<FloorAndCeiling>()
 
@@ -40,8 +56,8 @@ export class FloorsAndCeilings {
     }
     this.facs[i] = fac
 
-    this.updateGeometryZ(fac.floor, fac.sector.floorHeight)
-    this.updateGeometryZ(fac.ceiling, fac.sector.ceilingHeight)
+    this.updateGeometryHeight(fac.floor, fac.sector.floorHeight)
+    this.updateGeometryHeight(fac.ceiling, fac.sector.ceilingHeight)
 
     this.updateTextureMap(fac.floor, fac.sector.floorPic)
     this.updateTextureMap(fac.ceiling, fac.sector.ceilingPic)
@@ -82,6 +98,8 @@ export class FloorsAndCeilings {
     }
 
     const geometry = new ShapeGeometry(shapePath.toShapes(false))
+    geometry.applyMatrix4(rotate1)
+    geometry.applyMatrix4(rotate2)
 
     geometry.faceVertexUvs[0].forEach(uvs => {
       uvs.forEach(uv => {
@@ -97,18 +115,18 @@ export class FloorsAndCeilings {
 
   refresh(): void {
     this.facs.forEach(fac => {
-      this.updateGeometryZ(fac.floor, fac.sector.floorHeight)
-      this.updateGeometryZ(fac.ceiling, fac.sector.ceilingHeight)
+      this.updateGeometryHeight(fac.floor, fac.sector.floorHeight)
+      this.updateGeometryHeight(fac.ceiling, fac.sector.ceilingHeight)
 
       this.updateTextureMap(fac.floor, fac.sector.floorPic)
       this.updateTextureMap(fac.ceiling, fac.sector.ceilingPic)
     })
   }
 
-  private updateGeometryZ(mesh: FloorOrCeilingMesh, z: number): void {
-    z >>= FRACBITS
-    if (mesh.geometry.vertices[0].z !== z) {
-      mesh.geometry.vertices.forEach(v => v.z = z)
+  private updateGeometryHeight(mesh: FloorOrCeilingMesh, y: number): void {
+    y >>= FRACBITS
+    if (mesh.geometry.vertices[0].y !== y) {
+      mesh.geometry.vertices.forEach(v => v.y = y)
 
       mesh.geometry.verticesNeedUpdate = true
       mesh.geometry.computeBoundingSphere()
