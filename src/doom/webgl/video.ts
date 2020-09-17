@@ -1,12 +1,12 @@
 import { Camera, Object3D, WebGLRenderer } from 'three'
-import { Color, Palette } from '../interfaces/palette'
+import { Palette } from '../interfaces/palette'
 import { VideoInterface } from '../interfaces/video-interface'
 
 export class Video implements VideoInterface {
   useGamma = 0
 
   screen: HTMLCanvasElement | null = null
-  private renderer: WebGLRenderer | null = null
+  renderer: WebGLRenderer | null = null
   scene: Object3D | null = null
   camera: Camera | null = null
 

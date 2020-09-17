@@ -3,7 +3,10 @@ import {
   NearestFilter,
   Object3D,
   RGBAFormat,
+  RGBFormat,
   RepeatWrapping,
+  WebGLCubeRenderTarget,
+  WebGLRenderer,
 } from 'three'
 import { ANG45 } from '../misc/table'
 import { FF_FRAMEMASK } from '../play/sprite'
@@ -23,6 +26,7 @@ export class Textures {
   private patchCache: DataTexture[] = []
   private flipPatchCache: DataTexture[] = []
   private textureCache: DataTexture[] = []
+  private skyTextureCache: WebGLCubeRenderTarget[] = []
   private flatCache: DataTexture[] = []
 
   private get palette(): Palette {
@@ -68,15 +72,15 @@ export class Textures {
     iVideo.uploadNewPalette(palette)
     rVideo.drawFlat(0, 0, 0, flat)
 
-    const data = new Uint8ClampedArray(64 * 64 * 4)
+    const data = new Uint8ClampedArray(64 * 64 * 3)
 
-    iVideo.drawInImageData(data)
+    iVideo.drawInImageData(data, false)
 
     const t = new DataTexture(
       data,
       64,
       64,
-      RGBAFormat,
+      RGBFormat,
     )
 
 
@@ -151,4 +155,36 @@ export class Textures {
 
     return cache[sprite.lump]
   }
+
+  getSkyTexture(num: number, renderer: WebGLRenderer): WebGLCubeRenderTarget {
+    const palette = this.palette
+    num = this.rData.textures.getNum(num)
+
+    if (!this.skyTextureCache[num]) {
+      const patch = this.rData.textures[num].patch
+
+      const rVideo = new RVideo(1024, 512)
+      rVideo.init(1)
+      const iVideo = new IVideo(rVideo)
+      iVideo.uploadNewPalette(palette)
+
+      const y = 160
+      for (let i = 0; i < 4; ++i) {
+        rVideo.drawPatch(256 * i, y, 0, patch, { flipped: true })
+      }
+
+      const data = new Uint8ClampedArray(1024 * 512 * 3)
+      iVideo.drawInImageData(data, false)
+
+      const t = new DataTexture(data, 1024, 512, RGBFormat)
+      t.flipY = true
+
+      const rt = new WebGLCubeRenderTarget(t.image.height)
+      rt.fromEquirectangularTexture(renderer, t)
+
+      this.skyTextureCache[num] = rt
+    }
+    return this.skyTextureCache[num]
+  }
+
 }

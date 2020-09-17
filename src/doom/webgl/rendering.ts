@@ -92,6 +92,14 @@ export class Rendering implements RenderingInterface {
     const scene = new Scene()
     this.iVideo.scene = scene
 
+    this.floors.skyFlat = level.sky.flatNum
+    this.walls.skyFlat = level.sky.flatNum
+    if (this.iVideo.renderer) {
+      scene.background = this.textures.getSkyTexture(
+        level.sky.texture, this.iVideo.renderer,
+      )
+    }
+
     level.segs.forEach((seg, i) => this.walls.drawSeg(i, seg, scene))
 
     level.sectors.forEach((sec, i) => {

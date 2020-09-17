@@ -28,6 +28,8 @@ interface Wall {
 }
 
 export class Walls {
+  skyFlat = -1
+
   walls: Wall[] = []
 
   private get level(): Level {
@@ -300,13 +302,19 @@ export class Walls {
   }
 
   private updateWallTextureMap({
-    seg: { backSector, sideDef },
+    seg: { frontSector, backSector, sideDef },
     bottom, mid, top,
   }: Wall): void {
     mid.material.map = this.textures.getTexture(sideDef.midTexture)
     if (backSector) {
       if (top) {
-        top.material.map = this.textures.getTexture(sideDef.topTexture)
+        if (frontSector.ceilingPic === this.skyFlat &&
+          backSector.ceilingPic === this.skyFlat
+        ) {
+          top.material.visible = false
+        } else {
+          top.material.map = this.textures.getTexture(sideDef.topTexture)
+        }
       }
       if (bottom) {
         bottom.material.map = this.textures.getTexture(sideDef.bottomTexture)

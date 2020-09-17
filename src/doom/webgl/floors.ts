@@ -40,6 +40,8 @@ rotate2.set(
 )
 
 export class FloorsAndCeilings {
+  skyFlat = -1
+
   private facs = new Array<FloorAndCeiling>()
 
   private get textures(): Textures {
@@ -134,6 +136,10 @@ export class FloorsAndCeilings {
   }
 
   private updateTextureMap(mesh: FloorOrCeilingMesh, flat: number): void {
-    mesh.material.map = this.textures.getFlat(flat)
+    if (flat === this.skyFlat) {
+      mesh.material.visible = false
+    } else {
+      mesh.material.map = this.textures.getFlat(flat)
+    }
   }
 }

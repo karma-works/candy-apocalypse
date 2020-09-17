@@ -45,7 +45,7 @@ export class Video implements VideoInterface {
     this.xScreen.putImageData(this.image, 0, 0)
   }
 
-  drawInImageData(oLine: Uint8ClampedArray): void {
+  drawInImageData(oLine: Uint8ClampedArray, withAlpha = true): void {
     const iLine = new Uint8ClampedArray(this.rVideo.screens[0].buffer)
     const alpha = this.rVideo.alpha
 
@@ -63,7 +63,9 @@ export class Video implements VideoInterface {
         oLine[oLinePtr++] = reds[iLine[iLinePtr]]
         oLine[oLinePtr++] = greens[iLine[iLinePtr]]
         oLine[oLinePtr++] = blues[iLine[iLinePtr]]
-        oLine[oLinePtr++] = alpha[iLinePtr]
+        if (withAlpha) {
+          oLine[oLinePtr++] = alpha[iLinePtr]
+        }
         iLinePtr++
       // eslint-disable-next-line no-cond-assign
       } while (x -= 1)
