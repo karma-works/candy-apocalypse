@@ -88,9 +88,9 @@ export default class Doom extends Vue {
   displayError = false
   error = ''
   private onError(e: unknown): void {
+    console.error(e)
     if (e instanceof Error) {
       e = e.message
-      console.error(e)
     }
 
     if (typeof e === 'string') {
