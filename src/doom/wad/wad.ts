@@ -30,14 +30,17 @@ export class Wad {
     let size: number
     let name: string
     let buffer: ArrayBuffer
-    for (let filePtr = infoTableOfs;
-      filePtr < infoTableOfs + length;
+
+    const toc = handle.slice(infoTableOfs, infoTableOfs + length)
+
+    for (let filePtr = 0;
+      filePtr < length;
       filePtr += sizeOfFileLump
     ) {
-      fileReader = new Int32Array(handle, filePtr, 2);
+      fileReader = new Int32Array(toc, filePtr, 2);
 
       [ filePos, size ] = fileReader
-      name = tostring(handle, filePtr + 8, 8)
+      name = tostring(toc, filePtr + 8, 8)
 
       buffer = handle.slice(filePos, filePos + size)
 
