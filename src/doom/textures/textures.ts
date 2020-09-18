@@ -106,10 +106,6 @@ export class Textures extends Array<TextureLump> {
     const rawColumns = Array.from({ length: texture.width },
       () => new Array<Column>())
 
-    const p = new Patch(columns)
-    p.width = texture.width
-    p.height = texture.height
-
     let patch: TexPatch
     let realPatch: Patch
     let x: number, x1: number, x2: number
@@ -149,6 +145,10 @@ export class Textures extends Array<TextureLump> {
         columns[i] = cc[0]
       }
     })
+
+    const p = new Patch(columns)
+    p.width = texture.width
+    p.height = texture.height
 
     return p
   }
