@@ -1,4 +1,4 @@
-import { Component, Prop, Vue, Watch, Emit } from 'vue-property-decorator'
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { FileInfo, fs } from '@/doom/system/fs'
 import { LumpType, guessLumpType } from '@/doom/wad/lump'
 import { DataTableHeader } from 'vuetify'
@@ -8,7 +8,7 @@ import { Wad } from '@/doom/wad/wad'
 
 const prefixes = [ 'B', 'kB', 'MB', 'GB' ]
 
-type FileType = 'wad' | 'save' | 'config' | 'unknown' | LumpType
+type FileType = 'iwad' | 'pwad' | 'save' | 'config' | 'unknown' | LumpType
 
 export type ExtendedFileInfo = FileInfo & {
   id: string
@@ -22,7 +22,20 @@ function getType(item: FileInfo): FileType {
   fileName = fileName.substr(0, dot)
 
   if (ext.endsWith('wad')) {
-    return 'wad'
+    if (item.buffer) {
+      const identification = new Wad(item.buffer).identification
+      switch (identification) {
+      case 'IWAD':
+        return 'iwad'
+      case 'PWAD':
+        return 'pwad'
+      }
+    }
+    if ([ 'doom2', 'doomu', 'doom', 'doom1', 'plutonia', 'tnt', 'doom2f' ]
+      .includes(fileName)) {
+      return 'iwad'
+    }
+    return 'pwad'
   } else if (ext.endsWith('dsg')) {
     return 'save'
   } else if (ext.endsWith('cfg')) {
@@ -88,7 +101,8 @@ export default class FilesTable extends Vue {
     }
   }
 
-  wadName = ''
+  pwadName = ''
+  iwadName = ''
 
   async mounted(): Promise<void> {
     await this.initFiles()
@@ -98,16 +112,22 @@ export default class FilesTable extends Vue {
     if (this.parent &&
       this.parent.toLowerCase().endsWith('.wad')
     ) {
-      this.wadName = this.parent
-      const buffer = await fs.open(this.wadName)
+      const buffer = await fs.open(this.parent)
       if (buffer) {
         const wad = new Wad(buffer)
+        const wadName = this.parent
+        if (wad.identification === 'IWAD') {
+          this.iwadName = wadName
+        } else {
+          this.pwadName = wadName
+        }
 
-        this.files = wad.lumps.map((f, i) => extendWadLump(f, i, this.wadName))
+        this.files = wad.lumps.map((f, i) => extendWadLump(f, i, wadName))
         return
       }
     }
-    this.wadName = ''
+    this.iwadName = ''
+    this.pwadName = ''
     this.files = (await fs.ls()).map(f => extend(f))
   }
 
@@ -121,8 +141,10 @@ export default class FilesTable extends Vue {
 
   getLabel(type: FileType): string {
     switch (type) {
-    case 'wad':
-      return 'WAD'
+    case 'iwad':
+      return 'IWAD'
+    case 'pwad':
+      return 'PWAD'
     case 'save':
       return 'Save game'
     case 'config':
@@ -133,20 +155,25 @@ export default class FilesTable extends Vue {
   }
 
   canPlay(item: ExtendedFileInfo): boolean {
-    const playable: FileType[] = [ 'wad', 'demo', 'config', 'level' ]
+    const playable: FileType[] = [ 'iwad', 'pwad', 'demo', 'config', 'level' ]
     return playable.includes(item.type)
   }
   canBrowse(item: ExtendedFileInfo): boolean {
-    return item.type === 'wad'
+    return item.type === 'iwad' || item.type === 'pwad'
   }
   getParam(item: ExtendedFileInfo): Partial<Params> {
     const base: Partial<Params> = {}
-    if (this.wadName) {
-      base.wad = this.wadName
+    if (this.iwadName) {
+      base.iwad = this.iwadName
+    }
+    if (this.pwadName) {
+      base.pwads = [ this.pwadName ]
     }
     switch (item.type) {
-    case 'wad':
-      return { wad: item.name }
+    case 'iwad':
+      return { iwad: item.name }
+    case 'pwad':
+      return { pwads: [ item.name ] }
     case 'demo':
       return { ...base, playDemo: item.name }
     case 'config':
@@ -176,14 +203,14 @@ export default class FilesTable extends Vue {
     const a = document.createElement('a')
     a.href = url
     a.download = f.name
-    if (this.wadName) {
+    if (this.iwadName || this.pwadName) {
       a.download += '.LMP'
     }
     a.click()
   }
 
   canRemove(): boolean {
-    return !this.wadName
+    return !(this.iwadName || this.pwadName)
   }
   async remove({ name }: FileInfo): Promise<void> {
     await fs.rm(name)

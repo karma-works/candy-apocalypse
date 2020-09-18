@@ -66,7 +66,7 @@ export default class Doom extends Vue {
 
       this.doomInst = new RawDoom({
         screen,
-        wad: 'doom1.wad',
+        iwad: 'doom1.wad',
         ...this.params,
       })
       this.doomInst.onError = (e) => this.onError(e)
