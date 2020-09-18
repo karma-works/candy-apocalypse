@@ -142,11 +142,11 @@ export default class FilesTable extends Vue {
   getParam(item: ExtendedFileInfo): Partial<Params> {
     const base: Partial<Params> = {}
     if (this.wadName) {
-      base.wad = this.wadName
+      base.iwad = this.wadName
     }
     switch (item.type) {
     case 'wad':
-      return { wad: item.name }
+      return { iwad: item.name }
     case 'demo':
       return { ...base, playDemo: item.name }
     case 'config':

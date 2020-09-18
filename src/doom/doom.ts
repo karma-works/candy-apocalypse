@@ -750,8 +750,12 @@ export class Doom {
     // load before initing other systems
     this.defaults.load(this.params.config)
 
-    this.addFile(this.params.wad)
-    this.gameMission = this.identifyWadByName(this.params.wad)
+    this.addFile(this.params.iwad)
+    this.gameMission = this.identifyWadByName(this.params.iwad)
+
+    if (this.params.pwads) {
+      this.params.pwads.forEach(f => this.addFile(f))
+    }
 
     console.log('W_Init: Init WADfiles.')
     await this.wad.initMultipleFiles(this.wadfiles)
