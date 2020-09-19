@@ -1,19 +1,34 @@
 <template>
   <div class="screen-root" ref="screenRoot">
     <div class="screen-wrapper" v-bind:class="{ fullscreen: fullscreen }">
-      <canvas width="320" height="320" ref="screen">
+      <canvas width="320" height="320" ref="screen3d">
       </canvas>
+      <canvas width="320" height="320" ref="screen2d">
+      </canvas>
+    </div>
 
-      <v-btn icon absolute right bottom @click="toggleFullScreen()">
+    <v-speed-dial absolute bottom right
+        v-model="toolFab" open-on-hover>
+      <template v-slot:activator>
+        <v-btn fab v-model="toolFab">
+          <v-icon>mdi-dots-vertical</v-icon>
+        </v-btn>
+      </template>
+
+      <v-btn fab small @click="toggleRenderer()">
+        <v-icon>mdi-cube-outline</v-icon>
+      </v-btn>
+
+      <v-btn fab small @click="toggleFullScreen()">
         <v-icon>
           {{ fullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen' }}
         </v-icon>
       </v-btn>
+    </v-speed-dial>
 
-      <v-snackbar app v-model="displayError">
-        {{ error }}
-      </v-snackbar>
-    </div>
+    <v-snackbar app v-model="displayError">
+      {{ error }}
+    </v-snackbar>
   </div>
 </template>
 
@@ -22,13 +37,17 @@ import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { Doom as RawDoom } from '@/doom/doom'
 import { Params } from '@/doom/doom/params'
 import { fs } from '@/doom/system/fs'
+import { RenderingMode } from '@/doom/rendering/rendering-interface'
 
 @Component
 export default class Doom extends Vue {
   $refs!: {
-    screen: HTMLCanvasElement
+    screen2d: HTMLCanvasElement
+    screen3d: HTMLCanvasElement
     screenRoot: HTMLDivElement
   }
+
+  toolFab = true
 
   doomInst!: RawDoom
 
@@ -55,17 +74,20 @@ export default class Doom extends Vue {
 
     await this.start()
 
-    this.$refs.screen.focus()
+    this.$refs.screen2d.focus()
   }
   params: Partial<Params> = {}
   async start(): Promise<void> {
     try {
-      const screen = this.$refs.screen
+      const screen2d = this.$refs.screen2d
+      const screen3d = this.$refs.screen3d
 
       localStorage.setItem('params', JSON.stringify(this.params))
 
       this.doomInst = new RawDoom({
-        screen,
+        input: screen2d,
+        screen2d,
+        screen3d,
         wad: 'doom1.wad',
         ...this.params,
       })
@@ -130,6 +152,16 @@ export default class Doom extends Vue {
     }
   }
 
+  toggleRenderer(): void {
+    if (this.doomInst.renderingMode === RenderingMode.Legacy) {
+      this.doomInst.setWebGLRenderer()
+      this.error = 'WebGL renderer is still a work in progress'
+      this.displayError = true
+    } else {
+      this.doomInst.setLegacyRenderer()
+    }
+  }
+
   beforeDestroy(): void {
     this.doomInst.quit()
   }
@@ -146,8 +178,11 @@ export default class Doom extends Vue {
     height: calc(100vh);
   }
 
+  position: relative;
   margin: 0 auto;
   > canvas {
+    position: absolute;
+    top: 0;
     width: 100%;
     height: 100%;
     image-rendering: pixelated;

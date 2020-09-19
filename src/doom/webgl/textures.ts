@@ -42,7 +42,7 @@ export class Textures {
     const rVideo = new RVideo(patch.width, patch.height)
     rVideo.init(1)
     const iVideo = new IVideo(rVideo)
-    iVideo.uploadNewPalette(palette)
+    iVideo.palette = palette
     rVideo.drawPatch(patch.leftOffset, patch.topOffset, 0, patch)
 
     const data = new Uint8ClampedArray(patch.width * patch.height * 4)
@@ -69,7 +69,7 @@ export class Textures {
     const rVideo = new RVideo(64, 64)
     rVideo.init(1)
     const iVideo = new IVideo(rVideo)
-    iVideo.uploadNewPalette(palette)
+    iVideo.palette = palette
     rVideo.drawFlat(0, 0, 0, flat)
 
     const data = new Uint8ClampedArray(64 * 64 * 3)
@@ -166,7 +166,7 @@ export class Textures {
       const rVideo = new RVideo(1024, 512)
       rVideo.init(1)
       const iVideo = new IVideo(rVideo)
-      iVideo.uploadNewPalette(palette)
+      iVideo.palette = palette
 
       const y = 160
       for (let i = 0; i < 4; ++i) {

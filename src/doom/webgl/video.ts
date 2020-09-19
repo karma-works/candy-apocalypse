@@ -3,7 +3,7 @@ import { Palette } from '../interfaces/palette'
 import { VideoInterface } from '../interfaces/video-interface'
 
 export class Video implements VideoInterface {
-  useGamma = 0
+  gamma = 0
 
   screen: HTMLCanvasElement | null = null
   renderer: WebGLRenderer | null = null
@@ -37,16 +37,17 @@ export class Video implements VideoInterface {
 
   private firstTime = true
 
-  init(screen: HTMLCanvasElement): void {
+  init(): void {
     if (!this.firstTime) {
       return
+    }
+    if (this.screen === null) {
+      throw 'no screen defined'
     }
     this.firstTime = false
 
     this.xWidth = 320 * 4
     this.xHeight = 200 * 4
-
-    this.screen = screen
 
     this.screen.width = this.xWidth
     this.screen.height = this.xHeight
@@ -57,6 +58,10 @@ export class Video implements VideoInterface {
   }
 
   quit(): void {
-    // TODO
+    if (this.screen === null || this.renderer === null) {
+      return
+    }
+
+    this.renderer.dispose()
   }
 }

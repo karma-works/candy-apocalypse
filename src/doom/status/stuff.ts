@@ -746,7 +746,7 @@ export class StatusBar {
     if (palette !== this.palette) {
       this.palette = palette
 
-      this.iVideo.uploadNewPalette(this.playpal.p[palette])
+      this.iVideo.palette = this.playpal.p[palette]
     }
   }
 
@@ -1115,7 +1115,7 @@ export class StatusBar {
       return
     }
 
-    this.iVideo.uploadNewPalette(this.playpal.p[0])
+    this.iVideo.palette = this.playpal.p[0]
   }
 
   // 1466

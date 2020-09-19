@@ -224,8 +224,8 @@ export class Defaults extends AgnosticDefaults {
       set: v => this.dSound.numChannels = v,
     },
     usegamma: {
-      get: () => this.iVideo.useGamma,
-      set: v => this.iVideo.useGamma = v,
+      get: () => this.iVideo.gamma,
+      set: v => this.iVideo.gamma = v,
     },
   }
 

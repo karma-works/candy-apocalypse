@@ -72,8 +72,9 @@ export default class PatchViewer extends Vue {
 
     const iVideo = new IVideo(rVideo)
     this.iVideo = iVideo
-    iVideo.init(this.$refs.screen)
-    iVideo.uploadNewPalette(this.palette)
+    iVideo.screen = this.$refs.screen
+    iVideo.init()
+    iVideo.palette = this.palette
 
     rVideo.drawPatch(this.patch.leftOffset, this.patch.topOffset, 0, this.patch)
 

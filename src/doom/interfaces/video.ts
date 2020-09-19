@@ -4,10 +4,10 @@ import { VideoInterface } from './video-interface'
 
 export class Video implements VideoInterface {
   private _useGamma = 0
-  public get useGamma(): number {
+  public get gamma(): number {
     return this._useGamma
   }
-  public set useGamma(value: number) {
+  public set gamma(value: number) {
     this._useGamma = value
     this.uploadNewPalette()
   }
@@ -72,30 +72,37 @@ export class Video implements VideoInterface {
     }
   }
 
-  private palette = new Palette()
+  private _palette = new Palette()
+  public get palette(): Palette {
+    return this._palette
+  }
+  public set palette(p: Palette) {
+    this.uploadNewPalette(p)
+  }
   private reds = new Uint8ClampedArray()
   private greens = new Uint8ClampedArray()
   private blues = new Uint8ClampedArray()
 
-  uploadNewPalette(palette: Palette = this.palette): void {
-    this.reds = palette.getColors(Color.Red, this.useGamma)
-    this.greens = palette.getColors(Color.Green, this.useGamma)
-    this.blues = palette.getColors(Color.Blue, this.useGamma)
-    this.palette = palette
+  uploadNewPalette(palette: Palette = this._palette): void {
+    this.reds = palette.getColors(Color.Red, this.gamma)
+    this.greens = palette.getColors(Color.Green, this.gamma)
+    this.blues = palette.getColors(Color.Blue, this.gamma)
+    this._palette = palette
   }
 
   private firstTime = true
 
-  init(screen: HTMLCanvasElement): void {
+  init(): void {
     if (!this.firstTime) {
       return
+    }
+    if (this.screen === null) {
+      throw 'no screen defined'
     }
     this.firstTime = false
 
     this.xWidth = this.rVideo.width * this.multiply
     this.xHeight = this.rVideo.height * this.multiply
-
-    this.screen = screen
 
     this.screen.width = this.xWidth
     this.screen.height = this.xHeight

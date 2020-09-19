@@ -1,3 +1,5 @@
+import { BlankRenderer, RenderingInterface, RenderingMode } from './rendering/rendering-interface'
+import { BlankVideo, VideoInterface } from './interfaces/video-interface'
 import { DEvent, GameAction, MAX_EVENTS } from './doom/event'
 import { GameMission, GameMode, GameVersion, Language, Skill, logicalGameMission, wads } from './doom/mode'
 import { GameState, SCREENHEIGHT, SCREENWIDTH } from './global/doomdef'
@@ -10,7 +12,6 @@ import { Game } from './game/game'
 import { HeadsUp } from './heads-up/stuff'
 import { Net as INet } from './interfaces/net'
 import { Sound as ISound } from './interfaces/sound'
-import { Video as IVideo } from './interfaces/video'
 import { Input } from './interfaces/input'
 import { LumpReader } from './wad/lump-reader'
 import { Menu } from './menu/menu'
@@ -22,18 +23,12 @@ import { Play } from './play/setup'
 import { PlayerState } from './doom/player'
 import { Data as RData } from './rendering/data'
 import { Video as RVIdeo } from './rendering/video'
-import { Rendering } from './rendering/rendering'
-import { RenderingInterface } from './rendering/rendering-interface'
 import { StatusBar } from './status/stuff'
 import { Strings } from './translation/strings'
-import { VideoInterface } from './interfaces/video-interface'
 import { Win } from './win/win'
 import { Wipe } from './wipe'
 import { displayEndoom } from './misc/endoom'
 import { getTime } from './system/system'
-
-import { Rendering as WebglRendering } from './webgl/rendering'
-import { Video as WebGLVideo } from './webgl/video'
 
 export class Doom {
   onError: (e: unknown) => void = () => ({})
@@ -85,7 +80,7 @@ export class Doom {
   public play = new Play(this)
   public rVideo = new RVIdeo()
   public rData = new RData(this.wad)
-  public rendering: RenderingInterface = new Rendering(this)
+  public rendering: RenderingInterface = new BlankRenderer()
   public game = new Game(this)
   public menu = new Menu(this)
   private wipe = new Wipe(this)
@@ -93,11 +88,74 @@ export class Doom {
   public win = new Win(this)
   public finale = new Finale(this)
 
-  public iVideo: VideoInterface = new IVideo(this.rVideo)
+  public iVideo: VideoInterface = new BlankVideo()
   public input = new Input()
 
   constructor(public params: Params) {
     this.input.postEvent = ev => this.postEvent(ev)
+  }
+
+  renderingMode: RenderingMode = 0
+
+  async setLegacyRenderer(): Promise<void> {
+    if (this.params.screen2d === undefined) {
+      throw 'no 2d screen defined'
+    }
+    const { Rendering } = await import('./rendering/rendering')
+    const { Video } = await import('./interfaces/video')
+
+    const palette = this.iVideo.palette
+    const gamma = this.iVideo.gamma
+
+    this.iVideo.quit()
+
+    this.iVideo = new Video(this.rVideo)
+    this.iVideo.screen = this.params.screen2d
+    this.iVideo.palette = palette
+    this.iVideo.gamma = gamma
+
+    const highDetails = this.rendering.highDetails
+    const screenSize = this.rendering.screenSize
+
+    this.rendering = new Rendering(this)
+    this.rendering.highDetails = highDetails
+    this.rendering.screenSize = screenSize
+
+    this.rendering.init()
+    this.iVideo.init()
+
+    this.renderingMode = RenderingMode.Legacy
+  }
+
+  async setWebGLRenderer(): Promise<void> {
+    if (this.params.screen3d === undefined) {
+      throw 'no 3d screen defined'
+    }
+    const { Rendering } = await import('./webgl/rendering')
+    const { Video } = await import('./webgl/video')
+
+    const palette = this.iVideo.palette
+    const gamma = this.iVideo.gamma
+
+    this.iVideo.quit()
+
+    const iVideo = new Video()
+    this.iVideo = iVideo
+    this.iVideo.screen = this.params.screen3d
+    this.iVideo.palette = palette
+    this.iVideo.gamma = gamma
+
+    const highDetails = this.rendering.highDetails
+    const screenSize = this.rendering.screenSize
+
+    this.rendering = new Rendering(this, iVideo)
+    this.rendering.highDetails = highDetails
+    this.rendering.screenSize = screenSize
+
+    this.rendering.init()
+    this.iVideo.init()
+
+    this.renderingMode = RenderingMode.WebGL
   }
 
   //
@@ -234,7 +292,7 @@ export class Doom {
     if (this.game.gameState !== this.oldGameState &&
       this.game.gameState !== GameState.Level
     ) {
-      this.iVideo.uploadNewPalette(this.wad.cacheLumpName('PLAYPAL', Palettes).p[0])
+      this.iVideo.palette = this.wad.cacheLumpName('PLAYPAL', Palettes).p[0]
     }
 
     // see if the border needs to be initially drawn
@@ -340,8 +398,10 @@ export class Doom {
     if (this.game.demoRecording) {
       this.game.beginRecording()
     }
-    this.iVideo.init(this.params.screen)
-    this.input.init(this.params.screen)
+    this.iVideo.init()
+    if (this.params.input) {
+      this.input.init(this.params.input)
+    }
 
     const w = () => {
       try {
@@ -810,9 +870,6 @@ export class Doom {
     this.menu.init()
 
     console.log('R_Init: Init DOOM refresh daemon - ')
-    const iVideo = new WebGLVideo()
-    this.iVideo = iVideo
-    this.rendering = new WebglRendering(this, iVideo)
     this.rendering.init()
     this.rData.initData()
 
@@ -833,6 +890,8 @@ export class Doom {
 
     console.log('ST_Init: Init status bar.')
     this.statusBar.init()
+
+    this.setLegacyRenderer()
 
     if (playDemo) {
       // quit after one demo

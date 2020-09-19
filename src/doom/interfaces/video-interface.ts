@@ -1,11 +1,27 @@
 import { Palette } from './palette'
 
 export interface VideoInterface {
-  useGamma: number
-  uploadNewPalette(palette: Palette): void
+  gamma: number
+  palette: Palette
 
   screen: HTMLCanvasElement | null
-  init(screen: HTMLCanvasElement): void
+  init(): void
   finishUpdate(): void
   quit(): void
+}
+
+export class BlankVideo implements VideoInterface {
+  gamma = 0
+  palette = new Palette
+
+  screen: HTMLCanvasElement | null = null
+  init(): void {
+    // noop
+  }
+  finishUpdate(): void {
+    // noop
+  }
+  quit(): void {
+    // noop
+  }
 }
