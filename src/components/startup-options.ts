@@ -34,7 +34,8 @@ export default class extends Vue {
       this.autoStart = true
     }
 
-    this.wad = p.wad || ''
+    this.iwad = p.iwad || ''
+    this.pwad = p.pwads && p.pwads[0] || ''
     this.config = p.config || ''
 
     this.playDemo = p.playDemo || ''
@@ -57,7 +58,8 @@ export default class extends Vue {
   respawn = false
   fast = false
 
-  wad = ''
+  iwad = ''
+  pwad = ''
   config = 'default.cfg'
 
   playDemo = ''
@@ -76,8 +78,11 @@ export default class extends Vue {
       p.fast = this.fast
     }
 
-    if (this.wad) {
-      p.wad = this.wad
+    if (this.iwad) {
+      p.iwad = this.iwad
+    }
+    if (this.pwad) {
+      p.pwads = [ this.pwad ]
     }
     if (this.config) {
       p.config = this.config
@@ -88,7 +93,7 @@ export default class extends Vue {
     this.$emit('input', p)
   }
 
-  async upload(file: File, input: 'playDemo' | 'wad' | 'config'): Promise<void> {
+  async upload(file: File, input: 'playDemo' | 'iwad' | 'pwad' | 'config'): Promise<void> {
     const buf = await file.arrayBuffer()
     fs.write(file.name, buf)
 

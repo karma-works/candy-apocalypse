@@ -5,7 +5,8 @@ export interface Params {
   screen2d?: HTMLCanvasElement,
   screen3d?: HTMLCanvasElement,
 
-  wad: string,
+  iwad: string
+  pwads?: string[]
   gameVersion?: GameVersion
   pack?: string
   config?: string

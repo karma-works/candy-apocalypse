@@ -136,7 +136,7 @@ export class Plane {
     if (this.rendering.fixedColorMap) {
       this.draw.dsColorMap = this.rendering.fixedColorMap
     } else {
-      let index = distance >> LIGHT_Z_SHIFT
+      let index = distance >>> LIGHT_Z_SHIFT
 
       if (index >= MAX_LIGHT_Z) {
         index = MAX_LIGHT_Z - 1

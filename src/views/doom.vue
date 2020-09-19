@@ -88,7 +88,7 @@ export default class Doom extends Vue {
         input: screen2d,
         screen2d,
         screen3d,
-        wad: 'doom1.wad',
+        iwad: 'doom1.wad',
         ...this.params,
       })
       this.doomInst.onError = (e) => this.onError(e)
@@ -110,9 +110,9 @@ export default class Doom extends Vue {
   displayError = false
   error = ''
   private onError(e: unknown): void {
+    console.error(e)
     if (e instanceof Error) {
       e = e.message
-      console.error(e)
     }
 
     if (typeof e === 'string') {

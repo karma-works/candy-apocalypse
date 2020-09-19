@@ -59,13 +59,23 @@
         </v-col>
 
         <v-text-field class="mx-2"
-          v-model="wad"
-          label="WAD file"
+          v-model="iwad"
+          label="IWAD file"
         ></v-text-field>
 
         <v-file-input class="mx-2"
           hide-input
-          @change="upload($event, 'wad')">
+          @change="upload($event, 'iwad')">
+        </v-file-input>
+
+        <v-text-field class="mx-2"
+          v-model="pwad"
+          label="PWAD file"
+        ></v-text-field>
+
+        <v-file-input class="mx-2"
+          hide-input
+          @change="upload($event, 'pwad')">
         </v-file-input>
 
         <v-text-field class="mx-2"
