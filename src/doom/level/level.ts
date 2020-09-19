@@ -200,7 +200,7 @@ export class Level {
     let seg : Seg
     for (i = 0; i < this.subSectors.length; ++i, ++ssPtr) {
       ss = this.subSectors[ssPtr]
-      seg = this.segs[ss.firstLine]
+      seg = this.segs[ss.firstSeg]
       ss.sector = seg.sideDef.sector
     }
 

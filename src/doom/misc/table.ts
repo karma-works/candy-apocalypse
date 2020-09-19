@@ -16,6 +16,9 @@ const SLOPE_RANGE = 2048
 const SLOPEBITS = 11
 export const DBITS = FRACBITS - SLOPEBITS
 
+export function toRad(ang: number): number {
+  return 2 * Math.PI * (ang >>> ANGLE_TO_FINE_SHIFT) / FINE_ANGLES
+}
 
 export function slopeDiv(num: number, den: number): number {
   if (den < 512) {

@@ -1,6 +1,7 @@
 import { FRACBITS, FRACUNIT, div, mul } from '../misc/fixed'
 import { RANGE_CHECK, SCREENHEIGHT, SCREENWIDTH, SCREEN_MUL } from '../global/doomdef'
 import { Column } from './defs/column'
+import { Flat } from '../textures/flat'
 import { Patch } from './defs/patch'
 import { Post } from './defs/post'
 
@@ -12,6 +13,7 @@ interface DrawPatchOptions {
 export class Video {
   // Each screen is [SCREENWIDTH*SCREENHEIGHT];
   screens = new Array<Uint8ClampedArray>(5)
+  alpha = new Uint8ClampedArray()
 
   constructor(
     public width = SCREENWIDTH,
@@ -48,6 +50,7 @@ export class Video {
       this.screens[destScreen].set(
         this.screens[srcScreen].slice(srcPtr, srcPtr + width), destPtr,
       )
+      this.alpha.fill(255, destPtr, destPtr + width)
       srcPtr += this.width
       destPtr += this.width
     }
@@ -113,6 +116,7 @@ export class Video {
         yFrac = 0
         while (count--) {
           screen[destPtr] = post.bytes[yFrac >> FRACBITS]
+          this.alpha[destPtr] = 255
 
           destPtr += this.width
           yFrac += step
@@ -120,6 +124,15 @@ export class Video {
       }
     }
 
+  }
+
+  drawFlat(x: number, y: number, scrn: number, flat: Flat): void {
+    const dest = this.screens[scrn]
+    let destPtr = y * this.width + x
+    for (let yy = 0; yy < 64; ++yy) {
+      dest.set(flat.slice(yy * 64, yy * 64 + 64), destPtr)
+      destPtr += this.width
+    }
   }
 
   //
@@ -146,6 +159,7 @@ export class Video {
       this.screens[scrn].set(
         src.slice(srcPtr, srcPtr + width), destPtr,
       )
+      this.alpha.fill(255, destPtr, destPtr + width)
 
       srcPtr += width
       destPtr += this.width
@@ -160,14 +174,16 @@ export class Video {
       this.screens[1].slice(ofs, ofs + count),
       ofs,
     )
+    this.alpha.fill(0, ofs, ofs + count)
   }
 
   //
   // V_Init
   //
-  init(): void {
-    for (let i = 0; i < 4; ++i) {
+  init(screenCount = 4): void {
+    for (let i = 0; i < screenCount; ++i) {
       this.screens[i] = new Uint8ClampedArray(this.width * this.height)
     }
+    this.alpha = new Uint8ClampedArray(this.width * this.height)
   }
 }

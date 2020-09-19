@@ -10,7 +10,7 @@ export class SubSector {
   sector: Sector | null = null
 
   constructor(
-    public numLines: number,
-    public firstLine: number,
+    public numSegs: number,
+    public firstSeg: number,
   ) { }
 }

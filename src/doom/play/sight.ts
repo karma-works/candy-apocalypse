@@ -175,12 +175,12 @@ export class Sight {
     const sub = this.level.subSectors[num]
 
     // check lines
-    let segPtr = sub.firstLine
+    let segPtr = sub.firstSeg
     let seg = this.level.segs[segPtr]
     let line: Line
     let s1: 0 | 1 | 2
     let s2: 0 | 1 | 2
-    let count = sub.numLines
+    let count = sub.numSegs
     let front: Sector
     let back: Sector | null
     let openTop: number

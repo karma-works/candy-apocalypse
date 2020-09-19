@@ -1,7 +1,9 @@
 import { GameVersion, Skill } from './mode'
 
 export interface Params {
-  screen: HTMLCanvasElement,
+  input?: HTMLElement,
+  screen2d?: HTMLCanvasElement,
+  screen3d?: HTMLCanvasElement,
 
   iwad: string
   pwads?: string[]

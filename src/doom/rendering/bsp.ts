@@ -455,9 +455,9 @@ export class BSP {
     if (this.frontSector === null) {
       throw 'this.frontSector = null'
     }
-    let count = sub.numLines
-    let linePtr = sub.firstLine
-    let line = this.level.segs[linePtr]
+    let count = sub.numSegs
+    let segPtr = sub.firstSeg
+    let seg = this.level.segs[segPtr]
 
     if (this.frontSector.floorHeight < this.rendering.viewZ) {
       this.plane.floorPlane = this.plane.findPlane(
@@ -484,9 +484,9 @@ export class BSP {
     this.things.addSprites(this.frontSector)
 
     while (count--) {
-      line = this.level.segs[linePtr]
-      this.addLine(line)
-      linePtr++
+      seg = this.level.segs[segPtr]
+      this.addLine(seg)
+      segPtr++
     }
   }
 

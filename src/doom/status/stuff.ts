@@ -10,7 +10,6 @@ import { BinIcon } from './bin-icon'
 import { Cheat } from '../misc/cheat'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
-import { Video as IVideo } from '../interfaces/video'
 import { Inter } from '../play/inter'
 import { LumpReader } from '../wad/lump-reader'
 import { MultiIcon } from './multi-icon'
@@ -21,6 +20,7 @@ import { PercentWidget } from './percent-widget'
 import { Video as RVideo } from '../rendering/video'
 import { State } from './states'
 import { Strings } from '../translation/strings'
+import { VideoInterface } from '../interfaces/video-interface'
 import { pointToAngle } from '../misc/angle'
 import { random } from '../misc/random'
 import { weaponInfo } from '../doom/items'
@@ -252,7 +252,7 @@ export class StatusBar {
   public get rVideo(): RVideo {
     return this.doom.rVideo
   }
-  private get iVideo(): IVideo {
+  private get iVideo(): VideoInterface {
     return this.doom.iVideo
   }
   private get strings(): Strings {
@@ -746,7 +746,7 @@ export class StatusBar {
     if (palette !== this.palette) {
       this.palette = palette
 
-      this.iVideo.uploadNewPalette(this.playpal.p[palette])
+      this.iVideo.palette = this.playpal.p[palette]
     }
   }
 
@@ -1115,7 +1115,7 @@ export class StatusBar {
       return
     }
 
-    this.iVideo.uploadNewPalette(this.playpal.p[0])
+    this.iVideo.palette = this.playpal.p[0]
   }
 
   // 1466

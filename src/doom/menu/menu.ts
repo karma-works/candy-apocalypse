@@ -9,7 +9,6 @@ import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
-import { Video as IVideo } from '../interfaces/video'
 import { LumpReader } from '../wad/lump-reader'
 import { OptionsMenu } from './options'
 import { Patch } from '../rendering/defs/patch'
@@ -19,6 +18,7 @@ import { RenderingInterface } from '../rendering/rendering-interface'
 import { ScanCode } from '../interfaces/scancodes'
 import { SfxName } from '../doom/sounds/sfx-name'
 import { Strings } from '../translation/strings'
+import { VideoInterface } from '../interfaces/video-interface'
 import { getTime } from '../system/system'
 
 const SKULLOFF = -32
@@ -82,7 +82,7 @@ export class Menu {
   get headsUp(): HeadsUp {
     return this.doom.headsUp
   }
-  private get iVideo(): IVideo {
+  private get iVideo(): VideoInterface {
     return this.doom.iVideo
   }
   get rendering(): RenderingInterface {
@@ -357,11 +357,10 @@ export class Menu {
 
       // gamma toggle
       case ScanCode.F11:
-        this.iVideo.useGamma++
-        if (this.iVideo.useGamma > 4) {
-          this.iVideo.useGamma = 0
+        this.iVideo.gamma++
+        if (this.iVideo.gamma > 4) {
+          this.iVideo.gamma = 0
         }
-        this.iVideo.uploadNewPalette()
 
         this.saveDefaults()
 
