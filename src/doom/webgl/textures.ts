@@ -130,7 +130,7 @@ export class Textures {
     if (sprFrame.rotate) {
       // choose a different rotation based on player view
       const ang = pointToAngle(
-        pov.position.x << FRACBITS, pov.position.y << FRACBITS,
+        pov.position.z << FRACBITS, pov.position.x << FRACBITS,
         thing.x, thing.y)
       const rot = ang - thing.angle + ANG45 / 2 * 9 >>> 29
       lump = sprFrame.lump[rot]
