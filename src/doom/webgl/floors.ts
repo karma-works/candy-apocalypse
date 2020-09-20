@@ -77,18 +77,42 @@ export class FloorsAndCeilings {
       .map(({ v1, v2 }) => [ v2, v1 ] as [Vertex, Vertex])
     const vertexes = [ ...clock, ...antiClock ]
 
+    let firstVertexes = vertexes[0]
     let lastVertexes: [Vertex, Vertex] | null = null
+
+    let candidates: [Vertex, Vertex][]
 
     while (vertexes.length > 0) {
       if (lastVertexes === null) {
-        lastVertexes = vertexes[0]
+        firstVertexes = lastVertexes = vertexes[0]
         vertexes.shift()
 
         shapePath.moveTo(lastVertexes[0].x >> FRACBITS, lastVertexes[0].y >> FRACBITS)
       }
 
-      const candidates = vertexes.filter(([ v1 ]) => lastVertexes &&
+      candidates = vertexes.filter(([ v1 ]) => lastVertexes &&
         v1.x === lastVertexes[1].x && v1.y === lastVertexes[1].y)
+
+      if (candidates.length === 0) {
+        // Before giving up and starting a new path, find closest point
+        const lastPoint = lastVertexes[1]
+        const closest = [ firstVertexes, ...vertexes ]
+          .sort(([ a ], [ b ]) => {
+            // Does not bother with sqrt
+            const distA = Math.pow(a.x - lastPoint.x, 2) +
+              Math.pow(a.y - lastPoint.y, 2)
+            const distB = Math.pow(b.x - lastPoint.x, 2) +
+              Math.pow(b.y - lastPoint.y, 2)
+
+            return distA - distB
+          })
+
+        if (closest[0] === firstVertexes) {
+          lastVertexes = null
+        } else {
+          candidates = closest
+        }
+      }
 
       if (candidates.length === 0) {
         lastVertexes = null
