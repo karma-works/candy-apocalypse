@@ -79,14 +79,14 @@ export class Plane {
   private get draw(): Draw {
     return this.rendering.draw
   }
-  private get level(): Level {
+  protected get level(): Level {
     return this.rendering.level
   }
   private get things(): Things {
     return this.rendering.things
   }
 
-  constructor(private rendering: Rendering) { }
+  constructor(protected rendering: Rendering) { }
 
   //
   // R_MapPlane
@@ -312,9 +312,6 @@ export class Plane {
   drawPlanes(): void {
 
     if (RANGE_CHECK) {
-      if (this.bsp.dsP > MAX_DRAW_SEGS) {
-        throw `R_DrawPlanes: drawsegs overflow (${this.bsp.dsP})`
-      }
       if (this.lastVisPlanePtr > MAX_VISPLANES) {
         throw `R_DrawPlanes: visplane overflow (${this.lastVisPlanePtr})`
       }

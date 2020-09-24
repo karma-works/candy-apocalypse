@@ -127,7 +127,7 @@ export class Rendering implements RenderingInterface {
   public draw = new Draw(this)
   public plane = new Plane(this)
   public things = new Things(this)
-  public segsHandler = new Segs(this)
+  public segs = new Segs(this)
   public bsp = new BSP(this)
 
   get data(): Data {
@@ -204,13 +204,13 @@ export class Rendering implements RenderingInterface {
   //
   scaleFromGlobalAngle(visAngle: number): number {
     const angleA = ANG90 + visAngle - this.viewAngle >>> 0
-    const angleB = ANG90 + visAngle - this.segsHandler.rwNormalAngle >>> 0
+    const angleB = ANG90 + visAngle - this.segs.rwNormalAngle >>> 0
 
     // both sines are allways positive
     const sineA = fineSine[angleA >> ANGLE_TO_FINE_SHIFT]
     const sineB = fineSine[angleB >> ANGLE_TO_FINE_SHIFT]
     const num = mul(this.projection, sineB) << this.detailShift
-    const den = mul(this.segsHandler.rwDistance, sineA)
+    const den = mul(this.segs.rwDistance, sineA)
 
     let scale: number
     if (den > num >> 16) {
@@ -445,7 +445,7 @@ export class Rendering implements RenderingInterface {
   //
   // R_SetupFrame
   //
-  private setupFrame(player: Player): void {
+  protected setupFrame(player: Player): void {
     if (player.mo === null) {
       throw 'player.mo = null'
     }
@@ -466,7 +466,7 @@ export class Rendering implements RenderingInterface {
     if (player.fixedColorMap) {
       this.fixedColorMap = this.data.colorMaps.subarray(player.fixedColorMap * 256)
 
-      this.segsHandler.wallLights = this.scaleLightFixed
+      this.segs.wallLights = this.scaleLightFixed
       for (let i = 0; i < MAX_LIGHT_SCALE; ++i) {
         this.scaleLightFixed[i] = this.fixedColorMap
       }
@@ -485,7 +485,7 @@ export class Rendering implements RenderingInterface {
 
     // Clear buffers.
     this.bsp.clearClipSegs()
-    this.bsp.clearDrawSegs()
+    this.segs.clearDrawSegs()
     this.plane.clearPlanes()
     this.things.clearSprites()
 

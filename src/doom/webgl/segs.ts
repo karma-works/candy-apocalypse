@@ -3,15 +3,15 @@ import {
   Geometry,
   Mesh,
   MeshBasicMaterial,
-  Scene,
+  Object3D,
   Vector2,
   Vector3,
 } from 'three'
-import { Data } from '../rendering/data'
 import { FRACBITS } from '../misc/fixed'
-import { Level } from '../level/level'
+import { Segs as LegacySegs } from '../rendering/segs'
 import { Line } from '../rendering/defs/line'
 import { MapLineFlag } from '../doom/data'
+import { Plane } from './plane'
 import { Rendering } from './rendering'
 import { Sector } from '../rendering/defs/sector'
 import { Seg } from '../rendering/segs/seg'
@@ -27,53 +27,83 @@ interface Wall {
   bottom?: WallMesh
 }
 
-export class Walls {
-  skyFlat = -1
-
+export class Segs extends LegacySegs {
   walls: Wall[] = []
 
-  private get level(): Level {
-    return this.rendering.level
+  get plane(): Plane {
+    return this.rendering.plane
   }
-  private get rData(): Data {
-    return this.rendering.rData
-  }
-  private get textures(): Textures {
+  get textures(): Textures {
     return this.rendering.textures
   }
 
-  constructor(private rendering: Rendering) { }
+  constructor(protected rendering: Rendering) {
+    super(rendering)
+  }
 
-  drawSeg(segId: number, seg: Seg, scene: Scene): void {
-    const wall: Wall = {
-      seg,
-      mid: new Mesh(this.createGeometry(), new MeshBasicMaterial()),
+  reset(): void {
+    this.walls.forEach(({ mid, bottom, top }) => {
+      mid.geometry.dispose()
+      if (bottom) {
+        bottom.geometry.dispose()
+      }
+      if (top) {
+        top.geometry.dispose()
+      }
+    })
+
+    this.walls.length = 0
+  }
+
+  clearDrawSegs(): void {
+    super.clearDrawSegs()
+    this.walls.forEach(({ mid, bottom, top }) => {
+      mid.visible = false
+      if (bottom) {
+        bottom.visible = false
+      }
+      if (top) {
+        top.visible = false
+      }
+    })
+  }
+
+  storeWallRange(): void {
+    if (this.bsp.curLine === null) {
+      throw 'this.bsp.curLine = null'
     }
-    this.walls[segId] = wall
 
-    wall.mid.visible = false
-    scene.add(wall.mid)
-
-    if (seg.backSector) {
-      wall.top = new Mesh(this.createGeometry(), new MeshBasicMaterial())
-      scene.add(wall.top)
-      wall.bottom = new Mesh(this.createGeometry(), new MeshBasicMaterial())
-      scene.add(wall.bottom)
-    }
+    const idx = this.level.segs.indexOf(this.bsp.curLine)
+    const wall = this.walls[idx]
 
     this.updateWallVertices(wall)
     this.updateWallUvs(wall)
     this.updateWallTextureMap(wall)
-  }
-  refreshWalls(): void {
-    this.walls.forEach(wall => {
-      this.updateWallVertices(wall)
-      this.updateWallUvs(wall)
-      this.updateWallTextureMap(wall)
-    })
+
+
+    this.plane.setVisiblePlane(wall.seg)
   }
 
-  private createGeometry(): Geometry {
+  createSeg(i: number, seg: Seg, parent: Object3D): void {
+    const wall: Wall = {
+      seg,
+      mid: this.createMesh(),
+    }
+    this.walls[i] = wall
+
+    wall.mid.visible = false
+    parent.add(wall.mid)
+
+    if (seg.backSector) {
+      wall.top = this.createMesh()
+      parent.add(wall.top)
+      wall.bottom = this.createMesh()
+      parent.add(wall.bottom)
+    }
+
+  }
+
+  private createMesh(): WallMesh {
     const geometry = new Geometry()
     geometry.vertices.push(
       new Vector3(0, -1, 1),
@@ -91,8 +121,15 @@ export class Walls {
     )
     geometry.computeFaceNormals()
 
-    return geometry
+    const mesh = new Mesh(
+      geometry,
+      new MeshBasicMaterial(),
+    )
+    mesh.visible = false
+
+    return mesh
   }
+
   private getVertices(v1: Vertex, v2: Vertex, bottom: number, top: number): Vector3[] {
     if (top < bottom) {
       bottom = top
@@ -131,12 +168,14 @@ export class Walls {
           top.geometry,
           this.getVertices(v1, v2, backSector.ceilingHeight, frontSector.ceilingHeight),
         )
+        top.visible = true
       }
       if (bottom) {
         this.updateGeometryVertices(
           bottom.geometry,
           this.getVertices(v1, v2, frontSector.floorHeight, backSector.floorHeight),
         )
+        bottom.visible = true
       }
 
       if (sideDef.midTexture) {
@@ -157,7 +196,7 @@ export class Walls {
 
   private getMidOffset(frontSector: Sector, lineDef: Line, tex: number): number {
     if (lineDef.flags & MapLineFlag.DontPegBottom) {
-      const textureHeight = this.rData.textures.getHeight(tex) << FRACBITS
+      const textureHeight = this.data.textures.getHeight(tex) << FRACBITS
       // bottom of texture at bottom
       return frontSector.floorHeight + textureHeight - frontSector.ceilingHeight
     } else {
@@ -167,7 +206,7 @@ export class Walls {
   }
   private getMaskedMidOffset(frontSector: Sector, backSector: Sector, lineDef: Line, tex: number): number {
     if (lineDef.flags & MapLineFlag.DontPegBottom) {
-      const textureHeight = this.rData.textures.getHeight(tex) << FRACBITS
+      const textureHeight = this.data.textures.getHeight(tex) << FRACBITS
 
       return Math.max(frontSector.floorHeight, backSector.floorHeight) +
         textureHeight -
@@ -192,7 +231,7 @@ export class Walls {
       }
 
     } else {
-      const textureHeight = this.rData.textures.getHeight(tex) << FRACBITS
+      const textureHeight = this.data.textures.getHeight(tex) << FRACBITS
       // bottom of texture
       return backSector.ceilingHeight + textureHeight - frontSector.ceilingHeight
     }
@@ -220,8 +259,8 @@ export class Walls {
     leftOffset: number, topOffset: number,
     tex: number,
   ): Vector2[][] {
-    const texWidth = this.rData.textures[tex].patch.width << FRACBITS
-    const texHeight = this.rData.textures[tex].patch.height << FRACBITS
+    const texWidth = this.data.textures[tex].patch.width << FRACBITS
+    const texHeight = this.data.textures[tex].patch.height << FRACBITS
 
     const uvs = [
       1 - topOffset / texHeight,
@@ -308,8 +347,8 @@ export class Walls {
     mid.material.map = this.textures.getTexture(sideDef.midTexture)
     if (backSector) {
       if (top) {
-        if (frontSector.ceilingPic === this.skyFlat &&
-          backSector.ceilingPic === this.skyFlat
+        if (frontSector.ceilingPic === this.level.sky.flatNum &&
+          backSector.ceilingPic === this.level.sky.flatNum
         ) {
           top.material.visible = false
         } else {

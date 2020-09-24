@@ -17,6 +17,10 @@ const HEIGHT_UNIT = 1 << HEIGHT_BITS
 
 export class Segs {
 
+  drawSegs = Array.from({ length: MAX_DRAW_SEGS },
+    () => new DrawSeg())
+  dsP = -1
+
   // OPTIMIZE: closed two sided lines as single sided
 
   // True if any of the segs textures might be visible.
@@ -70,25 +74,32 @@ export class Segs {
 
   private maskedTextureCol: null | Int16Array = null
 
-  private get bsp(): BSP {
+  protected get bsp(): BSP {
     return this.rendering.bsp
   }
-  private get data(): Data {
+  protected get data(): Data {
     return this.rendering.data
   }
   private get draw(): Draw {
     return this.rendering.draw
   }
-  private get level(): Level {
+  protected get level(): Level {
     return this.rendering.level
   }
-  private get plane(): Plane {
+  protected get plane(): Plane {
     return this.rendering.plane
   }
   private get things(): Things {
     return this.rendering.things
   }
-  constructor(private rendering: Rendering) { }
+  constructor(protected rendering: Rendering) { }
+
+  //
+  // R_ClearDrawSegs
+  //
+  clearDrawSegs(): void {
+    this.dsP = 0
+  }
 
   //
   // R_RenderMaskedSegRange
@@ -375,10 +386,10 @@ export class Segs {
   //
   storeWallRange(start: number, stop: number): void {
     // don't overflow and crash
-    if (this.bsp.dsP === MAX_DRAW_SEGS) {
+    if (this.dsP === MAX_DRAW_SEGS) {
       return
     }
-    const dsP = this.bsp.drawSegs[this.bsp.dsP]
+    const dsP = this.drawSegs[this.dsP]
 
     if (RANGE_CHECK) {
       if (start >= this.draw.viewWidth || start > stop) {
@@ -732,6 +743,6 @@ export class Segs {
       dsP.bSilHeight = 2147483647
     }
 
-    ++this.bsp.dsP
+    ++this.dsP
   }
 }

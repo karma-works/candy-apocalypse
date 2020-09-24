@@ -1,43 +1,45 @@
 import {
   Group,
-  Object3D,
   Scene,
   Sprite,
   SpriteMaterial,
 } from 'three'
 import { FRACBITS } from '../misc/fixed'
-import { MObj } from '../play/mobj/mobj'
-import { MObjHandler } from '../play/mobj-handler'
+import { Things as LegacyThings } from '../rendering/things'
 import { Rendering } from './rendering'
 import { Textures } from './textures'
-import { Tick } from '../play/tick'
+import { VisSprite } from '../rendering/things/vis-sprite'
 
 interface ThingItem {
-  thing: MObj
+  visSprite: VisSprite
   sprite: Sprite
 }
 
-export class Things {
+export class Things extends LegacyThings {
 
   private things: ThingItem[] = []
-  private pov = new Object3D()
   private group = new Group()
 
-  private get mObjHandler(): MObjHandler {
-    return this.rendering.play.mObjHandler
-  }
-  private get textures(): Textures {
+  get textures(): Textures {
     return this.rendering.textures
   }
-  private get tick(): Tick {
-    return this.rendering.play.tick
+
+  constructor(protected rendering: Rendering) {
+    super(rendering)
   }
 
-  constructor(private rendering: Rendering) { }
+  drawSprite(spr: VisSprite): void {
+    this.spawnThing(spr)
+  }
 
-  reset(scene: Scene, pov: Object3D): void {
-    this.pov = pov
+  clearSprites(): void {
+    super.clearSprites()
+    for (let i = this.group.children.length; i >= 0; --i) {
+      this.group.remove(this.group.children[i])
+    }
+  }
 
+  reset(scene: Scene): void {
     this.things.length = 0
     scene.remove(this.group)
 
@@ -45,47 +47,17 @@ export class Things {
     scene.add(this.group)
   }
 
-  refresh(): void {
-    let i = 0
-    let m: MObj | null = null
-    for (let thinker = this.tick.thinkerCap.next;
-      thinker !== null && thinker !== this.tick.thinkerCap;
-      thinker = thinker.next
-    ) {
-      // not a mobj
-      if (thinker.func !== this.mObjHandler.thinker) {
-        continue
-      }
-
-      m = thinker as MObj
-
-      while (this.things[i] && this.things[i].thing !== m) {
-        this.removeThing(this.things.splice(i, 1)[0])
-      }
-
-      if (this.things[i]) {
-        this.updateThing(this.things[i++])
-      } else {
-        this.things[i++] = this.spawnThing(m)
-      }
-    }
-
-    while (this.things[i] && this.things[i].thing !== m) {
-      this.removeThing(this.things.splice(i, 1)[0])
-    }
-  }
-
-  private updateThing({ sprite, thing }: ThingItem): void {
-    const map = this.textures.getSprite(thing, this.pov)
+  private updateThing({ sprite, visSprite }: ThingItem): void {
+    const map = this.textures.getSprite(visSprite)
 
     // y, z, x
-    sprite.position.set(thing.y >> FRACBITS, thing.z >> FRACBITS, thing.x >> FRACBITS)
+    sprite.position.set(visSprite.gY >> FRACBITS, visSprite.gZ >> FRACBITS, visSprite.gX >> FRACBITS)
 
     sprite.material.map = map
     sprite.scale.set(map.image.width, map.image.height, 1)
   }
 
-  private spawnThing(thing: MObj): ThingItem {
+  private spawnThing(visSprite: VisSprite): ThingItem {
     const sprite = new Sprite(
       new SpriteMaterial(),
     )
@@ -94,16 +66,12 @@ export class Things {
     this.group.add(sprite)
 
     const item: ThingItem = {
-      thing,
+      visSprite,
       sprite,
     }
 
     this.updateThing(item)
 
     return item
-  }
-
-  private removeThing({ sprite }: ThingItem): void {
-    this.group.remove(sprite)
   }
 }
