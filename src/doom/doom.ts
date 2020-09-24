@@ -876,6 +876,7 @@ export class Doom {
     console.log('R_Init: Init DOOM refresh daemon - ')
     this.rendering.init()
     this.rData.initData()
+    await this.setLegacyRenderer()
 
     console.log('P_Init: Init Playloop state.')
     this.play.init()
@@ -894,8 +895,6 @@ export class Doom {
 
     console.log('ST_Init: Init status bar.')
     this.statusBar.init()
-
-    this.setLegacyRenderer()
 
     if (playDemo) {
       // quit after one demo

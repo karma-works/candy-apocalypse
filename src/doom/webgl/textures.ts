@@ -1,26 +1,20 @@
 import {
   DataTexture,
   NearestFilter,
-  Object3D,
   RGBAFormat,
   RGBFormat,
   RepeatWrapping,
   WebGLCubeRenderTarget,
   WebGLRenderer,
 } from 'three'
-import { ANG45 } from '../misc/table'
-import { FF_FRAMEMASK } from '../play/sprite'
-import { FRACBITS } from '../misc/fixed'
 import { Flat } from '../textures/flat'
 import { Video as IVideo } from '../interfaces/video'
-import { MObj } from '../play/mobj/mobj'
 import { Palette } from '../interfaces/palette'
 import { Patch } from '../rendering/defs/patch'
-import { RANGE_CHECK } from '../global/doomdef'
 import { Data as RData } from '../rendering/data'
 import { Video as RVideo } from '../rendering/video'
 import { Rendering } from './rendering'
-import { pointToAngle } from '../misc/angle'
+import { VisSprite } from '../rendering/things/vis-sprite'
 
 export class Textures {
   private patchCache: DataTexture[] = []
@@ -33,7 +27,7 @@ export class Textures {
     return this.rendering.iVideo.palette
   }
   private get rData(): RData {
-    return this.rendering.rData
+    return this.rendering.data
   }
 
   constructor(private rendering: Rendering) { }
@@ -114,46 +108,23 @@ export class Textures {
     return this.flatCache[num]
   }
 
-  getSprite(thing: MObj, pov: Object3D): DataTexture {
-    const sprDef = this.rData.spriteDefs[thing.sprite]
+  getSprite(sprite: VisSprite): DataTexture {
+    const flip = sprite.xIScale < 0
+    const lump = this.rData.sprites[sprite.patch].lump
 
-    if (RANGE_CHECK) {
-      if ((thing.frame & FF_FRAMEMASK) >= sprDef.frames.length) {
-        throw `R_ProjectSprite: invalid sprite frame ${thing.sprite} : ${thing.frame} `
-      }
-    }
-
-    const sprFrame = sprDef.frames[thing.frame & FF_FRAMEMASK]
-
-    let lump: number
-    let flip: boolean
-    if (sprFrame.rotate) {
-      // choose a different rotation based on player view
-      const ang = pointToAngle(
-        pov.position.z << FRACBITS, pov.position.x << FRACBITS,
-        thing.x, thing.y)
-      const rot = ang - thing.angle + ANG45 / 2 * 9 >>> 29
-      lump = sprFrame.lump[rot]
-      flip = !!sprFrame.flip[rot]
-    } else {
-      // use single rotation for all views
-      lump = sprFrame.lump[0]
-      flip = !!sprFrame.flip[0]
-    }
-
-    const sprite = this.rData.sprites[lump]
     const cache = flip ? this.flipPatchCache : this.patchCache
-    if (!cache[sprite.lump]) {
+    if (!cache[lump]) {
       const palette = this.palette
-      cache[sprite.lump] = this.createTextureFromPatch(
-        sprite.patch, palette)
+
+      const patch = this.rData.sprites[sprite.patch].patch
+      cache[lump] = this.createTextureFromPatch(patch, palette)
 
       if (flip) {
-        cache[sprite.lump].repeat.set(-1, 1)
+        cache[lump].repeat.set(-1, 1)
       }
     }
 
-    return cache[sprite.lump]
+    return cache[lump]
   }
 
   getSkyTexture(num: number, renderer: WebGLRenderer): WebGLCubeRenderTarget {

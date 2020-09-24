@@ -4,7 +4,6 @@ import { FRACBITS, FRACUNIT, div, mul } from '../misc/fixed'
 import { LIGHT_LEVELS, LIGHT_SCALE_SHIFT, LIGHT_SEG_SHIFT, MAX_LIGHT_SCALE, Rendering } from './rendering'
 import { PowerType, RANGE_CHECK, SCREENWIDTH } from '../global/doomdef'
 import { ANG45 } from '../misc/table'
-import { BSP } from './bsp'
 import { Column } from './defs/column'
 import { Data } from './data'
 import { Draw } from './draw'
@@ -24,9 +23,6 @@ const BASE_Y_CENTER = 100
 export const MAX_VIS_SPRITES = 128
 
 export class Things {
-  private get bsp(): BSP {
-    return this.rendering.bsp
-  }
   private get data(): Data {
     return this.rendering.data
   }
@@ -37,7 +33,7 @@ export class Things {
     return this.rendering.doom.play
   }
   private get segs(): Segs {
-    return this.rendering.segsHandler
+    return this.rendering.segs
   }
   private get sprites(): SpriteArray {
     return this.data.sprites
@@ -45,7 +41,7 @@ export class Things {
   private get spriteDefs(): SpriteDefsArray {
     return this.data.spriteDefs
   }
-  constructor(private rendering: Rendering) { }
+  constructor(protected rendering: Rendering) { }
 
   //
   // Sprite rotation 0 is facing the viewer,
@@ -585,8 +581,8 @@ export class Things {
     let lowScale: number
     let scale: number
     let silhouette: number
-    for (let dsPtr = this.bsp.dsP - 1; dsPtr >= 0; --dsPtr) {
-      ds = this.bsp.drawSegs[dsPtr]
+    for (let dsPtr = this.segs.dsP - 1; dsPtr >= 0; --dsPtr) {
+      ds = this.segs.drawSegs[dsPtr]
       // determine if the drawseg obscures the sprite
       if (ds.x1 > spr.x2 ||
         ds.x2 < spr.x1 ||
@@ -711,8 +707,8 @@ export class Things {
 
     // render any remaining masked mid textures
     let ds: DrawSeg
-    for (let dsPtr = this.bsp.dsP - 1; dsPtr >= 0; --dsPtr) {
-      ds = this.bsp.drawSegs[dsPtr]
+    for (let dsPtr = this.segs.dsP - 1; dsPtr >= 0; --dsPtr) {
+      ds = this.segs.drawSegs[dsPtr]
       if (ds.maskedTextureCol) {
         this.segs.renderMaskedSegRange(ds, ds.x1, ds.x2)
       }

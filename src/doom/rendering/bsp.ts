@@ -1,5 +1,4 @@
 import { ANG180, ANG90, ANGLE_TO_FINE_SHIFT } from '../misc/table'
-import { DrawSeg, MAX_DRAW_SEGS } from './defs/draw-seg'
 import { BBox } from '../misc/bbox'
 import { ClipRange } from './bsp/clip-range'
 import { Draw } from './draw'
@@ -42,10 +41,6 @@ export class BSP {
   frontSector: Sector | null = null
   backSector: Sector | null = null
 
-  drawSegs = Array.from({ length: MAX_DRAW_SEGS },
-    () => new DrawSeg())
-  dsP = -1
-
   // newend is one past the last valid seg
   newEndPtr = -1
   solidSegs = Array.from({ length: MAX_SEGS },
@@ -62,20 +57,13 @@ export class BSP {
     return this.rendering.plane
   }
   private get segs(): Segs {
-    return this.rendering.segsHandler
+    return this.rendering.segs
   }
   private get things(): Things {
     return this.rendering.things
   }
 
   constructor(private rendering: Rendering) { }
-
-  //
-  // R_ClearDrawSegs
-  //
-  clearDrawSegs(): void {
-    this.dsP = 0
-  }
 
   //
   // R_ClipSolidWallSegment

@@ -1,4 +1,4 @@
-import { Camera, Object3D, WebGLRenderer } from 'three'
+import { Camera, Scene, WebGLRenderer } from 'three'
 import { Palette } from '../interfaces/palette'
 import { VideoInterface } from '../interfaces/video-interface'
 
@@ -7,7 +7,7 @@ export class Video implements VideoInterface {
 
   screen: HTMLCanvasElement | null = null
   renderer: WebGLRenderer | null = null
-  scene: Object3D | null = null
+  scene: Scene | null = null
   camera: Camera | null = null
 
   xWidth = 320

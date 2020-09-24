@@ -4,122 +4,73 @@ import {
 } from 'three'
 import { Doom } from '../doom'
 import { FRACBITS } from '../misc/fixed'
-import { FloorsAndCeilings } from './floors'
+import { Rendering as LegacyRendering } from '../rendering/rendering'
 import { Level } from '../level/level'
-import { Observer } from './observers'
-import { Play } from '../play/setup'
+import { Plane } from './plane'
 import { Player } from '../doom/player'
-import { Data as RData } from '../rendering/data'
-import { RenderingInterface } from '../rendering/rendering-interface'
+import { Segs } from './segs'
 import { Textures } from './textures'
 import { Things } from './things'
 import { Video } from './video'
-import { Walls } from './walls'
 import { toRad } from '../misc/table'
 
-export class Rendering implements RenderingInterface {
-  fullScreen = true;
-  viewWindowX = 0
-  viewWindowY = 0
-  viewWidth: number
-  viewHeight: number
-  screenSize = 9
-  highDetails = true
-
-  setSizeNeeded = false
+export class Rendering extends LegacyRendering {
 
   private camera = new PerspectiveCamera(
     64, 320 / 200, 0.1, 10000,
   )
-
-  get level(): Level {
-    return this.doom.play.level
-  }
   private renderedLevel: Level | null = null
 
-  private observers = new Array<Observer>()
-
-  public get play(): Play {
-    return this.doom.play
-  }
-  public get rData(): RData {
-    return this.doom.rData
-  }
-
-  floors = new FloorsAndCeilings(this)
+  plane: Plane = new Plane(this)
+  segs: Segs = new Segs(this)
   textures = new Textures(this)
   things = new Things(this)
-  walls = new Walls(this)
 
-  constructor(private doom: Doom, public iVideo: Video) {
-    this.viewWidth = iVideo.xWidth
-    this.viewHeight = iVideo.xHeight
+  constructor(doom: Doom, public iVideo: Video) {
+    super(doom)
+
+    iVideo.camera = this.camera
   }
 
-  executeSetViewSize(): void {
-    throw new Error('Method not implemented.')
-  }
-
-  renderPlayerView(pl: Player): void {
-    if (pl.mo === null) {
-      throw 'player.mo = null'
-    }
-
-    this.iVideo.camera = this.camera
-    // axis are y, z, x
-    this.camera.position.set(
-      pl.mo.y >> FRACBITS,
-      pl.viewZ >> FRACBITS,
-      pl.mo.x >> FRACBITS,
-    )
-
-    this.camera.rotation.y = toRad(pl.mo.angle) + Math.PI
-
-    if (this.renderedLevel !== this.level) {
-      this.observers.length = 0
-
-      this.renderedLevel = this.level
-
-      this.renderLevel(this.level)
-    }
-
-    this.walls.refreshWalls()
-    this.floors.refresh()
-    this.things.refresh()
-  }
-
-  private renderLevel(level: Level): void {
+  private setupLevel(level: Level): void {
     const scene = new Scene()
     this.iVideo.scene = scene
 
-    this.floors.skyFlat = level.sky.flatNum
-    this.walls.skyFlat = level.sky.flatNum
+    this.segs.reset()
+    this.plane.reset()
+    this.things.reset(scene)
+
     if (this.iVideo.renderer) {
       scene.background = this.textures.getSkyTexture(
         level.sky.texture, this.iVideo.renderer,
       )
     }
 
-    level.segs.forEach((seg, i) => this.walls.drawSeg(i, seg, scene))
+    level.segs.forEach((seg, i) => this.segs.createSeg(i, seg, scene))
 
     level.sectors.forEach((sec, i) => {
       const lines = level.lines.filter(({ frontSector, backSector }) =>
         frontSector === sec || backSector === sec)
 
-      this.floors.drawSector(i, sec, lines, scene)
+      this.plane.createPlane(i, sec, lines, scene)
     })
-
-    this.things.reset(scene, this.camera)
   }
 
-  fillBackScreen(): void {
-    // throw new Error('Method not implemented.')
-  }
-  drawViewBorder(): void {
-    // throw new Error('Method not implemented.')
-  }
-  init(): void {
-    // throw new Error('Method not implemented.')
-  }
+  protected setupFrame(player: Player): void {
+    if (this.renderedLevel !== this.level) {
+      this.setupLevel(this.level)
+      this.renderedLevel = this.level
+    }
 
+    super.setupFrame(player)
+
+    // axis are y, z, x
+    this.camera.position.set(
+      this.viewY >> FRACBITS,
+      this.viewZ >> FRACBITS,
+      this.viewX >> FRACBITS,
+    )
+
+    this.camera.rotation.y = toRad(this.viewAngle) + Math.PI
+  }
 }
