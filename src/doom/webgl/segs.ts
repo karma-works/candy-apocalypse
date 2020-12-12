@@ -2,7 +2,6 @@ import {
   Face3,
   Geometry,
   Mesh,
-  MeshBasicMaterial,
   Object3D,
   Vector2,
   Vector3,
@@ -11,6 +10,7 @@ import { FRACBITS } from '../misc/fixed'
 import { Segs as LegacySegs } from '../rendering/segs'
 import { Line } from '../rendering/defs/line'
 import { MapLineFlag } from '../doom/data'
+import { PaletteMaterial } from './palette-material'
 import { Plane } from './plane'
 import { Rendering } from './rendering'
 import { Sector } from '../rendering/defs/sector'
@@ -18,7 +18,7 @@ import { Seg } from '../rendering/segs/seg'
 import { Textures } from './textures'
 import { Vertex } from '../rendering/data/vertex'
 
-type WallMesh = Mesh<Geometry, MeshBasicMaterial>
+type WallMesh = Mesh<Geometry, PaletteMaterial>
 
 interface Wall {
   seg: Seg
@@ -123,7 +123,7 @@ export class Segs extends LegacySegs {
 
     const mesh = new Mesh(
       geometry,
-      new MeshBasicMaterial(),
+      new PaletteMaterial(),
     )
     mesh.visible = false
 
@@ -344,7 +344,9 @@ export class Segs extends LegacySegs {
     seg: { frontSector, backSector, sideDef },
     bottom, mid, top,
   }: Wall): void {
-    mid.material.map = this.textures.getTexture(sideDef.midTexture)
+    mid.material.map = this.textures.getPatchTexture(sideDef.midTexture)
+    mid.material.paletteTexture.palette = this.textures.palette
+
     if (backSector) {
       if (top) {
         if (frontSector.ceilingPic === this.level.sky.flatNum &&
@@ -352,11 +354,13 @@ export class Segs extends LegacySegs {
         ) {
           top.material.visible = false
         } else {
-          top.material.map = this.textures.getTexture(sideDef.topTexture)
+          top.material.map = this.textures.getPatchTexture(sideDef.topTexture)
+          top.material.paletteTexture.palette = this.textures.palette
         }
       }
       if (bottom) {
-        bottom.material.map = this.textures.getTexture(sideDef.bottomTexture)
+        bottom.material.map = this.textures.getPatchTexture(sideDef.bottomTexture)
+        bottom.material.paletteTexture.palette = this.textures.palette
       }
     }
   }
