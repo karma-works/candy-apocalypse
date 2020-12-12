@@ -45,6 +45,8 @@ export class Plane extends LegacyPlane {
 
   private facs = new Array<FloorAndCeiling>()
 
+  private colorMap = new Uint8ClampedArray()
+
   get textures(): Textures {
     return this.rendering.textures
   }
@@ -85,6 +87,16 @@ export class Plane extends LegacyPlane {
 
   drawPlanes(): void {
     this.facs.forEach(fac => {
+
+      if (fac.floor.visible || fac.ceiling.visible) {
+        if (!this.rendering.fixedColorMap) {
+          this.calculateLights(fac.sector.lightLevel)
+          this.colorMap = this.planeZLight[8]
+        } else {
+          this.colorMap = this.rendering.fixedColorMap
+        }
+      }
+
       if (fac.floor.visible) {
         this.updateGeometryHeight(fac.floor, fac.sector.floorHeight)
         this.updateTextureMap(fac.floor, fac.sector.floorPic)
@@ -199,6 +211,7 @@ export class Plane extends LegacyPlane {
     } else {
       mesh.material.map = this.textures.getFlatTexture(flat)
       mesh.material.paletteTexture.palette = this.textures.palette
+      mesh.material.paletteTexture.colorMap = this.colorMap
     }
   }
 }

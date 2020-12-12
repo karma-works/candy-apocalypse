@@ -30,6 +30,8 @@ interface Wall {
 export class Segs extends LegacySegs {
   walls: Wall[] = []
 
+  private colorMap = new Uint8ClampedArray()
+
   get plane(): Plane {
     return this.rendering.plane
   }
@@ -75,6 +77,13 @@ export class Segs extends LegacySegs {
 
     const idx = this.level.segs.indexOf(this.bsp.curLine)
     const wall = this.walls[idx]
+
+    if (!this.rendering.fixedColorMap) {
+      this.calculateLights()
+      this.colorMap = this.wallLights[8]
+    } else {
+      this.colorMap = this.rendering.fixedColorMap
+    }
 
     this.updateWallVertices(wall)
     this.updateWallUvs(wall)
@@ -346,6 +355,7 @@ export class Segs extends LegacySegs {
   }: Wall): void {
     mid.material.map = this.textures.getPatchTexture(sideDef.midTexture)
     mid.material.paletteTexture.palette = this.textures.palette
+    mid.material.paletteTexture.colorMap = this.colorMap
 
     if (backSector) {
       if (top) {
@@ -356,11 +366,13 @@ export class Segs extends LegacySegs {
         } else {
           top.material.map = this.textures.getPatchTexture(sideDef.topTexture)
           top.material.paletteTexture.palette = this.textures.palette
+          top.material.paletteTexture.colorMap = this.colorMap
         }
       }
       if (bottom) {
         bottom.material.map = this.textures.getPatchTexture(sideDef.bottomTexture)
         bottom.material.paletteTexture.palette = this.textures.palette
+        bottom.material.paletteTexture.colorMap = this.colorMap
       }
     }
   }

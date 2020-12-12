@@ -10,6 +10,13 @@ export class PaletteTexture extends DataTexture {
       this.update()
     }
   }
+  private _colorMap: Uint8ClampedArray
+  set colorMap(m: Uint8ClampedArray) {
+    if (m !== this._colorMap) {
+      this._colorMap = m
+      this.update()
+    }
+  }
 
   constructor() {
     const palette = new Uint8Array(256 * 3)
@@ -17,15 +24,20 @@ export class PaletteTexture extends DataTexture {
 
     this.data = palette
     this._palette = new Palette()
+    this._colorMap = new Uint8ClampedArray(
+      Array.from({ length: 256 }, (_, i) => i),
+    )
   }
 
   update(): void {
     const gamma = 0
     const palette = this._palette
+    let mapped: number
 
     for (let i = 0; i < 256; ++i) {
+      mapped = this._colorMap[i]
       this.data.set(
-        palette.get(i, gamma).subarray(0, 3),
+        palette.get(mapped, gamma).subarray(0, 3),
         i * 3,
       )
     }

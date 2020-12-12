@@ -57,7 +57,7 @@ export class Plane {
   //
   // texture mapping
   //
-  private planeZLight = new Array<Uint8ClampedArray>()
+  protected planeZLight = new Array<Uint8ClampedArray>()
   private planeHeight = 0
 
   ySlope = new Array<number>(SCREENHEIGHT).fill(0)
@@ -322,7 +322,6 @@ export class Plane {
     }
 
     let pl: VisPlane
-    let light: number
     let x: number
     let stop: number
     let angle: number
@@ -365,17 +364,8 @@ export class Plane {
       this.draw.dsSource = this.data.flats.get(pl.picNum)
 
       this.planeHeight = Math.abs(pl.height - this.rendering.viewZ)
-      light = (pl.lightLevel >> LIGHT_SEG_SHIFT) + this.rendering.extraLight
 
-      if (light >= LIGHT_LEVELS) {
-        light = LIGHT_LEVELS - 1
-      }
-
-      if (light < 0) {
-        light = 0
-      }
-
-      this.planeZLight = this.rendering.zLight[light]
+      this.calculateLights(pl.lightLevel)
 
       pl.top[pl.maxX + 1] = 0xffff
       pl.top[pl.minX - 1] = 0xffff
@@ -394,4 +384,17 @@ export class Plane {
     }
   }
 
+  protected calculateLights(lightLevel: number): void {
+    let light = (lightLevel >> LIGHT_SEG_SHIFT) + this.rendering.extraLight
+
+    if (light >= LIGHT_LEVELS) {
+      light = LIGHT_LEVELS - 1
+    }
+
+    if (light < 0) {
+      light = 0
+    }
+
+    this.planeZLight = this.rendering.zLight[light]
+  }
 }

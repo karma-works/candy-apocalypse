@@ -119,21 +119,7 @@ export class Segs {
     this.bsp.backSector = curLine.backSector
     const textNum = this.data.textures.getNum(curLine.sideDef.midTexture)
 
-    let lightNum = (this.bsp.frontSector.lightLevel >> LIGHT_SEG_SHIFT) + this.rendering.extraLight
-
-    if (curLine.v1.y === curLine.v2.y) {
-      --lightNum
-    } else if (curLine.v1.x === curLine.v2.x) {
-      ++lightNum
-    }
-
-    if (lightNum < 0) {
-      this.wallLights = this.rendering.scaleLight[0]
-    } else if (lightNum >= LIGHT_LEVELS) {
-      this.wallLights = this.rendering.scaleLight[LIGHT_LEVELS - 1]
-    } else {
-      this.wallLights = this.rendering.scaleLight[lightNum]
-    }
+    this.calculateLights()
 
     if (ds.maskedTextureCol === null) {
       throw 'ds.maskedTextureCol = null'
@@ -201,6 +187,35 @@ export class Segs {
         this.maskedTextureCol[this.draw.dcX] = 0x7fff
       }
       this.things.sprYScale += this.rwScaleStep
+    }
+  }
+
+  // calculate light table
+  //  use different light tables
+  //  for horizontal / vertical / diagonal
+  // OPTIMIZE: get rid of LIGHTSEGSHIFT globally
+  protected calculateLights(): void {
+    const curLine = this.bsp.curLine
+    const frontSector = this.bsp.frontSector
+
+    if (curLine === null || frontSector === null) {
+      return
+    }
+
+    let lightNum = (frontSector.lightLevel >> LIGHT_SEG_SHIFT) + this.rendering.extraLight
+
+    if (curLine.v1.y === curLine.v2.y) {
+      --lightNum
+    } else if (curLine.v1.x === curLine.v2.x) {
+      ++lightNum
+    }
+
+    if (lightNum < 0) {
+      this.wallLights = this.rendering.scaleLight[0]
+    } else if (lightNum >= LIGHT_LEVELS) {
+      this.wallLights = this.rendering.scaleLight[LIGHT_LEVELS - 1]
+    } else {
+      this.wallLights = this.rendering.scaleLight[lightNum]
     }
   }
 
@@ -618,27 +633,8 @@ export class Segs {
       this.rwOffset += this.bsp.sideDef.textureOffset + this.bsp.curLine.offset
       this.rwCenterAngle = ANG90 + this.rendering.viewAngle - this.rwNormalAngle
 
-      // calculate light table
-      //  use different light tables
-      //  for horizontal / vertical / diagonal
-      // OPTIMIZE: get rid of LIGHTSEGSHIFT globally
       if (!this.rendering.fixedColorMap) {
-        let lightNum = (this.bsp.frontSector.lightLevel >> LIGHT_SEG_SHIFT) +
-            this.rendering.extraLight
-
-        if (this.bsp.curLine.v1.y === this.bsp.curLine.v2.y) {
-          --lightNum
-        } else if (this.bsp.curLine.v1.x === this.bsp.curLine.v2.x) {
-          ++lightNum
-        }
-
-        if (lightNum < 0) {
-          this.wallLights = this.rendering.scaleLight[0]
-        } else if (lightNum >= LIGHT_LEVELS) {
-          this.wallLights = this.rendering.scaleLight[LIGHT_LEVELS - 1]
-        } else {
-          this.wallLights = this.rendering.scaleLight[lightNum]
-        }
+        this.calculateLights()
       }
     }
 
