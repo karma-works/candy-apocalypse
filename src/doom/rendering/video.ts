@@ -174,7 +174,7 @@ export class Video {
       this.screens[1].slice(ofs, ofs + count),
       ofs,
     )
-    this.alpha.fill(0, ofs, ofs + count)
+    this.alpha.fill(255, ofs, ofs + count)
   }
 
   //
