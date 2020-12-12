@@ -1,16 +1,12 @@
 import {
   DataTexture,
-  NearestFilter,
-  RGBAFormat,
   RGBFormat,
-  RepeatWrapping,
   WebGLCubeRenderTarget,
   WebGLRenderer,
 } from 'three'
 import { FlatTexture } from './flat-texture'
 import { Video as IVideo } from '../interfaces/video'
 import { Palette } from '../interfaces/palette'
-import { Patch } from '../rendering/defs/patch'
 import { PatchTexture } from './patch-texture'
 import { Data as RData } from '../rendering/data'
 import { Video as RVideo } from '../rendering/video'
@@ -18,8 +14,8 @@ import { Rendering } from './rendering'
 import { VisSprite } from '../rendering/things/vis-sprite'
 
 export class Textures {
-  private patchCache: DataTexture[] = []
-  private flipPatchCache: DataTexture[] = []
+  private patchCache: PatchTexture[] = []
+  private flipPatchCache: PatchTexture[] = []
   private patchTextureCache: PatchTexture[] = []
   private skyTextureCache: WebGLCubeRenderTarget[] = []
   private flatTextureCache: FlatTexture[] = []
@@ -32,34 +28,6 @@ export class Textures {
   }
 
   constructor(private rendering: Rendering) { }
-
-  private createTextureFromPatch(patch: Patch, palette: Palette): DataTexture {
-    const rVideo = new RVideo(patch.width, patch.height)
-    rVideo.init(1)
-    const iVideo = new IVideo(rVideo)
-    iVideo.palette = palette
-    rVideo.drawPatch(patch.leftOffset, patch.topOffset, 0, patch)
-
-    const data = new Uint8ClampedArray(patch.width * patch.height * 4)
-
-    iVideo.drawInImageData(data)
-
-    const t = new DataTexture(
-      data,
-      patch.width,
-      patch.height,
-      RGBAFormat,
-    )
-
-    t.flipY = true
-
-    t.wrapS = RepeatWrapping
-    t.wrapT = RepeatWrapping
-
-    t.magFilter = NearestFilter
-
-    return t
-  }
 
   getPatchTexture(num: number): PatchTexture {
     num = this.rData.textures.getNum(num)
@@ -81,16 +49,14 @@ export class Textures {
     return this.flatTextureCache[num]
   }
 
-  getSprite(sprite: VisSprite): DataTexture {
+  getSprite(sprite: VisSprite): PatchTexture {
     const flip = sprite.xIScale < 0
     const lump = this.rData.sprites[sprite.patch].lump
 
     const cache = flip ? this.flipPatchCache : this.patchCache
     if (!cache[lump]) {
-      const palette = this.palette
-
       const patch = this.rData.sprites[sprite.patch].patch
-      cache[lump] = this.createTextureFromPatch(patch, palette)
+      cache[lump] = new PatchTexture(patch)
 
       if (flip) {
         cache[lump].repeat.set(-1, 1)
