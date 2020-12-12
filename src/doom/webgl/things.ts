@@ -2,11 +2,11 @@ import {
   Group,
   Scene,
   Sprite,
-  SpriteMaterial,
 } from 'three'
 import { FRACBITS } from '../misc/fixed'
 import { Things as LegacyThings } from '../rendering/things'
 import { Rendering } from './rendering'
+import { SpritePaletteMaterial } from './sprite-palette-material'
 import { Textures } from './textures'
 import { VisSprite } from '../rendering/things/vis-sprite'
 
@@ -53,13 +53,25 @@ export class Things extends LegacyThings {
     // y, z, x
     sprite.position.set(visSprite.gY >> FRACBITS, visSprite.gZ >> FRACBITS, visSprite.gX >> FRACBITS)
 
-    sprite.material.map = map
+    sprite.material.map = map;
+    // eslint-disable-next-line no-extra-parens
+    (sprite.material as SpritePaletteMaterial).paletteTexture.palette =
+        this.textures.palette
+
+    if (visSprite.colorMap) {
+      // eslint-disable-next-line no-extra-parens
+      (sprite.material as SpritePaletteMaterial).paletteTexture.colorMap =
+          visSprite.colorMap
+    } else {
+      // TODO: fuzz
+    }
+
     sprite.scale.set(map.image.width, map.image.height, 1)
   }
 
   private spawnThing(visSprite: VisSprite): ThingItem {
     const sprite = new Sprite(
-      new SpriteMaterial(),
+      new SpritePaletteMaterial(),
     )
     sprite.center.set(0.5, 0)
 

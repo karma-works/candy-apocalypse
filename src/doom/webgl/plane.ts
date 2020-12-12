@@ -3,7 +3,6 @@ import {
   FrontSide,
   Matrix4,
   Mesh,
-  MeshBasicMaterial,
   Object3D,
   ShapeGeometry,
   ShapePath,
@@ -12,13 +11,14 @@ import {
 import { FRACBITS } from '../misc/fixed'
 import { Plane as LegacyPlane } from '../rendering/plane'
 import { Line } from '../rendering/defs/line'
+import { PaletteMaterial } from './palette-material'
 import { Rendering } from './rendering'
 import { Sector } from '../rendering/defs/sector'
 import { Seg } from '../rendering/segs/seg'
 import { Textures } from './textures'
 import { Vertex } from '../rendering/data/vertex'
 
-type FloorOrCeilingMesh = Mesh<ShapeGeometry, MeshBasicMaterial>
+type FloorOrCeilingMesh = Mesh<ShapeGeometry, PaletteMaterial>
 
 interface FloorAndCeiling {
   sector: Sector
@@ -44,6 +44,8 @@ rotate2.set(
 export class Plane extends LegacyPlane {
 
   private facs = new Array<FloorAndCeiling>()
+
+  private colorMap = new Uint8ClampedArray()
 
   get textures(): Textures {
     return this.rendering.textures
@@ -85,6 +87,16 @@ export class Plane extends LegacyPlane {
 
   drawPlanes(): void {
     this.facs.forEach(fac => {
+
+      if (fac.floor.visible || fac.ceiling.visible) {
+        if (!this.rendering.fixedColorMap) {
+          this.calculateLights(fac.sector.lightLevel)
+          this.colorMap = this.planeZLight[8]
+        } else {
+          this.colorMap = this.rendering.fixedColorMap
+        }
+      }
+
       if (fac.floor.visible) {
         this.updateGeometryHeight(fac.floor, fac.sector.floorHeight)
         this.updateTextureMap(fac.floor, fac.sector.floorPic)
@@ -176,7 +188,7 @@ export class Plane extends LegacyPlane {
 
     const mesh = new Mesh(
       geometry,
-      new MeshBasicMaterial({ side }),
+      new PaletteMaterial({ side }),
     )
     mesh.visible = false
 
@@ -197,7 +209,9 @@ export class Plane extends LegacyPlane {
     if (flat === this.level.sky.flatNum) {
       mesh.material.visible = false
     } else {
-      mesh.material.map = this.textures.getFlat(flat)
+      mesh.material.map = this.textures.getFlatTexture(flat)
+      mesh.material.paletteTexture.palette = this.textures.palette
+      mesh.material.paletteTexture.colorMap = this.colorMap
     }
   }
 }
