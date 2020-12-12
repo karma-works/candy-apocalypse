@@ -29,6 +29,9 @@ export class PaletteMaterial extends MeshBasicMaterial {
 
   paletteTexture = new PaletteTexture()
 
+  transparent = true
+  alphaTest = 0.5
+
   onBeforeCompile(shader: Shader): void {
     fragmentShaderReplacements.forEach((rep) => {
       shader.fragmentShader = shader.fragmentShader.replace(rep.from, rep.to)
