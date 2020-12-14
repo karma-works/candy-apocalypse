@@ -1,12 +1,12 @@
 import { AbstractReadThisMenu, ReadThis1Menu, ReadThis2Menu } from './read-this'
 import { GameMode, GameVersion, Language } from '../doom/mode'
+import { GameState, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { LoadGameMenu, SaveGameMenu } from './save-game'
 import { MenuItem, MenuStruct } from './typedefs'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom'
 import { EpisodeMenu } from './episode'
 import { Game } from '../game/game'
-import { GameState } from '../global/doomdef'
 import { LumpReader } from '../wad/lump-reader'
 import { Menu } from './menu'
 import { NewGameMenu } from './new-game'
@@ -165,8 +165,10 @@ export class MainMenu implements MenuStruct {
   // M_DrawMainMenu
   //
   routine(): void {
+    const offsetX = (this.rVideo.width - SCREENWIDTH) / 2
+    const offsetY = (this.rVideo.height - SCREENHEIGHT) / 2
     this.rVideo.drawPatch(
-      94, 2, 0,
+      94 + offsetX, 2 + offsetY, 0,
       this.wad.cacheLumpName('M_DOOM', Patch),
     )
   }

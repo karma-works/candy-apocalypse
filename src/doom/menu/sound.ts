@@ -1,5 +1,6 @@
 import { LINEHEIGHT, Menu } from './menu'
 import { MenuItem, MenuStruct } from './typedefs'
+import { SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { Sound as DSound } from '../doom/sound'
 import { LumpReader } from '../wad/lump-reader'
 import { OptionsMenu } from './options'
@@ -61,19 +62,22 @@ export class SoundMenu implements MenuStruct {
   // Change Sfx & Music volumes
   //
   routine(): void {
-    this.rVideo.drawPatch(60, 38, 0,
+    const offsetX = (this.rVideo.width - SCREENWIDTH) / 2
+    const offsetY = (this.rVideo.height - SCREENHEIGHT) / 2
+
+    this.rVideo.drawPatch(60 + offsetX, 38 + offsetY, 0,
       this.wad.cacheLumpName('M_SVOL', Patch),
     )
 
     this.menu.drawThermo(
-      this.x,
-      this.y + LINEHEIGHT * (Sound.SfxVol + 1),
+      this.x + offsetX,
+      this.y + LINEHEIGHT * (Sound.SfxVol + 1) + offsetY,
       16,
       this.dSound.sfxVolume,
     )
     this.menu.drawThermo(
-      this.x,
-      this.y + LINEHEIGHT * (Sound.MusicVol + 1),
+      this.x + offsetX,
+      this.y + LINEHEIGHT * (Sound.MusicVol + 1) + offsetY,
       16,
       this.dSound.musicVolume,
     )
