@@ -78,7 +78,7 @@ export class Doom {
   public headsUp = new HeadsUp(this)
   public statusBar = new StatusBar(this)
   public play = new Play(this)
-  public rVideo = new RVIdeo()
+  public rVideo = new RVIdeo({ logical: [ SCREENWIDTH, SCREENHEIGHT ] })
   public rData = new RData(this.wad)
   public rendering: RenderingInterface = new BlankRenderer()
   public game = new Game(this)
@@ -353,7 +353,7 @@ export class Doom {
     }
 
     // wipe update
-    this.wipe.endScreen(0, 0, SCREENWIDTH, SCREENHEIGHT)
+    this.wipe.endScreen(0, 0, this.rVideo.width, this.rVideo.height)
 
     this.wipeActive = true
     this.wipeStart = getTime() - 1
@@ -374,7 +374,7 @@ export class Doom {
     } while (!tics)
     this.wipeStart = nowTime
 
-    done = this.wipe.screenWipe(0, 0, SCREENWIDTH, SCREENHEIGHT, tics)
+    done = this.wipe.screenWipe(0, 0, this.rVideo.width, this.rVideo.height, tics)
 
     // menu is drawn even on top of wipes
     this.menu.drawer()
@@ -472,9 +472,10 @@ export class Doom {
   // D_PageDrawer
   //
   private pageDrawer(): void {
-    this.rVideo.drawPatch(0, 0, 0,
-      this.wad.cacheLumpName(this.pageName, Patch),
-    )
+    const patch = this.wad.cacheLumpName(this.pageName, Patch)
+    const x = (this.rVideo.width - SCREENWIDTH) / 2
+    const y = (this.rVideo.height - SCREENHEIGHT) / 2
+    this.rVideo.drawPatch(x, y, 0, patch)
   }
 
   //

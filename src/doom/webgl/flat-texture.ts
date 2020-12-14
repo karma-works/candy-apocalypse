@@ -5,7 +5,7 @@ import { Video as RVideo } from '../rendering/video'
 export class FlatTexture extends DataTexture {
   constructor(flat: Flat) {
     const size = 64
-    const rVideo = new RVideo(size, size)
+    const rVideo = new RVideo({ logical: [ size, size ] })
     rVideo.init(1)
     rVideo.drawFlat(0, 0, 0, flat)
 

@@ -1,6 +1,5 @@
 import { ANG90, ANGLE_TO_FINE_SHIFT, DBITS, FINE_ANGLES, fineSine, fineTangent, tanToAngle } from '../misc/table'
 import { FRACBITS, FRACUNIT, div, mul } from '../misc/fixed'
-import { SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { BSP } from './bsp'
 import { Data } from './data'
 import { Doom } from '../doom'
@@ -80,12 +79,12 @@ export class Rendering implements RenderingInterface {
   // maps the visible view angles to screen X coordinates,
   // flattening the arc to a flat projection plane.
   // There will be many angles mapped to the same X.
-  viewAngleToX = new Array(FINE_ANGLES / 2).fill(0)
+  viewAngleToX = new Array<number>(FINE_ANGLES / 2).fill(0)
 
   // The xtoviewangleangle[] table maps a screen pixel
   // to the lowest viewangle that maps back to x ranges
   // from clipangle to -clipangle.
-  xToViewAngle = new Array(SCREENWIDTH + 1).fill(0)
+  xToViewAngle: number[]
 
   scaleLight = Array.from({ length: LIGHT_LEVELS },
     () => Array.from({ length: MAX_LIGHT_SCALE },
@@ -125,8 +124,8 @@ export class Rendering implements RenderingInterface {
   }
 
   public draw = new Draw(this)
-  public plane = new Plane(this)
-  public things = new Things(this)
+  public plane: Plane
+  public things: Things
   public segs = new Segs(this)
   public bsp = new BSP(this)
 
@@ -152,7 +151,13 @@ export class Rendering implements RenderingInterface {
     return this.doom.wad
   }
 
-  constructor(public doom: Doom) { }
+  constructor(public doom: Doom) {
+    const width = this.video.width
+    const height = this.video.height
+    this.xToViewAngle = new Array(width + 1).fill(0)
+    this.plane = new Plane(this, width, height)
+    this.things = new Things(this, width)
+  }
 
   // Blocky mode, has default, 0 = high, 1 = normal
   private _detailLevel = false
@@ -334,11 +339,11 @@ export class Rendering implements RenderingInterface {
     this.setSizeNeeded = false
 
     if (this.screenBlocks === 11) {
-      this.draw.scaledViewWidth = SCREENWIDTH
-      this.draw.viewHeight = SCREENHEIGHT
+      this.draw.scaledViewWidth = this.video.width
+      this.draw.viewHeight = this.video.height
     } else {
-      this.draw.scaledViewWidth = this.screenBlocks * 32
-      this.draw.viewHeight = this.screenBlocks * 168 / 10 & ~7
+      this.draw.scaledViewWidth = this.screenBlocks * this.video.width / 10 >> 0
+      this.draw.viewHeight = this.screenBlocks * (this.video.height - 32) / 10 & ~7
     }
 
     this.detailShift = this.highDetails ? 1 : 0
@@ -367,8 +372,9 @@ export class Rendering implements RenderingInterface {
     this.initTextureMapping()
 
     // psprite scales
-    this.things.pSpriteScale = FRACUNIT * this.draw.viewWidth / SCREENWIDTH >> 0
-    this.things.pSpriteIScale = FRACUNIT * SCREENWIDTH / this.draw.viewWidth >> 0
+    const screenWidth = this.video.width
+    this.things.pSpriteScale = FRACUNIT * this.draw.viewWidth / screenWidth >> 0
+    this.things.pSpriteIScale = FRACUNIT * screenWidth / this.draw.viewWidth >> 0
 
     // thing clipping
     for (let i = 0; i < this.draw.viewWidth; ++i) {
@@ -402,7 +408,7 @@ export class Rendering implements RenderingInterface {
     for (let i = 0; i < LIGHT_LEVELS; ++i) {
       startMap = (LIGHT_LEVELS - 1 - i) * 2 * NUM_COLOR_MAPS / LIGHT_LEVELS
       for (j = 0; j < MAX_LIGHT_SCALE; ++j) {
-        level = startMap - (j * SCREENWIDTH /
+        level = startMap - (j * screenWidth /
             (this.draw.viewWidth << this.detailShift) /
             DIST_MAP >> 0)
 

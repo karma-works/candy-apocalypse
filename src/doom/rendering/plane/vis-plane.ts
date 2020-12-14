@@ -1,4 +1,3 @@
-import { SCREENWIDTH } from '../../global/doomdef'
 //
 // Now what is a visplane, anyway?
 //
@@ -11,16 +10,19 @@ export class VisPlane {
 
   // Here lies the rub for all
   //  dynamic resize/change of resolution.
-  top = new Array<number>(SCREENWIDTH).fill(0);
+  top: number[]
 
   // See above.
-  bottom = new Array<number>(SCREENWIDTH).fill(0);
+  bottom: number[]
 
   // leave pads for [minx-1]/[maxx+1]
-  constructor() {
+  constructor(width: number) {
+    this.top = new Array<number>(width).fill(0)
+    this.bottom = new Array<number>(width).fill(0)
     this.top[-1] = 0
-    this.top[SCREENWIDTH] = 0
+    this.top[width] = 0
     this.bottom[-1] = 0
-    this.bottom[SCREENWIDTH] = 0
+    this.bottom[width] = 0
+
   }
 }

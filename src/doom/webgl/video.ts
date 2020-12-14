@@ -3,6 +3,8 @@ import { Palette } from '../interfaces/palette'
 import { VideoInterface } from '../interfaces/video-interface'
 
 export class Video implements VideoInterface {
+  ratio = 4 / 3
+
   gamma = 0
 
   screen: HTMLCanvasElement | null = null

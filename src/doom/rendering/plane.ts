@@ -1,42 +1,29 @@
 import { ANG90, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table'
 import { LIGHT_LEVELS, LIGHT_SEG_SHIFT, LIGHT_Z_SHIFT, MAX_LIGHT_Z, Rendering } from './rendering'
-import { RANGE_CHECK, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { div, mul } from '../misc/fixed'
 import { ANGLE_TO_SKY_SHIFT } from '../level/sky'
-import { BSP } from './bsp'
 import { Data } from './data'
 import { Draw } from './draw'
 import { Level } from '../level/level'
-import { MAX_DRAW_SEGS } from './defs/draw-seg'
+import { RANGE_CHECK } from '../global/doomdef'
 import { Things } from './things'
 import { VisPlane } from './plane/vis-plane'
 
-export type PlaneFunction = (top: number, bottom: number) => void
-
 // Here comes the obnoxious "visplane".
 export const MAX_VISPLANES = 128
-
-// ?
-export const MAX_OPENINGS = SCREENWIDTH * 64
-
 export class Plane {
-
-
-  private floorFunc: PlaneFunction | null = null
-  private ceilingFunc: PlaneFunction | null = null
-
   //
   // opening
   //
 
   // Here comes the obnoxious "visplane".
-  private visPlanes = Array.from({ length: MAX_VISPLANES }, () => new VisPlane())
+  private visPlanes: VisPlane[]
   private lastVisPlanePtr = -1
   floorPlane: VisPlane | null = null
   ceilingPlane: VisPlane | null = null
 
   // Add SCREENWIDTH for underflow and overflow
-  openings = new Int16Array(SCREENWIDTH * 2 + MAX_OPENINGS)
+  openings: Int16Array
   lastOpeningPtr = 0
 
   //
@@ -44,15 +31,14 @@ export class Plane {
   //  floorclip starts out SCREENHEIGHT
   //  ceilingclip starts out -1
   //
-  floorClip = new Int16Array(SCREENWIDTH).fill(0)
-  ceilingClip = new Int16Array(SCREENWIDTH).fill(0)
+  floorClip: Int16Array
+  ceilingClip: Int16Array
 
   //
   // spanstart holds the start of a plane span
   // initialized to 0 at start
   //
-  private spanStart = new Array<number>(SCREENHEIGHT).fill(0)
-  private spanStop = new Array<number>(SCREENHEIGHT).fill(0)
+  private spanStart: number[]
 
   //
   // texture mapping
@@ -60,19 +46,16 @@ export class Plane {
   protected planeZLight = new Array<Uint8ClampedArray>()
   private planeHeight = 0
 
-  ySlope = new Array<number>(SCREENHEIGHT).fill(0)
-  distScale = new Array<number>(SCREENWIDTH).fill(0)
+  ySlope: number[]
+  distScale: number[]
   private baseXScale = 0
   private baseYScale = 0
 
-  private cachedHeight = new Array<number>(SCREENHEIGHT).fill(0)
-  private cachedDistance = new Array<number>(SCREENHEIGHT).fill(0)
-  private cachedXStep = new Array<number>(SCREENHEIGHT).fill(0)
-  private cachedYStep = new Array<number>(SCREENHEIGHT).fill(0)
+  private cachedHeight: number[]
+  private cachedDistance: number[]
+  private cachedXStep: number[]
+  private cachedYStep: number[]
 
-  private get bsp(): BSP {
-    return this.rendering.bsp
-  }
   private get data(): Data {
     return this.rendering.data
   }
@@ -86,7 +69,25 @@ export class Plane {
     return this.rendering.things
   }
 
-  constructor(protected rendering: Rendering) { }
+  constructor(protected rendering: Rendering,
+    width: number, height: number,
+  ) {
+    const maxOpenings = width * 64
+
+    this.visPlanes = Array.from({ length: MAX_VISPLANES }, () => new VisPlane(width))
+
+    this.openings = new Int16Array(width * 2 + maxOpenings)
+    this.floorClip = new Int16Array(width).fill(0)
+    this.ceilingClip = new Int16Array(width).fill(0)
+
+    this.spanStart = new Array<number>(height).fill(0)
+    this.ySlope = new Array<number>(height).fill(0)
+    this.distScale = new Array<number>(width).fill(0)
+    this.cachedHeight = new Array<number>(height).fill(0)
+    this.cachedDistance = new Array<number>(height).fill(0)
+    this.cachedXStep = new Array<number>(height).fill(0)
+    this.cachedYStep = new Array<number>(height).fill(0)
+  }
 
   //
   // R_MapPlane
@@ -219,7 +220,7 @@ export class Plane {
     check.height = height
     check.picNum = picNum
     check.lightLevel = lightLevel
-    check.minX = SCREENWIDTH
+    check.minX = this.rendering.video.width
     check.maxX = -1
 
     check.top.fill(0xffff)
@@ -315,9 +316,9 @@ export class Plane {
       if (this.lastVisPlanePtr > MAX_VISPLANES) {
         throw `R_DrawPlanes: visplane overflow (${this.lastVisPlanePtr})`
       }
-      if (this.lastOpeningPtr > MAX_OPENINGS) {
-        throw `R_DrawPlanes: opening overflow (${this.lastOpeningPtr})`
-      }
+      // if (this.lastOpeningPtr > MAX_OPENINGS) {
+      //   throw `R_DrawPlanes: opening overflow (${this.lastOpeningPtr})`
+      // }
 
     }
 

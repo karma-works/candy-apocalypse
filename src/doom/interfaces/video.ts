@@ -1,8 +1,10 @@
 import { Color, Palette } from './palette'
-import { Video as RVideo } from '../rendering/video'
+import { Video as RVideo, Screen } from '../rendering/video'
 import { VideoInterface } from './video-interface'
 
 export class Video implements VideoInterface {
+  ratio = 4 / 3
+
   private _useGamma = 0
   public get gamma(): number {
     return this._useGamma
@@ -104,6 +106,8 @@ export class Video implements VideoInterface {
     this.xWidth = this.rVideo.width * this.multiply
     this.xHeight = this.rVideo.height * this.multiply
 
+    this.ratio = this.rVideo.physicalWidth / this.rVideo.physicalHeight
+
     this.screen.width = this.xWidth
     this.screen.height = this.xHeight
 
@@ -116,7 +120,7 @@ export class Video implements VideoInterface {
 
     this.image = this.xScreen.createImageData(this.xWidth, this.xHeight)
 
-    this.rVideo.screens[0] = new Uint8ClampedArray(this.rVideo.width * this.rVideo.height)
+    this.rVideo.screens[0] = new Screen(this.rVideo.width, this.rVideo.height)
   }
 
   quit(): void {

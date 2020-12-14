@@ -1,6 +1,7 @@
 <template>
   <div class="screen-root" ref="screenRoot">
-    <div class="screen-wrapper" v-bind:class="{ fullscreen: fullscreen }">
+    <div class="screen-wrapper" v-bind:class="{ fullscreen: fullscreen }"
+        v-bind:style="{ '--ratio': ratio }">
       <canvas width="320" height="320" ref="screen3d">
       </canvas>
       <canvas width="320" height="320" ref="screen2d">
@@ -95,6 +96,8 @@ export default class Doom extends Vue {
 
       await this.doomInst.init()
 
+      this.ratio = this.doomInst.iVideo.ratio
+
       const ctx = this.doomInst.iSound.audioCtx
       if (ctx) {
         ctx.addEventListener('statechange', e => {
@@ -152,6 +155,7 @@ export default class Doom extends Vue {
     }
   }
 
+  ratio: number = 4 / 3
   toggleRenderer(): void {
     if (this.doomInst.renderingMode === RenderingMode.Legacy) {
       this.doomInst.setWebGLRenderer()
@@ -160,6 +164,7 @@ export default class Doom extends Vue {
     } else {
       this.doomInst.setLegacyRenderer()
     }
+    this.ratio = this.doomInst.iVideo.ratio
   }
 
   beforeDestroy(): void {
@@ -170,11 +175,13 @@ export default class Doom extends Vue {
 
 <style lang="scss" scoped>
 .screen-wrapper {
-  width: calc((100vh - 64px) * 4 / 3);
+  --ratio: 4/3;
+
+  width: calc((100vh - 64px) * var(--ratio));
   height: calc(100vh - 64px);
 
   &.fullscreen {
-    width: calc((100vh) * 4 / 3);
+    width: calc(100vh * var(--ratio));
     height: calc(100vh);
   }
 

@@ -21,13 +21,16 @@ export class Rendering extends LegacyRendering {
   )
   private renderedLevel: Level | null = null
 
-  plane: Plane = new Plane(this)
+  plane: Plane
   segs: Segs = new Segs(this)
   textures = new Textures(this)
-  things = new Things(this)
+  things: Things
 
   constructor(doom: Doom, public iVideo: Video) {
     super(doom)
+
+    this.plane = new Plane(this, this.video.width, this.video.height)
+    this.things = new Things(this, this.video.width)
 
     iVideo.camera = this.camera
   }

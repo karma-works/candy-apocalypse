@@ -51,8 +51,10 @@ export class Plane extends LegacyPlane {
     return this.rendering.textures
   }
 
-  constructor(protected rendering: Rendering) {
-    super(rendering)
+  constructor(protected rendering: Rendering,
+    width: number, height: number,
+  ) {
+    super(rendering, width, height)
   }
 
   reset(): void {

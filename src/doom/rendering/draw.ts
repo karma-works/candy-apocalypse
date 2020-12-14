@@ -1,4 +1,3 @@
-import { RANGE_CHECK, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { Data } from './data'
 import { Doom } from '../doom'
 import { FRACBITS } from '../misc/fixed'
@@ -7,6 +6,7 @@ import { GameMode } from '../doom/mode'
 import { LumpReader } from '../wad/lump-reader'
 import { Patch } from './defs/patch'
 import { Post } from './defs/post'
+import { RANGE_CHECK } from '../global/doomdef'
 import { Rendering } from './rendering'
 import { Video } from './video'
 
@@ -21,16 +21,15 @@ const SBAR_HEIGHT = 32
 // Spectre/Invisibility.
 //
 const FUZZ_TABLE = 50
-const FUZZ_OFF = SCREENWIDTH
 
 const fuzzOffset = [
-  FUZZ_OFF,-FUZZ_OFF,FUZZ_OFF,-FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,-FUZZ_OFF,
-  FUZZ_OFF,FUZZ_OFF,-FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,-FUZZ_OFF,
-  FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,-FUZZ_OFF,-FUZZ_OFF,-FUZZ_OFF,-FUZZ_OFF,
-  FUZZ_OFF,-FUZZ_OFF,-FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,-FUZZ_OFF,
-  FUZZ_OFF,-FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,-FUZZ_OFF,-FUZZ_OFF,FUZZ_OFF,
-  FUZZ_OFF,-FUZZ_OFF,-FUZZ_OFF,-FUZZ_OFF,-FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,
-  FUZZ_OFF,FUZZ_OFF,-FUZZ_OFF,FUZZ_OFF,FUZZ_OFF,-FUZZ_OFF,FUZZ_OFF,
+  1,-1,1,-1,1,1,-1,
+  1,1,-1,1,1,1,-1,
+  1,1,1,-1,-1,-1,-1,
+  1,-1,-1,1,1,1,1,-1,
+  1,-1,1,1,-1,-1,1,
+  1,-1,-1,-1,-1,1,1,
+  1,1,-1,1,1,-1,1,
 ]
 
 export class Draw {
@@ -101,10 +100,14 @@ export class Draw {
       return
     }
 
+    const dest = this.video.screens[0]
+    const screenWidth = dest.width
+    const screenHeight = dest.height
+
     if (RANGE_CHECK) {
-      if (this.dcX >>> 0 >= SCREENWIDTH ||
+      if (this.dcX >>> 0 >= screenWidth ||
           this.dcYl < 0 ||
-          this.dcYh >= SCREENHEIGHT
+          this.dcYh >= screenHeight
       ) {
         throw `R_DrawColumn: ${this.dcYl} to ${this.dcYh} at ${this.dcX}`
       }
@@ -115,7 +118,6 @@ export class Draw {
     // Use columnofs LUT for subwindows?
     let destPtr = this.yLookupPtr[this.dcYl] +
         this.columnOfs[this.dcX]
-    const dest = this.video.screens[0]
 
     // Determine scaling,
     //  which is the only mapping to be done.
@@ -136,7 +138,7 @@ export class Draw {
       dest[destPtr] = this.dcColorMap[
         this.dcSource.bytes[frac >> FRACBITS & 127]
       ]
-      destPtr += SCREENWIDTH
+      destPtr += screenWidth
       frac += fracStep
     } while (count--)
   }
@@ -148,10 +150,15 @@ export class Draw {
       return
     }
 
+    const dest = this.video.screens[0]
+
+    const screenWidth = dest.width
+    const screenHeight = dest.height
+
     if (RANGE_CHECK) {
-      if (this.dcX >>> 0 >= SCREENWIDTH ||
+      if (this.dcX >>> 0 >= screenWidth ||
           this.dcYl < 0 ||
-          this.dcYh >= SCREENHEIGHT
+          this.dcYh >= screenHeight
       ) {
         throw `R_DrawColumn: ${this.dcYl} to ${this.dcYh} at ${this.dcX}`
       }
@@ -163,7 +170,6 @@ export class Draw {
         this.columnOfs[x]
     let destPtr2 = this.yLookupPtr[this.dcYl] +
         this.columnOfs[x + 1]
-    const dest = this.video.screens[0]
 
     // Determine scaling,
     //  which is the only mapping to be done.
@@ -180,8 +186,8 @@ export class Draw {
       dest[destPtr] = dest[destPtr2] = this.dcColorMap[
         this.dcSource.bytes[frac >> FRACBITS & 127]
       ]
-      destPtr += SCREENWIDTH
-      destPtr2 += SCREENWIDTH
+      destPtr += screenWidth
+      destPtr2 += screenWidth
       frac += fracStep
     } while (count--)
   }
@@ -214,9 +220,13 @@ export class Draw {
       return
     }
 
+    const dest = this.video.screens[0]
+    const screenWidth = dest.width
+    const screenHeight = dest.height
+
     if (RANGE_CHECK) {
-      if (this.dcX >>> 0 >= SCREENWIDTH ||
-        this.dcYl < 0 || this.dcYh >= SCREENHEIGHT
+      if (this.dcX >>> 0 >= screenWidth ||
+        this.dcYl < 0 || this.dcYh >= screenHeight
       ) {
         throw `R_DrawFuzzColumn: ${this.dcYl} to ${this.dcYh} at ${this.dcX}`
       }
@@ -225,7 +235,6 @@ export class Draw {
     // Does not work with blocky mode.
     let destPtr = this.yLookupPtr[this.dcYl] +
       this.columnOfs[this.dcX]
-    const dest = this.video.screens[0]
 
     // Looks like an attempt at dithering,
     //  using the colormap #6 (of 0-31, a bit
@@ -236,7 +245,7 @@ export class Draw {
       //  left or right of the current one.
       // Add index from colormap to index.
       dest[destPtr] = this.data.colorMaps[6 * 256 +
-        dest[destPtr + fuzzOffset[this.fuzzPos]]
+        dest[destPtr + fuzzOffset[this.fuzzPos] * screenWidth]
       ]
 
       // Clamp table lookup index.
@@ -244,7 +253,7 @@ export class Draw {
         this.fuzzPos = 0
       }
 
-      destPtr += SCREENWIDTH
+      destPtr += screenWidth
     } while (count--)
   }
 
@@ -266,12 +275,16 @@ export class Draw {
       return
     }
 
+    const dest = this.video.screens[0]
+    const screenWidth = dest.width
+    const screenHeight = dest.height
+
     // low detail mode, need to multiply by 2
     const x = this.dcX << 1
 
     if (RANGE_CHECK) {
-      if (x >>> 0 >= SCREENWIDTH ||
-        this.dcYl < 0 || this.dcYh >= SCREENHEIGHT
+      if (x >>> 0 >= screenWidth ||
+        this.dcYl < 0 || this.dcYh >= screenHeight
       ) {
         throw `R_DrawFuzzColumn: ${this.dcYl} to ${this.dcYh} at ${this.dcX}`
       }
@@ -282,7 +295,6 @@ export class Draw {
       this.columnOfs[x]
     let destPtr2 = this.yLookupPtr[this.dcYl] +
       this.columnOfs[x + 1]
-    const dest = this.video.screens[0]
 
     // Looks like an attempt at dithering,
     //  using the colormap #6 (of 0-31, a bit
@@ -293,10 +305,10 @@ export class Draw {
       //  left or right of the current one.
       // Add index from colormap to index.
       dest[destPtr] = this.data.colorMaps[6 * 256 +
-        dest[destPtr + fuzzOffset[this.fuzzPos]]
+        dest[destPtr + fuzzOffset[this.fuzzPos] * screenWidth]
       ]
       dest[destPtr2] = this.data.colorMaps[6 * 256 +
-        dest[destPtr2 + fuzzOffset[this.fuzzPos]]
+        dest[destPtr2 + fuzzOffset[this.fuzzPos] * screenWidth]
       ]
 
       // Clamp table lookup index.
@@ -304,8 +316,8 @@ export class Draw {
         this.fuzzPos = 0
       }
 
-      destPtr += SCREENWIDTH
-      destPtr2 += SCREENWIDTH
+      destPtr += screenWidth
+      destPtr2 += screenWidth
     } while (count--)
   }
 
@@ -327,10 +339,14 @@ export class Draw {
       return
     }
 
+    const dest = this.video.screens[0]
+    const screenWidth = dest.width
+    const screenHeight = dest.height
+
     if (RANGE_CHECK) {
-      if (this.dcX >>> 0 >= SCREENWIDTH ||
+      if (this.dcX >>> 0 >= screenWidth ||
         this.dcYl < 0 ||
-        this.dcYh >= SCREENHEIGHT
+        this.dcYh >= screenHeight
       ) {
         throw `R_DrawColumn: ${this.dcYl} to ${this.dcYh} at ${this.dcX}`
       }
@@ -338,7 +354,6 @@ export class Draw {
 
     let destPtr = this.yLookupPtr[this.dcYl] +
       this.columnOfs[this.dcX]
-    const dest = this.video.screens[0]
 
     // Looks familiar.
     const fracStep = this.dcIScale
@@ -360,7 +375,7 @@ export class Draw {
         this.dcTranslation[this.dcSource.bytes[frac >> FRACBITS]]
       ]
 
-      destPtr += SCREENWIDTH
+      destPtr += screenWidth
       frac += fracStep
     } while (count--)
   }
@@ -371,13 +386,17 @@ export class Draw {
       return
     }
 
+    const dest = this.video.screens[0]
+    const screenWidth = dest.width
+    const screenHeight = dest.height
+
     // low detail, need to scale by 2
     const x = this.dcX << 1
 
     if (RANGE_CHECK) {
-      if (x >>> 0 >= SCREENWIDTH ||
+      if (x >>> 0 >= screenWidth ||
         this.dcYl < 0 ||
-        this.dcYh >= SCREENHEIGHT
+        this.dcYh >= screenHeight
       ) {
         throw `R_DrawColumn: ${this.dcYl} to ${this.dcYh} at ${x}`
       }
@@ -385,7 +404,6 @@ export class Draw {
 
     let destPtr = this.yLookupPtr[this.dcYl] + this.columnOfs[x]
     let destPtr2 = this.yLookupPtr[this.dcYl] + this.columnOfs[x + 1]
-    const dest = this.video.screens[0]
 
     // Looks familiar.
     const fracStep = this.dcIScale
@@ -407,8 +425,8 @@ export class Draw {
         this.dcTranslation[this.dcSource.bytes[frac >> FRACBITS]]
       ]
 
-      destPtr += SCREENWIDTH
-      destPtr2 += SCREENWIDTH
+      destPtr += screenWidth
+      destPtr2 += screenWidth
 
       frac += fracStep
     } while (count--)
@@ -471,11 +489,15 @@ export class Draw {
   //
   // Draws the actual span.
   drawSpan(): void {
+    const dest = this.video.screens[0]
+    const screenWidth = dest.width
+    const screenHeight = dest.height
+
     if (RANGE_CHECK) {
       if (this.dsX2 < this.dsX1 ||
           this.dsX1 < 0 ||
-          this.dsX2 >= SCREENWIDTH ||
-          this.dsY >>> 0 > SCREENHEIGHT
+          this.dsX2 >= screenWidth ||
+          this.dsY >>> 0 > screenHeight
       ) {
         throw `R_DrawSpan: ${this.dsX1} to ${this.dsX2} at ${this.dsY}`
       }
@@ -493,7 +515,6 @@ export class Draw {
 
     let destPtr = this.yLookupPtr[this.dsY] +
         this.columnOfs[this.dsX1]
-    const dest = this.video.screens[0]
 
     // We do not check for zero spans here?
     let count = this.dsX2 - this.dsX1
@@ -520,11 +541,15 @@ export class Draw {
   // Again..
   //
   drawSpanLow(): void {
+    const dest = this.video.screens[0]
+    const screenWidth = dest.width
+    const screenHeight = dest.height
+
     if (RANGE_CHECK) {
       if (this.dsX2 < this.dsX1 ||
           this.dsX1 < 0 ||
-          this.dsX2 >= SCREENWIDTH ||
-          this.dsY >>> 0 > SCREENHEIGHT
+          this.dsX2 >= screenWidth ||
+          this.dsY >>> 0 > screenHeight
       ) {
         throw `R_DrawSpan: ${this.dsX1} to ${this.dsX2} at ${this.dsY}`
       }
@@ -543,7 +568,6 @@ export class Draw {
 
     let destPtr = this.yLookupPtr[this.dsY] +
         this.columnOfs[this.dsX1]
-    const dest = this.video.screens[0]
 
     // We do not check for zero spans here?
 
@@ -573,10 +597,14 @@ export class Draw {
   //  of a pixel to draw.
   //
   initBuffer(width: number, height: number): void {
+    const dest = this.video.screens[0]
+    const screenWidth = dest.width
+    const screenHeight = dest.height
+
     // Handle resize,
     //  e.g. smaller view windows
     //  with border and/or status bar.
-    this.viewWindowX = SCREENWIDTH - width >> 1
+    this.viewWindowX = screenWidth - width >> 1
 
     // Column offset. For windows.
     for (let i = 0; i < width; ++i) {
@@ -584,15 +612,15 @@ export class Draw {
     }
 
     // Samw with base row offset.
-    if (width === SCREENWIDTH) {
+    if (width === screenWidth) {
       this.viewWindowY = 0
     } else {
-      this.viewWindowY = SCREENHEIGHT - SBAR_HEIGHT - height >> 1
+      this.viewWindowY = screenHeight - SBAR_HEIGHT - height >> 1
     }
 
     // Preclaculate all row offsets.
     for (let i = 0; i < height; ++i) {
-      this.yLookupPtr[i] = (i + this.viewWindowY) * SCREENWIDTH
+      this.yLookupPtr[i] = (i + this.viewWindowY) * screenWidth
     }
   }
 
@@ -603,13 +631,17 @@ export class Draw {
   // Also draws a beveled edge.
   //
   fillBackScreen(): void {
+    const dest = this.video.screens[1]
+    const screenWidth = dest.width
+    const screenHeight = dest.height
+
     // DOOM border patch.
     const name1 = 'FLOOR7_2'
 
     // DOOM II border patch.
     const name2 = 'GRNROCK'
 
-    if (this.scaledViewWidth === SCREENWIDTH) {
+    if (this.scaledViewWidth === screenWidth) {
       return
     }
 
@@ -621,11 +653,10 @@ export class Draw {
     }
 
     const src = new Uint8Array(this.wad.cacheLumpName(name))
-    const dest = this.video.screens[1]
     let destOffset = 0
 
-    for (let y = 0; y < SCREENHEIGHT - SBAR_HEIGHT; ++y) {
-      for (let x = 0; x < SCREENWIDTH / 64; ++x) {
+    for (let y = 0; y < screenHeight - SBAR_HEIGHT; ++y) {
+      for (let x = 0; x < screenWidth / 64; ++x) {
         dest.set(
           src.slice((y & 63) << 6, ((y & 63) << 6) + 64),
           destOffset,
@@ -633,12 +664,12 @@ export class Draw {
         destOffset += 64
       }
 
-      if (SCREENWIDTH & 63) {
+      if (screenWidth & 63) {
         dest.set(
-          src.slice((y & 63) << 6, ((y & 63) << 6) + (SCREENWIDTH & 63)),
+          src.slice((y & 63) << 6, ((y & 63) << 6) + (screenWidth & 63)),
           destOffset,
         )
-        destOffset += SCREENWIDTH & 63
+        destOffset += screenWidth & 63
       }
     }
 
@@ -691,27 +722,31 @@ export class Draw {
   //  for different size windows?
   //
   drawViewBorder(): void {
-    if (this.scaledViewWidth === SCREENWIDTH) {
+    const dest = this.video.screens[0]
+    const screenWidth = dest.width
+    const screenHeight = dest.height
+
+    if (this.scaledViewWidth === screenWidth) {
       return
     }
 
-    const top = (SCREENHEIGHT - SBAR_HEIGHT - this.viewHeight) / 2 >> 0
-    let side = (SCREENWIDTH - this.scaledViewWidth) / 2 >> 0
+    const top = (screenHeight - SBAR_HEIGHT - this.viewHeight) / 2 >> 0
+    let side = (screenWidth - this.scaledViewWidth) / 2 >> 0
 
     // copy top and one line of left side
-    this.video.erase(0, top * SCREENWIDTH + side)
+    this.video.erase(0, top * screenWidth + side)
 
     // copy one line of right side and bottom
-    let ofs = (this.viewHeight + top) * SCREENWIDTH - side
-    this.video.erase(ofs, top * SCREENWIDTH + side)
+    let ofs = (this.viewHeight + top) * screenWidth - side
+    this.video.erase(ofs, top * screenWidth + side)
 
     // copy sides using wraparound
-    ofs = top * SCREENWIDTH + SCREENWIDTH - side
+    ofs = top * screenWidth + screenWidth - side
     side <<= 1
 
     for (let i = 1; i < this.viewHeight; ++i) {
       this.video.erase(ofs, side)
-      ofs += SCREENWIDTH
+      ofs += screenWidth
     }
   }
 
