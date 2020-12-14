@@ -1,4 +1,4 @@
-import { SCREENHEIGHT, SCREENWIDTH, SCREEN_MUL } from '../global/doomdef'
+import { SCREENWIDTH, SCREEN_MUL } from '../global/doomdef'
 import { BinIcon } from './bin-icon'
 import { MultiIcon } from './multi-icon'
 import { NumberWidget } from './number-widget'
@@ -13,13 +13,19 @@ import { Video } from '../rendering/video'
 // Now sensitive for scaling.
 export const ST_HEIGHT = 32 * SCREEN_MUL
 export const ST_WIDTH = SCREENWIDTH
-export const ST_Y = SCREENHEIGHT - ST_HEIGHT
 
 //
 export const BG = 4
 export const FG = 0
 
 export class Lib {
+  get x(): number {
+    return (this.rVideo.width - ST_WIDTH) / 2
+  }
+  get y(): number {
+    return this.rVideo.height - ST_HEIGHT
+  }
+
   private get rVideo(): Video {
     return this.statusBar.rVideo
   }
@@ -66,13 +72,13 @@ export class Lib {
     // clear the area
     x = n.x - numDigits * w
 
-    if (n.y - ST_Y < 0) {
-      throw 'drawNum: n->y - ST_Y < 0'
+    if (n.y < 0) {
+      throw 'drawNum: n->y < 0'
     }
 
-    this.rVideo.copyRect(x, n.y - ST_Y, BG,
+    this.rVideo.copyRect(x, n.y, BG,
       w * numDigits, h,
-      x, n.y, FG,
+      x + this.x, n.y + this.y, FG,
     )
 
     // if non-number, do not draw it
@@ -84,19 +90,19 @@ export class Lib {
 
     // in the special case of 0, you draw 0
     if (!num) {
-      this.rVideo.drawPatch(x - w, n.y, FG, n.patches[0])
+      this.rVideo.drawPatch(x - w + this.x, n.y + this.y, FG, n.patches[0])
     }
 
     // draw the new number
     while (num && numDigits--) {
       x -= w
-      this.rVideo.drawPatch(x, n.y, FG, n.patches[ num % 10 ])
+      this.rVideo.drawPatch(x + this.x, n.y + this.y, FG, n.patches[ num % 10 ])
       num = num / 10 >> 0
     }
 
     // draw a minus sign if necessary
     if (neg) {
-      this.rVideo.drawPatch(x - 8, n.y, FG, this.minus)
+      this.rVideo.drawPatch(x - 8 + this.x, n.y + this.y, FG, this.minus)
     }
 
 
@@ -110,7 +116,7 @@ export class Lib {
 
   updatePercent(per: PercentWidget, refresh: boolean): void {
     if (refresh && per.on()) {
-      this.rVideo.drawPatch(per.x, per.y, FG, per.patch)
+      this.rVideo.drawPatch(per.x + this.x, per.y + this.y, FG, per.patch)
     }
 
     this.updateNum(per)
@@ -127,13 +133,13 @@ export class Lib {
         const w = mi.patches[mi.oldINum].width
         const h = mi.patches[mi.oldINum].height
 
-        if (y - ST_Y < 0) {
-          throw 'updateMultIcon: y - ST_Y < 0'
+        if (y < 0) {
+          throw 'updateMultIcon: y < 0'
         }
 
-        this.rVideo.copyRect(x, y - ST_Y, BG, w, h, x, y, FG)
+        this.rVideo.copyRect(x, y, BG, w, h, x + this.x, y + this.y, FG)
       }
-      this.rVideo.drawPatch(mi.x, mi.y, FG, mi.patches[mi.iNum()])
+      this.rVideo.drawPatch(mi.x + this.x, mi.y + this.y, FG, mi.patches[mi.iNum()])
       mi.oldINum = mi.iNum()
     }
   }
@@ -147,14 +153,14 @@ export class Lib {
       const w = bi.patch.width
       const h = bi.patch.height
 
-      if (y - ST_Y < 0) {
-        throw 'updateBinIcon: y - ST_Y < 0'
+      if (y < 0) {
+        throw 'updateBinIcon: y < 0'
       }
 
       if (bi.val()) {
-        this.rVideo.drawPatch(bi.x, bi.y, FG, bi.patch)
+        this.rVideo.drawPatch(bi.x + this.x, bi.y + this.y, FG, bi.patch)
       } else {
-        this.rVideo.copyRect(x, y - ST_Y, BG, w, h, x, y, FG)
+        this.rVideo.copyRect(x, y, BG, w, h, x + this.x, y + this.y, FG)
       }
 
       bi.oldVal = bi.val()
