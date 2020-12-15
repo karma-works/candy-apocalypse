@@ -47,7 +47,7 @@ export class HeadsUp {
   }
   private readonly TITLE_X = 0
   private get TITLE_Y(): number {
-    return 167 - this.font[0].height
+    return this.doom.rVideo.height - 33 - this.font[0].height
   }
 
   private readonly INPUT_X = MSG_X

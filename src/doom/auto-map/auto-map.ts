@@ -3,7 +3,7 @@ import { DEvent, EvType } from '../doom/event'
 import { FRACBITS, FRACUNIT, div, mul } from '../misc/fixed'
 import { Line, Point, cheatPlayerArrow, playerArrow, thinTriangleGuy } from './models'
 import { MAP_BLOCK_UNITS, PLAYER_RADIUS } from '../play/local'
-import { MAX_PLAYERS, PowerType, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
+import { MAX_PLAYERS, PowerType } from '../global/doomdef'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { Level } from '../level/level'
@@ -91,8 +91,12 @@ export class AutoMap {
   private grid = false
 
   active = false
-  private finitWidth = SCREENWIDTH
-  private finitHeight = SCREENHEIGHT - 32
+  get finitWidth(): number {
+    return this.rVideo.width
+  }
+  get finitHeight(): number {
+    return this.rVideo.height - 32
+  }
 
   // location of window on screen
   private fx = 0
