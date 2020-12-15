@@ -317,6 +317,7 @@ export class Doom {
         // erase old menu stuff
         this.rendering.drawViewBorder()
         this.borderDrawCount--
+        this.statusBar.drawer(this.rendering.fullScreen, true)
       }
     }
 

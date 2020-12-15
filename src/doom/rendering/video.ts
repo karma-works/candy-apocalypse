@@ -104,28 +104,12 @@ export class Video {
 
     const w = patch.width
     const srcWidth = patch.width << FRACBITS
-    const srcHeight = patch.height << FRACBITS
-    const destWidth = mul(scale, srcWidth)
-    const destHeight = mul(scale, srcHeight)
 
     x >>= 0
     y >>= 0
 
     y -= patch.topOffset
     x -= patch.leftOffset
-
-    if (RANGE_CHECK) {
-      if (x < 0 ||
-        x + (destWidth >> FRACBITS) > screen.width ||
-        y < 0 ||
-        y + (destHeight >> FRACBITS) > screen.height ||
-        scrn > 4
-      ) {
-        console.error(`Patch at ${x},${y} exceeds LFB`)
-        console.error('V_DrawPatch: bad patch (ignored)')
-        return
-      }
-    }
 
     let destTopPtr = y * screen.width + x
 
@@ -137,13 +121,17 @@ export class Video {
     let xFrac = 0
     const step = div(FRACUNIT, scale)
     let yFrac: number
-    for (; xFrac < srcWidth; ++x, ++destTopPtr) {
+    columns: for (; xFrac < srcWidth; ++x, ++destTopPtr) {
       column = patch.columns[
         flipped ?
           w - 1 - (xFrac >> FRACBITS) :
           xFrac >> FRACBITS
       ]
       xFrac += step
+
+      if (x < 0 || x > screen.width) {
+        continue columns
+      }
 
       // step through the posts in a column
       for (post of column.posts) {
@@ -154,11 +142,17 @@ export class Video {
 
         yFrac = 0
         while (count--) {
-          screen[destPtr] = post.bytes[yFrac >> FRACBITS]
-          this.alpha[destPtr] = 255
+          if (destPtr >= 0) {
+            screen[destPtr] = post.bytes[yFrac >> FRACBITS]
+            this.alpha[destPtr] = 255
+          }
 
           destPtr += screen.width
           yFrac += step
+
+          if (destPtr > screen.length) {
+            continue columns
+          }
         }
       }
     }
@@ -168,8 +162,12 @@ export class Video {
   drawFlat(x: number, y: number, scrn: number, flat: Flat): void {
     const dest = this.screens[scrn]
     let destPtr = y * dest.width + x
-    for (let yy = 0; yy < 64; ++yy) {
-      dest.set(flat.slice(yy * 64, yy * 64 + 64), destPtr)
+
+    const maxY = Math.min(64, dest.height - y)
+    const maxX = Math.min(64, dest.width - x)
+
+    for (let yy = 0; yy < maxY; ++yy) {
+      dest.set(flat.slice(yy * 64, yy * 64 + maxX), destPtr)
       destPtr += dest.width
     }
   }

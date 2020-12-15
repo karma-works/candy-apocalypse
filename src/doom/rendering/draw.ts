@@ -641,10 +641,6 @@ export class Draw {
     // DOOM II border patch.
     const name2 = 'GRNROCK'
 
-    if (this.scaledViewWidth === screenWidth) {
-      return
-    }
-
     let name: string
     if (this.doom.gameMode === GameMode.Commercial) {
       name = name2
@@ -652,24 +648,11 @@ export class Draw {
       name = name1
     }
 
-    const src = new Uint8Array(this.wad.cacheLumpName(name))
-    let destOffset = 0
+    const src = this.wad.cacheLumpName(name, Flat)
 
-    for (let y = 0; y < screenHeight - SBAR_HEIGHT; ++y) {
-      for (let x = 0; x < screenWidth / 64; ++x) {
-        dest.set(
-          src.slice((y & 63) << 6, ((y & 63) << 6) + 64),
-          destOffset,
-        )
-        destOffset += 64
-      }
-
-      if (screenWidth & 63) {
-        dest.set(
-          src.slice((y & 63) << 6, ((y & 63) << 6) + (screenWidth & 63)),
-          destOffset,
-        )
-        destOffset += screenWidth & 63
+    for (let y = 0; y < screenHeight; y += 64) {
+      for (let x = 0; x < screenWidth; x += 64) {
+        this.video.drawFlat(x, y, 1, src)
       }
     }
 
@@ -726,19 +709,15 @@ export class Draw {
     const screenWidth = dest.width
     const screenHeight = dest.height
 
-    if (this.scaledViewWidth === screenWidth) {
-      return
-    }
-
     const top = (screenHeight - SBAR_HEIGHT - this.viewHeight) / 2 >> 0
     let side = (screenWidth - this.scaledViewWidth) / 2 >> 0
 
     // copy top and one line of left side
-    this.video.erase(0, top * screenWidth + side)
+    this.video.erase(0, this.viewWindowY * screenWidth + side)
 
     // copy one line of right side and bottom
-    let ofs = (this.viewHeight + top) * screenWidth - side
-    this.video.erase(ofs, top * screenWidth + side)
+    let ofs = (this.viewHeight + this.viewWindowY) * screenWidth - side
+    this.video.erase(ofs, dest.length - ofs)
 
     // copy sides using wraparound
     ofs = top * screenWidth + screenWidth - side
