@@ -1,5 +1,6 @@
 import { ANG90, ANGLE_TO_FINE_SHIFT, DBITS, FINE_ANGLES, fineSine, fineTangent, tanToAngle } from '../misc/table'
 import { FRACBITS, FRACUNIT, div, mul } from '../misc/fixed'
+import { SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { BSP } from './bsp'
 import { Data } from './data'
 import { Doom } from '../doom'
@@ -373,8 +374,12 @@ export class Rendering implements RenderingInterface {
 
     // psprite scales
     const screenWidth = this.video.width
-    this.things.pSpriteScale = FRACUNIT * this.draw.viewWidth / screenWidth >> 0
-    this.things.pSpriteIScale = FRACUNIT * screenWidth / this.draw.viewWidth >> 0
+    const ratio = this.video.width / this.video.height
+    const expectedRatio = SCREENWIDTH / SCREENHEIGHT
+    const expectedViewWidth = this.draw.viewWidth * expectedRatio / ratio
+
+    this.things.pSpriteScale = FRACUNIT * expectedViewWidth / SCREENWIDTH >> 0
+    this.things.pSpriteIScale = FRACUNIT * SCREENWIDTH / expectedViewWidth >> 0
 
     // thing clipping
     for (let i = 0; i < this.draw.viewWidth; ++i) {
