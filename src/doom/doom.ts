@@ -104,6 +104,8 @@ export class Doom {
     const { Rendering } = await import('./rendering/rendering')
     const { Video } = await import('./interfaces/video')
 
+    this.rVideo.init()
+
     const palette = this.iVideo.palette
     const gamma = this.iVideo.gamma
 
@@ -133,6 +135,8 @@ export class Doom {
     }
     const { Rendering } = await import('./webgl/rendering')
     const { Video } = await import('./webgl/video')
+
+    this.rVideo.init()
 
     const palette = this.iVideo.palette
     const gamma = this.iVideo.gamma
@@ -808,10 +812,6 @@ export class Doom {
       }
     }
 
-    // init subsystems
-    console.log('V_Init: allocate screens.')
-    this.rVideo.init()
-
     console.log('M_LoadDefaults: Load system defaults.')
     // load before initing other systems
     this.defaults.load(this.params.config)
@@ -876,7 +876,6 @@ export class Doom {
     this.menu.init()
 
     console.log('R_Init: Init DOOM refresh daemon - ')
-    this.rendering.init()
     this.rData.initData()
     await this.setLegacyRenderer()
 

@@ -28,21 +28,27 @@ export class Video {
   screens = new Array<Screen>(5)
   alpha = new Uint8ClampedArray()
 
-  width: number
-  height: number
-  physicalWidth: number
-  physicalHeight: number
+  width = 0
+  height = 0
+  public get physicalWidth(): number {
+    return this.width
+  }
+  public set physicalWidth(value: number) {
+    this.width = value
+  }
+  public get physicalHeight(): number {
+    return this.height * STRETCH
+  }
+  public set physicalHeight(value: number) {
+    this.height = value / STRETCH
+  }
 
   constructor(p: LogicalSize | PhysicalSize) {
     /* eslint-disable no-extra-parens */
     if ((<LogicalSize> p).logical) {
       [ this.width, this.height ] = (<LogicalSize> p).logical
-      this.physicalWidth = this.width
-      this.physicalHeight = this.height * STRETCH
     } else {
       [ this.physicalWidth, this.physicalHeight ] = (<PhysicalSize> p).physical
-      this.width = this.physicalWidth
-      this.height = this.physicalHeight / STRETCH
     }
     /* eslint-enable no-extra-parens */
   }

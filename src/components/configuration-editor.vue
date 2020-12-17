@@ -1,5 +1,13 @@
 <template>
   <v-container>
+    <v-select
+      v-model="resolution"
+      :items="resolutions"
+      :item-text="formatResolution"
+      :item-value="[]"
+      label="Resolution"
+    ></v-select>
+
     <v-simple-table>
       <template v-slot:default>
         <thead>
@@ -24,6 +32,10 @@
       @click="save"
     >save</v-btn>
 
+
+    <v-snackbar app v-model="savedWarning">
+      Please restart the game to apply the settings
+    </v-snackbar>
   </v-container>
 </template>
 

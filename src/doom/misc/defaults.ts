@@ -49,6 +49,9 @@ export class AgnosticDefaults {
     detaillevel: 0,
     snd_channels: 3,
     usegamma: 0,
+
+    resolution_width: 320,
+    resolution_height: 240,
   }
 
   private configFile: string = defaultCfg
@@ -74,7 +77,7 @@ export class AgnosticDefaults {
       const td = new TextDecoder()
       const fileContent = td.decode(file)
 
-      const matches = fileContent.matchAll(/([^ ]{1,79}) ([^\n]*)\n/g)
+      const matches = fileContent.matchAll(/([^ ]{1,79}) ([^\n]*)(\n|$)/g)
       let name: string
       let param: string
       let value: number
@@ -226,6 +229,14 @@ export class Defaults extends AgnosticDefaults {
     usegamma: {
       get: () => this.iVideo.gamma,
       set: v => this.iVideo.gamma = v,
+    },
+    resolution_width: {
+      get: () => this.doom.rVideo.physicalWidth,
+      set: v => this.doom.rVideo.physicalWidth = v,
+    },
+    resolution_height: {
+      get: () => this.doom.rVideo.physicalHeight,
+      set: v => this.doom.rVideo.physicalHeight = v,
     },
   }
 
