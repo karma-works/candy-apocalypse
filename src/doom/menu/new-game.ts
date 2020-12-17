@@ -1,4 +1,5 @@
 import { MenuItem, MenuStruct } from './typedefs'
+import { SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { EpisodeMenu } from './episode'
 import { Game } from '../game/game'
 import { LumpReader } from '../wad/lump-reader'
@@ -81,12 +82,14 @@ export class NewGameMenu implements MenuStruct {
   // M_NewGame
   //
   routine(): void {
+    const offsetX = (this.rVideo.width - SCREENWIDTH) / 2
+    const offsetY = (this.rVideo.height - SCREENHEIGHT) / 2
     this.rVideo.drawPatch(
-      96, 14, 0,
+      96 + offsetX, 14 + offsetY, 0,
       this.wad.cacheLumpName('M_NEWG', Patch),
     )
     this.rVideo.drawPatch(
-      54, 38, 0,
+      54 + offsetX, 38 + offsetY, 0,
       this.wad.cacheLumpName('M_SKILL', Patch),
     )
   }

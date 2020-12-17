@@ -2,7 +2,7 @@ import { DrawSeg, SIL_BOTTOM, SIL_TOP } from './defs/draw-seg'
 import { FF_FRAMEMASK, FF_FULLBRIGHT, PSpriteDef, PSpriteNum } from '../play/sprite'
 import { FRACBITS, FRACUNIT, div, mul } from '../misc/fixed'
 import { LIGHT_LEVELS, LIGHT_SCALE_SHIFT, LIGHT_SEG_SHIFT, MAX_LIGHT_SCALE, Rendering } from './rendering'
-import { PowerType, RANGE_CHECK, SCREENWIDTH } from '../global/doomdef'
+import { PowerType, RANGE_CHECK } from '../global/doomdef'
 import { ANG45 } from '../misc/table'
 import { Column } from './defs/column'
 import { Data } from './data'
@@ -41,7 +41,10 @@ export class Things {
   private get spriteDefs(): SpriteDefsArray {
     return this.data.spriteDefs
   }
-  constructor(protected rendering: Rendering) { }
+  constructor(protected rendering: Rendering, width: number) {
+    this.negoneArray = new Int16Array(width)
+    this.screenHeightArray = new Int16Array(width)
+  }
 
   //
   // Sprite rotation 0 is facing the viewer,
@@ -57,8 +60,8 @@ export class Things {
 
   // constant arrays
   //  used for psprite clipping and initializing clipping
-  negoneArray = new Int16Array(SCREENWIDTH)
-  screenHeightArray = new Int16Array(SCREENWIDTH)
+  negoneArray: Int16Array
+  screenHeightArray: Int16Array
 
   //
   // INITIALIZATION FUNCTIONS
@@ -77,9 +80,7 @@ export class Things {
   // Called at program start.
   //
   initSprites(): void {
-    for (let i = 0; i < SCREENWIDTH; ++i) {
-      this.negoneArray[i] = -1
-    }
+    this.negoneArray.fill(-1)
   }
 
   //
@@ -564,8 +565,9 @@ export class Things {
   //
   drawSprite(spr: VisSprite): void {
 
-    const clipBot = new Int16Array(SCREENWIDTH)
-    const clipTop = new Int16Array(SCREENWIDTH)
+    const screenWidth = this.rendering.video.width
+    const clipBot = new Int16Array(screenWidth)
+    const clipTop = new Int16Array(screenWidth)
 
     let x: number
     for (x = spr.x1; x <= spr.x2; ++x) {

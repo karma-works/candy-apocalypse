@@ -73,7 +73,7 @@ export class Textures {
     if (!this.skyTextureCache[num]) {
       const patch = this.rData.textures[num].patch
 
-      const rVideo = new RVideo(1024, 512)
+      const rVideo = new RVideo({ logical: [ 1024, 512 ] })
       rVideo.init(1)
       const iVideo = new IVideo(rVideo)
       iVideo.palette = palette

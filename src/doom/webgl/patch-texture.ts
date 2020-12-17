@@ -4,7 +4,7 @@ import { Video as RVideo } from '../rendering/video'
 
 export class PatchTexture extends DataTexture {
   constructor(patch: Patch) {
-    const rVideo = new RVideo(patch.width, patch.height)
+    const rVideo = new RVideo({ logical: [ patch.width, patch.height ] })
     rVideo.init(1)
     rVideo.drawPatch(patch.leftOffset, patch.topOffset, 0, patch)
 

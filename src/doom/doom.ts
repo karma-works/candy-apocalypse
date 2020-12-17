@@ -78,7 +78,7 @@ export class Doom {
   public headsUp = new HeadsUp(this)
   public statusBar = new StatusBar(this)
   public play = new Play(this)
-  public rVideo = new RVIdeo()
+  public rVideo = new RVIdeo({ logical: [ SCREENWIDTH, SCREENHEIGHT ] })
   public rData = new RData(this.wad)
   public rendering: RenderingInterface = new BlankRenderer()
   public game = new Game(this)
@@ -103,6 +103,9 @@ export class Doom {
     }
     const { Rendering } = await import('./rendering/rendering')
     const { Video } = await import('./interfaces/video')
+
+    this.rVideo.init()
+    this.rVideo.alpha.fill(255)
 
     const palette = this.iVideo.palette
     const gamma = this.iVideo.gamma
@@ -134,12 +137,14 @@ export class Doom {
     const { Rendering } = await import('./webgl/rendering')
     const { Video } = await import('./webgl/video')
 
+    this.rVideo.init()
+
     const palette = this.iVideo.palette
     const gamma = this.iVideo.gamma
 
     this.iVideo.quit()
 
-    const iVideo = new Video()
+    const iVideo = new Video(this.rVideo)
     this.iVideo = iVideo
     this.iVideo.screen = this.params.screen3d
     this.iVideo.palette = palette
@@ -317,6 +322,7 @@ export class Doom {
         // erase old menu stuff
         this.rendering.drawViewBorder()
         this.borderDrawCount--
+        this.statusBar.drawer(this.rendering.fullScreen, true)
       }
     }
 
@@ -353,7 +359,7 @@ export class Doom {
     }
 
     // wipe update
-    this.wipe.endScreen(0, 0, SCREENWIDTH, SCREENHEIGHT)
+    this.wipe.endScreen(0, 0, this.rVideo.width, this.rVideo.height)
 
     this.wipeActive = true
     this.wipeStart = getTime() - 1
@@ -374,7 +380,7 @@ export class Doom {
     } while (!tics)
     this.wipeStart = nowTime
 
-    done = this.wipe.screenWipe(0, 0, SCREENWIDTH, SCREENHEIGHT, tics)
+    done = this.wipe.screenWipe(0, 0, this.rVideo.width, this.rVideo.height, tics)
 
     // menu is drawn even on top of wipes
     this.menu.drawer()
@@ -472,9 +478,10 @@ export class Doom {
   // D_PageDrawer
   //
   private pageDrawer(): void {
-    this.rVideo.drawPatch(0, 0, 0,
-      this.wad.cacheLumpName(this.pageName, Patch),
-    )
+    const patch = this.wad.cacheLumpName(this.pageName, Patch)
+    const x = (this.rVideo.width - SCREENWIDTH) / 2
+    const y = (this.rVideo.height - SCREENHEIGHT) / 2
+    this.rVideo.drawPatch(x, y, 0, patch)
   }
 
   //
@@ -806,10 +813,6 @@ export class Doom {
       }
     }
 
-    // init subsystems
-    console.log('V_Init: allocate screens.')
-    this.rVideo.init()
-
     console.log('M_LoadDefaults: Load system defaults.')
     // load before initing other systems
     this.defaults.load(this.params.config)
@@ -874,7 +877,6 @@ export class Doom {
     this.menu.init()
 
     console.log('R_Init: Init DOOM refresh daemon - ')
-    this.rendering.init()
     this.rData.initData()
     await this.setLegacyRenderer()
 

@@ -2,7 +2,6 @@ import { ANG180, ANG90, ANGLE_TO_FINE_SHIFT, fineSine, fineTangent } from '../mi
 import { DrawSeg, MAX_DRAW_SEGS, SIL_BOTH, SIL_BOTTOM, SIL_TOP } from './defs/draw-seg'
 import { FRACBITS, mul } from '../misc/fixed'
 import { LIGHT_LEVELS, LIGHT_SCALE_SHIFT, LIGHT_SEG_SHIFT, MAX_LIGHT_SCALE, Rendering } from './rendering'
-import { RANGE_CHECK, SCREENWIDTH } from '../global/doomdef'
 import { BSP } from './bsp'
 import { Column } from './defs/column'
 import { Data } from './data'
@@ -10,6 +9,7 @@ import { Draw } from './draw'
 import { Level } from '../level/level'
 import { MapLineFlag } from '../doom/data'
 import { Plane } from './plane'
+import { RANGE_CHECK } from '../global/doomdef'
 import { Things } from './things'
 
 const HEIGHT_BITS = 12
@@ -404,6 +404,7 @@ export class Segs {
     if (this.dsP === MAX_DRAW_SEGS) {
       return
     }
+    const screenWidth = this.rendering.video.width
     const dsP = this.drawSegs[this.dsP]
 
     if (RANGE_CHECK) {
@@ -600,7 +601,7 @@ export class Segs {
         // masked midtexture
         this.maskedTexture = 1
         dsP.maskedTextureCol = this.maskedTextureCol =
-          this.plane.openings.subarray(SCREENWIDTH + this.plane.lastOpeningPtr - this.rwX)
+          this.plane.openings.subarray(screenWidth + this.plane.lastOpeningPtr - this.rwX)
         this.plane.lastOpeningPtr += this.rwStopX - this.rwX
       }
     }
@@ -711,10 +712,10 @@ export class Segs {
     ) {
       this.plane.openings.set(
         this.plane.ceilingClip.subarray(start, start + 2 * (this.rwStopX - start)),
-        SCREENWIDTH + this.plane.lastOpeningPtr,
+        screenWidth + this.plane.lastOpeningPtr,
       )
 
-      dsP.sprTopClip = this.plane.openings.subarray(SCREENWIDTH + this.plane.lastOpeningPtr - start)
+      dsP.sprTopClip = this.plane.openings.subarray(screenWidth + this.plane.lastOpeningPtr - start)
       this.plane.lastOpeningPtr += this.rwStopX - start
     }
 
@@ -723,10 +724,10 @@ export class Segs {
     ) {
       this.plane.openings.set(
         this.plane.floorClip.subarray(start, start + 2 * (this.rwStopX - start)),
-        SCREENWIDTH + this.plane.lastOpeningPtr,
+        screenWidth + this.plane.lastOpeningPtr,
       )
 
-      dsP.sprBottomClip = this.plane.openings.subarray(SCREENWIDTH + this.plane.lastOpeningPtr - start)
+      dsP.sprBottomClip = this.plane.openings.subarray(screenWidth + this.plane.lastOpeningPtr - start)
       this.plane.lastOpeningPtr += this.rwStopX - start
     }
 

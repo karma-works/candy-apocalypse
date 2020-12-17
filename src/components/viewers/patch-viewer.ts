@@ -67,7 +67,7 @@ export default class PatchViewer extends Vue {
       this.iVideo.quit()
     }
 
-    const rVideo = new RVideo(this.patch.width, this.patch.height)
+    const rVideo = new RVideo({ logical: [ this.patch.width, this.patch.height ] })
     rVideo.init(1)
 
     const iVideo = new IVideo(rVideo)

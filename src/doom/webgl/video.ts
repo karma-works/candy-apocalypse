@@ -1,8 +1,11 @@
 import { Camera, Scene, WebGLRenderer } from 'three'
 import { Palette } from '../interfaces/palette'
+import { Video as RVideo } from '../rendering/video'
 import { VideoInterface } from '../interfaces/video-interface'
 
 export class Video implements VideoInterface {
+  ratio = 4 / 3
+
   gamma = 0
 
   screen: HTMLCanvasElement | null = null
@@ -13,7 +16,7 @@ export class Video implements VideoInterface {
   xWidth = 320
   xHeight = 200
 
-  constructor() {
+  constructor(private rVideo: RVideo) {
     this.uploadNewPalette()
   }
 
@@ -46,8 +49,10 @@ export class Video implements VideoInterface {
     }
     this.firstTime = false
 
-    this.xWidth = 320 * 4
-    this.xHeight = 200 * 4
+    this.xWidth = this.rVideo.width
+    this.xHeight = this.rVideo.height
+
+    this.ratio = this.rVideo.physicalWidth / this.rVideo.physicalHeight
 
     this.screen.width = this.xWidth
     this.screen.height = this.xHeight

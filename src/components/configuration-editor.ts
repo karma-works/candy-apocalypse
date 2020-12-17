@@ -12,6 +12,8 @@ interface KeyBinding {
 export default class FilesTable extends Vue {
   @Prop() name!: string
 
+  savedWarning = false
+
   keyBindings: KeyBinding[] = [
     { name: 'key_left', label: 'Look left', key: 0 },
     { name: 'key_right', label: 'Look right', key: 0 },
@@ -37,13 +39,23 @@ export default class FilesTable extends Vue {
         keyBinding.key = this.defaults.get(k)
       }
     })
+
+    const width = this.defaults.get('resolution_width')
+    const height = this.defaults.get('resolution_height')
+    this.resolution = [ width, height ]
   }
 
   async save(): Promise<void> {
     this.keyBindings.forEach(k => {
       this.defaults.set(k.name, k.key)
     })
+
+    this.defaults.set('resolution_width', this.resolution[0])
+    this.defaults.set('resolution_height', this.resolution[1])
+
     await this.defaults.save()
+
+    this.savedWarning = true
   }
 
   getKeyLabel(key: number): string {
@@ -105,4 +117,22 @@ export default class FilesTable extends Vue {
     this.pending = ''
   }
 
+  resolutions: [number, number][] = [
+    [ 320, 240 ],
+    [ 640, 480 ],
+    [ 800, 600 ],
+    [ 1024, 768 ],
+    [ 1400, 1050 ],
+
+    [ 426, 240 ],
+    [ 853, 480 ],
+    [ 1600, 900 ],
+    [ 1920, 1080 ],
+  ]
+
+  resolution: [number, number] = [ 320, 240 ]
+
+  formatResolution(resolution: [number, number]): string {
+    return `${resolution[0]}x${resolution[1]}`
+  }
 }

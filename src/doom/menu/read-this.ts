@@ -1,4 +1,5 @@
 import { MenuItem, MenuStruct } from './typedefs'
+import { SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { LumpReader } from '../wad/lump-reader'
 import { MainMenu } from './main'
 import { Menu } from './menu'
@@ -38,8 +39,10 @@ export abstract class AbstractReadThisMenu implements MenuStruct {
 
   // Read This Menus
   routine(): void {
+    const offsetX = (this.rVideo.width - SCREENWIDTH) / 2
+    const offsetY = (this.rVideo.height - SCREENHEIGHT) / 2
     this.menu.inHelpScreens = true
-    this.rVideo.drawPatch(0, 0, 0,
+    this.rVideo.drawPatch(offsetX, offsetY, 0,
       this.wad.cacheLumpName(this.lumpName, Patch),
     )
   }

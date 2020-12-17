@@ -24,8 +24,8 @@ export class Things extends LegacyThings {
     return this.rendering.textures
   }
 
-  constructor(protected rendering: Rendering) {
-    super(rendering)
+  constructor(protected rendering: Rendering, width: number) {
+    super(rendering, width)
   }
 
   drawSprite(spr: VisSprite): void {

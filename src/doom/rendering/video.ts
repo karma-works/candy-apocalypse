@@ -1,5 +1,5 @@
 import { FRACBITS, FRACUNIT, div, mul } from '../misc/fixed'
-import { RANGE_CHECK, SCREENHEIGHT, SCREENWIDTH, SCREEN_MUL } from '../global/doomdef'
+import { RANGE_CHECK, SCREEN_MUL, STRETCH } from '../global/doomdef'
 import { Column } from './defs/column'
 import { Flat } from '../textures/flat'
 import { Patch } from './defs/patch'
@@ -10,15 +10,48 @@ interface DrawPatchOptions {
   scale?: number
 }
 
+type LogicalSize = { logical: [number, number] }
+type PhysicalSize = { physical: [number, number] }
+
+export class Screen extends Uint8ClampedArray {
+  static get [Symbol.species](): Uint8ClampedArrayConstructor {
+    return Uint8ClampedArray
+  }
+
+  constructor(public width: number, public height: number) {
+    super(width * height)
+  }
+}
+
 export class Video {
   // Each screen is [SCREENWIDTH*SCREENHEIGHT];
-  screens = new Array<Uint8ClampedArray>(5)
+  screens = new Array<Screen>(5)
   alpha = new Uint8ClampedArray()
 
-  constructor(
-    public width = SCREENWIDTH,
-    public height = SCREENHEIGHT,
-  ) { }
+  width = 0
+  height = 0
+  public get physicalWidth(): number {
+    return this.width
+  }
+  public set physicalWidth(value: number) {
+    this.width = value
+  }
+  public get physicalHeight(): number {
+    return this.height * STRETCH
+  }
+  public set physicalHeight(value: number) {
+    this.height = value / STRETCH
+  }
+
+  constructor(p: LogicalSize | PhysicalSize) {
+    /* eslint-disable no-extra-parens */
+    if ((<LogicalSize> p).logical) {
+      [ this.width, this.height ] = (<LogicalSize> p).logical
+    } else {
+      [ this.physicalWidth, this.physicalHeight ] = (<PhysicalSize> p).physical
+    }
+    /* eslint-enable no-extra-parens */
+  }
 
   //
   // V_CopyRect
@@ -27,15 +60,23 @@ export class Video {
     width: number, height: number,
     destX: number, destY: number, destScreen: number,
   ): void {
+    const source = this.screens[srcScreen]
+    const dest = this.screens[destScreen]
+
+    srcX >>= 0
+    srcY >>= 0
+    destX >>= 0
+    destY >>= 0
+
     if (RANGE_CHECK) {
       if (srcX < 0 ||
-        srcX + width > this.width ||
+        srcX + width > source.width ||
         srcY < 0 ||
-        srcY + height > this.height ||
+        srcY + height > source.height ||
         destX < 0 ||
-        destX + width > this.width ||
+        destX + width > dest.width ||
         destY < 0 ||
-        destY + height > this.height ||
+        destY + height > dest.height ||
         srcScreen > 4 ||
         destScreen > 4
       ) {
@@ -43,16 +84,16 @@ export class Video {
       }
     }
 
-    let srcPtr = this.width * srcY + srcX
-    let destPtr = this.width * destY + destX
+    let srcPtr = source.width * srcY + srcX
+    let destPtr = dest.width * destY + destX
 
     for (; height > 0; --height) {
-      this.screens[destScreen].set(
-        this.screens[srcScreen].slice(srcPtr, srcPtr + width), destPtr,
+      dest.set(
+        source.slice(srcPtr, srcPtr + width), destPtr,
       )
       this.alpha.fill(255, destPtr, destPtr + width)
-      srcPtr += this.width
-      destPtr += this.width
+      srcPtr += source.width
+      destPtr += dest.width
     }
   }
 
@@ -65,30 +106,18 @@ export class Video {
   ): void {
     scale <<= FRACBITS
 
+    const screen = this.screens[scrn]
+
     const w = patch.width
     const srcWidth = patch.width << FRACBITS
-    const srcHeight = patch.height << FRACBITS
-    const destWidth = mul(scale, srcWidth)
-    const destHeight = mul(scale, srcHeight)
+
+    x >>= 0
+    y >>= 0
 
     y -= patch.topOffset
     x -= patch.leftOffset
 
-    if (RANGE_CHECK) {
-      if (x < 0 ||
-        x + (destWidth >> FRACBITS) > this.width ||
-        y < 0 ||
-        y + (destHeight >> FRACBITS) > this.height ||
-        scrn > 4
-      ) {
-        console.error(`Patch at ${x},${y} exceeds LFB`)
-        console.error('V_DrawPatch: bad patch (ignored)')
-        return
-      }
-    }
-
-    const screen = this.screens[scrn]
-    let destTopPtr = y * this.width + x
+    let destTopPtr = y * screen.width + x
 
     let column: Column
     let post: Post
@@ -98,13 +127,17 @@ export class Video {
     let xFrac = 0
     const step = div(FRACUNIT, scale)
     let yFrac: number
-    for (; xFrac < srcWidth; ++x, ++destTopPtr) {
+    columns: for (; xFrac < srcWidth; ++x, ++destTopPtr) {
       column = patch.columns[
         flipped ?
           w - 1 - (xFrac >> FRACBITS) :
           xFrac >> FRACBITS
       ]
       xFrac += step
+
+      if (x < 0 || x > screen.width) {
+        continue columns
+      }
 
       // step through the posts in a column
       for (post of column.posts) {
@@ -115,11 +148,17 @@ export class Video {
 
         yFrac = 0
         while (count--) {
-          screen[destPtr] = post.bytes[yFrac >> FRACBITS]
-          this.alpha[destPtr] = 255
+          if (destPtr >= 0) {
+            screen[destPtr] = post.bytes[yFrac >> FRACBITS]
+            this.alpha[destPtr] = 255
+          }
 
-          destPtr += this.width
+          destPtr += screen.width
           yFrac += step
+
+          if (destPtr > screen.length) {
+            continue columns
+          }
         }
       }
     }
@@ -128,10 +167,14 @@ export class Video {
 
   drawFlat(x: number, y: number, scrn: number, flat: Flat): void {
     const dest = this.screens[scrn]
-    let destPtr = y * this.width + x
-    for (let yy = 0; yy < 64; ++yy) {
-      dest.set(flat.slice(yy * 64, yy * 64 + 64), destPtr)
-      destPtr += this.width
+    let destPtr = y * dest.width + x
+
+    const maxY = Math.min(64, dest.height - y)
+    const maxX = Math.min(64, dest.width - x)
+
+    for (let yy = 0; yy < maxY; ++yy) {
+      dest.set(flat.slice(yy * 64, yy * 64 + maxX), destPtr)
+      destPtr += dest.width
     }
   }
 
@@ -182,7 +225,7 @@ export class Video {
   //
   init(screenCount = 4): void {
     for (let i = 0; i < screenCount; ++i) {
-      this.screens[i] = new Uint8ClampedArray(this.width * this.height)
+      this.screens[i] = new Screen(this.width, this.height)
     }
     this.alpha = new Uint8ClampedArray(this.width * this.height)
   }

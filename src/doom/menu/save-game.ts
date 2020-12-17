@@ -1,10 +1,10 @@
 import { Game, SAVE_GAME_NAME, SAVE_STRING_SIZE } from '../game/game'
+import { GameState, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { HU_FONTSIZE, HU_FONTSTART } from '../heads-up/stuff'
 import { LINEHEIGHT, Menu } from './menu'
 import { MenuItem, MenuStruct } from './typedefs'
 import { tostring, toupper } from '../utils/c'
 import { Sound as DSound } from '../doom/sound'
-import { GameState } from '../global/doomdef'
 import { LumpReader } from '../wad/lump-reader'
 import { MainMenu } from './main'
 import { Patch } from '../rendering/defs/patch'
@@ -89,16 +89,18 @@ export class LoadGameMenu implements MenuStruct {
   //
   protected title = 'M_LOADG'
   routine(): void {
+    const offsetX = (this.rVideo.width - SCREENWIDTH) / 2
+    const offsetY = (this.rVideo.height - SCREENHEIGHT) / 2
     this.rVideo.drawPatch(
-      72, 28, 0,
+      72 + offsetX, 28 + offsetY, 0,
       this.wad.cacheLumpName(this.title, Patch),
     )
 
     for (let i = 0; i < Save.SaveEnd; ++i) {
-      this.drawSaveLoadBorder(this.x, this.y + LINEHEIGHT * i)
+      this.drawSaveLoadBorder(this.x + offsetX, this.y + LINEHEIGHT * i + offsetY)
       this.menu.headsUp.lib.writeText(
-        this.x,
-        this.y + LINEHEIGHT * i,
+        this.x + offsetX,
+        this.y + LINEHEIGHT * i + offsetY,
         this.saveGameStrings[i],
       )
     }

@@ -1,5 +1,6 @@
 import { LINEHEIGHT, Menu } from './menu'
 import { MenuItem, MenuStruct } from './typedefs'
+import { SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
@@ -201,31 +202,34 @@ export class OptionsMenu implements MenuStruct {
   }
 
   routine(): void {
+    const offsetX = (this.rVideo.width - SCREENWIDTH) / 2
+    const offsetY = (this.rVideo.height - SCREENHEIGHT) / 2
+
     this.rVideo.drawPatch(
-      108, 15, 0,
+      108 + offsetX, 15 + offsetY, 0,
       this.wad.cacheLumpName('M_OPTTTL', Patch),
     )
 
     this.rVideo.drawPatch(
-      this.x + 175, this.y + LINEHEIGHT * Options.Detail, 0,
+      this.x + 175 + offsetX, this.y + LINEHEIGHT * Options.Detail + offsetY, 0,
       this.wad.cacheLumpName(detailNames[this.rendering.highDetails ? 1 : 0], Patch),
     )
 
     this.rVideo.drawPatch(
-      this.x + 120, this.y + LINEHEIGHT * Options.Messages, 0,
+      this.x + 120 + offsetX, this.y + LINEHEIGHT * Options.Messages + offsetY, 0,
       this.wad.cacheLumpName(msgNames[this.headsUp.showMessages ? 1 : 0], Patch),
     )
 
     this.menu.drawThermo(
-      this.x,
-      this.y + LINEHEIGHT * (Options.MouseSens + 1),
+      this.x + offsetX,
+      this.y + LINEHEIGHT * (Options.MouseSens + 1) + offsetY,
       10,
       this.game.mouseSensitivity,
     )
 
     this.menu.drawThermo(
-      this.x,
-      this.y + LINEHEIGHT * (Options.ScrnSize + 1),
+      this.x + offsetX,
+      this.y + LINEHEIGHT * (Options.ScrnSize + 1) + offsetY,
       9,
       this.rendering.screenSize,
     )

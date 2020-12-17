@@ -166,18 +166,20 @@ export class Win {
 
   // Draws "<Levelname> Finished!"
   private drawLF(): void {
-    let y = WI_TITLEY
+    const screenWidth = this.rVideo.width
+    const screenHeight = this.rVideo.height
+    let y = (screenHeight - SCREENHEIGHT) / 2 + WI_TITLEY
 
     // draw <LevelName>
     this.rVideo.drawPatch(
-      (SCREENWIDTH - this.lNames[this.wbs.last].width) / 2, y, 0,
+      (screenWidth - this.lNames[this.wbs.last].width) / 2, y, 0,
       this.lNames[this.wbs.last],
     )
     // draw "Finished!"
     y += 5 * this.lNames[this.wbs.next].height / 4
 
     this.rVideo.drawPatch(
-      (SCREENWIDTH - this.finished.width) / 2, y, 0,
+      (screenWidth - this.finished.width) / 2, y, 0,
       this.finished,
     )
   }
@@ -185,23 +187,28 @@ export class Win {
 
   // Draws "Entering <LevelName>"
   private drawEL(): void {
-    let y = WI_TITLEY
+    const screenWidth = this.rVideo.width
+    const screenHeight = this.rVideo.height
+    let y = (screenHeight - SCREENHEIGHT) / 2 + WI_TITLEY
 
     // draw "Entering"
     this.rVideo.drawPatch(
-      (SCREENWIDTH - this.entering.width) / 2, y, 0,
+      (screenWidth - this.entering.width) / 2, y, 0,
       this.entering,
     )
     // draw level
     y += 5 * this.lNames[this.wbs.next].height / 4
 
     this.rVideo.drawPatch(
-      (SCREENWIDTH - this.lNames[this.wbs.next].width) / 2, y, 0,
+      (screenWidth - this.lNames[this.wbs.next].width) / 2, y, 0,
       this.lNames[this.wbs.next],
     )
   }
 
   private drawOnLNode(n: number, c: Patch[]): void {
+    const x = (this.rVideo.width - SCREENWIDTH) / 2
+    const y = (this.rVideo.height - SCREENHEIGHT) / 2
+
     let i = 0
     let left: number
     let top: number
@@ -228,8 +235,8 @@ export class Win {
 
     if (fits && i < 2) {
       this.rVideo.drawPatch(
-        lNodes[this.wbs.episode][n].x,
-        lNodes[this.wbs.episode][n].y,
+        lNodes[this.wbs.episode][n].x + x,
+        lNodes[this.wbs.episode][n].y + y,
         0,
         c[i],
       )
@@ -323,12 +330,15 @@ export class Win {
       return
     }
 
+    const x = (this.rVideo.width - SCREENWIDTH) / 2
+    const y = (this.rVideo.height - SCREENHEIGHT) / 2
+
     let a: Anim
     for (let i = 0; i < NUM_ANIMS[this.wbs.episode]; ++i) {
       a = anims[this.wbs.episode][i]
 
       if (a.ctr >= 0) {
-        this.rVideo.drawPatch(a.loc.x, a.loc.y, 0, a.p[a.ctr])
+        this.rVideo.drawPatch(a.loc.x + x, a.loc.y + y, 0, a.p[a.ctr])
       }
     }
   }
@@ -639,21 +649,26 @@ export class Win {
 
     this.drawLF()
 
-    this.rVideo.drawPatch(SP_STATSX, SP_STATSY, 0, this.kills)
-    this.drawPercent(SCREENWIDTH - SP_STATSX, SP_STATSY, this.cntKills[0])
+    const left = (this.rVideo.width - SCREENWIDTH) / 2
+    const center = this.rVideo.width / 2
+    const right = left + SCREENWIDTH
+    const top = (this.rVideo.height - SCREENHEIGHT) / 2
 
-    this.rVideo.drawPatch(SP_STATSX, SP_STATSY + lh, 0, this.items)
-    this.drawPercent(SCREENWIDTH - SP_STATSX, SP_STATSY + lh, this.cntItems[0])
+    this.rVideo.drawPatch(left + SP_STATSX, top + SP_STATSY, 0, this.kills)
+    this.drawPercent(right - SP_STATSX, top + SP_STATSY, this.cntKills[0])
 
-    this.rVideo.drawPatch(SP_STATSX, SP_STATSY + 2 * lh, 0, this.spSecret)
-    this.drawPercent(SCREENWIDTH - SP_STATSX, SP_STATSY + 2 * lh, this.cntSecret[0])
+    this.rVideo.drawPatch(left + SP_STATSX, top + SP_STATSY + lh, 0, this.items)
+    this.drawPercent(right - SP_STATSX, top + SP_STATSY + lh, this.cntItems[0])
 
-    this.rVideo.drawPatch(SP_TIMEX, SP_TIMEY, 0, this.time)
-    this.drawTime(SCREENWIDTH / 2 - SP_TIMEX, SP_TIMEY, this.cntTime)
+    this.rVideo.drawPatch(left + SP_STATSX, top + SP_STATSY + 2 * lh, 0, this.spSecret)
+    this.drawPercent(right - SP_STATSX, top + SP_STATSY + 2 * lh, this.cntSecret[0])
+
+    this.rVideo.drawPatch(left + SP_TIMEX, top + SP_TIMEY, 0, this.time)
+    this.drawTime(center - SP_TIMEX, top + SP_TIMEY, this.cntTime)
 
     if (this.wbs.episode < 3) {
-      this.rVideo.drawPatch(SCREENWIDTH / 2 + SP_TIMEX, SP_TIMEY, 0, this.par)
-      this.drawTime(SCREENWIDTH - SP_TIMEX, SP_TIMEY, this.cntPar)
+      this.rVideo.drawPatch(center + SP_TIMEX, top + SP_TIMEY, 0, this.par)
+      this.drawTime(right - SP_TIMEX, top + SP_TIMEY, this.cntPar)
     }
   }
 
@@ -723,8 +738,10 @@ export class Win {
     }
 
     // background
+    const x = (this.rVideo.width - SCREENWIDTH) / 2
+    const y = (this.rVideo.height - SCREENHEIGHT) / 2
     this.bg = this.wad.cacheLumpName(name, Patch)
-    this.rVideo.drawPatch(0, 0, 1, this.bg)
+    this.rVideo.drawPatch(x, y, 1, this.bg)
 
     if (this.doom.gameMode === GameMode.Commercial) {
       this.numCMaps = 32

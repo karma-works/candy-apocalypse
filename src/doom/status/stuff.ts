@@ -1,10 +1,11 @@
 import { AM_MSGENTERED, AM_MSGEXITED, AM_MSGHEADER, AutoMap } from '../auto-map/auto-map'
 import { ANG180, ANG45 } from '../misc/table'
 import { AmmoType, Card, MAX_PLAYERS, PowerType, TICRATE, WeaponType } from '../global/doomdef'
-import { BG, FG, Lib, ST_HEIGHT, ST_WIDTH, ST_Y } from './lib'
+import { BG, FG, Lib, ST_HEIGHT, ST_WIDTH } from './lib'
 import { DEvent, EvType } from '../doom/event'
 import { GameMission, GameMode, GameVersion, Skill, logicalGameMission } from '../doom/mode'
 import { Cheat as PCheat, Player } from '../doom/player'
+import { Video as RVideo, Screen } from '../rendering/video'
 import { ammoCheat, ammoNoKeyCheat, choppersCheat, clevCheat, commercialNoClipCheat, godCheat, musCheat, myPosCheat, noClipCheat, powerupCheat } from './cheats'
 import { BinIcon } from './bin-icon'
 import { Cheat } from '../misc/cheat'
@@ -17,7 +18,6 @@ import { NumberWidget } from './number-widget'
 import { Palettes } from '../interfaces/palette'
 import { Patch } from '../rendering/defs/patch'
 import { PercentWidget } from './percent-widget'
-import { Video as RVideo } from '../rendering/video'
 import { State } from './states'
 import { Strings } from '../translation/strings'
 import { VideoInterface } from '../interfaces/video-interface'
@@ -55,7 +55,7 @@ const GOD_FACE = NUM_PAIN_FACES * FACE_STRIDE
 const DEAD_FACE = GOD_FACE + 1
 
 const FACESX = 143
-const FACESY = 168
+const FACESY = 0
 
 const EVIL_GRIN_COUNT = 2 * TICRATE
 const STRAIGHT_FACE_COUNT = TICRATE / 2 >> 0
@@ -75,65 +75,65 @@ const MUCH_PAIN = 20
 // AMMO number pos.
 const AMMOWIDTH = 3
 const AMMOX = 44
-const AMMOY = 171
+const AMMOY = 3
 
 // HEALTH number pos.
 const HEALTHX = 90
-const HEALTHY = 171
+const HEALTHY = 3
 
 // Weapon pos.
 const ARMSX = 111
-const ARMSY = 172
+const ARMSY = 4
 const ARMSBGX = 104
-const ARMSBGY = 168
+const ARMSBGY = 0
 const ARMSXSPACE = 12
 const ARMSYSPACE = 10
 
 // Frags pos.
 const FRAGSX = 138
-const FRAGSY = 171
+const FRAGSY = 3
 const FRAGSWIDTH = 2
 
 // ARMOR number pos.
 const ARMORX = 221
-const ARMORY = 171
+const ARMORY = 3
 
 // Key icon positions.
 const KEY0X = 239
-const KEY0Y = 171
+const KEY0Y = 3
 const KEY1X = 239
-const KEY1Y = 181
+const KEY1Y = 13
 const KEY2X = 239
-const KEY2Y = 191
+const KEY2Y = 23
 
 // Ammunition counter.
 const AMMO0WIDTH = 3
 const AMMO0X = 288
-const AMMO0Y = 173
+const AMMO0Y = 5
 const AMMO1WIDTH = AMMO0WIDTH
 const AMMO1X = 288
-const AMMO1Y = 179
+const AMMO1Y = 11
 const AMMO2WIDTH = AMMO0WIDTH
 const AMMO2X = 288
-const AMMO2Y = 191
+const AMMO2Y = 23
 const AMMO3WIDTH = AMMO0WIDTH
 const AMMO3X = 288
-const AMMO3Y = 185
+const AMMO3Y = 17
 
 // Indicate maximum ammunition.
 // Only needed because backpack exists.
 const MAXAMMO0WIDTH = 3
 const MAXAMMO0X = 314
-const MAXAMMO0Y = 173
+const MAXAMMO0Y = 5
 const MAXAMMO1WIDTH = MAXAMMO0WIDTH
 const MAXAMMO1X = 314
-const MAXAMMO1Y = 179
+const MAXAMMO1Y = 11
 const MAXAMMO2WIDTH = MAXAMMO0WIDTH
 const MAXAMMO2X = 314
-const MAXAMMO2Y = 191
+const MAXAMMO2Y = 23
 const MAXAMMO3WIDTH = MAXAMMO0WIDTH
 const MAXAMMO3X = 314
-const MAXAMMO3Y = 185
+const MAXAMMO3Y = 17
 
 export class StatusBar {
   // main player in game
@@ -278,7 +278,8 @@ export class StatusBar {
         this.rVideo.drawPatch(ST_FX, 0, BG, this.faceBack)
       }
 
-      this.rVideo.copyRect(ST_X, 0, BG, ST_WIDTH, ST_HEIGHT, ST_X, ST_Y, FG)
+      this.rVideo.copyRect(ST_X, 0, BG, ST_WIDTH, ST_HEIGHT,
+        this.lib.x, this.lib.y, FG)
     }
   }
 
@@ -1122,6 +1123,6 @@ export class StatusBar {
   init(): void {
     this.veryFirstTime = false
     this.loadData()
-    this.rVideo.screens[4] = new Uint8ClampedArray(ST_WIDTH * ST_HEIGHT)
+    this.rVideo.screens[4] = new Screen(ST_WIDTH, ST_HEIGHT)
   }
 }

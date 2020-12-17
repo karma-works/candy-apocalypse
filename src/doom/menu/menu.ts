@@ -3,6 +3,7 @@ import { GameMode, GameVersion } from '../doom/mode'
 import { LoadGameMenu, SaveGameMenu } from './save-game'
 import { MainEnum, MainMenu } from './main'
 import { MenuItem, MenuStruct } from './typedefs'
+import { SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { Sound, SoundMenu } from './sound'
 import { AutoMap } from '../auto-map/auto-map'
 import { Sound as DSound } from '../doom/sound'
@@ -498,16 +499,18 @@ export class Menu {
   // Called after the view has been rendered,
   // but before it has been blitted.
   //
-  private x = 0
-  private y = 0
   drawer(): void {
     this.inHelpScreens = false
+
+    let x: number, y: number
+    const offsetX = (this.rVideo.width - SCREENWIDTH) / 2
+    const offsetY = (this.rVideo.height - SCREENHEIGHT) / 2
 
     // Horiz. & Vertically center string and print it.
     if (this.messageToPrint && this.messageString !== null) {
       let start = 0
       let i = 0
-      this.y = 100 - Math.floor(
+      y = 100 - Math.floor(
         this.headsUp.lib.stringHeight(this.messageString) / 2)
       let str = ''
 
@@ -525,10 +528,10 @@ export class Menu {
           start += i
         }
 
-        this.x = 160 - Math.floor(
-          this.headsUp.lib.stringWidth(str) / 2)
-        this.headsUp.lib.writeText(this.x, this.y, str)
-        this.y += this.headsUp.font[0].height
+        x = 160 - Math.floor(
+          this.headsUp.lib.stringWidth(str) / 2) + offsetX
+        this.headsUp.lib.writeText(x, y + offsetY, str)
+        y += this.headsUp.font[0].height
       }
 
       return
@@ -542,8 +545,8 @@ export class Menu {
     this.currentMenu.routine.call(this.currentMenu)
 
     // DRAW MENU
-    this.x = this.currentMenu.x
-    this.y = this.currentMenu.y
+    x = this.currentMenu.x + offsetX
+    y = this.currentMenu.y + offsetY
     const max = this.currentMenu.numItems
 
     let item: MenuItem
@@ -553,16 +556,16 @@ export class Menu {
         item.name
       ) {
         this.rVideo.drawPatch(
-          this.x, this.y, 0,
+          x, y, 0,
           this.wad.cacheLumpName(item.name, Patch),
         )
       }
-      this.y += LINEHEIGHT
+      y += LINEHEIGHT
     }
 
     this.rVideo.drawPatch(
-      this.x + SKULLOFF,
-      this.currentMenu.y - 5 + this.itemOn * LINEHEIGHT,
+      x + SKULLOFF,
+      this.currentMenu.y - 5 + this.itemOn * LINEHEIGHT + offsetY,
       0,
       this.wad.cacheLumpName(this.skullName[this.whichSkull], Patch),
     )

@@ -1,4 +1,5 @@
 import { MenuItem, MenuStruct } from './typedefs'
+import { SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { GameMode } from '../doom/mode'
@@ -80,8 +81,10 @@ export class EpisodeMenu implements MenuStruct {
   epi = 0
 
   routine(): void {
+    const offsetX = (this.rVideo.width - SCREENWIDTH) / 2
+    const offsetY = (this.rVideo.height - SCREENHEIGHT) / 2
     this.rVideo.drawPatch(
-      54, 38, 0,
+      54 + offsetX, 38 + offsetY, 0,
       this.wad.cacheLumpName('M_EPISOD', Patch),
     )
   }
