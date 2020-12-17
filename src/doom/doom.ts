@@ -143,7 +143,7 @@ export class Doom {
 
     this.iVideo.quit()
 
-    const iVideo = new Video()
+    const iVideo = new Video(this.rVideo)
     this.iVideo = iVideo
     this.iVideo.screen = this.params.screen3d
     this.iVideo.palette = palette
