@@ -9,7 +9,7 @@ export class PatchTexture extends DataTexture {
     rVideo.drawPatch(patch.leftOffset, patch.topOffset, 0, patch)
 
     const source = rVideo.screens[0]
-    const alpha = rVideo.alpha
+    const alpha = source.alpha
 
     const dest = new Uint8ClampedArray(source.length * 4)
     let s = 0

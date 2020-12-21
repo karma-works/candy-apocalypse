@@ -18,15 +18,17 @@ export class Screen extends Uint8ClampedArray {
     return Uint8ClampedArray
   }
 
+  alpha: Uint8ClampedArray
+
   constructor(public width: number, public height: number) {
     super(width * height)
+    this.alpha = new Uint8ClampedArray(width * height)
   }
 }
 
 export class Video {
   // Each screen is [SCREENWIDTH*SCREENHEIGHT];
   screens = new Array<Screen>(5)
-  alpha = new Uint8ClampedArray()
 
   width = 0
   height = 0
@@ -62,6 +64,7 @@ export class Video {
   ): void {
     const source = this.screens[srcScreen]
     const dest = this.screens[destScreen]
+    const destAlpha = dest.alpha
 
     srcX >>= 0
     srcY >>= 0
@@ -91,7 +94,7 @@ export class Video {
       dest.set(
         source.slice(srcPtr, srcPtr + width), destPtr,
       )
-      this.alpha.fill(255, destPtr, destPtr + width)
+      destAlpha.fill(255, destPtr, destPtr + width)
       srcPtr += source.width
       destPtr += dest.width
     }
@@ -107,6 +110,7 @@ export class Video {
     scale <<= FRACBITS
 
     const screen = this.screens[scrn]
+    const alpha = screen.alpha
 
     const w = patch.width
     const srcWidth = patch.width << FRACBITS
@@ -150,7 +154,7 @@ export class Video {
         while (count--) {
           if (destPtr >= 0) {
             screen[destPtr] = post.bytes[yFrac >> FRACBITS]
-            this.alpha[destPtr] = 255
+            alpha[destPtr] = 255
           }
 
           destPtr += screen.width
@@ -174,6 +178,7 @@ export class Video {
 
     for (let yy = 0; yy < maxY; ++yy) {
       dest.set(flat.slice(yy * 64, yy * 64 + maxX), destPtr)
+      dest.alpha.fill(255, destPtr, destPtr + maxX)
       destPtr += dest.width
     }
   }
@@ -183,6 +188,9 @@ export class Video {
   // Draw a linear block of pixels into the view buffer.
   //
   drawBlock(x: number, y: number, scrn: number, width: number, height: number, src: Uint8ClampedArray): void {
+
+    const dest = this.screens[scrn]
+    const alpha = dest.alpha
 
     if (RANGE_CHECK) {
       if (x < 0 ||
@@ -199,10 +207,10 @@ export class Video {
     let destPtr = y * this.width + x
 
     while (height--) {
-      this.screens[scrn].set(
+      dest.set(
         src.slice(srcPtr, srcPtr + width), destPtr,
       )
-      this.alpha.fill(255, destPtr, destPtr + width)
+      alpha.fill(255, destPtr, destPtr + width)
 
       srcPtr += width
       destPtr += this.width
@@ -217,7 +225,10 @@ export class Video {
       this.screens[1].slice(ofs, ofs + count),
       ofs,
     )
-    this.alpha.fill(255, ofs, ofs + count)
+    this.screens[0].alpha.set(
+      this.screens[1].alpha.slice(ofs, ofs + count),
+      ofs,
+    )
   }
 
   //
@@ -227,6 +238,5 @@ export class Video {
     for (let i = 0; i < screenCount; ++i) {
       this.screens[i] = new Screen(this.width, this.height)
     }
-    this.alpha = new Uint8ClampedArray(this.width * this.height)
   }
 }

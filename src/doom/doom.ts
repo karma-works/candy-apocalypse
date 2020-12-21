@@ -105,7 +105,6 @@ export class Doom {
     const { Video } = await import('./interfaces/video')
 
     this.rVideo.init()
-    this.rVideo.alpha.fill(255)
 
     const palette = this.iVideo.palette
     const gamma = this.iVideo.gamma

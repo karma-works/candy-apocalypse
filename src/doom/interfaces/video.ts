@@ -49,7 +49,7 @@ export class Video implements VideoInterface {
 
   drawInImageData(oLine: Uint8ClampedArray, withAlpha = true): void {
     const iLine = new Uint8ClampedArray(this.rVideo.screens[0].buffer)
-    const alpha = this.rVideo.alpha
+    const alpha = this.rVideo.screens[0].alpha
 
     let oLinePtr = 0
     let iLinePtr = 0
