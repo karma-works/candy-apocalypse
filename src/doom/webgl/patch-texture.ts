@@ -1,28 +1,15 @@
-import { DataTexture, NearestFilter, RGBAFormat, RepeatWrapping } from 'three'
+import { DataTexture, LuminanceFormat, NearestFilter, RepeatWrapping } from 'three'
 import { Patch } from '../rendering/defs/patch'
 import { Video as RVideo } from '../rendering/video'
 
 export class PatchTexture extends DataTexture {
-  constructor(patch: Patch) {
+  constructor(patch: Patch, alphaMap = false) {
     const rVideo = new RVideo({ logical: [ patch.width, patch.height ] })
     rVideo.init(1)
     rVideo.drawPatch(patch.leftOffset, patch.topOffset, 0, patch)
 
     const source = rVideo.screens[0]
-    const alpha = source.alpha
-
-    const dest = new Uint8ClampedArray(source.length * 4)
-    let s = 0
-    let d = 0
-    while (s < source.length) {
-      dest[d++] = source[s]
-      dest[d++] = source[s]
-      dest[d++] = source[s]
-      dest[d++] = alpha[s]
-      s++
-    }
-
-    super(dest, patch.width, patch.height, RGBAFormat)
+    super(alphaMap ? source.alpha : source, patch.width, patch.height, LuminanceFormat)
 
     this.flipY = true
 
