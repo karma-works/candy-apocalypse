@@ -2,6 +2,7 @@ import {
   PerspectiveCamera,
   Scene,
 } from 'three'
+import { ST_HEIGHT, ST_WIDTH } from '../status/lib'
 import { Doom } from '../doom'
 import { FRACBITS } from '../misc/fixed'
 import { Rendering as LegacyRendering } from '../rendering/rendering'
@@ -75,5 +76,32 @@ export class Rendering extends LegacyRendering {
     )
 
     this.camera.rotation.y = toRad(this.viewAngle) + Math.PI
+  }
+
+  renderPlayerView(pl: Player): void {
+    super.renderPlayerView(pl)
+
+    this.setAlphaScreen()
+  }
+
+
+  setAlphaScreen(): void {
+    const screen = this.video.screens[0]
+    const alpha = screen.alpha
+    alpha.fill(0)
+
+    if (this.viewHeight === screen.height) {
+      return
+    }
+
+    const barX = (screen.width - ST_WIDTH) / 2
+    let barY = screen.height - ST_HEIGHT
+
+    let destPtr = screen.width * barY + barX
+
+    for (; barY < screen.height; ++barY) {
+      alpha.fill(255, destPtr, destPtr + ST_WIDTH)
+      destPtr += screen.width
+    }
   }
 }

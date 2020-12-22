@@ -95,7 +95,7 @@ export class Doom {
     this.input.postEvent = ev => this.postEvent(ev)
   }
 
-  renderingMode: RenderingMode = 0
+  renderingMode: RenderingMode = RenderingMode.Legacy
 
   async setLegacyRenderer(): Promise<void> {
     if (this.params.screen2d === undefined) {
@@ -105,7 +105,6 @@ export class Doom {
     const { Video } = await import('./interfaces/video')
 
     this.rVideo.init()
-    this.rVideo.alpha.fill(255)
 
     const palette = this.iVideo.palette
     const gamma = this.iVideo.gamma
@@ -878,7 +877,23 @@ export class Doom {
 
     console.log('R_Init: Init DOOM refresh daemon - ')
     this.rData.initData()
-    await this.setLegacyRenderer()
+    if (this.params.renderingMode !== undefined) {
+      this.renderingMode = this.params.renderingMode
+    }
+    if (this.params.resolutionWidth !== undefined) {
+      this.rVideo.physicalWidth = this.params.resolutionWidth
+    }
+    if (this.params.resolutionHeight !== undefined) {
+      this.rVideo.physicalHeight = this.params.resolutionHeight
+    }
+    switch (this.renderingMode) {
+    case RenderingMode.Legacy:
+      await this.setLegacyRenderer()
+      break
+    case RenderingMode.WebGL:
+      await this.setWebGLRenderer()
+      break
+    }
 
     console.log('P_Init: Init Playloop state.')
     this.play.init()
@@ -935,9 +950,9 @@ export class Doom {
     this.input.quit()
 
     try {
-      if (this.iVideo.screen) {
+      if (this.params.screen2d) {
         const endoom = this.wad.cacheLumpName('ENDOOM')
-        displayEndoom(endoom, this.iVideo.screen)
+        displayEndoom(endoom, this.params.screen2d)
       }
     } catch { /* */ }
 

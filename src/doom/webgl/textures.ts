@@ -13,10 +13,13 @@ import { Video as RVideo } from '../rendering/video'
 import { Rendering } from './rendering'
 import { VisSprite } from '../rendering/things/vis-sprite'
 
+// Second one is the alphamap
+type PatchTextureTuple = [PatchTexture, PatchTexture]
+
 export class Textures {
-  private patchCache: PatchTexture[] = []
-  private flipPatchCache: PatchTexture[] = []
-  private patchTextureCache: PatchTexture[] = []
+  private patchCache: PatchTextureTuple[] = []
+  private flipPatchCache: PatchTextureTuple[] = []
+  private patchTextureCache: PatchTextureTuple[] = []
   private skyTextureCache: WebGLCubeRenderTarget[] = []
   private flatTextureCache: FlatTexture[] = []
 
@@ -29,12 +32,14 @@ export class Textures {
 
   constructor(private rendering: Rendering) { }
 
-  getPatchTexture(num: number): PatchTexture {
+  getPatchTexture(num: number): PatchTextureTuple {
     num = this.rData.textures.getNum(num)
 
     if (!this.patchTextureCache[num]) {
       const patch = this.rData.textures[num].patch
-      this.patchTextureCache[num] = new PatchTexture(patch)
+      this.patchTextureCache[num] = [
+        new PatchTexture(patch), new PatchTexture(patch, true),
+      ]
     }
     return this.patchTextureCache[num]
   }
@@ -49,17 +54,20 @@ export class Textures {
     return this.flatTextureCache[num]
   }
 
-  getSprite(sprite: VisSprite): PatchTexture {
+  getSprite(sprite: VisSprite): PatchTextureTuple {
     const flip = sprite.xIScale < 0
     const lump = this.rData.sprites[sprite.patch].lump
 
     const cache = flip ? this.flipPatchCache : this.patchCache
     if (!cache[lump]) {
       const patch = this.rData.sprites[sprite.patch].patch
-      cache[lump] = new PatchTexture(patch)
+      cache[lump] = [
+        new PatchTexture(patch), new PatchTexture(patch, true),
+      ]
 
       if (flip) {
-        cache[lump].repeat.set(-1, 1)
+        cache[lump][0].repeat.set(-1, 1)
+        cache[lump][1].repeat.set(-1, 1)
       }
     }
 

@@ -75,6 +75,8 @@ export class Segs extends LegacySegs {
       throw 'this.bsp.curLine = null'
     }
 
+    this.bsp.curLine.lineDef.flags |= MapLineFlag.Mapped
+
     const idx = this.level.segs.indexOf(this.bsp.curLine)
     const wall = this.walls[idx]
 
@@ -158,6 +160,7 @@ export class Segs extends LegacySegs {
         geometry.verticesNeedUpdate = true
 
         geometry.computeBoundingSphere()
+        geometry.computeFaceNormals()
       }
     })
   }
@@ -353,7 +356,9 @@ export class Segs extends LegacySegs {
     seg: { frontSector, backSector, sideDef },
     bottom, mid, top,
   }: Wall): void {
-    mid.material.map = this.textures.getPatchTexture(sideDef.midTexture)
+    let patchTuple = this.textures.getPatchTexture(sideDef.midTexture)
+    mid.material.map = patchTuple[0]
+    mid.material.alphaMap = patchTuple[1]
     mid.material.paletteTexture.palette = this.textures.palette
     mid.material.paletteTexture.colorMap = this.colorMap
 
@@ -364,13 +369,17 @@ export class Segs extends LegacySegs {
         ) {
           top.material.visible = false
         } else {
-          top.material.map = this.textures.getPatchTexture(sideDef.topTexture)
+          patchTuple = this.textures.getPatchTexture(sideDef.topTexture)
+          top.material.map = patchTuple[0]
+          top.material.alphaMap = patchTuple[1]
           top.material.paletteTexture.palette = this.textures.palette
           top.material.paletteTexture.colorMap = this.colorMap
         }
       }
       if (bottom) {
-        bottom.material.map = this.textures.getPatchTexture(sideDef.bottomTexture)
+        patchTuple = this.textures.getPatchTexture(sideDef.bottomTexture)
+        bottom.material.map = patchTuple[0]
+        bottom.material.alphaMap = patchTuple[1]
         bottom.material.paletteTexture.palette = this.textures.palette
         bottom.material.paletteTexture.colorMap = this.colorMap
       }

@@ -1,5 +1,6 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { AgnosticDefaults } from '@/doom/misc/defaults'
+import { RenderingMode } from '@/doom/rendering/rendering-interface'
 import { ScanCode } from '@/doom/interfaces/scancodes'
 
 interface KeyBinding {
@@ -35,14 +36,21 @@ export default class FilesTable extends Vue {
 
     Object.keys(this.defaults.defaults).forEach(k => {
       const keyBinding = this.keyBindings.find(({ name }) => name === k)
-      if (keyBinding) {
-        keyBinding.key = this.defaults.get(k)
+      const value = this.defaults.get(k)
+      if (keyBinding && typeof value === 'number') {
+        keyBinding.key = value
       }
     })
 
     const width = this.defaults.get('resolution_width')
     const height = this.defaults.get('resolution_height')
-    this.resolution = [ width, height ]
+    if (typeof width === 'number' && typeof height === 'number') {
+      this.resolution = [ width, height ]
+    }
+    const renderingMode = this.defaults.get('rendering_mode')
+    if (typeof renderingMode === 'number') {
+      this.renderingMode = renderingMode
+    }
   }
 
   async save(): Promise<void> {
@@ -52,6 +60,7 @@ export default class FilesTable extends Vue {
 
     this.defaults.set('resolution_width', this.resolution[0])
     this.defaults.set('resolution_height', this.resolution[1])
+    this.defaults.set('rendering_mode', this.renderingMode)
 
     await this.defaults.save()
 
@@ -135,4 +144,10 @@ export default class FilesTable extends Vue {
   formatResolution(resolution: [number, number]): string {
     return `${resolution[0]}x${resolution[1]}`
   }
+
+  renderingModes = [
+    { text: 'Legacy', value: RenderingMode.Legacy },
+    { text: 'WebGL', value: RenderingMode.WebGL },
+  ]
+  renderingMode = RenderingMode.Legacy
 }

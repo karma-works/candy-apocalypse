@@ -11,7 +11,7 @@ export class Video implements VideoInterface {
   }
   public set gamma(value: number) {
     this._useGamma = value
-    this.uploadNewPalette()
+    this.updatePalette()
   }
 
   screen: HTMLCanvasElement | null = null
@@ -28,7 +28,7 @@ export class Video implements VideoInterface {
   private multiply = 1
 
   constructor(private rVideo: RVideo) {
-    this.uploadNewPalette()
+    this.updatePalette()
   }
 
   //
@@ -49,7 +49,7 @@ export class Video implements VideoInterface {
 
   drawInImageData(oLine: Uint8ClampedArray, withAlpha = true): void {
     const iLine = new Uint8ClampedArray(this.rVideo.screens[0].buffer)
-    const alpha = this.rVideo.alpha
+    const alpha = this.rVideo.screens[0].alpha
 
     let oLinePtr = 0
     let iLinePtr = 0
@@ -79,17 +79,17 @@ export class Video implements VideoInterface {
     return this._palette
   }
   public set palette(p: Palette) {
-    this.uploadNewPalette(p)
+    this._palette = p
+    this.updatePalette()
   }
   private reds = new Uint8ClampedArray()
   private greens = new Uint8ClampedArray()
   private blues = new Uint8ClampedArray()
 
-  uploadNewPalette(palette: Palette = this._palette): void {
-    this.reds = palette.getColors(Color.Red, this.gamma)
-    this.greens = palette.getColors(Color.Green, this.gamma)
-    this.blues = palette.getColors(Color.Blue, this.gamma)
-    this._palette = palette
+  private updatePalette(): void {
+    this.reds = this.palette.getColors(Color.Red, this.gamma)
+    this.greens = this.palette.getColors(Color.Green, this.gamma)
+    this.blues = this.palette.getColors(Color.Blue, this.gamma)
   }
 
   private firstTime = true

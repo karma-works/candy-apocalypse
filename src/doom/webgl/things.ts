@@ -48,12 +48,13 @@ export class Things extends LegacyThings {
   }
 
   private updateThing({ sprite, visSprite }: ThingItem): void {
-    const map = this.textures.getSprite(visSprite)
+    const [ map, alphaMap ] = this.textures.getSprite(visSprite)
 
     // y, z, x
     sprite.position.set(visSprite.gY >> FRACBITS, visSprite.gZ >> FRACBITS, visSprite.gX >> FRACBITS)
 
-    sprite.material.map = map;
+    sprite.material.map = map
+    sprite.material.alphaMap = alphaMap;
     // eslint-disable-next-line no-extra-parens
     (sprite.material as SpritePaletteMaterial).paletteTexture.palette =
         this.textures.palette
