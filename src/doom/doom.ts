@@ -934,9 +934,9 @@ export class Doom {
     this.input.quit()
 
     try {
-      if (this.iVideo.screen) {
+      if (this.params.screen2d) {
         const endoom = this.wad.cacheLumpName('ENDOOM')
-        displayEndoom(endoom, this.iVideo.screen)
+        displayEndoom(endoom, this.params.screen2d)
       }
     } catch { /* */ }
 
