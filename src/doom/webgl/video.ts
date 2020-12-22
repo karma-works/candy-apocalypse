@@ -31,22 +31,24 @@ export class Video implements VideoInterface {
   // I_FinishUpdate
   //
   finishUpdate(): void {
-    if (this.renderer === null ||
-      this.scene === null ||
-      this.camera === null) {
+    if (this.renderer === null) {
       return
     }
-    this.renderer.clear()
-    this.renderer.render(this.scene, this.camera)
+    if (this.scene !== null &&
+      this.camera !== null
+    ) {
+      this.renderer.clear()
+      this.renderer.render(this.scene, this.camera)
+    }
 
-    if (this.overlayScreenMap === null ||
-      this.overlayAlphaMap === null) {
-      return
+    if (this.overlayScreenMap !== null &&
+      this.overlayAlphaMap !== null
+    ) {
+      this.overlayScreenMap.needsUpdate = true
+      this.overlayAlphaMap.needsUpdate = true
+      this.renderer.clearDepth()
+      this.renderer.render(this.overlayScene, this.overlayCamera)
     }
-    this.overlayScreenMap.needsUpdate = true
-    this.overlayAlphaMap.needsUpdate = true
-    this.renderer.clearDepth()
-    this.renderer.render(this.overlayScene, this.overlayCamera)
   }
 
   private _palette = new Palette()
