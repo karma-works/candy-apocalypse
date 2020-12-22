@@ -4,6 +4,7 @@ import { FRACBITS, FRACUNIT, div, mul } from '../misc/fixed'
 import { Line, Point, cheatPlayerArrow, playerArrow, thinTriangleGuy } from './models'
 import { MAP_BLOCK_UNITS, PLAYER_RADIUS } from '../play/local'
 import { MAX_PLAYERS, PowerType } from '../global/doomdef'
+import { Screen, Video } from '../rendering/video'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { Level } from '../level/level'
@@ -15,7 +16,6 @@ import { Player } from '../doom/player'
 import { ScanCode } from '../interfaces/scancodes'
 import { StatusBar } from '../status/stuff'
 import { Strings } from '../translation/strings'
-import { Video } from '../rendering/video'
 
 export const AM_MSGHEADER = ('a'.charCodeAt(0) << 24) + ('m'.charCodeAt(0) << 16)
 export const AM_MSGENTERED = AM_MSGHEADER | 'e'.charCodeAt(0) << 8
@@ -109,7 +109,7 @@ export class AutoMap {
   // used for funky strobing effect
   private lightLev = 0
   // pseudo-frame buffer
-  private get fb(): Uint8ClampedArray {
+  private get fb(): Screen {
     return this.rVideo.screens[0]
   }
 
@@ -652,6 +652,7 @@ export class AutoMap {
   //
   private clearFB(color: number): void {
     this.fb.set(new Array(this.fw * this.fh).fill(color))
+    this.fb.alpha.set(new Array(this.fw * this.fh).fill(255))
   }
 
   //

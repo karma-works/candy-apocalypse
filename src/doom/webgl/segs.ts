@@ -75,6 +75,8 @@ export class Segs extends LegacySegs {
       throw 'this.bsp.curLine = null'
     }
 
+    this.bsp.curLine.lineDef.flags |= MapLineFlag.Mapped
+
     const idx = this.level.segs.indexOf(this.bsp.curLine)
     const wall = this.walls[idx]
 
