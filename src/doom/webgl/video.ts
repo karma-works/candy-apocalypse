@@ -24,7 +24,7 @@ export class Video implements VideoInterface {
   overlayMaterial: SpritePaletteMaterial | null = null
 
   constructor(private rVideo: RVideo) {
-    this.uploadNewPalette()
+    this.updatePalette()
   }
 
   //
@@ -49,10 +49,19 @@ export class Video implements VideoInterface {
     this.renderer.render(this.overlayScene, this.overlayCamera)
   }
 
-  palette = new Palette()
-
-  uploadNewPalette(palette: Palette = this.palette): void {
-    this.palette = palette
+  private _palette = new Palette()
+  public get palette(): Palette {
+    return this._palette
+  }
+  public set palette(p: Palette) {
+    this._palette = p
+    this.updatePalette()
+  }
+  updatePalette(): void {
+    if (this.overlayMaterial) {
+      this.overlayMaterial.paletteTexture.palette = this.palette
+      this.overlayMaterial.paletteTexture.needsUpdate = true
+    }
   }
 
   private firstTime = true
