@@ -8,6 +8,12 @@
       label="Resolution"
     ></v-select>
 
+    <v-select
+      v-model="renderingMode"
+      :items="renderingModes"
+      label="Rendering mode"
+    ></v-select>
+
     <v-simple-table>
       <template v-slot:default>
         <thead>

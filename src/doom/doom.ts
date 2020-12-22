@@ -95,7 +95,7 @@ export class Doom {
     this.input.postEvent = ev => this.postEvent(ev)
   }
 
-  renderingMode: RenderingMode = 0
+  renderingMode: RenderingMode = RenderingMode.Legacy
 
   async setLegacyRenderer(): Promise<void> {
     if (this.params.screen2d === undefined) {
@@ -877,7 +877,23 @@ export class Doom {
 
     console.log('R_Init: Init DOOM refresh daemon - ')
     this.rData.initData()
-    await this.setLegacyRenderer()
+    if (this.params.renderingMode !== undefined) {
+      this.renderingMode = this.params.renderingMode
+    }
+    if (this.params.resolutionWidth !== undefined) {
+      this.rVideo.physicalWidth = this.params.resolutionWidth
+    }
+    if (this.params.resolutionHeight !== undefined) {
+      this.rVideo.physicalHeight = this.params.resolutionHeight
+    }
+    switch (this.renderingMode) {
+    case RenderingMode.Legacy:
+      await this.setLegacyRenderer()
+      break
+    case RenderingMode.WebGL:
+      await this.setWebGLRenderer()
+      break
+    }
 
     console.log('P_Init: Init Playloop state.')
     this.play.init()

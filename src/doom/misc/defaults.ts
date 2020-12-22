@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import { RenderingInterface, RenderingMode } from '../rendering/rendering-interface'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { HeadsUp } from '../heads-up/stuff'
 import { Input } from '../interfaces/input'
-import { RenderingInterface } from '../rendering/rendering-interface'
 import { ScanCode } from '../interfaces/scancodes'
 import { VideoInterface } from '../interfaces/video-interface'
 import { fs } from '../system/fs'
@@ -12,7 +12,7 @@ import { fs } from '../system/fs'
 const defaultCfg = 'default.cfg'
 
 interface GetSet<T> {
-  get: () => T
+  get: () => T | null | undefined
   set: (v: T) => void
 }
 
@@ -52,6 +52,7 @@ export class AgnosticDefaults {
 
     resolution_width: 320,
     resolution_height: 240,
+    rendering_mode: RenderingMode.Legacy,
   }
 
   private configFile: string = defaultCfg
@@ -59,8 +60,8 @@ export class AgnosticDefaults {
   async save(): Promise<unknown> {
     const lines = Object.keys(this.defaults).map(name => {
       const value = this.get(name)
-      return `${name} ${value}`
-    })
+      return typeof value === 'number' ? `${name} ${value}` : undefined
+    }).filter(line => !!line)
 
     const te = new TextEncoder()
     const buffer = te.encode(lines.join('\n'))
@@ -97,7 +98,7 @@ export class AgnosticDefaults {
     }
   }
 
-  get(name: string): number {
+  get(name: string): number | null | undefined {
     const def = this.defaults[name]
 
     if (def !== undefined && typeof def === 'object') {
@@ -237,6 +238,10 @@ export class Defaults extends AgnosticDefaults {
     resolution_height: {
       get: () => this.doom.rVideo.physicalHeight,
       set: v => this.doom.rVideo.physicalHeight = v,
+    },
+    rendering_mode: {
+      get: () => this.doom.renderingMode,
+      set: v => this.doom.renderingMode = v,
     },
   }
 

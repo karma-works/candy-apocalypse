@@ -1,9 +1,12 @@
 import { GameVersion, Skill } from './mode'
-
+import { RenderingMode } from '../rendering/rendering-interface'
 export interface Params {
   input?: HTMLElement,
   screen2d?: HTMLCanvasElement,
   screen3d?: HTMLCanvasElement,
+  renderingMode?: RenderingMode
+  resolutionWidth?: number
+  resolutionHeight?: number
 
   iwad: string
   pwads?: string[]
