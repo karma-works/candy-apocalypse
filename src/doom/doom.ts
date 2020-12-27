@@ -104,8 +104,6 @@ export class Doom {
     const { Rendering } = await import('./rendering/rendering')
     const { Video } = await import('./interfaces/video')
 
-    this.rVideo.init()
-
     const palette = this.iVideo.palette
     const gamma = this.iVideo.gamma
 
@@ -126,6 +124,8 @@ export class Doom {
     this.rendering.init()
     this.iVideo.init()
 
+    this.rVideo.screens[0].alpha.fill(255)
+
     this.renderingMode = RenderingMode.Legacy
   }
 
@@ -135,8 +135,6 @@ export class Doom {
     }
     const { Rendering } = await import('./webgl/rendering')
     const { Video } = await import('./webgl/video')
-
-    this.rVideo.init()
 
     const palette = this.iVideo.palette
     const gamma = this.iVideo.gamma
@@ -886,6 +884,7 @@ export class Doom {
     if (this.params.resolutionHeight !== undefined) {
       this.rVideo.physicalHeight = this.params.resolutionHeight
     }
+    this.rVideo.init()
     switch (this.renderingMode) {
     case RenderingMode.Legacy:
       await this.setLegacyRenderer()
