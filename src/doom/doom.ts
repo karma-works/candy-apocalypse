@@ -141,6 +141,14 @@ export class Doom {
 
     this.iVideo.quit()
 
+    const screen2d = this.params.screen2d
+    if (screen2d !== undefined) {
+      const ctx = screen2d.getContext('2d')
+      if (ctx !== null) {
+        ctx.clearRect(0, 0, screen2d.width, screen2d.height)
+      }
+    }
+
     const iVideo = new Video(this.rVideo)
     this.iVideo = iVideo
     this.iVideo.screen = this.params.screen3d
