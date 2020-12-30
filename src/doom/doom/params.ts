@@ -7,6 +7,7 @@ export interface Params {
   renderingMode?: RenderingMode
   resolutionWidth?: number
   resolutionHeight?: number
+  scale?: number
 
   iwad: string
   pwads?: string[]

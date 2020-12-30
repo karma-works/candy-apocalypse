@@ -1,5 +1,5 @@
 import { FRACBITS, FRACUNIT, div, mul } from '../misc/fixed'
-import { RANGE_CHECK, SCREEN_MUL, STRETCH } from '../global/doomdef'
+import { RANGE_CHECK, STRETCH } from '../global/doomdef'
 import { Column } from './defs/column'
 import { Flat } from '../textures/flat'
 import { Patch } from './defs/patch'
@@ -44,6 +44,7 @@ export class Video {
   public set physicalHeight(value: number) {
     this.height = value / STRETCH
   }
+  scale = 1
 
   constructor(p: LogicalSize | PhysicalSize) {
     /* eslint-disable no-extra-parens */
@@ -105,21 +106,21 @@ export class Video {
   // Masks a column based masked pic to the screen.
   //
   drawPatch(x: number, y: number, scrn: number, patch: Patch,
-    { flipped = false, scale = SCREEN_MUL }: DrawPatchOptions = {},
+    { flipped = false, scale = this.scale }: DrawPatchOptions = {},
   ): void {
-    scale <<= FRACBITS
-
     const screen = this.screens[scrn]
     const alpha = screen.alpha
 
     const w = patch.width
     const srcWidth = patch.width << FRACBITS
 
+    y -= patch.topOffset * scale
+    x -= patch.leftOffset * scale
+
     x >>= 0
     y >>= 0
 
-    y -= patch.topOffset
-    x -= patch.leftOffset
+    scale <<= FRACBITS
 
     let destTopPtr = y * screen.width + x
 

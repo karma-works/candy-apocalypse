@@ -892,6 +892,9 @@ export class Doom {
     if (this.params.resolutionHeight !== undefined) {
       this.rVideo.physicalHeight = this.params.resolutionHeight
     }
+    if (this.params.scale !== undefined) {
+      this.rVideo.scale = this.params.scale
+    }
     this.rVideo.init()
     switch (this.renderingMode) {
     case RenderingMode.Legacy:
