@@ -359,9 +359,10 @@ export class Menu {
 
       // gamma toggle
       case ScanCode.F11:
-        this.iVideo.gamma++
-        if (this.iVideo.gamma > 4) {
+        if (this.iVideo.gamma >= 4) {
           this.iVideo.gamma = 0
+        } else {
+          this.iVideo.gamma++
         }
 
         this.saveDefaults()
