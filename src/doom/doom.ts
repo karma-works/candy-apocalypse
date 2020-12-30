@@ -338,14 +338,13 @@ export class Doom {
 
     // draw pause pic
     if (this.game.paused) {
-      let y: number
-      if (this.autoMap.active) {
-        y = 4
-      } else {
-        y = this.rendering.viewWindowY + 4
+      let y = 4 * this.rVideo.scale
+      if (!this.autoMap.active) {
+        y += this.rendering.viewWindowY
       }
+      const width = 68 * this.rVideo.scale
       const x = this.rendering.viewWindowX +
-        (this.rendering.viewWidth - 68) / 2
+        (this.rendering.viewWidth - width) / 2
       this.rVideo.drawPatch(x, y, 0,
         this.wad.cacheLumpName('M_PAUSE', Patch))
     }
@@ -385,7 +384,8 @@ export class Doom {
     } while (!tics)
     this.wipeStart = nowTime
 
-    done = this.wipe.screenWipe(0, 0, this.rVideo.width, this.rVideo.height, tics)
+    done = this.wipe.screenWipe(0, 0,
+      this.rVideo.width, this.rVideo.height, tics * this.rVideo.scale)
 
     // menu is drawn even on top of wipes
     this.menu.drawer()
@@ -484,8 +484,9 @@ export class Doom {
   //
   private pageDrawer(): void {
     const patch = this.wad.cacheLumpName(this.pageName, Patch)
-    const x = (this.rVideo.width - SCREENWIDTH) / 2
-    const y = (this.rVideo.height - SCREENHEIGHT) / 2
+    const scale = this.rVideo.scale
+    const x = (this.rVideo.width - SCREENWIDTH * scale) / 2
+    const y = (this.rVideo.height - SCREENHEIGHT * scale) / 2
     this.rVideo.drawPatch(x, y, 0, patch)
   }
 
@@ -891,6 +892,9 @@ export class Doom {
     }
     if (this.params.resolutionHeight !== undefined) {
       this.rVideo.physicalHeight = this.params.resolutionHeight
+    }
+    if (this.params.scale !== undefined) {
+      this.rVideo.scale = this.params.scale
     }
     this.rVideo.init()
     switch (this.renderingMode) {

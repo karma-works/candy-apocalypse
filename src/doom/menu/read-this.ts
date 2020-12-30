@@ -39,8 +39,9 @@ export abstract class AbstractReadThisMenu implements MenuStruct {
 
   // Read This Menus
   routine(): void {
-    const offsetX = (this.rVideo.width - SCREENWIDTH) / 2
-    const offsetY = (this.rVideo.height - SCREENHEIGHT) / 2
+    const scale = this.rVideo.scale
+    const offsetX = (this.rVideo.width - SCREENWIDTH * scale) / 2
+    const offsetY = (this.rVideo.height - SCREENHEIGHT * scale) / 2
     this.menu.inHelpScreens = true
     this.rVideo.drawPatch(offsetX, offsetY, 0,
       this.wad.cacheLumpName(this.lumpName, Patch),

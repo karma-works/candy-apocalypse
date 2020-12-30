@@ -72,7 +72,7 @@ export class LoadGameMenu implements MenuStruct {
   protected get menu(): Menu {
     return this.prevMenu.menu
   }
-  private get rVideo(): RVideo {
+  protected get rVideo(): RVideo {
     return this.prevMenu.rVideo
   }
   protected get strings(): Strings {
@@ -89,18 +89,21 @@ export class LoadGameMenu implements MenuStruct {
   //
   protected title = 'M_LOADG'
   routine(): void {
-    const offsetX = (this.rVideo.width - SCREENWIDTH) / 2
-    const offsetY = (this.rVideo.height - SCREENHEIGHT) / 2
+    const scale = this.rVideo.scale
+    const offsetX = (this.rVideo.width - SCREENWIDTH * scale) / 2
+    const offsetY = (this.rVideo.height - SCREENHEIGHT * scale) / 2
     this.rVideo.drawPatch(
-      72 + offsetX, 28 + offsetY, 0,
+      72 * scale + offsetX, 28 * scale + offsetY, 0,
       this.wad.cacheLumpName(this.title, Patch),
     )
 
     for (let i = 0; i < Save.SaveEnd; ++i) {
-      this.drawSaveLoadBorder(this.x + offsetX, this.y + LINEHEIGHT * i + offsetY)
+      this.drawSaveLoadBorder(
+        this.x * scale + offsetX,
+        (this.y + LINEHEIGHT * i) * scale + offsetY)
       this.menu.headsUp.lib.writeText(
-        this.x + offsetX,
-        this.y + LINEHEIGHT * i + offsetY,
+        this.x * scale + offsetX,
+        (this.y + LINEHEIGHT * i) * scale + offsetY,
         this.saveGameStrings[i],
       )
     }
@@ -167,19 +170,20 @@ export class LoadGameMenu implements MenuStruct {
   // Draw border for the savegame description
   //
   private drawSaveLoadBorder(x: number, y: number): void {
+    const scale = this.rVideo.scale
     this.rVideo.drawPatch(
-      x - 8, y + 7, 0,
+      x - 8 * scale, y + 7 * scale, 0,
       this.wad.cacheLumpName('M_LSLEFT', Patch),
     )
     for (let i = 0; i < 24; ++i) {
       this.rVideo.drawPatch(
-        x, y + 7, 0,
+        x, y + 7 * scale, 0,
         this.wad.cacheLumpName('M_LSCNTR', Patch),
       )
-      x += 8
+      x += 8 * scale
     }
     this.rVideo.drawPatch(
-      x, y + 7, 0,
+      x, y + 7 * scale, 0,
       this.wad.cacheLumpName('M_LSRGHT', Patch),
     )
   }
@@ -191,11 +195,14 @@ export class SaveGameMenu extends LoadGameMenu {
     super.routine()
 
     if (this.saveStringEnter) {
+      const scale = this.rVideo.scale
+      const offsetX = (this.rVideo.width - SCREENWIDTH * scale) / 2
+      const offsetY = (this.rVideo.height - SCREENHEIGHT * scale) / 2
       const i = this.menu.headsUp.lib.stringWidth(
         this.saveGameStrings[this.saveSlot])
       this.menu.headsUp.lib.writeText(
-        this.x + i,
-        this.y + LINEHEIGHT * this.saveSlot,
+        (this.x + i) * scale + offsetX,
+        (this.y + LINEHEIGHT * this.saveSlot) * scale + offsetY,
         '_',
       )
     }

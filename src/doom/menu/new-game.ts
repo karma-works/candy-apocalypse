@@ -82,14 +82,15 @@ export class NewGameMenu implements MenuStruct {
   // M_NewGame
   //
   routine(): void {
-    const offsetX = (this.rVideo.width - SCREENWIDTH) / 2
-    const offsetY = (this.rVideo.height - SCREENHEIGHT) / 2
+    const scale = this.rVideo.scale
+    const offsetX = (this.rVideo.width - SCREENWIDTH * scale) / 2
+    const offsetY = (this.rVideo.height - SCREENHEIGHT * scale) / 2
     this.rVideo.drawPatch(
-      96 + offsetX, 14 + offsetY, 0,
+      96 * scale + offsetX, 14 * scale + offsetY, 0,
       this.wad.cacheLumpName('M_NEWG', Patch),
     )
     this.rVideo.drawPatch(
-      54 + offsetX, 38 + offsetY, 0,
+      54 * scale + offsetX, 38 * scale + offsetY, 0,
       this.wad.cacheLumpName('M_SKILL', Patch),
     )
   }

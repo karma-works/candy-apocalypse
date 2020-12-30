@@ -33,6 +33,7 @@ export class Lib {
     let w: number
     let x = l.x
     let c: number
+    const scale = this.rVideo.scale
     for (let i = 0; i < l.line.length; ++i) {
       c = l.line.charAt(i).toUpperCase().charCodeAt(0)
 
@@ -40,15 +41,15 @@ export class Lib {
         c >= l.startChar &&
         c <= US
       ) {
-        w = l.font[c - l.startChar].width
-        if (x + w > SCREENWIDTH) {
+        w = l.font[c - l.startChar].width * scale
+        if (x + w > SCREENWIDTH * scale) {
           break
         }
 
         this.rVideo.drawPatch(x, l.y, FG, l.font[c - l.startChar])
         x += w
       } else {
-        x += 4
+        x += 4 * scale
         if (x >= SCREENWIDTH) {
           break
         }
@@ -74,16 +75,18 @@ export class Lib {
     if (!this.autoMap.active &&
       this.rendering.viewWindowX && l.needsUpdate
     ) {
-      const lh = l.font[0].height + 1
-      for (let y = l.y, yOffset = y * SCREENWIDTH;
+      const scale = this.rVideo.scale
+      const screenWidth = this.rVideo.width
+      const lh = (l.font[0].height + 1) * scale
+      for (let y = l.y, yOffset = y * screenWidth;
         y < l.y + lh;
-        ++y, yOffset += SCREENWIDTH
+        ++y, yOffset += screenWidth
       ) {
         if (y < this.rendering.viewWindowY ||
           y >= this.rendering.viewWindowY + this.rendering.viewHeight
         ) {
           // erase entire line
-          this.rVideo.erase(yOffset, SCREENWIDTH)
+          this.rVideo.erase(yOffset, screenWidth)
         } else {
           // erase left border
           this.rVideo.erase(yOffset, this.rendering.viewWindowX)
@@ -153,6 +156,7 @@ export class Lib {
 
   //
   // Find string width from hu_font chars
+  // (not scaled)
   //
   stringWidth(str: string): number {
     let w = 0
@@ -162,7 +166,7 @@ export class Lib {
       if (c < 0 || c >= HU_FONTSIZE) {
         w += 4
       } else {
-        w += this.headsUp.font[i].width
+        w += this.headsUp.font[c].width
       }
     }
 
@@ -171,6 +175,7 @@ export class Lib {
 
   //
   // Find string height from hu_font chars
+  // (not scaled)
   //
   stringHeight(str: string): number {
     let h = 0
@@ -187,6 +192,8 @@ export class Lib {
   // Write a string using the hu_font
   //
   writeText(x: number, y: number, str: string, lineHeight = 12): void {
+    const scale = this.rVideo.scale
+    lineHeight *= scale
     let w: number
     let ch = 0
     let c: number
@@ -207,12 +214,12 @@ export class Lib {
 
       c = toupper(c) - HU_FONTSTART
       if (c < 0 || c >= HU_FONTSIZE) {
-        cx += 4
+        cx += 4 * scale
         continue
       }
 
-      w = this.headsUp.font[c].width
-      if (cx + w > SCREENWIDTH) {
+      w = this.headsUp.font[c].width * scale
+      if (cx + w > SCREENWIDTH * scale) {
         break
       }
 

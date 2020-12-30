@@ -52,6 +52,7 @@ export class AgnosticDefaults {
 
     resolution_width: 320,
     resolution_height: 240,
+    resolution_scale: 1,
     rendering_mode: RenderingMode.Legacy,
   }
 
@@ -238,6 +239,10 @@ export class Defaults extends AgnosticDefaults {
     resolution_height: {
       get: () => this.doom.rVideo.physicalHeight,
       set: v => this.doom.rVideo.physicalHeight = v,
+    },
+    resolution_scale: {
+      get: () => this.doom.rVideo.scale,
+      set: v => this.doom.rVideo.scale = v,
     },
     rendering_mode: {
       get: () => this.doom.renderingMode,

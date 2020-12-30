@@ -12,6 +12,7 @@ import { Net } from '../doom/net'
 import { Plane } from './plane'
 import { Player } from '../doom/player'
 import { RenderingInterface } from './rendering-interface'
+import { ST_HEIGHT } from '../status/lib'
 import { Segs } from './segs'
 import { Things } from './things'
 import { Tick } from '../play/tick'
@@ -344,7 +345,9 @@ export class Rendering implements RenderingInterface {
       this.draw.viewHeight = this.video.height
     } else {
       this.draw.scaledViewWidth = this.screenBlocks * this.video.width / 10 >> 0
-      this.draw.viewHeight = this.screenBlocks * (this.video.height - 32) / 10 & ~7
+      const scale = this.video.scale
+      this.draw.viewHeight = this.screenBlocks *
+        (this.video.height - ST_HEIGHT * scale) / 10 & ~7
     }
 
     this.detailShift = this.highDetails ? 1 : 0

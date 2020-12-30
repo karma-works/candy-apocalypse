@@ -62,22 +62,23 @@ export class SoundMenu implements MenuStruct {
   // Change Sfx & Music volumes
   //
   routine(): void {
-    const offsetX = (this.rVideo.width - SCREENWIDTH) / 2
-    const offsetY = (this.rVideo.height - SCREENHEIGHT) / 2
+    const scale = this.rVideo.scale
+    const offsetX = (this.rVideo.width - SCREENWIDTH * scale) / 2
+    const offsetY = (this.rVideo.height - SCREENHEIGHT * scale) / 2
 
-    this.rVideo.drawPatch(60 + offsetX, 38 + offsetY, 0,
+    this.rVideo.drawPatch(60 * scale + offsetX, 38 * scale + offsetY, 0,
       this.wad.cacheLumpName('M_SVOL', Patch),
     )
 
     this.menu.drawThermo(
-      this.x + offsetX,
-      this.y + LINEHEIGHT * (Sound.SfxVol + 1) + offsetY,
+      this.x * scale + offsetX,
+      (this.y + LINEHEIGHT * (Sound.SfxVol + 1)) * scale + offsetY,
       16,
       this.dSound.sfxVolume,
     )
     this.menu.drawThermo(
-      this.x + offsetX,
-      this.y + LINEHEIGHT * (Sound.MusicVol + 1) + offsetY,
+      this.x * scale + offsetX,
+      (this.y + LINEHEIGHT * (Sound.MusicVol + 1)) * scale + offsetY,
       16,
       this.dSound.musicVolume,
     )

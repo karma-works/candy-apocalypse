@@ -44,8 +44,12 @@ export default class FilesTable extends Vue {
 
     const width = this.defaults.get('resolution_width')
     const height = this.defaults.get('resolution_height')
-    if (typeof width === 'number' && typeof height === 'number') {
-      this.resolution = [ width, height ]
+    const scale = this.defaults.get('resolution_scale')
+    if (typeof width === 'number' &&
+      typeof height === 'number' &&
+      typeof scale === 'number'
+    ) {
+      this.resolution = [ width, height, scale ]
     }
     const renderingMode = this.defaults.get('rendering_mode')
     if (typeof renderingMode === 'number') {
@@ -60,6 +64,7 @@ export default class FilesTable extends Vue {
 
     this.defaults.set('resolution_width', this.resolution[0])
     this.defaults.set('resolution_height', this.resolution[1])
+    this.defaults.set('resolution_scale', this.resolution[2])
     this.defaults.set('rendering_mode', this.renderingMode)
 
     await this.defaults.save()
@@ -126,23 +131,23 @@ export default class FilesTable extends Vue {
     this.pending = ''
   }
 
-  resolutions: [number, number][] = [
-    [ 320, 240 ],
-    [ 640, 480 ],
-    [ 800, 600 ],
-    [ 1024, 768 ],
-    [ 1400, 1050 ],
+  resolutions: [number, number, number][] = [
+    [ 320, 240, 1 ],
+    [ 640, 480, 2 ],
+    [ 800, 600, 2 ],
+    [ 1024, 768, 3 ],
+    [ 1400, 1050, 4 ],
 
-    [ 426, 240 ],
-    [ 853, 480 ],
-    [ 1600, 900 ],
-    [ 1920, 1080 ],
+    [ 426, 240, 1 ],
+    [ 853, 480, 2 ],
+    [ 1600, 900, 3 ],
+    [ 1920, 1080, 4 ],
   ]
 
-  resolution: [number, number] = [ 320, 240 ]
+  resolution: [number, number, number] = [ 320, 240, 1 ]
 
-  formatResolution(resolution: [number, number]): string {
-    return `${resolution[0]}x${resolution[1]}`
+  formatResolution(resolution: [number, number, number]): string {
+    return `${resolution[0]}x${resolution[1]} (x${resolution[2]})`
   }
 
   renderingModes = [

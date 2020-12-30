@@ -47,7 +47,8 @@ export class HeadsUp {
   }
   private readonly TITLE_X = 0
   private get TITLE_Y(): number {
-    return this.doom.rVideo.height - 33 - this.font[0].height
+    const scale = this.doom.rVideo.scale
+    return this.doom.rVideo.height - (33 + this.font[0].height) * scale
   }
 
   private readonly INPUT_X = MSG_X
@@ -310,8 +311,6 @@ export class HeadsUp {
       this.font,
       HU_FONTSTART,
     )
-
-    this.title
 
     let s: string
     switch (logicalGameMission(this.doom.gameMission)) {

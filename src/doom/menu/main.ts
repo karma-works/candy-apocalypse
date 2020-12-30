@@ -165,10 +165,11 @@ export class MainMenu implements MenuStruct {
   // M_DrawMainMenu
   //
   routine(): void {
-    const offsetX = (this.rVideo.width - SCREENWIDTH) / 2
-    const offsetY = (this.rVideo.height - SCREENHEIGHT) / 2
+    const scale = this.rVideo.scale
+    const offsetX = (this.rVideo.width - SCREENWIDTH * scale) / 2
+    const offsetY = (this.rVideo.height - SCREENHEIGHT * scale) / 2
     this.rVideo.drawPatch(
-      94 + offsetX, 2 + offsetY, 0,
+      94 * scale + offsetX, 2 * scale + offsetY, 0,
       this.wad.cacheLumpName('M_DOOM', Patch),
     )
   }
