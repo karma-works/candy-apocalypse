@@ -153,6 +153,7 @@ export class Lib {
 
   //
   // Find string width from hu_font chars
+  // (not scaled)
   //
   stringWidth(str: string): number {
     let w = 0
@@ -162,7 +163,7 @@ export class Lib {
       if (c < 0 || c >= HU_FONTSIZE) {
         w += 4
       } else {
-        w += this.headsUp.font[i].width
+        w += this.headsUp.font[c].width
       }
     }
 
@@ -171,6 +172,7 @@ export class Lib {
 
   //
   // Find string height from hu_font chars
+  // (not scaled)
   //
   stringHeight(str: string): number {
     let h = 0
@@ -187,6 +189,8 @@ export class Lib {
   // Write a string using the hu_font
   //
   writeText(x: number, y: number, str: string, lineHeight = 12): void {
+    const scale = this.rVideo.scale
+    lineHeight *= scale
     let w: number
     let ch = 0
     let c: number
@@ -207,12 +211,12 @@ export class Lib {
 
       c = toupper(c) - HU_FONTSTART
       if (c < 0 || c >= HU_FONTSIZE) {
-        cx += 4
+        cx += 4 * scale
         continue
       }
 
-      w = this.headsUp.font[c].width
-      if (cx + w > SCREENWIDTH) {
+      w = this.headsUp.font[c].width * scale
+      if (cx + w > SCREENWIDTH * scale) {
         break
       }
 

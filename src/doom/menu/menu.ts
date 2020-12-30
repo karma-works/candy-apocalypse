@@ -105,25 +105,26 @@ export class Menu {
   //      Menu Functions
   //
   drawThermo(x: number, y: number, thermWidth: number, thermDot: number): void {
+    const scale = this.rVideo.scale
     let xx = x
     this.rVideo.drawPatch(
       xx, y, 0,
       this.wad.cacheLumpName('M_THERML', Patch),
     )
-    xx += 8
+    xx += 8 * scale
     for (let i = 0; i < thermWidth; ++i) {
       this.rVideo.drawPatch(
         xx, y, 0,
         this.wad.cacheLumpName('M_THERMM', Patch),
       )
-      xx += 8
+      xx += 8 * scale
     }
     this.rVideo.drawPatch(
       xx, y, 0,
       this.wad.cacheLumpName('M_THERMR', Patch),
     )
     this.rVideo.drawPatch(
-      x + 8 + thermDot * 8, y, 0,
+      x + 8 * scale + thermDot * 8 * scale, y, 0,
       this.wad.cacheLumpName('M_THERMO', Patch),
     )
   }
@@ -503,15 +504,17 @@ export class Menu {
     this.inHelpScreens = false
 
     let x: number, y: number
-    const offsetX = (this.rVideo.width - SCREENWIDTH) / 2
-    const offsetY = (this.rVideo.height - SCREENHEIGHT) / 2
+    const scale = this.rVideo.scale
+    const offsetX = (this.rVideo.width - SCREENWIDTH * scale) / 2
+    const offsetY = (this.rVideo.height - SCREENHEIGHT * scale) / 2
 
     // Horiz. & Vertically center string and print it.
     if (this.messageToPrint && this.messageString !== null) {
       let start = 0
       let i = 0
-      y = 100 - Math.floor(
-        this.headsUp.lib.stringHeight(this.messageString) / 2)
+      const messageHeight = this.headsUp.lib.stringHeight(this.messageString) * scale
+      let messageWidth: number
+      y = 100 * scale - Math.floor(messageHeight / 2)
       let str = ''
 
       while (this.messageString.charAt(start)) {
@@ -528,10 +531,11 @@ export class Menu {
           start += i
         }
 
-        x = 160 - Math.floor(
-          this.headsUp.lib.stringWidth(str) / 2) + offsetX
+        messageWidth = this.headsUp.lib.stringWidth(str) * scale
+
+        x = 160 * scale - Math.floor(messageWidth / 2) + offsetX
         this.headsUp.lib.writeText(x, y + offsetY, str)
-        y += this.headsUp.font[0].height
+        y += this.headsUp.font[0].height * scale
       }
 
       return
@@ -545,8 +549,8 @@ export class Menu {
     this.currentMenu.routine.call(this.currentMenu)
 
     // DRAW MENU
-    x = this.currentMenu.x + offsetX
-    y = this.currentMenu.y + offsetY
+    x = this.currentMenu.x * scale + offsetX
+    y = this.currentMenu.y * scale + offsetY
     const max = this.currentMenu.numItems
 
     let item: MenuItem
@@ -560,12 +564,12 @@ export class Menu {
           this.wad.cacheLumpName(item.name, Patch),
         )
       }
-      y += LINEHEIGHT
+      y += LINEHEIGHT * scale
     }
 
     this.rVideo.drawPatch(
-      x + SKULLOFF,
-      this.currentMenu.y - 5 + this.itemOn * LINEHEIGHT + offsetY,
+      x + SKULLOFF * scale,
+      (this.currentMenu.y - 5 + this.itemOn * LINEHEIGHT) * scale + offsetY,
       0,
       this.wad.cacheLumpName(this.skullName[this.whichSkull], Patch),
     )
