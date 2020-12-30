@@ -384,7 +384,8 @@ export class Doom {
     } while (!tics)
     this.wipeStart = nowTime
 
-    done = this.wipe.screenWipe(0, 0, this.rVideo.width, this.rVideo.height, tics)
+    done = this.wipe.screenWipe(0, 0,
+      this.rVideo.width, this.rVideo.height, tics * this.rVideo.scale)
 
     // menu is drawn even on top of wipes
     this.menu.drawer()
