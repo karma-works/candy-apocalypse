@@ -13,6 +13,7 @@ import { MObj } from '../play/mobj/mobj'
 import { MapLineFlag } from '../doom/data'
 import { Patch } from '../rendering/defs/patch'
 import { Player } from '../doom/player'
+import { ST_HEIGHT } from '../status/lib'
 import { ScanCode } from '../interfaces/scancodes'
 import { StatusBar } from '../status/stuff'
 import { Strings } from '../translation/strings'
@@ -95,7 +96,7 @@ export class AutoMap {
     return this.rVideo.width
   }
   get finitHeight(): number {
-    return this.rVideo.height - 32
+    return this.rVideo.height - ST_HEIGHT * this.rVideo.scale
   }
 
   // location of window on screen
