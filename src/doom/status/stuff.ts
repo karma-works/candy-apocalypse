@@ -34,9 +34,6 @@ const NUM_BONUS_PALS = 4
 // Radiation suit, green shift.
 const RADIATION_PAL = 13
 
-// Location of status bar
-const ST_X = 0
-
 const ST_FX = 143
 
 // Number of status faces.
@@ -272,13 +269,14 @@ export class StatusBar {
 
   private refreshBackground(): void {
     if (this.statusBarOn) {
-      this.rVideo.drawPatch(ST_X, 0, BG, this.sBar)
+      const scale = this.rVideo.scale
+      this.rVideo.drawPatch(0, 0, BG, this.sBar)
 
       if (this.game.netGame) {
-        this.rVideo.drawPatch(ST_FX, 0, BG, this.faceBack)
+        this.rVideo.drawPatch(ST_FX * scale, 0, BG, this.faceBack)
       }
 
-      this.rVideo.copyRect(ST_X, 0, BG, ST_WIDTH, ST_HEIGHT,
+      this.rVideo.copyRect(0, 0, BG, ST_WIDTH * scale, ST_HEIGHT * scale,
         this.lib.x, this.lib.y, FG)
     }
   }
@@ -1123,6 +1121,7 @@ export class StatusBar {
   init(): void {
     this.veryFirstTime = false
     this.loadData()
-    this.rVideo.screens[4] = new Screen(ST_WIDTH, ST_HEIGHT)
+    const scale = this.rVideo.scale
+    this.rVideo.screens[4] = new Screen(ST_WIDTH * scale, ST_HEIGHT * scale)
   }
 }

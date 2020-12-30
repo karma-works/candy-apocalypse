@@ -87,6 +87,7 @@ export class Rendering extends LegacyRendering {
 
   setAlphaScreen(): void {
     const screen = this.video.screens[0]
+    const scale = this.video.scale
     const alpha = screen.alpha
     alpha.fill(0)
 
@@ -94,13 +95,13 @@ export class Rendering extends LegacyRendering {
       return
     }
 
-    const barX = (screen.width - ST_WIDTH) / 2
-    let barY = screen.height - ST_HEIGHT
+    const barX = (screen.width - ST_WIDTH * scale) / 2
+    let barY = screen.height - ST_HEIGHT * scale
 
     let destPtr = screen.width * barY + barX
 
     for (; barY < screen.height; ++barY) {
-      alpha.fill(255, destPtr, destPtr + ST_WIDTH)
+      alpha.fill(255, destPtr, destPtr + ST_WIDTH * scale)
       destPtr += screen.width
     }
   }

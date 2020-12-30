@@ -8,14 +8,12 @@ import { Patch } from './defs/patch'
 import { Post } from './defs/post'
 import { RANGE_CHECK } from '../global/doomdef'
 import { Rendering } from './rendering'
+import { ST_HEIGHT } from '../status/lib'
 import { Video } from './video'
 
 // ?
 export const MAX_WIDTH = 1120
 export const MAX_HEIGHT = 832
-
-// status bar height at bottom of screen
-const SBAR_HEIGHT = 32
 
 //
 // Spectre/Invisibility.
@@ -598,6 +596,7 @@ export class Draw {
   //
   initBuffer(width: number, height: number): void {
     const dest = this.video.screens[0]
+    const scale = this.video.scale
     const screenWidth = dest.width
     const screenHeight = dest.height
 
@@ -615,7 +614,7 @@ export class Draw {
     if (width === screenWidth) {
       this.viewWindowY = 0
     } else {
-      this.viewWindowY = screenHeight - SBAR_HEIGHT - height >> 1
+      this.viewWindowY = screenHeight - ST_HEIGHT * scale - height >> 1
     }
 
     // Preclaculate all row offsets.
@@ -632,6 +631,7 @@ export class Draw {
   //
   fillBackScreen(): void {
     const dest = this.video.screens[1]
+    const scale = this.video.scale
     const screenWidth = dest.width
     const screenHeight = dest.height
 
@@ -657,37 +657,45 @@ export class Draw {
     }
 
     let patch = this.wad.cacheLumpName('brdr_t', Patch)
-    for (let x = 0; x < this.scaledViewWidth; x += 8) {
-      this.video.drawPatch(this.viewWindowX + x, this.viewWindowY - 8, 1, patch)
+    for (let x = 0; x < this.scaledViewWidth; x += 8 * scale) {
+      this.video.drawPatch(this.viewWindowX + x,
+        this.viewWindowY - 8 * scale,
+        1, patch)
     }
 
     patch = this.wad.cacheLumpName('brdr_b', Patch)
-    for (let x = 0; x < this.scaledViewWidth; x += 8) {
-      this.video.drawPatch(this.viewWindowX + x, this.viewWindowY + this.viewHeight, 1, patch)
+    for (let x = 0; x < this.scaledViewWidth; x += 8 * scale) {
+      this.video.drawPatch(this.viewWindowX + x,
+        this.viewWindowY + this.viewHeight,
+        1, patch)
     }
 
     patch = this.wad.cacheLumpName('brdr_l', Patch)
-    for (let y = 0; y < this.viewHeight; y += 8) {
-      this.video.drawPatch(this.viewWindowX - 8, this.viewWindowY + y, 1, patch)
+    for (let y = 0; y < this.viewHeight; y += 8 * scale) {
+      this.video.drawPatch(this.viewWindowX - 8 * scale,
+        this.viewWindowY + y,
+        1, patch)
     }
 
     patch = this.wad.cacheLumpName('brdr_r', Patch)
-    for (let y = 0; y < this.viewHeight; y += 8) {
-      this.video.drawPatch(this.viewWindowX + this.scaledViewWidth, this.viewWindowY + y, 1, patch)
+    for (let y = 0; y < this.viewHeight; y += 8 * scale) {
+      this.video.drawPatch(this.viewWindowX + this.scaledViewWidth,
+        this.viewWindowY + y,
+        1, patch)
     }
 
     // Draw beveled edge.
-    this.video.drawPatch(this.viewWindowX - 8,
-      this.viewWindowY - 8,
+    this.video.drawPatch(this.viewWindowX - 8 * scale,
+      this.viewWindowY - 8 * scale,
       1,
       this.wad.cacheLumpName('brdr_tl', Patch))
 
     this.video.drawPatch(this.viewWindowX + this.scaledViewWidth,
-      this.viewWindowY - 8,
+      this.viewWindowY - 8 * scale,
       1,
       this.wad.cacheLumpName('brdr_tr', Patch))
 
-    this.video.drawPatch(this.viewWindowX - 8,
+    this.video.drawPatch(this.viewWindowX - 8 * scale,
       this.viewWindowY + this.viewHeight,
       1,
       this.wad.cacheLumpName('brdr_bl', Patch))
@@ -706,10 +714,11 @@ export class Draw {
   //
   drawViewBorder(): void {
     const dest = this.video.screens[0]
+    const scale = this.video.scale
     const screenWidth = dest.width
     const screenHeight = dest.height
 
-    const top = (screenHeight - SBAR_HEIGHT - this.viewHeight) / 2 >> 0
+    const top = (screenHeight - ST_HEIGHT * scale - this.viewHeight) / 2 >> 0
     let side = (screenWidth - this.scaledViewWidth) / 2 >> 0
 
     // copy top and one line of left side
