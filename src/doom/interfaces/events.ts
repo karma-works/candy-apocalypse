@@ -11,7 +11,7 @@ export const Button3 = 2
 interface ScreenListener {
   pending: XEvent[],
   listeners: {
-    [K in keyof HTMLElementEventMap]?: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any
+    [K in keyof HTMLElementEventMap]?: (this: HTMLElement, ev: HTMLElementEventMap[K]) => unknown
   },
 }
 const listeners = new Map<HTMLElement, ScreenListener>()
@@ -102,7 +102,7 @@ export function XQuitEvent(display: HTMLElement): void {
   }
 
   l.pending = [];
-  // eslint-disable-next-line no-extra-parens
+
   (Object.keys(l.listeners) as (keyof HTMLElementEventMap)[])
     .forEach(k => {
       display.removeEventListener(k, l.listeners[k] as never)

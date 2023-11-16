@@ -92,6 +92,7 @@ export class PSprite {
         let handler: unknown
         switch (state.handlerType) {
         case PSprite:
+          // eslint-disable-next-line @typescript-eslint/no-this-alias
           handler = this
           break
         case Enemy:

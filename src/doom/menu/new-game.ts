@@ -100,7 +100,7 @@ export class NewGameMenu implements MenuStruct {
       return
     }
 
-    // eslint-disable-next-line no-extra-parens
+
     const epi = (<EpisodeMenu> this.prevMenu).epi || 0
     this.game.deferedInitNew(Skill.Nightmare, epi + 1, 1)
     this.menu.clearMenus()
@@ -112,7 +112,7 @@ export class NewGameMenu implements MenuStruct {
       return
     }
 
-    // eslint-disable-next-line no-extra-parens
+
     const epi = (<EpisodeMenu> this.prevMenu).epi || 0
     this.game.deferedInitNew(choice, epi + 1, 1)
     this.menu.clearMenus()

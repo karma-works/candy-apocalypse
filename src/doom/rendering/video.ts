@@ -47,13 +47,13 @@ export class Video {
   scale = 1
 
   constructor(p: LogicalSize | PhysicalSize) {
-    /* eslint-disable no-extra-parens */
+
     if ((<LogicalSize> p).logical) {
       [ this.width, this.height ] = (<LogicalSize> p).logical
     } else {
       [ this.physicalWidth, this.physicalHeight ] = (<PhysicalSize> p).physical
     }
-    /* eslint-enable no-extra-parens */
+
   }
 
   //

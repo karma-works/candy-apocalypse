@@ -733,7 +733,7 @@ export class Game {
   //
   // G_DoReborn
   //
-  doReborn(playerNum: number): void {
+  doReborn(_playerNum: number): void {
     if (!this.netGame) {
       // reload the level from scratch
       this.gameAction = GameAction.LoadLevel

@@ -130,9 +130,9 @@ export class Menu {
   }
 
   startMessage(str: string, input: false): void
-  startMessage<T>(str: string, input: true,
+  startMessage(str: string, input: true,
     routine: (response: number) => void): void
-  startMessage<T>(
+  startMessage(
     str: string,
     input: boolean,
     routine?: (response: number) => void,

@@ -1345,7 +1345,7 @@ export class Enemy {
     let currentTinker = this.tick.thinkerCap.next
     while (currentTinker && currentTinker !== this.tick.thinkerCap) {
       if (currentTinker.func === this.mObjHandler.thinker &&
-        // eslint-disable-next-line no-extra-parens
+
         (currentTinker as MObj).type === MObjType.Skull
       ) {
         count++

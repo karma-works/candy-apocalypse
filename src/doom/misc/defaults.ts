@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+
 import { RenderingInterface, RenderingMode } from '../rendering/rendering-interface'
 import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom'

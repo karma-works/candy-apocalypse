@@ -318,7 +318,7 @@ export class Sound {
     }
   }
 
-  updateSoundParams(handle: number, vol: number, sep: number, pitch: number): void {
+  updateSoundParams(_handle: number, _vol: number, _sep: number, _pitch: number): void {
     // TODO
   }
 

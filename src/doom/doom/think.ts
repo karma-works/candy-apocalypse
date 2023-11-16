@@ -10,5 +10,5 @@ export class Thinker<T, A extends unknown[]> {
     public next: Thinker<any, any> | null = null) { }
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+
 export const noopFunc = () => void 0

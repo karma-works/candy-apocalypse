@@ -357,7 +357,7 @@ export class HeadsUp {
 
   }
 
-  drawer() : void{
+  drawer() : void {
     if (this.message === null) {
       throw 'this.message = null'
     }
@@ -424,7 +424,7 @@ export class HeadsUp {
     }
   }
 
-  responder(ev: DEvent): boolean {
+  responder(_ev: DEvent): boolean {
     // TODO
 
     return false

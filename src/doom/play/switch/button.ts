@@ -14,7 +14,7 @@ export class Button {
   bTimer = 0
   soundOrg: MObj | null = null
 
-  reset(): void{
+  reset(): void {
     this.line = null
     this.where = 0
     this.bTexture = 0

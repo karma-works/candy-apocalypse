@@ -1,26 +1,19 @@
 module.exports = {
-  'env': {
-    'browser': true,
-    'es6': true,
-  },
+  'root': true,
+  'env': { 'browser': true, 'es2020': true },
   'extends': [
     'eslint:recommended',
-    'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
+    'plugin:react-hooks/recommended',
   ],
-  'globals': {
-    'Atomics': 'readonly',
-    'SharedArrayBuffer': 'readonly',
-  },
+  'ignorePatterns': ['dist', '.eslintrc.cjs'],
   'parser': '@typescript-eslint/parser',
-  'parserOptions': {
-    'ecmaVersion': 11,
-    'sourceType': 'module',
-  },
-  'plugins': [
-    '@typescript-eslint',
-  ],
+  'plugins': ['react-refresh'],
   'rules': {
+    'react-refresh/only-export-components': [
+      'warn',
+      { 'allowConstantExport': true },
+    ],
     'no-debugger': 'off',
 
     'indent': [
@@ -34,10 +27,6 @@ module.exports = {
     'quotes': [
       'error',
       'single',
-    ],
-    'semi': [
-      'error',
-      'never',
     ],
     'no-extra-parens': 'error',
     'no-template-curly-in-string': 'warn',
@@ -74,5 +63,8 @@ module.exports = {
     'rest-spread-spacing': 'error',
     'sort-imports': 'error',
     'yield-star-spacing': 'error',
+
+    '@typescript-eslint/no-duplicate-enum-values': 'error',
+    "@typescript-eslint/no-unused-vars": [ "error", { "argsIgnorePattern": "^_" } ],
   },
 }

@@ -55,12 +55,12 @@ export class Things extends LegacyThings {
 
     sprite.material.map = map
     sprite.material.alphaMap = alphaMap;
-    // eslint-disable-next-line no-extra-parens
+
     (sprite.material as SpritePaletteMaterial).paletteTexture.palette =
         this.textures.palette
 
     if (visSprite.colorMap) {
-      // eslint-disable-next-line no-extra-parens
+
       (sprite.material as SpritePaletteMaterial).paletteTexture.colorMap =
           visSprite.colorMap
     } else {
