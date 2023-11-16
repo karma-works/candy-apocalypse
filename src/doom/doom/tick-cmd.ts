@@ -5,8 +5,8 @@
 export class TickCmd {
   static sizeOf = 8
 
-  private chars = new Int8Array(this.bytes.buffer, this.bytes.byteOffset, this.bytes.byteLength)
-  private shorts = new Int16Array(this.bytes.buffer, this.bytes.byteOffset, this.bytes.byteLength / 2)
+  private chars: Int8Array
+  private shorts: Int16Array
 
   // *2048 for move
   get forwardMove(): number {
@@ -49,8 +49,10 @@ export class TickCmd {
     this.bytes[7] = v
   }
 
-  constructor(private bytes = new Uint8Array(TickCmd.sizeOf)) { }
-
+  constructor(private bytes = new Uint8Array(TickCmd.sizeOf)) {
+    this.chars = new Int8Array(this.bytes.buffer, this.bytes.byteOffset, this.bytes.byteLength)
+    this.shorts = new Int16Array(this.bytes.buffer, this.bytes.byteOffset, this.bytes.byteLength / 2)
+  }
   reset(): void {
     this.bytes.fill(0)
   }

@@ -50,55 +50,58 @@ export class Finale {
   private text = ''
   private flat = ''
 
-  private textScreens: readonly TextScreen[] = [
-    { mission: GameMission.Doom, episode: 1, level: 8,
-      background: 'FLOOR4_8',text: this.strings.e1text },
-    { mission: GameMission.Doom, episode: 2, level: 8,
-      background: 'SFLR6_1', text: this.strings.e2text },
-    { mission: GameMission.Doom, episode: 3, level: 8,
-      background: 'MFLR8_4', text: this.strings.e3text },
-    { mission: GameMission.Doom, episode: 4, level: 8,
-      background: 'MFLR8_3', text: this.strings.e4text },
+  private textScreens: readonly TextScreen[]
+  private newTextScreens() {
+    return [
+      { mission: GameMission.Doom, episode: 1, level: 8,
+        background: 'FLOOR4_8',text: this.strings.e1text },
+      { mission: GameMission.Doom, episode: 2, level: 8,
+        background: 'SFLR6_1', text: this.strings.e2text },
+      { mission: GameMission.Doom, episode: 3, level: 8,
+        background: 'MFLR8_4', text: this.strings.e3text },
+      { mission: GameMission.Doom, episode: 4, level: 8,
+        background: 'MFLR8_3', text: this.strings.e4text },
 
-    { mission: GameMission.Doom2, episode: 1, level: 6,
-      background: 'SLIME16', text: this.strings.c1text },
-    { mission: GameMission.Doom2, episode: 1, level: 11,
-      background: 'RROCK14', text: this.strings.c2text },
-    { mission: GameMission.Doom2, episode: 1, level: 20,
-      background: 'RROCK07', text: this.strings.c3text },
-    { mission: GameMission.Doom2, episode: 1, level: 30,
-      background: 'RROCK17', text: this.strings.c4text },
-    { mission: GameMission.Doom2, episode: 1, level: 15,
-      background: 'RROCK13', text: this.strings.c5text },
-    { mission: GameMission.Doom2, episode: 1, level: 31,
-      background: 'RROCK19', text: this.strings.c6text },
+      { mission: GameMission.Doom2, episode: 1, level: 6,
+        background: 'SLIME16', text: this.strings.c1text },
+      { mission: GameMission.Doom2, episode: 1, level: 11,
+        background: 'RROCK14', text: this.strings.c2text },
+      { mission: GameMission.Doom2, episode: 1, level: 20,
+        background: 'RROCK07', text: this.strings.c3text },
+      { mission: GameMission.Doom2, episode: 1, level: 30,
+        background: 'RROCK17', text: this.strings.c4text },
+      { mission: GameMission.Doom2, episode: 1, level: 15,
+        background: 'RROCK13', text: this.strings.c5text },
+      { mission: GameMission.Doom2, episode: 1, level: 31,
+        background: 'RROCK19', text: this.strings.c6text },
 
-    { mission: GameMission.PackTNT, episode: 1, level: 6,
-      background: 'SLIME16', text: this.strings.t1text },
-    { mission: GameMission.PackTNT, episode: 1, level: 11,
-      background: 'RROCK14', text: this.strings.t2text },
-    { mission: GameMission.PackTNT, episode: 1, level: 20,
-      background: 'RROCK07', text: this.strings.t3text },
-    { mission: GameMission.PackTNT, episode: 1, level: 30,
-      background: 'RROCK17', text: this.strings.t4text },
-    { mission: GameMission.PackTNT, episode: 1, level: 15,
-      background: 'RROCK13', text: this.strings.t5text },
-    { mission: GameMission.PackTNT, episode: 1, level: 31,
-      background: 'RROCK19', text: this.strings.t6text },
+      { mission: GameMission.PackTNT, episode: 1, level: 6,
+        background: 'SLIME16', text: this.strings.t1text },
+      { mission: GameMission.PackTNT, episode: 1, level: 11,
+        background: 'RROCK14', text: this.strings.t2text },
+      { mission: GameMission.PackTNT, episode: 1, level: 20,
+        background: 'RROCK07', text: this.strings.t3text },
+      { mission: GameMission.PackTNT, episode: 1, level: 30,
+        background: 'RROCK17', text: this.strings.t4text },
+      { mission: GameMission.PackTNT, episode: 1, level: 15,
+        background: 'RROCK13', text: this.strings.t5text },
+      { mission: GameMission.PackTNT, episode: 1, level: 31,
+        background: 'RROCK19', text: this.strings.t6text },
 
-    { mission: GameMission.PackPlut, episode: 1, level: 6,
-      background: 'SLIME16', text: this.strings.p1text },
-    { mission: GameMission.PackPlut, episode: 1, level: 11,
-      background: 'RROCK14', text: this.strings.p2text },
-    { mission: GameMission.PackPlut, episode: 1, level: 20,
-      background: 'RROCK07', text: this.strings.p3text },
-    { mission: GameMission.PackPlut, episode: 1, level: 30,
-      background: 'RROCK17', text: this.strings.p4text },
-    { mission: GameMission.PackPlut, episode: 1, level: 15,
-      background: 'RROCK13', text: this.strings.p5text },
-    { mission: GameMission.PackPlut, episode: 1, level: 31,
-      background: 'RROCK19', text: this.strings.p6text },
-  ]
+      { mission: GameMission.PackPlut, episode: 1, level: 6,
+        background: 'SLIME16', text: this.strings.p1text },
+      { mission: GameMission.PackPlut, episode: 1, level: 11,
+        background: 'RROCK14', text: this.strings.p2text },
+      { mission: GameMission.PackPlut, episode: 1, level: 20,
+        background: 'RROCK07', text: this.strings.p3text },
+      { mission: GameMission.PackPlut, episode: 1, level: 30,
+        background: 'RROCK17', text: this.strings.p4text },
+      { mission: GameMission.PackPlut, episode: 1, level: 15,
+        background: 'RROCK13', text: this.strings.p5text },
+      { mission: GameMission.PackPlut, episode: 1, level: 31,
+        background: 'RROCK19', text: this.strings.p6text },
+    ]
+  }
 
   private get autoMap(): AutoMap {
     return this.doom.autoMap
@@ -131,7 +134,10 @@ export class Finale {
     return this.doom.wad
   }
 
-  constructor(private doom: Doom) { }
+  constructor(private doom: Doom) {
+    this.textScreens = this.newTextScreens()
+    this.castOrder = this.newCastOrder()
+  }
 
   //
   // F_StartFinale
@@ -269,25 +275,28 @@ export class Finale {
   // Casting by id Software.
   //   in order of appearance
   //
-  private castOrder: [string, MObjType][] = [
-    [ this.strings.ccZombie, MObjType.Possessed ],
-    [ this.strings.ccShotgun, MObjType.Shotguy ],
-    [ this.strings.ccHeavy, MObjType.Chainguy ],
-    [ this.strings.ccImp, MObjType.Troop ],
-    [ this.strings.ccDemon, MObjType.Sergeant ],
-    [ this.strings.ccLost, MObjType.Skull ],
-    [ this.strings.ccCaco, MObjType.Head ],
-    [ this.strings.ccHell, MObjType.Knight ],
-    [ this.strings.ccBaron, MObjType.Bruiser ],
-    [ this.strings.ccArach, MObjType.Baby ],
-    [ this.strings.ccPain, MObjType.Pain ],
-    [ this.strings.ccReven, MObjType.Undead ],
-    [ this.strings.ccMancu, MObjType.Fatso ],
-    [ this.strings.ccArch, MObjType.Vile ],
-    [ this.strings.ccSpider, MObjType.Spider ],
-    [ this.strings.ccCyber, MObjType.Cyborg ],
-    [ this.strings.ccHero, MObjType.Player ],
-  ]
+  private castOrder: [string, MObjType][]
+  private newCastOrder(): [string, MObjType][] {
+    return [
+      [ this.strings.ccZombie, MObjType.Possessed ],
+      [ this.strings.ccShotgun, MObjType.Shotguy ],
+      [ this.strings.ccHeavy, MObjType.Chainguy ],
+      [ this.strings.ccImp, MObjType.Troop ],
+      [ this.strings.ccDemon, MObjType.Sergeant ],
+      [ this.strings.ccLost, MObjType.Skull ],
+      [ this.strings.ccCaco, MObjType.Head ],
+      [ this.strings.ccHell, MObjType.Knight ],
+      [ this.strings.ccBaron, MObjType.Bruiser ],
+      [ this.strings.ccArach, MObjType.Baby ],
+      [ this.strings.ccPain, MObjType.Pain ],
+      [ this.strings.ccReven, MObjType.Undead ],
+      [ this.strings.ccMancu, MObjType.Fatso ],
+      [ this.strings.ccArch, MObjType.Vile ],
+      [ this.strings.ccSpider, MObjType.Spider ],
+      [ this.strings.ccCyber, MObjType.Cyborg ],
+      [ this.strings.ccHero, MObjType.Player ],
+    ]
+  }
 
   private castNum = 0
   private castTics = 0

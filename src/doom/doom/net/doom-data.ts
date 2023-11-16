@@ -9,7 +9,7 @@ export const BACKUP_TICS = 12
 export class DoomData {
   static sizeOf = 4 + 4 + TickCmd.sizeOf * BACKUP_TICS
 
-  private ints = new Uint32Array(this.bytes.buffer)
+  private ints: Uint32Array
 
   // High bit is retransmit request.
   get checksum(): number {
@@ -45,16 +45,19 @@ export class DoomData {
     this.bytes[7] = v
   }
 
-  readonly cmds: readonly TickCmd[] = Array.from({ length: BACKUP_TICS },
-    (_, i) => {
-      const offset = 8
-      return new TickCmd(this.bytes.subarray(
-        offset + i * TickCmd.sizeOf,
-        offset + (i + 1) * TickCmd.sizeOf,
-      ))
-    })
+  readonly cmds: readonly TickCmd[]
 
-  constructor(private bytes = new Uint8Array(DoomData.sizeOf)) { }
+  constructor(private bytes = new Uint8Array(DoomData.sizeOf)) {
+    this.ints = new Uint32Array(this.bytes.buffer)
+    this.cmds = Array.from({ length: BACKUP_TICS },
+      (_, i) => {
+        const offset = 8
+        return new TickCmd(this.bytes.subarray(
+          offset + i * TickCmd.sizeOf,
+          offset + (i + 1) * TickCmd.sizeOf,
+        ))
+      })
+  }
 
   copyFrom(from: DoomData): void {
     this.bytes.set(from.bytes)
