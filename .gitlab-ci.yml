@@ -1,7 +1,7 @@
 ---
 
 build:
-  image: node:latest
+  image: node:20
   stage: build
   cache:
     paths:
