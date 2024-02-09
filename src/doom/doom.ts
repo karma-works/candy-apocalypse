@@ -416,6 +416,10 @@ export class Doom {
 
     const w = () => {
       try {
+        if (this.quitted) {
+          return
+        }
+
         if (this.wipeActive) {
           this.displayWipe()
           requestAnimationFrame(w.bind(this))
@@ -439,11 +443,6 @@ export class Doom {
         } else {
           // will run at least one tic
           this.net.tryRunTics()
-        }
-
-        if (this.quitted) {
-          this.quitted()
-          return
         }
 
         // move positional sounds
@@ -781,7 +780,9 @@ export class Doom {
   }
 
   async init(): Promise<void> {
-    this.quitted = null
+    if (this.quitted) {
+      throw 'Can\'t init previously destroyed Doom instance'
+    }
 
     this.noMonsters = !!this.params.noMonsters
     this.respawnParam = !!this.params.respawn
@@ -946,18 +947,18 @@ export class Doom {
     this.doomLoop()
   }
 
-  private quitted: (() => void) | null = null
-  async quit(): Promise<void> {
+  private quitted = false
+  quit(): void {
     if (this.quitted) {
       return
     }
-    const quitting = new Promise(resolve => {
-      this.quitted = resolve
-    })
 
-    await quitting
-
+    this.quitted = true
     this.iVideo.quit()
+    this.iVideo = new BlankVideo()
+
+    this.rendering = new BlankRenderer()
+
     this.input.quit()
 
     try {
