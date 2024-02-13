@@ -5,6 +5,7 @@
 
 // Input event types.
 export const enum EvType {
+  Undefined = -1,
   KeyDown,
   KeyUp,
   Mouse,

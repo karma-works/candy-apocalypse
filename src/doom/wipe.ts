@@ -125,7 +125,7 @@ export class Wipe {
     this.rVideo.drawBlock(x, y, 0, width, height, this.screenStart)
   }
 
-  screenWipe(x: number, y: number, width: number, height: number, tics: number): boolean {
+  screenWipe(_x: number,_y: number, width: number, height: number, tics: number): boolean {
     // initial stuff
     if (!this.go) {
       this.go = true

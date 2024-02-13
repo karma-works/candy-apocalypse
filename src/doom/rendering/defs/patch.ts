@@ -1,5 +1,5 @@
 import { Column } from './column'
-import { LumpType } from '@/doom/wad/lump'
+import { LumpType } from '../../wad/lump'
 // Patches.
 // A patch holds one or more columns.
 // Patches are used for sprites and all masked pictures,

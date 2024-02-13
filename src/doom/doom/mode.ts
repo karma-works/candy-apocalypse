@@ -106,6 +106,7 @@ export const enum Language {
 }
 
 export const enum Skill {
+  Undefined = -1,
   Baby,
   Easy,
   Medium,

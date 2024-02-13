@@ -108,8 +108,6 @@ export class Game {
   // view being displayed
   displayPlayer = 0
   gameTic = 0
-  // gametic at level start
-  private levelStartTic = 0
   // for intermission
   totalKills = 0
   totalItems = 0
@@ -118,7 +116,6 @@ export class Game {
   private demoName = ''
   demoRecording = false
   demoPlayback = false
-  private netDemo = false
   private demo = new Demo()
   // quit after playing a demo from cmdline
   singleDemo = false
@@ -413,9 +410,6 @@ export class Game {
   // G_DoLoadLevel
   //
   private doLoadLevel(): void {
-    // for time calculation
-    this.levelStartTic = this.gameTic
-
     if (this.doom.wipeGameState === GameState.Level) {
       // force a wipe
       this.doom.wipeGameState = -1
@@ -1059,7 +1053,6 @@ export class Game {
 
   private doNewGame(): void {
     this.demoPlayback = false
-    this.netDemo = false
     this.netGame = false
     this.deathMatch = 0
     this.playerInGame[1] = this.playerInGame[2] = this.playerInGame[3] = false
@@ -1297,7 +1290,6 @@ export class Game {
     }
 
     this.netGame = this.demo.netGame
-    this.netDemo = this.demo.netDemo
 
     this.initNew(this.skill, this.episode, this.map)
 
@@ -1328,7 +1320,6 @@ export class Game {
       }
 
       this.demoPlayback = false
-      this.netDemo = false
       this.netGame = false
       this.deathMatch = 0
       this.playerInGame[1] = this.playerInGame[2] = this.playerInGame[3] = false

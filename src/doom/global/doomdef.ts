@@ -22,6 +22,7 @@ export const TICRATE = 35
 // playing, gazing at the intermission screen,
 // the game final animation, or a demo.
 export const enum GameState {
+  Undefined = -1,
   Level,
   Intermission,
   Finale,

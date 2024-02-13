@@ -55,8 +55,6 @@ export class HeadsUp {
   private get INPUT_Y(): number {
     return MSG_Y + MSG_HEIGHT * (this.font[0].height + 1)
   }
-  private readonly INPUT_WIDTH = 64
-  private readonly INPUT_HEIGHT = 1
 
   //
   // Builtin map names.

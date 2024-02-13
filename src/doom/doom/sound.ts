@@ -42,7 +42,7 @@ export class Sound {
   musicVolume = 15
 
   // whether songs are mus_paused
-  private musicPaused = false
+  // private musicPaused = false
 
   // following is set
   //  by the defaults code in M_misc:
@@ -85,7 +85,7 @@ export class Sound {
     }
 
     // no sounds are playing, and they are not mus_paused
-    this.musicPaused = false
+    // this.musicPaused = false
 
     // Note that sounds have not been cached (yet).
     for (let i = 1; i < SfxName.NUM_SFX; ++i) {

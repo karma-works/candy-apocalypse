@@ -66,9 +66,6 @@ export class Doom {
   // debug flag to cancel adaptiveness
   singleTics = false
 
-  // print title for every printed line
-  private title = ''
-
   public wad = new LumpReader()
   public defaults = new Defaults(this)
   public net = new Net(this)

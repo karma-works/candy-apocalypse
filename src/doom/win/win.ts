@@ -68,9 +68,6 @@ export class Win {
   // used for timing of background animation
   private bCnt = 0
 
-  // signals to refresh everything for one frame
-  private firstRefresh = 0
-
   private cntKills = new Array<number>(MAX_PLAYERS).fill(0)
   private cntItems = new Array<number>(MAX_PLAYERS).fill(0)
   private cntSecret = new Array<number>(MAX_PLAYERS).fill(0)
@@ -116,9 +113,9 @@ export class Win {
 
   // "Kills", "Scrt", "Items", "Frags"
   private kills = new Patch()
-  private secret = new Patch()
+  // private secret = new Patch()
   private items = new Patch()
-  private frags = new Patch()
+  // private frags = new Patch()
 
   // Time sucks.
   private time = new Patch()
@@ -126,13 +123,13 @@ export class Win {
   private sucks = new Patch()
 
   // "killers", "victims"
-  private killers = new Patch()
-  private victims = new Patch()
+  // private killers = new Patch()
+  // private victims = new Patch()
 
   // "Total", your face, your dead face
-  private total = new Patch()
-  private star = new Patch()
-  private bStar = new Patch()
+  // private total = new Patch()
+  // private star = new Patch()
+  // private bStar = new Patch()
 
   // "red P[1..MAXPLAYERS]"
   private p = new Array<Patch>()
@@ -841,7 +838,7 @@ export class Win {
     this.kills = this.wad.cacheLumpName('WIOSTK', Patch)
 
     // "scrt"
-    this.secret = this.wad.cacheLumpName('WIOSTS', Patch)
+    // this.secret = this.wad.cacheLumpName('WIOSTS', Patch)
 
     // "secret"
     this.spSecret = this.wad.cacheLumpName('WISCRT2', Patch)
@@ -859,7 +856,7 @@ export class Win {
     }
 
     // "frgs"
-    this.frags = this.wad.cacheLumpName('WIFRGS', Patch)
+    // this.frags = this.wad.cacheLumpName('WIFRGS', Patch)
 
     // ":"
     this.colon = this.wad.cacheLumpName('WICOLON', Patch)
@@ -874,19 +871,19 @@ export class Win {
     this.par = this.wad.cacheLumpName('WIPAR', Patch)
 
     // "killers" (vertical)
-    this.killers = this.wad.cacheLumpName('WIKILRS', Patch)
+    // this.killers = this.wad.cacheLumpName('WIKILRS', Patch)
 
     // "victims" (horiz)
-    this.victims = this.wad.cacheLumpName('WIVCTMS', Patch)
+    // this.victims = this.wad.cacheLumpName('WIVCTMS', Patch)
 
     // "total"
-    this.total = this.wad.cacheLumpName('WIMSTT', Patch)
+    // this.total = this.wad.cacheLumpName('WIMSTT', Patch)
 
     // your face
-    this.star = this.wad.cacheLumpName('STFST01', Patch)
+    // this.star = this.wad.cacheLumpName('STFST01', Patch)
 
     // dead face
-    this.bStar = this.wad.cacheLumpName('STFDEAD0', Patch)
+    // this.bStar = this.wad.cacheLumpName('STFDEAD0', Patch)
 
     for (let i = 0; i < MAX_PLAYERS; i++) {
       // "1,2,3,4"
@@ -924,7 +921,6 @@ export class Win {
 
     this.accelerateStage = 0
     this.cnt = this.bCnt = 0
-    this.firstRefresh = 1
     this.me = this.wbs.pNum
     this.players = this.wbs.players
 

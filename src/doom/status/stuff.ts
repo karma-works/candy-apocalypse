@@ -18,7 +18,6 @@ import { NumberWidget } from './number-widget'
 import { Palettes } from '../interfaces/palette'
 import { Patch } from '../rendering/defs/patch'
 import { PercentWidget } from './percent-widget'
-import { State } from './states'
 import { Strings } from '../translation/strings'
 import { VideoInterface } from '../interfaces/video-interface'
 import { pointToAngle } from '../misc/angle'
@@ -139,14 +138,11 @@ export class StatusBar {
   // ST_Start() has just been called
   private firstTime = false
 
-  // used to execute ST_Init() only once
-  private veryFirstTime = true
-
   // used for timing
   private clock = 0
 
   // whether in automap or first-person
-  private gameState: State = 0
+  // private gameState: State = 0
 
   // whether left-side main status bar is active
   private statusBarOn = false
@@ -290,12 +286,12 @@ export class StatusBar {
     ) {
       switch (ev.data2) {
       case AM_MSGENTERED:
-        this.gameState = State.AutoMap
+        // this.gameState = State.AutoMap
         this.firstTime = true
         break
 
       case AM_MSGEXITED:
-        this.gameState = State.FirstPerson
+        // this.gameState = State.FirstPerson
         break
       }
     } else if (ev.type === EvType.KeyDown) {
@@ -909,7 +905,7 @@ export class StatusBar {
     this.player = this.game.player
 
     this.clock = 0
-    this.gameState = State.FirstPerson
+    // this.gameState = State.FirstPerson
 
     this.statusBarOn = true
 
@@ -1119,7 +1115,6 @@ export class StatusBar {
 
   // 1466
   init(): void {
-    this.veryFirstTime = false
     this.loadData()
     const scale = this.rVideo.scale
     this.rVideo.screens[4] = new Screen(ST_WIDTH * scale, ST_HEIGHT * scale)

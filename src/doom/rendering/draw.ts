@@ -40,7 +40,6 @@ export class Draw {
   //  and the total size == width*height*depth/8.,
   //
 
-  private viewImage = new Array<number>()
   viewWidth = 0
   scaledViewWidth = 0
   viewHeight = 0
@@ -53,7 +52,7 @@ export class Draw {
   //  translate a limited part to another
   //  (color ramps used for  suit colors).
   //
-  private translations = Array.from({ length: 3 }, () => new Array<number>(256).fill(0))
+  // private translations = Array.from({ length: 3 }, () => new Array<number>(256).fill(0))
 
   //
   // R_DrawColumn
@@ -480,9 +479,6 @@ export class Draw {
 
   // start of a 64*64 tile image
   dsSource = new Flat()
-
-  // just for profiling
-  private dsCount = 0
 
   //
   // Draws the actual span.

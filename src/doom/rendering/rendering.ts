@@ -55,8 +55,6 @@ export class Rendering implements RenderingInterface {
   private frameCount = 0;
 
   ssCount = 0;
-  private lineCount = 0;
-  private loopCount = 0;
 
   viewX = 0;
   viewY = 0;

@@ -65,8 +65,6 @@ export class Lib {
   }
 
 
-  // sorta called by HU_Erase and just better darn get things straight
-  private lastAutoMapActive = true
   eraseTextLine(l: TextLine): void {
 
     // Only erases when NOT in automap and the screen is reduced,
@@ -99,7 +97,6 @@ export class Lib {
       }
     }
 
-    this.lastAutoMapActive = this.autoMap.active
     if (l.needsUpdate) {
       --l.needsUpdate
     }

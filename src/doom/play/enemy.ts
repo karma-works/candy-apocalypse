@@ -1408,8 +1408,6 @@ export class Enemy {
       let sound: number
 
       switch (actor.info.deathSound) {
-      case 0:
-        return
       case SfxName.Podth1:
       case SfxName.Podth2:
       case SfxName.Podth3:
