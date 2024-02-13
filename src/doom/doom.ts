@@ -109,10 +109,12 @@ export class Doom {
 
     this.iVideo.quit()
 
+    const { width, height } = this.iVideo
     this.iVideo = new Video(this.rVideo)
     this.iVideo.screen = this.params.screen2d
     this.iVideo.palette = palette
     this.iVideo.gamma = gamma
+    this.iVideo.setSize(width, height)
 
     const highDetails = this.rendering.highDetails
     const screenSize = this.rendering.screenSize
@@ -149,11 +151,13 @@ export class Doom {
       }
     }
 
+    const { width, height } = this.iVideo
     const iVideo = new Video(this.rVideo)
     this.iVideo = iVideo
     this.iVideo.screen = this.params.screen3d
     this.iVideo.palette = palette
     this.iVideo.gamma = gamma
+    iVideo.setSize(width, height)
 
     const highDetails = this.rendering.highDetails
     const screenSize = this.rendering.screenSize
@@ -954,8 +958,10 @@ export class Doom {
     }
 
     this.quitted = true
+    const { width, height } = this.iVideo
     this.iVideo.quit()
     this.iVideo = new BlankVideo()
+    this.iVideo.setSize(width, height)
 
     this.rendering = new BlankRenderer()
 

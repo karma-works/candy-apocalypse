@@ -1,9 +1,11 @@
 import { Color, Palette } from './palette'
 import { Video as RVideo, Screen } from '../rendering/video'
+import { STRETCH } from '../global/doomdef'
 import { VideoInterface } from './video-interface'
 
 export class Video implements VideoInterface {
-  ratio = 4 / 3
+  width = 0
+  height = 0
 
   private _useGamma = 0
   public get gamma(): number {
@@ -15,17 +17,11 @@ export class Video implements VideoInterface {
   }
 
   screen: HTMLCanvasElement | null = null
-  private xScreen: CanvasRenderingContext2D | null = null
+  private screenCtx: CanvasRenderingContext2D | null = null
 
+  private tmpCanvas: OffscreenCanvas | null = null
+  private tmpCtx: OffscreenCanvasRenderingContext2D | null = null
   private image: ImageData | null = null
-  private xWidth = 0
-  private xHeight = 0
-
-  // Blocky mode,
-  // replace each 320x200 pixel with multiply*multiply pixels.
-  // According to Dave Taylor, it still is a bonehead thing
-  // to use ....
-  private multiply = 1
 
   constructor(private rVideo: RVideo) {
     this.updatePalette()
@@ -35,16 +31,41 @@ export class Video implements VideoInterface {
   // I_FinishUpdate
   //
   finishUpdate(): void {
-    if (this.xScreen === null || this.image === null) {
+    if (this.screen === null ||
+        this.screenCtx === null ||
+        this.tmpCanvas === null ||
+        this.tmpCtx === null ||
+        this.image === null) {
       return
     }
 
-    // scales the screen size before blitting it
-    if (this.multiply === 1) {
-      this.drawInImageData(this.image.data)
+    this.drawInImageData(this.image.data)
+
+    this.tmpCtx.putImageData(this.image, 0, 0)
+
+    this.screenCtx.imageSmoothingEnabled = false
+
+    const destWidth = this.screen.width
+    const destHeight = this.screen.height
+
+    const sourceRatio = this.rVideo.width / this.rVideo.height
+    const destRatio = destWidth / destHeight
+
+    let scaledWidth;
+    let scaledHeight;
+    if (sourceRatio > destRatio) {
+      scaledWidth = destWidth;
+      scaledHeight = destWidth / sourceRatio;
+    } else {
+      scaledHeight = destHeight;
+      scaledWidth = destHeight * sourceRatio;
     }
 
-    this.xScreen.putImageData(this.image, 0, 0)
+    const x = (destWidth - scaledWidth) / 2;
+    const y = (destHeight - scaledHeight) / 2;
+
+    this.screenCtx.drawImage(this.tmpCanvas,
+      x, y, scaledWidth, scaledHeight)
   }
 
   drawInImageData(oLine: Uint8ClampedArray, withAlpha = true): void {
@@ -103,33 +124,40 @@ export class Video implements VideoInterface {
     }
     this.firstTime = false
 
-    this.xWidth = this.rVideo.width * this.multiply
-    this.xHeight = this.rVideo.height * this.multiply
-
-    this.ratio = this.rVideo.physicalWidth / this.rVideo.physicalHeight
-
-    this.screen.width = this.xWidth
-    this.screen.height = this.xHeight
-
-
-    this.xScreen = this.screen.getContext('2d')
-
-    if (this.xScreen === null) {
+    const { width, height } = this.rVideo
+    const tmpCanvas = new OffscreenCanvas(width, height)
+    const tmpCtx = tmpCanvas.getContext('2d')
+    const screenCtx = this.screen.getContext('2d')
+    if (tmpCtx === null || screenCtx === null) {
       throw 'Could not open display'
     }
+    this.tmpCanvas = tmpCanvas
+    this.tmpCtx = tmpCtx
+    this.screenCtx = screenCtx
 
-    this.image = this.xScreen.createImageData(this.xWidth, this.xHeight)
+    this.image = tmpCtx.createImageData(width, height)
 
-    this.rVideo.screens[0] = new Screen(this.rVideo.width, this.rVideo.height)
+    this.rVideo.screens[0] = new Screen(width, height)
+  }
+
+  setSize(width: number, height: number): void {
+    if (this.screen === null) {
+      throw 'no screen defined'
+    }
+    this.width = width
+    this.height = height
+
+    this.screen.width = width;
+    this.screen.height = height / STRETCH;
   }
 
   quit(): void {
-    if (this.screen === null || this.xScreen === null) {
+    if (this.screen === null || this.screenCtx === null) {
       return
     }
 
-    this.xScreen.clearRect(0, 0, this.rVideo.width, this.rVideo.height)
+    this.screenCtx.clearRect(0, 0, this.width, this.height)
 
-    this.xScreen = null
+    this.screenCtx = null
   }
 }

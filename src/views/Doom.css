@@ -1,23 +1,12 @@
 .screen-wrapper {
-  --ratio: 4/3;
-
-  width: calc((100vh - 64px) * var(--ratio));
-  height: calc(100vh - 64px);
-
   position: relative;
   margin: 0 auto;
-}
-
-.screen-wrapper.fullscreen {
-  width: calc(100vh * var(--ratio));
-  height: calc(100vh);
 }
 
 .screen-wrapper > canvas {
   position: absolute;
   top: 0;
-  width: 100%;
-  height: 100%;
-  image-rendering: pixelated;
-  outline: none;
+  left: 0;
+  /* image-rendering: pixelated;
+  outline: none; */
 }

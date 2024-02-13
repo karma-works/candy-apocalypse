@@ -1,11 +1,13 @@
 import { Camera, DataTexture, LuminanceFormat, OrthographicCamera, Scene, Sprite, WebGLRenderer } from 'three'
 import { Palette } from '../interfaces/palette'
 import { Video as RVideo } from '../rendering/video'
+import { STRETCH } from '../global/doomdef'
 import { SpritePaletteMaterial } from './sprite-palette-material'
 import { VideoInterface } from '../interfaces/video-interface'
 
 export class Video implements VideoInterface {
-  ratio = 4 / 3
+  width = 0
+  height = 0
 
   gamma = 0
 
@@ -13,9 +15,6 @@ export class Video implements VideoInterface {
   renderer: WebGLRenderer | null = null
   scene: Scene | null = null
   camera: Camera | null = null
-
-  xWidth = 320
-  xHeight = 200
 
   overlayScene = new Scene()
   overlayCamera = new OrthographicCamera(-1, 1, 1, -1, 1, 10)
@@ -77,28 +76,50 @@ export class Video implements VideoInterface {
     }
     this.firstTime = false
 
-    this.xWidth = this.rVideo.width
-    this.xHeight = this.rVideo.height
-
-    this.ratio = this.rVideo.physicalWidth / this.rVideo.physicalHeight
-
-    this.screen.width = this.xWidth
-    this.screen.height = this.xHeight
-
     this.createOverlay()
 
     this.renderer = new WebGLRenderer({
       canvas: this.screen,
     })
     this.renderer.autoClear = false
+    this.setSize(this.width, this.height)
+  }
+
+  setSize(width: number, height: number) {
+    this.width = width
+    this.height = height
+    this.renderer?.setSize(width, height / STRETCH, false)
+
+    const destWidth = width
+    const destHeight = height / STRETCH
+
+    const sourceRatio = this.rVideo.width / this.rVideo.height
+    const destRatio = destWidth / destHeight
+
+    let scaledWidth;
+    let scaledHeight;
+    if (sourceRatio > destRatio) {
+      scaledWidth = destWidth;
+      scaledHeight = destWidth / sourceRatio;
+    } else {
+      scaledHeight = destHeight;
+      scaledWidth = destHeight * sourceRatio;
+    }
+
+    const x = (destWidth - scaledWidth) / 2;
+    const y = (destHeight - scaledHeight) / 2;
+
+    this.renderer?.setViewport(x, y, scaledWidth, scaledHeight)
   }
 
   private createOverlay() {
+    const { width, height } = this.rVideo
+
     this.overlayCamera.position.z = 10
-    this.overlayCamera.left = -this.xWidth / 2
-    this.overlayCamera.right = this.xWidth / 2
-    this.overlayCamera.top = this.xHeight / 2
-    this.overlayCamera.bottom = -this.xHeight / 2
+    this.overlayCamera.left = -width / 2
+    this.overlayCamera.right = width / 2
+    this.overlayCamera.top = height / 2
+    this.overlayCamera.bottom = -height / 2
     this.overlayCamera.updateProjectionMatrix()
 
     const data = this.rVideo.screens[0]
