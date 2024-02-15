@@ -1,4 +1,5 @@
 import { Camera, DataTexture, LuminanceFormat, OrthographicCamera, Scene, Sprite, Vector4, WebGLRenderer } from 'three'
+import { GUI } from 'lil-gui'
 import { Palette } from '../interfaces/palette'
 import { Video as RVideo } from '../rendering/video'
 import { STRETCH } from '../global/doomdef'
@@ -24,6 +25,8 @@ export class Video implements VideoInterface {
   overlayAlphaMap: DataTexture | null = null
   overlayMaterial: SpritePaletteMaterial | null = null
   private overlayViewport = new Vector4()
+
+  gui = new GUI()
 
   constructor(private rVideo: RVideo) {
     this.updatePalette()
@@ -162,5 +165,7 @@ export class Video implements VideoInterface {
     }
 
     this.renderer.dispose()
+
+    this.gui.destroy()
   }
 }
