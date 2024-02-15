@@ -1,4 +1,4 @@
-import { Camera, DataTexture, LuminanceFormat, OrthographicCamera, Scene, Sprite, WebGLRenderer } from 'three'
+import { Camera, DataTexture, LuminanceFormat, OrthographicCamera, Scene, Sprite, Vector4, WebGLRenderer } from 'three'
 import { Palette } from '../interfaces/palette'
 import { Video as RVideo } from '../rendering/video'
 import { STRETCH } from '../global/doomdef'
@@ -15,12 +15,15 @@ export class Video implements VideoInterface {
   renderer: WebGLRenderer | null = null
   scene: Scene | null = null
   camera: Camera | null = null
+  viewport = new Vector4()
+  private scaledViewport = new Vector4()
 
   overlayScene = new Scene()
   overlayCamera = new OrthographicCamera(-1, 1, 1, -1, 1, 10)
   overlayScreenMap: DataTexture | null = null
   overlayAlphaMap: DataTexture | null = null
   overlayMaterial: SpritePaletteMaterial | null = null
+  private overlayViewport = new Vector4()
 
   constructor(private rVideo: RVideo) {
     this.updatePalette()
@@ -36,7 +39,7 @@ export class Video implements VideoInterface {
     if (this.scene !== null &&
       this.camera !== null
     ) {
-      this.renderer.clear()
+      this.renderer.setViewport(this.scaledViewport)
       this.renderer.render(this.scene, this.camera)
     }
 
@@ -45,6 +48,7 @@ export class Video implements VideoInterface {
     ) {
       this.overlayScreenMap.needsUpdate = true
       this.overlayAlphaMap.needsUpdate = true
+      this.renderer.setViewport(this.overlayViewport)
       this.renderer.clearDepth()
       this.renderer.render(this.overlayScene, this.overlayCamera)
     }
@@ -85,7 +89,7 @@ export class Video implements VideoInterface {
     this.setSize(this.width, this.height)
   }
 
-  setSize(width: number, height: number) {
+  setSize(width: number = this.width, height: number = this.height) {
     this.width = width
     this.height = height
     this.renderer?.setSize(width, height / STRETCH, false)
@@ -109,7 +113,13 @@ export class Video implements VideoInterface {
     const x = (destWidth - scaledWidth) / 2;
     const y = (destHeight - scaledHeight) / 2;
 
-    this.renderer?.setViewport(x, y, scaledWidth, scaledHeight)
+    this.overlayViewport.set(x, y, scaledWidth, scaledHeight)
+
+    this.scaledViewport.copy(this.viewport)
+    this.scaledViewport.multiplyScalar(scaledWidth / this.rVideo.width)
+
+    this.scaledViewport.x += x
+    this.scaledViewport.y += y
   }
 
   private createOverlay() {

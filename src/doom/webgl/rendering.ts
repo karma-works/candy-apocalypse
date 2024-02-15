@@ -1,8 +1,8 @@
 import {
   PerspectiveCamera,
   Scene,
+  Vector4,
 } from 'three'
-import { ST_HEIGHT, ST_WIDTH } from '../status/lib'
 import { Doom } from '../doom'
 import { FRACBITS } from '../misc/fixed'
 import { Rendering as LegacyRendering } from '../rendering/rendering'
@@ -20,6 +20,7 @@ export class Rendering extends LegacyRendering {
   private camera = new PerspectiveCamera(
     64, 320 / 200, 0.1, 10000,
   )
+  private viewport = new Vector4()
   private renderedLevel: Level | null = null
 
   plane: Plane
@@ -34,6 +35,7 @@ export class Rendering extends LegacyRendering {
     this.things = new Things(this, this.video.width)
 
     iVideo.camera = this.camera
+    iVideo.viewport = this.viewport
   }
 
   private setupLevel(level: Level): void {
@@ -87,22 +89,32 @@ export class Rendering extends LegacyRendering {
 
   setAlphaScreen(): void {
     const screen = this.video.screens[0]
-    const scale = this.video.scale
     const alpha = screen.alpha
-    alpha.fill(0)
+    alpha.fill(255)
 
-    if (this.viewHeight === screen.height) {
-      return
+    const top = this.viewWindowY
+    const bottom = top + this.viewHeight
+    const left = this.viewWindowX
+    const right = left + this.viewWidth
+
+    for (let y = top; y < bottom; ++y) {
+      const offset = screen.width * y;
+      alpha.fill(0, left + offset, right + offset)
     }
+  }
 
-    const barX = (screen.width - ST_WIDTH * scale) / 2
-    let barY = screen.height - ST_HEIGHT * scale
+  executeSetViewSize(): void {
+    super.executeSetViewSize()
 
-    let destPtr = screen.width * barY + barX
+    // viewport is from bottom to top
+    this.camera.aspect = this.viewWidth / this.viewHeight
+    this.camera.fov = this.fullScreen ? 64 : 54
+    this.viewport.set(
+      this.viewWindowX,
+      this.video.height - this.viewWindowY - this.viewHeight,
+      this.viewWidth,
+      this.viewHeight)
 
-    for (; barY < screen.height; ++barY) {
-      alpha.fill(255, destPtr, destPtr + ST_WIDTH * scale)
-      destPtr += screen.width
-    }
+    this.iVideo.setSize()
   }
 }
