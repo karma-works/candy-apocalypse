@@ -1,4 +1,5 @@
 import { Button, Card, CardActions, CardContent, Divider, Grid, Typography } from '@mui/joy';
+import ConfigOptions from './ControlOptions';
 import { Form } from 'react-router-dom';
 import RenderOptions from './RenderOptions';
 
@@ -19,7 +20,15 @@ export default function StartUp() {
             <Divider inset="none" />
 
             <CardContent>
-              <RenderOptions />
+              <Grid
+                container
+                alignItems="flex-end"
+                justifyContent="center"
+                spacing={2}
+              >
+                <RenderOptions />
+                <ConfigOptions />
+              </Grid>
             </CardContent>
 
             <CardActions>

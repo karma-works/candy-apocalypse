@@ -1,13 +1,15 @@
-import { FormControl, FormLabel, Option, Select } from '@mui/joy';
+import { FormControl, FormLabel, Grid, Option, Select } from '@mui/joy';
 
 export default function RenderOptions() {
   return (
-    <FormControl>
-      <FormLabel>Renderer</FormLabel>
-      <Select name="renderer">
-        <Option value="legacy">Legacy</Option>
-        <Option value="webgl">WebGL (Three.js)</Option>
-      </Select>
-    </FormControl>
+    <Grid xs={12}>
+      <FormControl>
+        <FormLabel>Renderer</FormLabel>
+        <Select name="renderer">
+          <Option value="legacy">Legacy</Option>
+          <Option value="webgl">WebGL (Three.js)</Option>
+        </Select>
+      </FormControl>
+    </Grid>
   );
 }

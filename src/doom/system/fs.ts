@@ -9,7 +9,7 @@ type UriFile = {
   uri: string,
 }
 
-type DbFile = (BufferFile | UriFile) & {
+export type DbFile = (BufferFile | UriFile) & {
   size?: number,
 }
 
@@ -29,6 +29,22 @@ class FS {
     })
 
     this.table = db.table('files')
+  }
+
+  async stat(name: string): Promise<DbFile | undefined> {
+    let f = await this.table.get(name)
+    if (f === undefined) {
+      f = { uri: name, type: 'uri' }
+    }
+
+    if (f.type === 'uri') {
+      const { ok } = await fetch(f.uri)
+      if (!ok) {
+        return undefined
+      }
+    }
+
+    return f
   }
 
   async open(name: string): Promise<ArrayBuffer | undefined> {

@@ -16,6 +16,7 @@ const paramsTranslates: {[k: string]: paramsTranslateFunc} = {
       break;
     }
   },
+  config: (v, props) => props.config = v,
 }
 
 
