@@ -3,11 +3,7 @@ import { CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { Params } from '../doom/doom/params'
 import { Doom as RawDoom } from '../doom/doom'
 
-interface Inputs {
-  params?: Partial<Params>,
-}
-
-export default function Doom({ params }: Inputs) {
+export default function Doom(props?: Partial<Params>) {
   const [ canvasStyle, setCanvasStyle ] = useState<CSSProperties>({})
   const screen2dRef = useRef<HTMLCanvasElement>(null)
   const screen3dRef = useRef<HTMLCanvasElement>(null)
@@ -25,7 +21,7 @@ export default function Doom({ params }: Inputs) {
         screen2d,
         screen3d,
         iwad: 'doom1.wad',
-        ...params,
+        ...props,
       })
       doomInstRef.current = doomInst
 
@@ -33,7 +29,7 @@ export default function Doom({ params }: Inputs) {
     } catch (e) {
       console.error(e)
     }
-  }, [ params ])
+  }, [ props ])
 
   const stop = useCallback(() => {
     if (doomInstRef.current) {

@@ -11,10 +11,14 @@
   },
   "main": "index.js",
   "dependencies": {
+    "@emotion/react": "^11.11.3",
+    "@emotion/styled": "^11.11.0",
+    "@mui/joy": "^5.0.0-beta.28",
     "dexie": "^3.0.1",
     "lil-gui": "^0.19.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.0",
     "three": "^0.120.1"
   },
   "devDependencies": {
