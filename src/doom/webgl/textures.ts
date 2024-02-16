@@ -4,10 +4,10 @@ import {
   WebGLCubeRenderTarget,
   WebGLRenderer,
 } from 'three'
-import { FlatTexture } from './flat-texture'
+import { FlatTexture } from './textures/flat-texture'
 import { Video as IVideo } from '../interfaces/video'
 import { Palette } from '../interfaces/palette'
-import { PatchTexture } from './patch-texture'
+import { PatchTexture } from './textures/patch-texture'
 import { Data as RData } from '../rendering/data'
 import { Video as RVideo } from '../rendering/video'
 import { Rendering } from './rendering'

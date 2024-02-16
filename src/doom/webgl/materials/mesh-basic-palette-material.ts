@@ -1,5 +1,5 @@
-import { Shader, SpriteMaterial } from 'three'
-import { PaletteTexture } from './palette-texture'
+import { MeshBasicMaterial, Shader } from 'three'
+import { PaletteTexture } from '../textures/palette-texture'
 
 const fragmentShaderReplacements = [
   {
@@ -10,9 +10,9 @@ const fragmentShaderReplacements = [
     `,
   },
   {
-    from: '#include <map_fragment>',
+    from: '#include <color_fragment>',
     to: `
-      #include <map_fragment>
+      #include <color_fragment>
       {
         vec4 indexColor = texture2D(map, vUv);
         float index = indexColor.r * 255.0;
@@ -25,7 +25,8 @@ const fragmentShaderReplacements = [
   },
 ]
 
-export class SpritePaletteMaterial extends SpriteMaterial {
+export class MeshBasicPaletteMaterial extends MeshBasicMaterial {
+
   paletteTexture = new PaletteTexture()
 
   transparent = true

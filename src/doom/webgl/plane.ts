@@ -11,14 +11,14 @@ import {
 import { FRACBITS } from '../misc/fixed'
 import { Plane as LegacyPlane } from '../rendering/plane'
 import { Line } from '../rendering/defs/line'
-import { PaletteMaterial } from './palette-material'
+import { MeshBasicPaletteMaterial } from './materials/mesh-basic-palette-material'
 import { Rendering } from './rendering'
 import { Sector } from '../rendering/defs/sector'
 import { Seg } from '../rendering/segs/seg'
 import { Textures } from './textures'
 import { Vertex } from '../rendering/data/vertex'
 
-type FloorOrCeilingMesh = Mesh<ShapeGeometry, PaletteMaterial>
+type FloorOrCeilingMesh = Mesh<ShapeGeometry, MeshBasicPaletteMaterial>
 
 interface FloorAndCeiling {
   sector: Sector
@@ -190,7 +190,7 @@ export class Plane extends LegacyPlane {
 
     const mesh = new Mesh(
       geometry,
-      new PaletteMaterial({ side }),
+      new MeshBasicPaletteMaterial({ side }),
     )
     mesh.visible = false
 

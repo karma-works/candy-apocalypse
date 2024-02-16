@@ -1,6 +1,6 @@
 import { DataTexture, LuminanceFormat, NearestFilter, RepeatWrapping } from 'three'
-import { Flat } from '../textures/flat'
-import { Video as RVideo } from '../rendering/video'
+import { Flat } from '../../textures/flat'
+import { Video as RVideo } from '../../rendering/video'
 
 export class FlatTexture extends DataTexture {
   constructor(flat: Flat) {

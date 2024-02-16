@@ -1,5 +1,5 @@
 import { DataTexture, RGBFormat } from 'three'
-import { Palette } from '../interfaces/palette'
+import { Palette } from '../../interfaces/palette'
 
 export class PaletteTexture extends DataTexture {
   private data: Uint8Array

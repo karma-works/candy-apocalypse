@@ -1,6 +1,6 @@
 import { DataTexture, LuminanceFormat, NearestFilter, RepeatWrapping } from 'three'
-import { Patch } from '../rendering/defs/patch'
-import { Video as RVideo } from '../rendering/video'
+import { Patch } from '../../rendering/defs/patch'
+import { Video as RVideo } from '../../rendering/video'
 
 export class PatchTexture extends DataTexture {
   constructor(patch: Patch, alphaMap = false) {

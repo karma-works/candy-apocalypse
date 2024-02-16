@@ -6,7 +6,7 @@ import {
 import { FRACBITS } from '../misc/fixed'
 import { Things as LegacyThings } from '../rendering/things'
 import { Rendering } from './rendering'
-import { SpritePaletteMaterial } from './sprite-palette-material'
+import { SpritePaletteMaterial } from './materials/sprite-palette-material'
 import { Textures } from './textures'
 import { VisSprite } from '../rendering/things/vis-sprite'
 

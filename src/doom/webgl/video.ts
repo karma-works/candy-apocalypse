@@ -3,7 +3,7 @@ import { GUI } from 'lil-gui'
 import { Palette } from '../interfaces/palette'
 import { Video as RVideo } from '../rendering/video'
 import { STRETCH } from '../global/doomdef'
-import { SpritePaletteMaterial } from './sprite-palette-material'
+import { SpritePaletteMaterial } from './materials/sprite-palette-material'
 import { VideoInterface } from '../interfaces/video-interface'
 
 export class Video implements VideoInterface {

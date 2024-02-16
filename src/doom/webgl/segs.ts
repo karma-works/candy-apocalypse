@@ -10,7 +10,7 @@ import { FRACBITS } from '../misc/fixed'
 import { Segs as LegacySegs } from '../rendering/segs'
 import { Line } from '../rendering/defs/line'
 import { MapLineFlag } from '../doom/data'
-import { PaletteMaterial } from './palette-material'
+import { MeshBasicPaletteMaterial } from './materials/mesh-basic-palette-material'
 import { Plane } from './plane'
 import { Rendering } from './rendering'
 import { Sector } from '../rendering/defs/sector'
@@ -18,7 +18,7 @@ import { Seg } from '../rendering/segs/seg'
 import { Textures } from './textures'
 import { Vertex } from '../rendering/data/vertex'
 
-type WallMesh = Mesh<Geometry, PaletteMaterial>
+type WallMesh = Mesh<Geometry, MeshBasicPaletteMaterial>
 
 interface Wall {
   seg: Seg
@@ -134,7 +134,7 @@ export class Segs extends LegacySegs {
 
     const mesh = new Mesh(
       geometry,
-      new PaletteMaterial(),
+      new MeshBasicPaletteMaterial(),
     )
     mesh.visible = false
 
