@@ -1,5 +1,5 @@
+import { Float32BufferAttribute, PlaneGeometry } from 'three';
 import { FRACBITS } from '../../misc/fixed';
-import { PlaneGeometry } from 'three';
 import { Seg } from '../../rendering/segs/seg';
 import { Textures } from '../../textures/textures';
 
@@ -25,11 +25,18 @@ export class SegGeometry extends PlaneGeometry {
       (v1.y - v2.y) * (v1.y - v2.y),
     )
 
-    this.vertices[0].x = this.vertices[2].x = v1.y >> FRACBITS
-    this.vertices[1].x = this.vertices[3].x = v2.y >> FRACBITS
+    const pos = this.attributes.position
+    pos.setX(0, v1.y >> FRACBITS)
+    pos.setX(2, v1.y >> FRACBITS)
+    pos.setZ(0, v1.x >> FRACBITS)
+    pos.setZ(2, v1.x >> FRACBITS)
 
-    this.vertices[0].z = this.vertices[2].z = v1.x >> FRACBITS
-    this.vertices[1].z = this.vertices[3].z = v2.x >> FRACBITS
+    pos.setX(1, v2.y >> FRACBITS)
+    pos.setX(3, v2.y >> FRACBITS)
+    pos.setZ(1, v2.x >> FRACBITS)
+    pos.setZ(3, v2.x >> FRACBITS)
+
+    this.computeVertexNormals()
   }
 
   private getTop(): number {
@@ -72,47 +79,55 @@ export class SegGeometry extends PlaneGeometry {
     top >>= FRACBITS
     bottom >>= FRACBITS
 
-    if (this.vertices[0].y === top && this.vertices[2].y === bottom) {
+    const pos = this.attributes.position
+    if (pos.getY(0) === top && pos.getY(2) === bottom) {
       return
     }
 
-    this.vertices[0].y = this.vertices[1].y = top
-    this.vertices[2].y = this.vertices[3].y = bottom
-    this.verticesNeedUpdate = true
+    pos.setY(0, top)
+    pos.setY(1, top)
+    pos.setY(2, bottom)
+    pos.setY(3, bottom)
+
+    pos.needsUpdate = true
+
     this.computeBoundingSphere()
-    this.computeFaceNormals()
   }
 
   updateUvs(leftOffset: number, topOffset: number, tex: number) {
     const texWidth = this.textures[tex].patch.width << FRACBITS
     const texHeight = this.textures[tex].patch.height << FRACBITS
 
-    const uvs = this.faceVertexUvs[0]
+    const uvs = this.attributes.uv as Float32BufferAttribute
     let changes = false
 
-    let val = leftOffset / texWidth
-    if (uvs[0][0].x !== val) {
-      uvs[0][0].x = uvs[0][1].x = uvs[1][0].x = val
+    const x1 = leftOffset / texWidth
+    if (uvs.getX(0) !== x1) {
+      uvs.setX(0, x1)
+      uvs.setX(2, x1)
       changes = true
     }
-    val = 1 - topOffset / texHeight
-    if (uvs[0][0].y !== val) {
-      uvs[0][0].y = uvs[0][2].y = uvs[1][2].y = val
+    const x2 = (leftOffset + this.width) / texWidth
+    if (uvs.getX(1) !== x2) {
+      uvs.setX(1, x2)
+      uvs.setX(3, x2)
       changes = true
     }
-    val = (leftOffset + this.width) / texWidth
-    if (uvs[0][2].x !== val) {
-      uvs[0][2].x = uvs[1][1].x = uvs[1][2].x = val
+    const y1 = 1 - (topOffset + this.height) / texHeight
+    if (uvs.getY(2) !== y1) {
+      uvs.setY(2, y1)
+      uvs.setY(3, y1)
       changes = true
     }
-    val = 1 - (topOffset + this.height) / texHeight
-    if (uvs[0][1].y !== val) {
-      uvs[0][1].y = uvs[1][0].y = uvs[1][1].y = val
+    const y2 = 1 - topOffset / texHeight
+    if (uvs.getY(0) !== y2) {
+      uvs.setY(0, y2)
+      uvs.setY(1, y2)
       changes = true
     }
 
     if (changes) {
-      this.uvsNeedUpdate = true
+      uvs.needsUpdate = true
     }
   }
 

@@ -1,4 +1,4 @@
-import { Matrix4, ShapeGeometry, ShapePath } from 'three';
+import { Float32BufferAttribute, Matrix4, ShapeGeometry, ShapePath, Vector2 } from 'three';
 import { FRACBITS } from '../../misc/fixed';
 import { Line } from '../../rendering/defs/line';
 import { Sector } from '../../rendering/defs/sector';
@@ -87,10 +87,12 @@ export class PlaneGeometry extends ShapeGeometry {
     // this.rotateY(-Math.PI / 2)
     this.applyMatrix4(rotate2)
 
-    this.faceVertexUvs[0].forEach(uvs => {
-      uvs.forEach(uv => {
-        uv.divideScalar(64)
-      })
-    })
+    const uv = this.attributes.uv as Float32BufferAttribute
+    const vec2 = new Vector2()
+    for (let i = 0; i < uv.count; ++i) {
+      vec2.fromBufferAttribute(uv, i)
+      vec2.divideScalar(64)
+      uv.setXY(i, vec2.x, vec2.y)
+    }
   }
 }
