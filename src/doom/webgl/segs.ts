@@ -1,11 +1,8 @@
 import {
-  Face3,
-  Geometry,
   Mesh,
   Object3D,
-  Vector2,
-  Vector3,
 } from 'three'
+import { SegGeometry, SegPart } from './geometries/seg-geometry'
 import { FRACBITS } from '../misc/fixed'
 import { Segs as LegacySegs } from '../rendering/segs'
 import { Line } from '../rendering/defs/line'
@@ -16,9 +13,8 @@ import { Rendering } from './rendering'
 import { Sector } from '../rendering/defs/sector'
 import { Seg } from '../rendering/segs/seg'
 import { Textures } from './textures'
-import { Vertex } from '../rendering/data/vertex'
 
-type WallMesh = Mesh<Geometry, MeshBasicPaletteMaterial>
+type WallMesh = Mesh<SegGeometry, MeshBasicPaletteMaterial>
 
 interface Wall {
   seg: Seg
@@ -98,7 +94,7 @@ export class Segs extends LegacySegs {
   createSeg(i: number, seg: Seg, parent: Object3D): void {
     const wall: Wall = {
       seg,
-      mid: this.createMesh(),
+      mid: this.createMesh(seg, SegPart.Mid),
     }
     this.walls[i] = wall
 
@@ -106,34 +102,17 @@ export class Segs extends LegacySegs {
     parent.add(wall.mid)
 
     if (seg.backSector) {
-      wall.top = this.createMesh()
+      wall.top = this.createMesh(seg, SegPart.Top)
       parent.add(wall.top)
-      wall.bottom = this.createMesh()
+      wall.bottom = this.createMesh(seg, SegPart.Bottom)
       parent.add(wall.bottom)
     }
 
   }
 
-  private createMesh(): WallMesh {
-    const geometry = new Geometry()
-    geometry.vertices.push(
-      new Vector3(0, -1, 1),
-      new Vector3(0, 1, 1),
-      new Vector3(0, -1, -1),
-      new Vector3(0, 1, -1),
-    )
-    geometry.faces.push(
-      new Face3(0, 2, 1),
-      new Face3(2, 3, 1),
-    )
-    geometry.faceVertexUvs[0].push(
-      [ new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, 1) ],
-      [ new Vector2(0, 0), new Vector2(1, 0), new Vector2(1, 1) ],
-    )
-    geometry.computeFaceNormals()
-
+  private createMesh(seg: Seg, part: SegPart): WallMesh {
     const mesh = new Mesh(
-      geometry,
+      new SegGeometry(seg, part, this.data.textures),
       new MeshBasicPaletteMaterial(),
     )
     mesh.visible = false
@@ -141,68 +120,24 @@ export class Segs extends LegacySegs {
     return mesh
   }
 
-  private getVertices(v1: Vertex, v2: Vertex, bottom: number, top: number): Vector3[] {
-    if (top < bottom) {
-      bottom = top
-    }
-    // y, z, x
-    return [
-      new Vector3(v1.y >> FRACBITS, top >> FRACBITS, v1.x >> FRACBITS),
-      new Vector3(v2.y >> FRACBITS, top >> FRACBITS, v2.x >> FRACBITS),
-      new Vector3(v1.y >> FRACBITS, bottom >> FRACBITS, v1.x >> FRACBITS),
-      new Vector3(v2.y >> FRACBITS, bottom >> FRACBITS, v2.x >> FRACBITS),
-    ]
-  }
-  private updateGeometryVertices(geometry: Geometry, vertices: Vector3[]): void {
-    vertices.forEach((v, i) => {
-      if (!geometry.vertices[i].equals(v)) {
-        geometry.vertices[i].copy(v)
-        geometry.verticesNeedUpdate = true
-
-        geometry.computeBoundingSphere()
-        geometry.computeFaceNormals()
-      }
-    })
-  }
   private updateWallVertices({
-    seg: { v1, v2, frontSector, backSector, sideDef },
+    seg: { sideDef },
     bottom, mid, top,
   }: Wall): void {
-    if (!backSector) {
-      this.updateGeometryVertices(
-        mid.geometry,
-        this.getVertices(v1, v2, frontSector.floorHeight, frontSector.ceilingHeight),
-      )
+    if (top) {
+      top.geometry.updateHeight()
+      top.visible = true
+    }
+    if (bottom) {
+      bottom.geometry.updateHeight()
+      bottom.visible = true
+    }
+
+    if (sideDef.midTexture) {
+      mid.geometry.updateHeight()
       mid.visible = true
-    } else if (backSector) {
-      if (top) {
-        this.updateGeometryVertices(
-          top.geometry,
-          this.getVertices(v1, v2, backSector.ceilingHeight, frontSector.ceilingHeight),
-        )
-        top.visible = true
-      }
-      if (bottom) {
-        this.updateGeometryVertices(
-          bottom.geometry,
-          this.getVertices(v1, v2, frontSector.floorHeight, backSector.floorHeight),
-        )
-        bottom.visible = true
-      }
-
-      if (sideDef.midTexture) {
-        this.updateGeometryVertices(
-          mid.geometry,
-          this.getVertices(v1, v2,
-            Math.max(frontSector.floorHeight, backSector.floorHeight),
-            Math.min(frontSector.ceilingHeight, backSector.ceilingHeight),
-          ),
-        )
-        mid.visible = true
-      } else {
-        mid.visible = false
-      }
-
+    } else {
+      mid.visible = false
     }
   }
 
@@ -267,87 +202,37 @@ export class Segs extends LegacySegs {
       return 0
     }
   }
-  private getUvs(wallWidth: number, wallHeight: number,
-    leftOffset: number, topOffset: number,
-    tex: number,
-  ): Vector2[][] {
-    const texWidth = this.data.textures[tex].patch.width << FRACBITS
-    const texHeight = this.data.textures[tex].patch.height << FRACBITS
-
-    const uvs = [
-      1 - topOffset / texHeight,
-      (leftOffset + wallWidth) / texWidth,
-      1 - (topOffset + wallHeight) / texHeight,
-      leftOffset / texWidth,
-    ]
-    return [
-      [ new Vector2(uvs[3], uvs[0]), new Vector2(uvs[3], uvs[2]), new Vector2(uvs[1], uvs[0]) ],
-      [ new Vector2(uvs[3], uvs[2]), new Vector2(uvs[1], uvs[2]), new Vector2(uvs[1], uvs[0]) ],
-    ]
-  }
-  private updateGeometryUVs(geometry: Geometry, uvss: Vector2[][]): void {
-    uvss.forEach((uvs, i) => {
-      uvs.forEach((uv, j) => {
-        if (!uv.equals(geometry.faceVertexUvs[0][i][j])) {
-          geometry.faceVertexUvs[0][i][j].copy(uv)
-          geometry.uvsNeedUpdate = true
-        }
-      })
-    })
-  }
   private updateWallUvs({
-    seg: { v1, v2, frontSector, backSector, sideDef, lineDef },
+    seg: { frontSector, backSector, sideDef, lineDef },
     bottom, mid, top,
   }: Wall): void {
-    const wallWidth = Math.sqrt(
-      (v1.x - v2.x) * (v1.x - v2.x) +
-      (v1.y - v2.y) * (v1.y - v2.y),
-    )
-    let wallHeight: number
     const leftOffset = sideDef.textureOffset
     let topOffset: number
 
     if (!backSector) {
-      wallHeight = frontSector.ceilingHeight - frontSector.floorHeight
       topOffset = this.getMidOffset(frontSector, lineDef, sideDef.midTexture)
       topOffset += sideDef.rowOffset
 
-      this.updateGeometryUVs(
-        mid.geometry,
-        this.getUvs(wallWidth, wallHeight, leftOffset, topOffset, sideDef.midTexture),
-      )
+      mid.geometry.updateUvs(leftOffset, topOffset, sideDef.midTexture)
     } else {
       if (top) {
-        wallHeight = frontSector.ceilingHeight - backSector.ceilingHeight
         topOffset = this.getTopOffset(frontSector, backSector, lineDef, sideDef.topTexture)
         topOffset += sideDef.rowOffset
 
-        this.updateGeometryUVs(
-          top.geometry,
-          this.getUvs(wallWidth, wallHeight, leftOffset, topOffset, sideDef.topTexture),
-        )
+        top.geometry.updateUvs(leftOffset, topOffset, sideDef.topTexture)
       }
       if (bottom) {
-        wallHeight = backSector.floorHeight - frontSector.floorHeight
         topOffset = this.getBottomOffset(frontSector, backSector, lineDef)
         topOffset += sideDef.rowOffset
 
-        this.updateGeometryUVs(
-          bottom.geometry,
-          this.getUvs(wallWidth, wallHeight, leftOffset, topOffset, sideDef.bottomTexture),
-        )
+        bottom.geometry.updateUvs(leftOffset, topOffset, sideDef.bottomTexture)
       }
 
       if (sideDef.midTexture) {
-        wallHeight = Math.min(frontSector.ceilingHeight, backSector.ceilingHeight) -
-          Math.max(frontSector.floorHeight, backSector.floorHeight)
         topOffset = this.getMaskedMidOffset(frontSector, backSector, lineDef, sideDef.midTexture)
         topOffset += sideDef.rowOffset
 
-        this.updateGeometryUVs(
-          mid.geometry,
-          this.getUvs(wallWidth, wallHeight, leftOffset, topOffset, sideDef.midTexture),
-        )
+        mid.geometry.updateUvs(leftOffset, topOffset, sideDef.midTexture)
       }
     }
   }
