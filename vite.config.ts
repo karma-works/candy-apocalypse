@@ -4,6 +4,6 @@ import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: `/${env.CI_PROJECT_NAME}/`,
+  base: env.CI_PROJECT_NAME ? `/${env.CI_PROJECT_NAME}/` : '',
   plugins: [ react() ],
 })
