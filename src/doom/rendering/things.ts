@@ -290,6 +290,7 @@ export class Things {
 
     // store information in a vissprite
     const vis = this.newVisSprite()
+    vis.id = thing.id
     vis.mobjFlags = thing.flags
     vis.scale = xScale << this.rendering.detailShift
     vis.gX = thing.x

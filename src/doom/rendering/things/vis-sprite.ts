@@ -2,6 +2,8 @@
 //  that will be drawn during a refresh.
 // I.e. a sprite object that is partly visible.
 export class VisSprite {
+  // id from MObj
+  id = 0
   // Doubly linked list.
   prev: VisSprite | null = null;
   next: VisSprite | null = null;

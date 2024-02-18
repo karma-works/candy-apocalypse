@@ -81,6 +81,9 @@ import { states } from '../../doom/info/states'
 export class MObj extends Thinker<MObjHandler, [MObj]> {
   static sizeOf = 154
 
+  static lastId = 0
+  id = MObj.lastId++
+
   // Info for drawing: position.
   x = 0
   y = 0

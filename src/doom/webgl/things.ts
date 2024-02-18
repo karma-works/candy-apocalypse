@@ -10,14 +10,8 @@ import { SpritePaletteMaterial } from './materials/sprite-palette-material'
 import { Textures } from './textures'
 import { VisSprite } from '../rendering/things/vis-sprite'
 
-interface ThingItem {
-  visSprite: VisSprite
-  sprite: Sprite
-}
-
 export class Things extends LegacyThings {
-
-  private things: ThingItem[] = []
+  private spriteCache: {[id: number]: Sprite} = {}
   private group = new Group()
 
   get textures(): Textures {
@@ -34,57 +28,58 @@ export class Things extends LegacyThings {
 
   clearSprites(): void {
     super.clearSprites()
-    for (let i = this.group.children.length; i >= 0; --i) {
-      this.group.remove(this.group.children[i])
+    for (let i = this.group.children.length - 1; i >= 0; --i) {
+      this.group.children[i].visible = false
     }
   }
 
   reset(scene: Scene): void {
-    this.things.length = 0
+    Object.values(this.spriteCache).forEach((sprite) =>
+      sprite.material.dispose())
+
+    this.spriteCache = {}
     scene.remove(this.group)
 
     this.group = new Group()
     scene.add(this.group)
   }
 
-  private updateThing({ sprite, visSprite }: ThingItem): void {
+  private updateThing(sprite: Sprite, visSprite: VisSprite): void {
     const [ map, alphaMap ] = this.textures.getSprite(visSprite)
 
     // y, z, x
     sprite.position.set(visSprite.gY >> FRACBITS, visSprite.gZ >> FRACBITS, visSprite.gX >> FRACBITS)
 
-    sprite.material.map = map
-    sprite.material.alphaMap = alphaMap;
+    const material = (sprite.material as SpritePaletteMaterial)
+    material.map = map
+    material.alphaMap = alphaMap;
 
-    (sprite.material as SpritePaletteMaterial).paletteTexture.palette =
-        this.textures.palette
+    material.paletteTexture.palette = this.textures.palette
 
     if (visSprite.colorMap) {
-
-      (sprite.material as SpritePaletteMaterial).paletteTexture.colorMap =
-          visSprite.colorMap
+      material.paletteTexture.colorMap = visSprite.colorMap
     } else {
       // TODO: fuzz
     }
 
     sprite.scale.set(map.image.width, map.image.height, 1)
+    sprite.visible = true
   }
 
-  private spawnThing(visSprite: VisSprite): ThingItem {
-    const sprite = new Sprite(
-      new SpritePaletteMaterial(),
-    )
-    sprite.center.set(0.5, 0)
+  private spawnThing(visSprite: VisSprite) {
+    let sprite: Sprite
+    if (!this.spriteCache[visSprite.id]) {
+      sprite = new Sprite(
+        new SpritePaletteMaterial(),
+      )
+      sprite.center.set(0.5, 0)
 
-    this.group.add(sprite)
+      this.group.add(sprite)
 
-    const item: ThingItem = {
-      visSprite,
-      sprite,
+      this.spriteCache[visSprite.id] = sprite
+    } else {
+      sprite = this.spriteCache[visSprite.id]
     }
-
-    this.updateThing(item)
-
-    return item
+    this.updateThing(sprite, visSprite)
   }
 }
