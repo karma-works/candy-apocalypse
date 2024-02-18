@@ -1,7 +1,7 @@
 import {
   DataTexture,
   EquirectangularReflectionMapping,
-  RGBFormat,
+  RGBAFormat,
 } from 'three'
 import { FlatTexture } from './textures/flat-texture'
 import { Video as IVideo } from '../interfaces/video'
@@ -90,10 +90,10 @@ export class Textures {
         rVideo.drawPatch(256 * i, y, 0, patch, { flipped: true })
       }
 
-      const data = new Uint8ClampedArray(1024 * 512 * 3)
-      iVideo.drawInImageData(data, false)
+      const data = new Uint8ClampedArray(1024 * 512 * 4)
+      iVideo.drawInImageData(data, true)
 
-      const t = new DataTexture(data, 1024, 512, RGBFormat)
+      const t = new DataTexture(data, 1024, 512, RGBAFormat)
       t.mapping = EquirectangularReflectionMapping
       t.flipY = true
 

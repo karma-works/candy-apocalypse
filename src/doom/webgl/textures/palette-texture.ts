@@ -1,4 +1,4 @@
-import { DataTexture, RGBFormat } from 'three'
+import { DataTexture, RGBAFormat } from 'three'
 import { Palette } from '../../interfaces/palette'
 
 export class PaletteTexture extends DataTexture {
@@ -19,8 +19,8 @@ export class PaletteTexture extends DataTexture {
   }
 
   constructor() {
-    const palette = new Uint8Array(256 * 3)
-    super(palette, 256, 1, RGBFormat)
+    const palette = new Uint8Array(256 * 4)
+    super(palette, 256, 1, RGBAFormat)
 
     this.data = palette
     this._palette = new Palette()
@@ -37,8 +37,8 @@ export class PaletteTexture extends DataTexture {
     for (let i = 0; i < 256; ++i) {
       mapped = this._colorMap[i]
       this.data.set(
-        palette.get(mapped, gamma).subarray(0, 3),
-        i * 3,
+        palette.get(mapped, gamma),
+        i * 4,
       )
     }
 
