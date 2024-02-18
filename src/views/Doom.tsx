@@ -24,6 +24,7 @@ export default function Doom(props?: Partial<Params>) {
         ...props,
       })
       doomInstRef.current = doomInst
+      doomInst.onError = console.error
 
       await doomInst.init()
     } catch (e) {
