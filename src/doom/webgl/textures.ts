@@ -1,8 +1,7 @@
 import {
   DataTexture,
+  EquirectangularReflectionMapping,
   RGBFormat,
-  WebGLCubeRenderTarget,
-  WebGLRenderer,
 } from 'three'
 import { FlatTexture } from './textures/flat-texture'
 import { Video as IVideo } from '../interfaces/video'
@@ -20,7 +19,7 @@ export class Textures {
   private patchCache: PatchTextureTuple[] = []
   private flipPatchCache: PatchTextureTuple[] = []
   private patchTextureCache: PatchTextureTuple[] = []
-  private skyTextureCache: WebGLCubeRenderTarget[] = []
+  private skyTextureCache: DataTexture[] = []
   private flatTextureCache: FlatTexture[] = []
 
   get palette(): Palette {
@@ -74,7 +73,7 @@ export class Textures {
     return cache[lump]
   }
 
-  getSkyTexture(num: number, renderer: WebGLRenderer): WebGLCubeRenderTarget {
+  getSkyTexture(num: number): DataTexture {
     const palette = this.palette
     num = this.rData.textures.getNum(num)
 
@@ -95,12 +94,10 @@ export class Textures {
       iVideo.drawInImageData(data, false)
 
       const t = new DataTexture(data, 1024, 512, RGBFormat)
+      t.mapping = EquirectangularReflectionMapping
       t.flipY = true
 
-      const rt = new WebGLCubeRenderTarget(t.image.height)
-      rt.fromEquirectangularTexture(renderer, t)
-
-      this.skyTextureCache[num] = rt
+      this.skyTextureCache[num] = t
     }
     return this.skyTextureCache[num]
   }

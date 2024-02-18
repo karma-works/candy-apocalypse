@@ -60,7 +60,7 @@ export class Rendering extends LegacyRendering {
 
     if (this.iVideo.renderer) {
       scene.background = this.textures.getSkyTexture(
-        level.sky.texture, this.iVideo.renderer,
+        level.sky.texture,
       )
     }
 
