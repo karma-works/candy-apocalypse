@@ -27,6 +27,7 @@ export class PaletteTexture extends DataTexture {
     this._colorMap = new Uint8ClampedArray(
       Array.from({ length: 256 }, (_, i) => i),
     )
+    this.colorSpace = 'srgb'
   }
 
   update(): void {

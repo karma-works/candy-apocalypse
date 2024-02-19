@@ -106,6 +106,7 @@ export class Textures {
       t.mapping = EquirectangularReflectionMapping
       t.flipY = true
       t.needsUpdate = true
+      t.colorSpace = 'srgb'
 
       this.skyTextureCache[num] = t
     }

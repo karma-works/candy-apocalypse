@@ -1,4 +1,4 @@
-import { Shader, SpriteMaterial } from 'three'
+import { SpriteMaterial, WebGLProgramParametersWithUniforms } from 'three'
 import { PaletteTexture } from '../textures/palette-texture'
 import paletteMap from '../shader-chunks/palettemap_fragment.gsls'
 import paletteMapPars from '../shader-chunks/palettemap_pars_fragment.glsl'
@@ -10,7 +10,7 @@ export class SpritePaletteMaterial extends SpriteMaterial {
   transparent = true
   alphaTest = 0.5
 
-  onBeforeCompile(shader: Shader): void {
+  onBeforeCompile(shader: WebGLProgramParametersWithUniforms): void {
     [ paletteMapPars, paletteMap, redAlphamap ].forEach(rep => {
       shader.fragmentShader = shader.fragmentShader.replace(
         rep.after,
