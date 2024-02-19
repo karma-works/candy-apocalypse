@@ -25,7 +25,7 @@ export class SegGeometry extends PlaneGeometry {
       (v1.y - v2.y) * (v1.y - v2.y),
     )
 
-    const pos = this.attributes.position
+    const pos = this.attributes.position as Float32BufferAttribute
     pos.setX(0, v1.y >> FRACBITS)
     pos.setX(2, v1.y >> FRACBITS)
     pos.setZ(0, v1.x >> FRACBITS)
@@ -79,7 +79,7 @@ export class SegGeometry extends PlaneGeometry {
     top >>= FRACBITS
     bottom >>= FRACBITS
 
-    const pos = this.attributes.position
+    const pos = this.attributes.position as Float32BufferAttribute
     if (pos.getY(0) === top && pos.getY(2) === bottom) {
       return
     }
