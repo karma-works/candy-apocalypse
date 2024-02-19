@@ -17,6 +17,9 @@ const paramsTranslates: {[k: string]: paramsTranslateFunc} = {
     }
   },
   config: (v, props) => props.config = v,
+  episode: (v, props) => v && (props.episode = parseInt(v)),
+  map: (v, props) => v && (props.map = parseInt(v)),
+  skill: (v, props) => v && (props.skill = parseInt(v)),
 }
 
 

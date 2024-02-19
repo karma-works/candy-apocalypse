@@ -1,4 +1,5 @@
 import { Button, Card, CardActions, CardContent, Divider, Grid, Typography } from '@mui/joy';
+import AutoStartOptions from './AutoStartOptions';
 import ConfigOptions from './ControlOptions';
 import { Form } from 'react-router-dom';
 import RenderOptions from './RenderOptions';
@@ -28,6 +29,7 @@ export default function StartUp() {
               >
                 <RenderOptions />
                 <ConfigOptions />
+                <AutoStartOptions />
               </Grid>
             </CardContent>
 
