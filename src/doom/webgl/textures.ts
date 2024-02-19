@@ -42,6 +42,8 @@ export class Textures {
         map: new PatchTexture(patch),
         alphaMap: new PatchTexture(patch, true),
       }
+      this.patchTextureCache[num].map.needsUpdate = true
+      this.patchTextureCache[num].alphaMap.needsUpdate = true
     }
     return this.patchTextureCache[num]
   }
@@ -52,6 +54,7 @@ export class Textures {
     if (!this.flatTextureCache[num]) {
       const flat = this.rData.flats[num].flat
       this.flatTextureCache[num] = new FlatTexture(flat)
+      this.flatTextureCache[num].needsUpdate = true
     }
     return this.flatTextureCache[num]
   }
@@ -67,6 +70,8 @@ export class Textures {
         map: new PatchTexture(patch),
         alphaMap: new PatchTexture(patch, true),
       }
+      cache[lump].map.needsUpdate = true
+      cache[lump].alphaMap.needsUpdate = true
 
       if (flip) {
         cache[lump].map.repeat.set(-1, 1)
@@ -100,6 +105,7 @@ export class Textures {
       const t = new DataTexture(data, 1024, 512, RGBAFormat)
       t.mapping = EquirectangularReflectionMapping
       t.flipY = true
+      t.needsUpdate = true
 
       this.skyTextureCache[num] = t
     }
