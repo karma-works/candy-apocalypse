@@ -45,7 +45,7 @@ export class Things extends LegacyThings {
   }
 
   private updateThing(sprite: Sprite, visSprite: VisSprite): void {
-    const [ map, alphaMap ] = this.textures.getSprite(visSprite)
+    const { map, alphaMap } = this.textures.getSprite(visSprite)
 
     // y, z, x
     sprite.position.set(visSprite.gY >> FRACBITS, visSprite.gZ >> FRACBITS, visSprite.gX >> FRACBITS)

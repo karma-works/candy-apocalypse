@@ -1,4 +1,4 @@
-import { DataTexture, LuminanceFormat, NearestFilter, RepeatWrapping } from 'three'
+import { DataTexture, NearestFilter, RedFormat, RepeatWrapping } from 'three'
 import { Flat } from '../../textures/flat'
 import { Video as RVideo } from '../../rendering/video'
 
@@ -10,7 +10,7 @@ export class FlatTexture extends DataTexture {
     rVideo.drawFlat(0, 0, 0, flat)
 
     const source = rVideo.screens[0]
-    super(source, size, size, LuminanceFormat)
+    super(source, size, size, RedFormat)
 
     this.wrapS = RepeatWrapping
     this.wrapT = RepeatWrapping

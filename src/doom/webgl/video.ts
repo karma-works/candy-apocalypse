@@ -1,4 +1,4 @@
-import { Camera, DataTexture, LuminanceFormat, OrthographicCamera, Scene, Sprite, Vector4, WebGLRenderer } from 'three'
+import { Camera, DataTexture, OrthographicCamera, RedFormat, Scene, Sprite, Vector4, WebGLRenderer } from 'three'
 import { GUI } from 'lil-gui'
 import { Palette } from '../interfaces/palette'
 import { Video as RVideo } from '../rendering/video'
@@ -137,13 +137,13 @@ export class Video implements VideoInterface {
 
     const data = this.rVideo.screens[0]
     this.overlayScreenMap = new DataTexture(
-      data, data.width, data.height, LuminanceFormat,
+      data, data.width, data.height, RedFormat,
     )
     this.overlayScreenMap.flipY = true
 
     const alpha = data.alpha
     this.overlayAlphaMap = new DataTexture(
-      alpha, data.width, data.height, LuminanceFormat,
+      alpha, data.width, data.height, RedFormat,
     )
     this.overlayAlphaMap.flipY = true
 

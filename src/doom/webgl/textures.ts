@@ -12,13 +12,15 @@ import { Video as RVideo } from '../rendering/video'
 import { Rendering } from './rendering'
 import { VisSprite } from '../rendering/things/vis-sprite'
 
-// Second one is the alphamap
-type PatchTextureTuple = [PatchTexture, PatchTexture]
+type PatchTextures = {
+  map: PatchTexture,
+  alphaMap: PatchTexture,
+}
 
 export class Textures {
-  private patchCache: PatchTextureTuple[] = []
-  private flipPatchCache: PatchTextureTuple[] = []
-  private patchTextureCache: PatchTextureTuple[] = []
+  private patchCache: PatchTextures[] = []
+  private flipPatchCache: PatchTextures[] = []
+  private patchTextureCache: PatchTextures[] = []
   private skyTextureCache: DataTexture[] = []
   private flatTextureCache: FlatTexture[] = []
 
@@ -31,14 +33,15 @@ export class Textures {
 
   constructor(private rendering: Rendering) { }
 
-  getPatchTexture(num: number): PatchTextureTuple {
+  getPatchTexture(num: number): PatchTextures {
     num = this.rData.textures.getNum(num)
 
     if (!this.patchTextureCache[num]) {
       const patch = this.rData.textures[num].patch
-      this.patchTextureCache[num] = [
-        new PatchTexture(patch), new PatchTexture(patch, true),
-      ]
+      this.patchTextureCache[num] = {
+        map: new PatchTexture(patch),
+        alphaMap: new PatchTexture(patch, true),
+      }
     }
     return this.patchTextureCache[num]
   }
@@ -53,20 +56,21 @@ export class Textures {
     return this.flatTextureCache[num]
   }
 
-  getSprite(sprite: VisSprite): PatchTextureTuple {
+  getSprite(sprite: VisSprite): PatchTextures {
     const flip = sprite.xIScale < 0
     const lump = this.rData.sprites[sprite.patch].lump
 
     const cache = flip ? this.flipPatchCache : this.patchCache
     if (!cache[lump]) {
       const patch = this.rData.sprites[sprite.patch].patch
-      cache[lump] = [
-        new PatchTexture(patch), new PatchTexture(patch, true),
-      ]
+      cache[lump] = {
+        map: new PatchTexture(patch),
+        alphaMap: new PatchTexture(patch, true),
+      }
 
       if (flip) {
-        cache[lump][0].repeat.set(-1, 1)
-        cache[lump][1].repeat.set(-1, 1)
+        cache[lump].map.repeat.set(-1, 1)
+        cache[lump].alphaMap.repeat.set(-1, 1)
       }
     }
 

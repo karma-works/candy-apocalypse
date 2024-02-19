@@ -241,9 +241,9 @@ export class Segs extends LegacySegs {
     seg: { frontSector, backSector, sideDef },
     bottom, mid, top,
   }: Wall): void {
-    let patchTuple = this.textures.getPatchTexture(sideDef.midTexture)
-    mid.material.map = patchTuple[0]
-    mid.material.alphaMap = patchTuple[1]
+    let texture = this.textures.getPatchTexture(sideDef.midTexture)
+    mid.material.map = texture.map
+    mid.material.alphaMap = texture.alphaMap
     mid.material.paletteTexture.palette = this.textures.palette
     mid.material.paletteTexture.colorMap = this.colorMap
 
@@ -254,17 +254,17 @@ export class Segs extends LegacySegs {
         ) {
           top.material.visible = false
         } else {
-          patchTuple = this.textures.getPatchTexture(sideDef.topTexture)
-          top.material.map = patchTuple[0]
-          top.material.alphaMap = patchTuple[1]
+          texture = this.textures.getPatchTexture(sideDef.topTexture)
+          top.material.map = texture.map
+          top.material.alphaMap = texture.alphaMap
           top.material.paletteTexture.palette = this.textures.palette
           top.material.paletteTexture.colorMap = this.colorMap
         }
       }
       if (bottom) {
-        patchTuple = this.textures.getPatchTexture(sideDef.bottomTexture)
-        bottom.material.map = patchTuple[0]
-        bottom.material.alphaMap = patchTuple[1]
+        texture = this.textures.getPatchTexture(sideDef.bottomTexture)
+        bottom.material.map = texture.map
+        bottom.material.alphaMap = texture.alphaMap
         bottom.material.paletteTexture.palette = this.textures.palette
         bottom.material.paletteTexture.colorMap = this.colorMap
       }
