@@ -14,7 +14,9 @@ const router = createBrowserRouter([
     path: 'play',
     element: <DoomFromRouter />,
   },
-])
+], {
+  basename: import.meta.env.BASE_URL,
+})
 
 ReactDOM.createRoot(document.getElementById('app')!).render(
   <React.StrictMode>
