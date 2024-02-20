@@ -21,7 +21,7 @@ export class Rendering extends LegacyRendering {
   private camera = new PerspectiveCamera(
     64, 320 / 200, 10, 3000,
   )
-  private cameraController: Controller
+  private cameraController: Controller | null = null
   private viewport = new Vector4()
   private renderedLevel: Level | null = null
 
@@ -38,16 +38,19 @@ export class Rendering extends LegacyRendering {
 
     iVideo.camera = this.camera
     iVideo.viewport = this.viewport
-    this.cameraController = iVideo.gui.add(this.camera, 'fov')
-      .min(1).max(180)
-      .onChange(() => this.camera.updateProjectionMatrix())
 
-    iVideo.gui.add(this.camera, 'near')
-      .min(0.1).max(100).step(1)
-      .onChange(() => this.camera.updateProjectionMatrix())
-    iVideo.gui.add(this.camera, 'far')
-      .min(100).max(5000).step(1)
-      .onChange(() => this.camera.updateProjectionMatrix())
+    if (iVideo.gui) {
+      this.cameraController = iVideo.gui.add(this.camera, 'fov')
+        .min(1).max(180)
+        .onChange(() => this.camera.updateProjectionMatrix())
+
+      iVideo.gui.add(this.camera, 'near')
+        .min(0.1).max(100).step(1)
+        .onChange(() => this.camera.updateProjectionMatrix())
+      iVideo.gui.add(this.camera, 'far')
+        .min(100).max(5000).step(1)
+        .onChange(() => this.camera.updateProjectionMatrix())
+    }
   }
 
   private setupLevel(level: Level): void {
@@ -122,7 +125,7 @@ export class Rendering extends LegacyRendering {
     this.camera.aspect = this.viewWidth / this.viewHeight
     this.camera.fov = this.fullScreen ? 64 : 54
     this.camera.updateProjectionMatrix()
-    this.cameraController.updateDisplay()
+    this.cameraController?.updateDisplay()
 
     this.viewport.set(
       this.viewWindowX,

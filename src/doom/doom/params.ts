@@ -33,4 +33,6 @@ export interface Params {
 
   playDemo?: string
   record?: string
+
+  debug?: boolean
 }

@@ -6,6 +6,10 @@ import { STRETCH } from '../global/doomdef'
 import { SpritePaletteMaterial } from './materials/sprite-palette-material'
 import { VideoInterface } from '../interfaces/video-interface'
 
+interface VideoOptions {
+  debug?: boolean
+}
+
 export class Video implements VideoInterface {
   width = 0
   height = 0
@@ -26,9 +30,13 @@ export class Video implements VideoInterface {
   overlayMaterial: SpritePaletteMaterial | null = null
   private overlayViewport = new Vector4()
 
-  gui = new GUI()
+  gui: GUI | null = null
 
-  constructor(private rVideo: RVideo) {
+  constructor(private rVideo: RVideo, { debug }: VideoOptions) {
+    if (debug) {
+      this.gui = new GUI()
+    }
+
     this.updatePalette()
   }
 
@@ -166,6 +174,6 @@ export class Video implements VideoInterface {
 
     this.renderer.dispose()
 
-    this.gui.destroy()
+    this.gui?.destroy()
   }
 }

@@ -5,19 +5,20 @@ import { Doom as RawDoom } from '../doom/doom'
 
 export default function Doom(props?: Partial<Params>) {
   const [ canvasStyle, setCanvasStyle ] = useState<CSSProperties>({})
+  const inputRef = useRef<HTMLDivElement>(null)
   const screen2dRef = useRef<HTMLCanvasElement>(null)
   const screen3dRef = useRef<HTMLCanvasElement>(null)
-  const screenRoot = useRef<HTMLDivElement>(null)
 
   const doomInstRef = useRef<RawDoom>()
 
   const start = useCallback(async() => {
     try {
+      const input = inputRef.current!
       const screen2d = screen2dRef.current!
       const screen3d = screen3dRef.current!
 
       const doomInst = new RawDoom({
-        input: screen2d,
+        input,
         screen2d,
         screen3d,
         iwad: 'doom1.wad',
@@ -61,7 +62,7 @@ export default function Doom(props?: Partial<Params>) {
   }, [ start, onResize, stop ])
 
   return (
-    <div className="screen-root" ref={screenRoot}>
+    <div className="screen-root" ref={inputRef}>
       <div className="screen-wrapper">
         <canvas ref={screen3dRef} style={canvasStyle}>
         </canvas>

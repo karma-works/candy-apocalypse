@@ -23,6 +23,7 @@ import { Play } from './play/setup'
 import { PlayerState } from './doom/player'
 import { Data as RData } from './rendering/data'
 import { Video as RVIdeo } from './rendering/video'
+import Stats from 'stats.js'
 import { StatusBar } from './status/stuff'
 import { Strings } from './translation/strings'
 import { Win } from './win/win'
@@ -65,6 +66,9 @@ export class Doom {
 
   // debug flag to cancel adaptiveness
   singleTics = false
+
+  private debug = false
+  private stats: Stats | null = null
 
   public wad = new LumpReader()
   public defaults = new Defaults(this)
@@ -149,7 +153,7 @@ export class Doom {
     }
 
     const { width, height } = this.iVideo
-    const iVideo = new Video(this.rVideo)
+    const iVideo = new Video(this.rVideo, { debug: this.debug })
     this.iVideo = iVideo
     this.iVideo.screen = this.params.screen3d
     this.iVideo.palette = palette
@@ -416,6 +420,7 @@ export class Doom {
     }
 
     const w = () => {
+      this.stats?.begin()
       try {
         if (this.quitted) {
           return
@@ -458,6 +463,7 @@ export class Doom {
         this.onError(e)
       }
       requestAnimationFrame(w.bind(this))
+      this.stats?.end()
     }
     w()
   }
@@ -785,6 +791,14 @@ export class Doom {
       throw 'Can\'t init previously destroyed Doom instance'
     }
 
+    if (this.params.debug && this.params.input) {
+      this.debug = true
+      const stats = new Stats()
+      stats.showPanel(0)
+      this.params.input.appendChild(stats.dom)
+      this.stats = stats
+    }
+
     this.noMonsters = !!this.params.noMonsters
     this.respawnParam = !!this.params.respawn
     this.fastParam = !!this.params.fast
@@ -972,6 +986,8 @@ export class Doom {
     } catch { /* */ }
 
     this.iVideo.screen = null
+
+    this.stats?.dom.remove()
 
     return
   }

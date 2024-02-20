@@ -20,6 +20,8 @@ const paramsTranslates: {[k: string]: paramsTranslateFunc} = {
   episode: (v, props) => v && (props.episode = parseInt(v)),
   map: (v, props) => v && (props.map = parseInt(v)),
   skill: (v, props) => v && (props.skill = parseInt(v)),
+
+  debug: (_, props) => props.debug = true,
 }
 
 
