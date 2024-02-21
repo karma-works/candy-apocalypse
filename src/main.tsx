@@ -1,6 +1,5 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { CssVarsProvider } from '@mui/joy'
-import DoomFromRouter from './views/DoomFromRouter'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import StartUp from './StartUp'
@@ -12,7 +11,10 @@ const router = createBrowserRouter([
   },
   {
     path: 'play',
-    element: <DoomFromRouter />,
+    async lazy() {
+      const DoomFromRouter = await import('./DoomReact/DoomFromRouter');
+      return { Component: DoomFromRouter.default };
+    },
   },
 ], {
   basename: import.meta.env.BASE_URL,
