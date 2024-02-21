@@ -244,10 +244,8 @@ export class Menu {
     // Take care of any messages that need input
     if (this.messageToPrint) {
       if (this.messageNeedsInput &&
-        !(key === ScanCode.Space ||
-          key === ScanCode.KeyN ||
-          key === ScanCode.KeyY ||
-          key === ScanCode.Escape)) {
+        ![ ScanCode.Space, ScanCode.KeyN, ScanCode.KeyY,
+          ScanCode.Escape, ScanCode.Backquote ].includes(key)) {
         return false
       }
 
@@ -373,7 +371,7 @@ export class Menu {
 
     // Pop-up menu?
     if (!this.menuActive) {
-      if (key === ScanCode.Escape) {
+      if ([ ScanCode.Escape, ScanCode.Backquote ].includes(key)) {
         this.startControlPanel()
         this.dSound.startSound(null, SfxName.Swtchn)
         return true
@@ -441,6 +439,7 @@ export class Menu {
     }
 
     case ScanCode.Escape:
+    case ScanCode.Backquote:
       this.currentMenu.lastOn = this.itemOn
       this.clearMenus()
       this.dSound.startSound(null, SfxName.Swtchx)

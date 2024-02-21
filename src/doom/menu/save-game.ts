@@ -288,6 +288,7 @@ export class SaveGameMenu extends LoadGameMenu {
         break
 
       case ScanCode.Escape:
+      case ScanCode.Backquote:
         this.saveStringEnter = false
         this.saveGameStrings[this.saveSlot] = this.saveOldString
         break

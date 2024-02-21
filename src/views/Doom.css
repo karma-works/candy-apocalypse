@@ -10,3 +10,9 @@
   /* image-rendering: pixelated;
   outline: none; */
 }
+
+.FocusInfo {
+  position: fixed;
+  bottom: 0;
+  margin: 16px;
+}

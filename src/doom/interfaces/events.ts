@@ -47,24 +47,17 @@ export function XListenEvent(display: HTMLElement, mouse: boolean): void {
   }
 
   const onFocus = () => {
-    // Delay to avoid triggering event while focusing
-    setTimeout(() => {
-      display.addEventListener('keydown', listener)
-      l.listeners.keydown = listener
-      display.addEventListener('keyup', listener)
-      l.listeners.keyup = listener
-      if (mouse) {
-        display.addEventListener('mousedown', listener)
-        l.listeners.mousedown = listener
-        display.addEventListener('mouseup', listener)
-        l.listeners.mouseup = listener
-        display.addEventListener('mousemove', listener)
-        l.listeners.mousemove = listener
-      }
-    }, 0)
-
+    display.addEventListener('keydown', listener)
+    l.listeners.keydown = listener
+    display.addEventListener('keyup', listener)
+    l.listeners.keyup = listener
     if (mouse) {
-      display.requestPointerLock()
+      display.addEventListener('mousedown', listener)
+      l.listeners.mousedown = listener
+      display.addEventListener('mouseup', listener)
+      l.listeners.mouseup = listener
+      display.addEventListener('mousemove', listener)
+      l.listeners.mousemove = listener
     }
   }
   const onBlur = () => {
@@ -89,9 +82,6 @@ export function XListenEvent(display: HTMLElement, mouse: boolean): void {
 }
 
 export function XQuitEvent(display: HTMLElement): void {
-  if (document.pointerLockElement === display) {
-    document.exitPointerLock()
-  }
   if (document.fullscreenElement === display.parentElement) {
     document.exitFullscreen()
   }
