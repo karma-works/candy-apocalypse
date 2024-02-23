@@ -21,7 +21,7 @@ import { SideArray } from './side-array'
 import { Sky } from './sky'
 import { SubSector } from '../rendering/defs/sub-sector'
 import { SubSectorArray } from './sub-sector-array'
-import { Textures } from '../textures/textures'
+import { TextureArray } from '../textures/texture-array'
 import { ThingArray } from './thing-array'
 import { Vertex } from '../rendering/data/vertex'
 import { VertexArray } from './vertex-array'
@@ -88,7 +88,7 @@ export class Level {
 
   load(lumpReader: LumpReader,
     flats: FlatArray,
-    textures: Textures,
+    textures: TextureArray,
   ): void {
     const lumpNum = this.lump
     // note: most of this ordering is important
@@ -172,7 +172,7 @@ export class Level {
   //
   // P_LoadSideDefs
   //
-  private loadSideDefs(lumpReader: LumpReader, lump: number, textures: Textures): void {
+  private loadSideDefs(lumpReader: LumpReader, lump: number, textures: TextureArray): void {
     const data = lumpReader.cacheLumpNum(lump, SideArray)
     this.sides = data.getSides(textures, this.sectors)
   }

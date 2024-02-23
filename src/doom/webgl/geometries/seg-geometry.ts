@@ -1,7 +1,7 @@
 import { Float32BufferAttribute, PlaneGeometry } from 'three';
 import { FRACBITS } from '../../misc/fixed';
 import { Seg } from '../../rendering/segs/seg';
-import { Textures } from '../../textures/textures';
+import { TextureArray } from '../../textures/texture-array';
 
 export const enum SegPart { Top, Mid, Bottom }
 
@@ -14,7 +14,7 @@ export class SegGeometry extends PlaneGeometry {
   constructor(
     private seg: Seg,
     private part: SegPart,
-    private textures: Textures,
+    private textures: TextureArray,
   ) {
     super()
 

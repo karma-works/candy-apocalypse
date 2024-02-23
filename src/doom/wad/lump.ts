@@ -3,6 +3,7 @@ import { Demo } from '../game/demo'
 import { Flat } from '../textures/flat'
 import { Level } from '../level/level'
 import { LineArray } from '../level/line-array'
+import { MapTextureArray } from '../textures/map-texture-array'
 import { NodeArray } from '../level/node-array'
 import { PNameArray } from '../textures/pname-array'
 import { Palettes } from '../interfaces/palette'
@@ -13,7 +14,6 @@ import { SegArray } from '../level/seg-array'
 import { Sfx } from '../doom/sounds/sfx'
 import { SideArray } from '../level/side-array'
 import { SubSectorArray } from '../level/sub-sector-array'
-import { TextureArray } from '../textures/texture-array'
 import { ThingArray } from '../level/thing-array'
 import { VertexArray } from '../level/vertex-array'
 
@@ -43,7 +43,7 @@ const lumpCandidates: LumpStatic[] = [
   Patch,
   Flat,
   PNameArray,
-  TextureArray,
+  MapTextureArray,
   Sfx,
   Palettes,
   Demo,

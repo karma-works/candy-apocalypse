@@ -2,7 +2,7 @@ import { FRACBITS } from '../misc/fixed'
 import { LumpType } from '../wad/lump'
 import { Sector } from '../rendering/defs/sector'
 import { Side } from '../rendering/defs/side'
-import { Textures } from '../textures/textures'
+import { TextureArray } from '../textures/texture-array'
 import { tostring } from '../utils/c'
 
 export class SideArray extends Array<MapSideDef> {
@@ -31,7 +31,7 @@ export class SideArray extends Array<MapSideDef> {
   }
 
   getSides(
-    textures: Textures,
+    textures: TextureArray,
     sectors: Sector[],
   ): Side[] {
     return this.map(msd =>

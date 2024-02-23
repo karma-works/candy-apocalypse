@@ -2,7 +2,7 @@ import { FlatArray } from '../textures/flat-array'
 import { LumpReader } from '../wad/lump-reader'
 import { SpriteArray } from '../sprites/sprite-array'
 import { SpriteDefsArray } from '../sprites/sprite-defs-array'
-import { Textures } from '../textures/textures'
+import { TextureArray } from '../textures/texture-array'
 
 //
 // Graphics.
@@ -16,7 +16,7 @@ export class Data {
   constructor(private lumpReader: LumpReader) { }
 
   flats = new FlatArray()
-  textures = new Textures()
+  textures = new TextureArray()
   sprites = new SpriteArray()
   spriteDefs = new SpriteDefsArray()
 
@@ -42,7 +42,7 @@ export class Data {
   // Must be called after W_Init.
   //
   initData(): void {
-    this.textures = new Textures(this.lumpReader)
+    this.textures = new TextureArray(this.lumpReader)
     console.log('InitTextures')
     this.flats = new FlatArray(this.lumpReader)
     console.log('InitFlats')
