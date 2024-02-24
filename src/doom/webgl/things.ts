@@ -1,6 +1,5 @@
 import {
   Group,
-  Scene,
   Sprite,
 } from 'three'
 import { FRACBITS } from '../misc/fixed'
@@ -33,15 +32,14 @@ export class Things extends LegacyThings {
     }
   }
 
-  reset(scene: Scene): void {
+  reset(): Group {
     Object.values(this.spriteCache).forEach((sprite) =>
       sprite.material.dispose())
 
     this.spriteCache = {}
-    scene.remove(this.group)
 
     this.group = new Group()
-    scene.add(this.group)
+    return this.group
   }
 
   private updateThing(sprite: Sprite, visSprite: VisSprite): void {

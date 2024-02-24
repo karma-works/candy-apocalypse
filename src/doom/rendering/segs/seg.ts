@@ -9,6 +9,7 @@ import { Vertex } from '../data/vertex'
 //
 export class Seg {
   constructor(
+    public id: number,
     public v1: Vertex,
     public v2: Vertex,
     public offset: number,

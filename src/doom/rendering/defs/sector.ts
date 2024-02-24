@@ -40,6 +40,7 @@ export class Sector {
   lines: Line[] = []
 
   constructor(
+    public id: number,
     floorHeight: number,
     ceilingHeight: number,
     floorPic: number,

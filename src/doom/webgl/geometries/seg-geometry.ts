@@ -11,6 +11,8 @@ export class SegGeometry extends PlaneGeometry {
   // Height, can change
   private height = 0
 
+  private lastUvsParams: [number, number, number] = [ -1, -1, -1 ]
+
   constructor(
     private seg: Seg,
     private part: SegPart,
@@ -90,45 +92,36 @@ export class SegGeometry extends PlaneGeometry {
     pos.setY(3, bottom)
 
     pos.needsUpdate = true
+    this.lastUvsParams = [ -1, -1, -1 ]
 
     this.computeBoundingSphere()
   }
 
   updateUvs(leftOffset: number, topOffset: number, tex: number) {
+    const [ lastLeft, lastTop, lastTex ] = this.lastUvsParams
+    if (leftOffset === lastLeft &&
+        topOffset === lastTop &&
+        tex === lastTex) {
+      return
+    }
+    this.lastUvsParams = [ leftOffset, topOffset, tex ]
+
     const texWidth = this.textures[tex].patch.width << FRACBITS
     const texHeight = this.textures[tex].patch.height << FRACBITS
 
     const uvs = this.attributes.uv as Float32BufferAttribute
-    let changes = false
 
     const x1 = leftOffset / texWidth
-    if (uvs.getX(0) !== x1) {
-      uvs.setX(0, x1)
-      uvs.setX(2, x1)
-      changes = true
-    }
     const x2 = (leftOffset + this.width) / texWidth
-    if (uvs.getX(1) !== x2) {
-      uvs.setX(1, x2)
-      uvs.setX(3, x2)
-      changes = true
-    }
     const y1 = 1 - (topOffset + this.height) / texHeight
-    if (uvs.getY(2) !== y1) {
-      uvs.setY(2, y1)
-      uvs.setY(3, y1)
-      changes = true
-    }
     const y2 = 1 - topOffset / texHeight
-    if (uvs.getY(0) !== y2) {
-      uvs.setY(0, y2)
-      uvs.setY(1, y2)
-      changes = true
-    }
 
-    if (changes) {
-      uvs.needsUpdate = true
-    }
+    uvs.setXY(0, x1, y2)
+    uvs.setXY(1, x2, y2)
+    uvs.setXY(2, x1, y1)
+    uvs.setXY(3, x2, y1)
+
+    uvs.needsUpdate = true
   }
 
 }

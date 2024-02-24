@@ -32,8 +32,9 @@ export class SectorArray extends Array<MapSector> {
   getSectors(
     flats: FlatArray,
   ): Sector[] {
-    return this.map(ms =>
+    return this.map((ms, id) =>
       new Sector(
+        id,
         ms.floorHeight << FRACBITS,
         ms.ceilingHeight << FRACBITS,
         flats.numForName(ms.floorPic),

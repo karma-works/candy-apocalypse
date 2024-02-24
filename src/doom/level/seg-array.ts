@@ -35,7 +35,7 @@ export class SegArray extends Array<MapSeg> {
     lines: readonly Line[],
     sides: readonly Side[],
   ): Seg[] {
-    return this.map(s => {
+    return this.map((s, id) => {
       // new Seg(s, vertexes, lines, sides),
       const lineDef = lines[s.lineDef]
       const side = sides[lineDef.sideNum[s.side]]
@@ -44,6 +44,7 @@ export class SegArray extends Array<MapSeg> {
         backSide = sides[lineDef.sideNum[s.side ^ 1]]
       }
       return new Seg(
+        id,
         vertexes[s.v1],
         vertexes[s.v2],
         s.offset << 16,

@@ -1,6 +1,5 @@
 import {
   PerspectiveCamera,
-  Scene,
   Vector4,
 } from 'three'
 import { Controller } from 'lil-gui'
@@ -8,7 +7,7 @@ import { Doom } from '../doom'
 import { FRACBITS } from '../misc/fixed'
 import { Rendering as LegacyRendering } from '../rendering/rendering'
 import { Level } from '../level/level'
-import { Plane } from './plane'
+import { LevelScene } from './objects/level-scene'
 import { Player } from '../doom/player'
 import { Segs } from './segs'
 import { Textures } from './textures'
@@ -23,17 +22,16 @@ export class Rendering extends LegacyRendering {
   )
   private cameraController: Controller | null = null
   private viewport = new Vector4()
-  private renderedLevel: Level | null = null
+  private currentLevel: Level | null = null
+  levelScene: LevelScene | null = null
 
-  plane: Plane
-  segs: Segs = new Segs(this)
   textures = new Textures(this)
   things: Things
 
   constructor(doom: Doom, public iVideo: Video) {
     super(doom)
 
-    this.plane = new Plane(this, this.video.width, this.video.height)
+    this.segs = new Segs(this)
     this.things = new Things(this, this.video.width)
 
     iVideo.camera = this.camera
@@ -54,33 +52,21 @@ export class Rendering extends LegacyRendering {
   }
 
   private setupLevel(level: Level): void {
-    const scene = new Scene()
-    this.iVideo.scene = scene
-
-    this.segs.reset()
-    this.plane.reset()
-    this.things.reset(scene)
-
-    if (this.iVideo.renderer) {
-      scene.background = this.textures.getSkyTexture(
-        level.sky.texture,
-      )
+    if (this.levelScene) {
+      this.levelScene.dispose()
     }
 
-    level.segs.forEach((seg, i) => this.segs.createSeg(i, seg, scene))
+    this.levelScene = new LevelScene(level, this.textures)
 
-    level.sectors.forEach((sec, i) => {
-      const lines = level.lines.filter(({ frontSector, backSector }) =>
-        frontSector === sec || backSector === sec)
+    this.iVideo.scene = this.levelScene
 
-      this.plane.createPlane(i, sec, lines, scene)
-    })
+    this.levelScene.add(this.things.reset())
   }
 
   protected setupFrame(player: Player): void {
-    if (this.renderedLevel !== this.level) {
+    if (this.currentLevel !== this.level) {
       this.setupLevel(this.level)
-      this.renderedLevel = this.level
+      this.currentLevel = this.level
     }
 
     super.setupFrame(player)
@@ -96,6 +82,8 @@ export class Rendering extends LegacyRendering {
   }
 
   renderPlayerView(pl: Player): void {
+    this.levelScene?.reset()
+
     super.renderPlayerView(pl)
 
     this.setAlphaScreen()

@@ -7,7 +7,6 @@ import { FlatTexture } from './textures/flat-texture'
 import { Video as IVideo } from '../interfaces/video'
 import { Palette } from '../interfaces/palette'
 import { PatchTexture } from './textures/patch-texture'
-import { Data as RData } from '../rendering/data'
 import { Video as RVideo } from '../rendering/video'
 import { Rendering } from './rendering'
 import { VisSprite } from '../rendering/things/vis-sprite'
@@ -27,17 +26,23 @@ export class Textures {
   get palette(): Palette {
     return this.rendering.iVideo.palette
   }
-  private get rData(): RData {
-    return this.rendering.data
+  get flats() {
+    return this.rendering.data.flats
+  }
+  get sprites() {
+    return this.rendering.data.sprites
+  }
+  get textures() {
+    return this.rendering.data.textures
   }
 
   constructor(private rendering: Rendering) { }
 
   getPatchTexture(num: number): PatchTextures {
-    num = this.rData.textures.getNum(num)
+    num = this.textures.getNum(num)
 
     if (!this.patchTextureCache[num]) {
-      const patch = this.rData.textures[num].patch
+      const patch = this.textures[num].patch
       this.patchTextureCache[num] = {
         map: new PatchTexture(patch),
         alphaMap: new PatchTexture(patch, true),
@@ -49,10 +54,10 @@ export class Textures {
   }
 
   getFlatTexture(num: number): FlatTexture {
-    num = this.rData.flats.getNum(num)
+    num = this.flats.getNum(num)
 
     if (!this.flatTextureCache[num]) {
-      const flat = this.rData.flats[num].flat
+      const flat = this.flats[num].flat
       this.flatTextureCache[num] = new FlatTexture(flat)
       this.flatTextureCache[num].needsUpdate = true
     }
@@ -61,11 +66,11 @@ export class Textures {
 
   getSprite(sprite: VisSprite): PatchTextures {
     const flip = sprite.xIScale < 0
-    const lump = this.rData.sprites[sprite.patch].lump
+    const lump = this.sprites[sprite.patch].lump
 
     const cache = flip ? this.flipPatchCache : this.patchCache
     if (!cache[lump]) {
-      const patch = this.rData.sprites[sprite.patch].patch
+      const patch = this.sprites[sprite.patch].patch
       cache[lump] = {
         map: new PatchTexture(patch),
         alphaMap: new PatchTexture(patch, true),
@@ -84,10 +89,10 @@ export class Textures {
 
   getSkyTexture(num: number): DataTexture {
     const palette = this.palette
-    num = this.rData.textures.getNum(num)
+    num = this.textures.getNum(num)
 
     if (!this.skyTextureCache[num]) {
-      const patch = this.rData.textures[num].patch
+      const patch = this.textures[num].patch
 
       const rVideo = new RVideo({ logical: [ 1024, 512 ] })
       rVideo.init(1)

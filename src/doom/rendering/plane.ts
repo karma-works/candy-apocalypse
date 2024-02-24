@@ -385,7 +385,7 @@ export class Plane {
     }
   }
 
-  protected calculateLights(lightLevel: number): void {
+  calculateLights(lightLevel: number): Uint8ClampedArray[] {
     let light = (lightLevel >> LIGHT_SEG_SHIFT) + this.rendering.extraLight
 
     if (light >= LIGHT_LEVELS) {
@@ -396,6 +396,6 @@ export class Plane {
       light = 0
     }
 
-    this.planeZLight = this.rendering.zLight[light]
+    return this.planeZLight = this.rendering.zLight[light]
   }
 }
