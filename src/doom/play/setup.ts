@@ -141,7 +141,7 @@ export class Play {
       lumpName = `E${episode}M${map}`
     }
 
-    const level = this.wad.cacheLumpName(lumpName, Level)
+    const level = this.wad.cacheLumpName(lumpName, Level, false)
     this.level = level
 
     this.tick.levelTime = 0
