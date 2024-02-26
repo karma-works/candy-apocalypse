@@ -24,13 +24,19 @@ export class Segs extends LegacySegs {
 
     curLine.lineDef.flags |= MapLineFlag.Mapped
 
-    const lightLevel = frontSector.lightLevel + (this.rendering.extraLight << LIGHT_SEG_SHIFT)
+    const secLightLevel = frontSector.lightLevel + (this.rendering.extraLight << LIGHT_SEG_SHIFT)
+    let segLightLevel = secLightLevel
+    if (curLine.v1.y === curLine.v2.y) {
+      segLightLevel -= 16
+    } else if (curLine.v1.x === curLine.v2.x) {
+      segLightLevel += 16
+    }
     let colorMap = this.rendering.fixedColorMap
     if (!colorMap) {
       colorMap = this.plane.calculateLights(15)[0]
     }
 
-    this.rendering.levelScene?.updateSector(frontSector.id, colorMap, lightLevel)
-    this.rendering.levelScene?.updateSeg(frontSector.id, curLine.id, colorMap, lightLevel)
+    this.rendering.levelScene?.updateSector(frontSector.id, colorMap, secLightLevel)
+    this.rendering.levelScene?.updateSeg(frontSector.id, curLine.id, colorMap, segLightLevel)
   }
 }
