@@ -48,7 +48,7 @@ export class Sector extends Group {
     }
   }
 
-  update(colorMap: Uint8ClampedArray) {
+  update(colorMap: Uint8ClampedArray, lightLevel: number) {
     // already up to date
     if (this.visible) {
       return
@@ -57,11 +57,11 @@ export class Sector extends Group {
     this.visible = true
 
     this.updateHeight()
-    this.updateTextureMap(colorMap)
+    this.updateTextureMap(colorMap, lightLevel)
   }
 
-  updateSeg(secId: number, colorMap: Uint8ClampedArray): void {
-    this.frontSegs[secId].update(colorMap)
+  updateSeg(secId: number, colorMap: Uint8ClampedArray, lightLevel: number): void {
+    this.frontSegs[secId].update(colorMap, lightLevel)
   }
 
   private createMesh(lines: readonly DoomLine[], side: Side): SectorMesh {
@@ -87,19 +87,21 @@ export class Sector extends Group {
     this.ceiling.position.y = this.sector.ceilingHeight >> FRACBITS
   }
 
-  private updateTextureMap(colorMap: Uint8ClampedArray): void {
+  private updateTextureMap(colorMap: Uint8ClampedArray, lightLevel: number): void {
     // TODO test sky flatnum
 
+    this.floor.material.lightLevel = lightLevel
     this.floor.material.map = this.textures.getFlatTexture(this.sector.floorPic)
-    this.floor.material.paletteTexture.palette = this.textures.palette
-    this.floor.material.paletteTexture.colorMap = colorMap
+    this.floor.material.paletteMap.palette = this.textures.palette
+    this.floor.material.paletteMap.colorMap = colorMap
 
     if (this.sector.ceilingPic === this.skyFlatNum) {
       this.ceiling.material.visible = false
     } else {
+      this.ceiling.material.lightLevel = lightLevel
       this.ceiling.material.map = this.textures.getFlatTexture(this.sector.ceilingPic)
-      this.ceiling.material.paletteTexture.palette = this.textures.palette
-      this.ceiling.material.paletteTexture.colorMap = colorMap
+      this.ceiling.material.paletteMap.palette = this.textures.palette
+      this.ceiling.material.paletteMap.colorMap = colorMap
     }
   }
 }

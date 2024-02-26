@@ -1,3 +1,4 @@
+import { LIGHT_SEG_SHIFT } from '../rendering/rendering'
 import { Segs as LegacySegs } from '../rendering/segs'
 import { MapLineFlag } from '../doom/data'
 import { Rendering } from './rendering'
@@ -23,18 +24,13 @@ export class Segs extends LegacySegs {
 
     curLine.lineDef.flags |= MapLineFlag.Mapped
 
-    let sectorColorMap = this.rendering.fixedColorMap
-    if (!sectorColorMap) {
-      sectorColorMap = this.plane.calculateLights(frontSector.lightLevel)[25]
+    const lightLevel = frontSector.lightLevel + (this.rendering.extraLight << LIGHT_SEG_SHIFT)
+    let colorMap = this.rendering.fixedColorMap
+    if (!colorMap) {
+      colorMap = this.plane.calculateLights(15)[0]
     }
 
-    let segColorMap = this.rendering.fixedColorMap
-    if (!segColorMap) {
-      this.calculateLights()
-      segColorMap = this.wallLights[8]
-    }
-
-    this.rendering.levelScene?.updateSector(frontSector.id, sectorColorMap)
-    this.rendering.levelScene?.updateSeg(frontSector.id, curLine.id, segColorMap)
+    this.rendering.levelScene?.updateSector(frontSector.id, colorMap, lightLevel)
+    this.rendering.levelScene?.updateSeg(frontSector.id, curLine.id, colorMap, lightLevel)
   }
 }

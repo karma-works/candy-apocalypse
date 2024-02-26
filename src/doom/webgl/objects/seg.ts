@@ -39,10 +39,10 @@ export class Seg extends Group {
     this.bottom?.material.dispose()
   }
 
-  update(colorMap: Uint8ClampedArray) {
+  update(colorMap: Uint8ClampedArray, lightLevel: number) {
     this.updateWallVertices()
     this.updateWallUvs()
-    this.updateTextureMaps(colorMap)
+    this.updateTextureMaps(colorMap, lightLevel)
   }
 
   private createMesh(part: SegPart): SegMesh {
@@ -178,13 +178,16 @@ export class Seg extends Group {
     }
   }
 
-  private updateTextureMaps(colorMap: Uint8ClampedArray): void {
+  private updateTextureMaps(
+    colorMap: Uint8ClampedArray,
+    lightLevel: number,
+  ): void {
     const {
       seg: { frontSector, backSector, sideDef },
       bottom, mid, top,
     } = this
 
-    this.updateTextureMap(mid, sideDef.midTexture, colorMap);
+    this.updateTextureMap(mid, sideDef.midTexture, colorMap, lightLevel);
 
     if (backSector) {
       if (top &&
@@ -193,21 +196,27 @@ export class Seg extends Group {
       ) {
         top.material.visible = false
       } else {
-        this.updateTextureMap(top, sideDef.topTexture, colorMap);
+        this.updateTextureMap(top, sideDef.topTexture, colorMap, lightLevel);
       }
-      this.updateTextureMap(bottom, sideDef.bottomTexture, colorMap);
+      this.updateTextureMap(bottom, sideDef.bottomTexture, colorMap, lightLevel);
     }
   }
 
-  private updateTextureMap(mesh: SegMesh | undefined, texNum: number, colorMap: Uint8ClampedArray) {
+  private updateTextureMap(
+    mesh: SegMesh | undefined,
+    texNum: number,
+    colorMap: Uint8ClampedArray,
+    lightLevel: number,
+  ) {
     if (!mesh) {
       return
     }
     const texture = this.textures.getPatchTexture(texNum);
     mesh.material.map = texture.map;
     mesh.material.alphaMap = texture.alphaMap;
-    mesh.material.paletteTexture.palette = this.textures.palette;
-    mesh.material.paletteTexture.colorMap = colorMap;
+    mesh.material.paletteMap.palette = this.textures.palette;
+    mesh.material.paletteMap.colorMap = colorMap;
+    mesh.material.lightLevel = lightLevel
   }
 
 }

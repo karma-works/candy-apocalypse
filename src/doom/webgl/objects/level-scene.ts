@@ -31,12 +31,12 @@ export class LevelScene extends Scene {
 
   // Update a sector height, texture map and colors.
   // Make it visible.
-  updateSector(secId: number, colorMap: Uint8ClampedArray): void {
-    this.sectors[secId].update(colorMap)
+  updateSector(secId: number, colorMap: Uint8ClampedArray, lightLevel: number): void {
+    this.sectors[secId].update(colorMap, lightLevel)
   }
   // Update a seg height, texture map and colors.
-  updateSeg(secId: number, segId: number, colorMap: Uint8ClampedArray): void {
-    this.sectors[secId].updateSeg(segId, colorMap)
+  updateSeg(secId: number, segId: number, colorMap: Uint8ClampedArray, lightLevel: number): void {
+    this.sectors[secId].updateSeg(segId, colorMap, lightLevel)
   }
 
 
