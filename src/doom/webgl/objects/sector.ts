@@ -29,8 +29,9 @@ export class Sector extends Group {
     const frontLines = lines.filter(({ frontSector }) => frontSector === sector)
     const backLines = lines.filter(({ backSector }) => backSector === sector)
 
-    this.add(this.floor = this.createMesh([ ...frontLines, ...backLines ], FrontSide))
-    this.add(this.ceiling = this.createMesh([ ...frontLines, ...backLines ], BackSide))
+    const geometry = new PlaneGeometry(sector, [ ...frontLines, ...backLines ])
+    this.add(this.floor = this.createMesh(geometry, FrontSide))
+    this.add(this.ceiling = this.createMesh(geometry, BackSide))
 
     const frontSegs = segs.filter(({ frontSector }) => frontSector === sector)
     this.frontSegs = this.createSegs(frontSegs)
@@ -64,9 +65,9 @@ export class Sector extends Group {
     this.frontSegs[secId].update(colorMap, lightLevel)
   }
 
-  private createMesh(lines: readonly DoomLine[], side: Side): SectorMesh {
+  private createMesh(geometry: PlaneGeometry, side: Side): SectorMesh {
     const mesh = new Mesh(
-      new PlaneGeometry(this.sector, lines),
+      geometry,
       new MeshBasicPaletteMaterial({ side }),
     )
 
