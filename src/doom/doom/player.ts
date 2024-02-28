@@ -109,7 +109,7 @@ export class Player {
   colorMap = 0
 
   // Overlay view sprites (gun, etc).
-  pSprites = Array.from({ length: PSpriteNum.NUM_PSPRITES }, () => new PSpriteDef())
+  pSprites = Array.from({ length: PSpriteNum.NUM_PSPRITES }, (_, i) => new PSpriteDef(i))
 
   // True if secret level has been done.
   didSecret = false

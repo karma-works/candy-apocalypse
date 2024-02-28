@@ -4,6 +4,8 @@ import {
 } from 'three'
 import { FRACBITS } from '../misc/fixed'
 import { Things as LegacyThings } from '../rendering/things'
+import { PSprite } from './objects/p-sprite'
+import { PSpriteDef } from '../play/sprite'
 import { Rendering } from './rendering'
 import { SpritePaletteMaterial } from './materials/sprite-palette-material'
 import { TextureLoader } from './texture-loader'
@@ -15,6 +17,10 @@ export class Things extends LegacyThings {
 
   get textures(): TextureLoader {
     return this.rendering.textures
+  }
+
+  get pSpriteGroup(): Group {
+    return this.rendering.pSpritesGroup
   }
 
   constructor(protected rendering: Rendering, width: number) {
@@ -29,6 +35,10 @@ export class Things extends LegacyThings {
     super.clearSprites()
     for (let i = this.group.children.length - 1; i >= 0; --i) {
       this.group.children[i].visible = false
+    }
+
+    for (let i = this.pSpriteGroup.children.length - 1; i >= 0; --i) {
+      this.pSpriteGroup.children[i].visible = false
     }
   }
 
@@ -79,5 +89,16 @@ export class Things extends LegacyThings {
       sprite = this.spriteCache[visSprite.id]
     }
     this.updateThing(sprite, visSprite)
+  }
+
+  drawPSprite(psp: PSpriteDef): void {
+    const name = `psprite-${psp.id}`
+    let sprite = this.pSpriteGroup.getObjectByName(name)
+    if (!sprite) {
+      sprite = new PSprite(psp, this.textures)
+      sprite.name = name
+      this.pSpriteGroup.add(sprite)
+    }
+    (sprite as PSprite).update()
   }
 }

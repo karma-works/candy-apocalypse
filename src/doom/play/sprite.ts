@@ -30,6 +30,8 @@ export class PSpriteDef {
   sX = 0
   sY = 0
 
+  constructor(public id: number) { }
+
   reset(): void {
     this.state = null
     this.tics = 0

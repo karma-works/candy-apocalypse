@@ -1,8 +1,8 @@
-import { Camera, DataTexture, OrthographicCamera, RedFormat, Scene, Sprite, Vector4, WebGLRenderer } from 'three'
+import { Camera, DataTexture, Group, OrthographicCamera, RedFormat, Scene, Sprite, Vector4, WebGLRenderer } from 'three'
+import { SCREENHEIGHT, STRETCH } from '../global/doomdef'
 import { GUI } from 'lil-gui'
 import { Palette } from '../interfaces/palette'
 import { Video as RVideo } from '../rendering/video'
-import { STRETCH } from '../global/doomdef'
 import { SpritePaletteMaterial } from './materials/sprite-palette-material'
 import { VideoInterface } from '../interfaces/video-interface'
 
@@ -23,8 +23,10 @@ export class Video implements VideoInterface {
   viewport = new Vector4()
   private scaledViewport = new Vector4()
 
+  pSpritesGroup = new Group()
+
   overlayScene = new Scene()
-  overlayCamera = new OrthographicCamera(-1, 1, 1, -1, 1, 10)
+  overlayCamera = new OrthographicCamera(-1, 1, 1, -1, 0, 10)
   overlayScreenMap: DataTexture | null = null
   overlayAlphaMap: DataTexture | null = null
   overlayMaterial: SpritePaletteMaterial | null = null
@@ -131,6 +133,13 @@ export class Video implements VideoInterface {
 
     this.scaledViewport.x += x
     this.scaledViewport.y += y
+
+    this.pSpritesGroup.scale.set(
+      this.viewport.z / 320,
+      this.viewport.z / 320,
+      1,
+    )
+    this.pSpritesGroup.position.set(0, (SCREENHEIGHT - this.viewport.w) / 2, 1)
   }
 
   private createOverlay() {
@@ -139,8 +148,8 @@ export class Video implements VideoInterface {
     this.overlayCamera.position.z = 10
     this.overlayCamera.left = -width / 2
     this.overlayCamera.right = width / 2
-    this.overlayCamera.top = height / 2
-    this.overlayCamera.bottom = -height / 2
+    this.overlayCamera.top = height
+    this.overlayCamera.bottom = 0
     this.overlayCamera.updateProjectionMatrix()
 
     const data = this.rVideo.screens[0]
@@ -162,9 +171,12 @@ export class Video implements VideoInterface {
     this.overlayMaterial.paletteTexture.palette = this.palette
     const sprite = new Sprite(this.overlayMaterial)
     sprite.scale.set(data.width, data.height, 1)
-    sprite.position.set(0, 0, 1)
+    sprite.position.set(0, 0, 9)
+    sprite.center.set(0.5, 0)
 
     this.overlayScene.add(sprite)
+
+    this.overlayScene.add(this.pSpritesGroup)
   }
 
   quit(): void {

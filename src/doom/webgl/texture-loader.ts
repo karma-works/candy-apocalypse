@@ -5,19 +5,24 @@ import {
   RGBAFormat,
 } from 'three'
 import { Palette, Palettes } from '../interfaces/palette'
+import { FF_FRAMEMASK } from '../play/sprite'
 import { FlatArray } from '../textures/flat-array'
 import { FlatTexture } from './textures/flat-texture'
 import { Video as IVideo } from '../interfaces/video'
 import { LumpReader } from '../wad/lump-reader'
+import { Patch } from '../rendering/defs/patch'
 import { PatchTexture } from './textures/patch-texture'
 import { Video as RVideo } from '../rendering/video'
 import { SpriteArray } from '../sprites/sprite-array'
+import { SpriteDefsArray } from '../sprites/sprite-defs-array'
+import { SpriteNum } from '../doom/info/sprite-num'
 import { TextureArray } from '../textures/texture-array'
 import { VisSprite } from '../rendering/things/vis-sprite'
 
 type PatchTextures = {
   map: PatchTexture,
   alphaMap: PatchTexture,
+  patch: Patch,
 }
 
 export class TextureLoader {
@@ -32,6 +37,7 @@ export class TextureLoader {
 
   flats: FlatArray
   sprites: SpriteArray
+  spriteDefs: SpriteDefsArray
   textures: TextureArray
 
   constructor(lumpReader?: LumpReader) {
@@ -44,6 +50,7 @@ export class TextureLoader {
 
     this.flats = new FlatArray(lumpReader)
     this.sprites = new SpriteArray(lumpReader)
+    this.spriteDefs = new SpriteDefsArray(this.sprites)
     this.textures = new TextureArray(lumpReader)
   }
 
@@ -55,6 +62,7 @@ export class TextureLoader {
       this.patchTextureCache[num] = {
         map: new PatchTexture(patch),
         alphaMap: new PatchTexture(patch, true),
+        patch,
       }
       this.patchTextureCache[num].map.needsUpdate = true
       this.patchTextureCache[num].alphaMap.needsUpdate = true
@@ -73,16 +81,16 @@ export class TextureLoader {
     return this.flatTextureCache[num]
   }
 
-  getSprite(sprite: VisSprite): PatchTextures {
-    const flip = sprite.xIScale < 0
-    const lump = this.sprites[sprite.patch].lump
+  getSpriteByNum(num: number, flip: boolean): PatchTextures {
+    const lump = this.sprites[num].lump
 
     const cache = flip ? this.flipPatchCache : this.patchCache
     if (!cache[lump]) {
-      const patch = this.sprites[sprite.patch].patch
+      const patch = this.sprites[num].patch
       cache[lump] = {
         map: new PatchTexture(patch),
         alphaMap: new PatchTexture(patch, true),
+        patch,
       }
       cache[lump].map.needsUpdate = true
       cache[lump].alphaMap.needsUpdate = true
@@ -94,6 +102,20 @@ export class TextureLoader {
     }
 
     return cache[lump]
+  }
+
+  getSprite(sprite: VisSprite): PatchTextures {
+    return this.getSpriteByNum(sprite.patch, sprite.xIScale < 0)
+  }
+
+  getSpriteDef(num: SpriteNum, frame: number): PatchTextures {
+    const sprDef = this.spriteDefs[num]
+    const sprFrame = sprDef.frames[frame & FF_FRAMEMASK]
+
+    const lump = sprFrame.lump[0]
+    const flip = !!sprFrame.flip[0]
+
+    return this.getSpriteByNum(lump, flip)
   }
 
   getSkyTexture(num: number): DataTexture {

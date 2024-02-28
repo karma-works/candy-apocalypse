@@ -1,4 +1,5 @@
 import {
+  Group,
   PerspectiveCamera,
   Vector4,
 } from 'three'
@@ -22,6 +23,9 @@ export class Rendering extends LegacyRendering {
   )
   private cameraController: Controller | null = null
   private viewport = new Vector4()
+
+  public pSpritesGroup: Group
+
   private currentLevel: Level | null = null
   levelScene: LevelScene | null = null
 
@@ -34,6 +38,7 @@ export class Rendering extends LegacyRendering {
     this.textures = new TextureLoader()
     this.textures.flats = this.data.flats
     this.textures.sprites = this.data.sprites
+    this.textures.spriteDefs = this.data.spriteDefs
     this.textures.textures = this.data.textures
     this.textures.palette = iVideo.palette
 
@@ -42,6 +47,7 @@ export class Rendering extends LegacyRendering {
 
     iVideo.camera = this.camera
     iVideo.viewport = this.viewport
+    this.pSpritesGroup = iVideo.pSpritesGroup
 
     if (iVideo.gui) {
       this.cameraController = iVideo.gui.add(this.camera, 'fov')
