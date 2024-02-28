@@ -1,14 +1,14 @@
 import { Level as DoomLevel } from '../../level/level'
 import { Scene } from 'three';
 import { Sector } from './sector';
-import { Textures } from '../textures';
+import { TextureLoader } from '../texture-loader';
 
 export class LevelScene extends Scene {
   sectors: Sector[];
 
   constructor(
     level: DoomLevel,
-    textures: Textures,
+    textures: TextureLoader,
   ) {
     super()
 
@@ -31,12 +31,12 @@ export class LevelScene extends Scene {
 
   // Update a sector height, texture map and colors.
   // Make it visible.
-  updateSector(secId: number, colorMap: Uint8ClampedArray, lightLevel: number): void {
-    this.sectors[secId].update(colorMap, lightLevel)
+  updateSector(secId: number, lightLevel: number): void {
+    this.sectors[secId].update(lightLevel)
   }
   // Update a seg height, texture map and colors.
-  updateSeg(secId: number, segId: number, colorMap: Uint8ClampedArray, lightLevel: number): void {
-    this.sectors[secId].updateSeg(segId, colorMap, lightLevel)
+  updateSeg(secId: number, segId: number, lightLevel: number): void {
+    this.sectors[secId].updateSeg(segId, lightLevel)
   }
 
 

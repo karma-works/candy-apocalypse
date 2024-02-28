@@ -9,10 +9,10 @@ export const enum Color {
 }
 
 export class Palettes {
-  static type: LumpType = 'palettes'
-  static isType(buffer: ArrayBuffer): boolean {
-    return buffer.byteLength !== 0 &&
-        buffer.byteLength % (256 * 3) === 0
+  static readonly DEFAULT_LUMP = 'PLAYPAL'
+  static readonly type: LumpType = 'palettes'
+  static isType(_: ArrayBuffer, name: string): boolean {
+    return name === Palettes.DEFAULT_LUMP
   }
 
   p: Palette[] = []

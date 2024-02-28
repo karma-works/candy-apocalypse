@@ -2,6 +2,7 @@ import { ANG90, ANGLE_TO_FINE_SHIFT, DBITS, FINE_ANGLES, fineSine, fineTangent, 
 import { FRACBITS, FRACUNIT, div, mul } from '../misc/fixed'
 import { SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { BSP } from './bsp'
+import { ColorMap } from '../interfaces/colormap'
 import { Data } from './data'
 import { Doom } from '../doom'
 import { Draw } from './draw'
@@ -42,7 +43,7 @@ const DIST_MAP = 2
 export class Rendering implements RenderingInterface {
   viewAngleOffset = 0;
 
-  fixedColorMap: Uint8ClampedArray | null = null
+  fixedColorMap: ColorMap | null = null
 
   private centerX = 0;
   centerY = 0;
@@ -88,14 +89,14 @@ export class Rendering implements RenderingInterface {
 
   scaleLight = Array.from({ length: LIGHT_LEVELS },
     () => Array.from({ length: MAX_LIGHT_SCALE },
-      () => new Uint8ClampedArray(0)),
+      () => new ColorMap()),
   )
   private scaleLightFixed = Array.from({ length: MAX_LIGHT_SCALE },
-    () => new Uint8ClampedArray(0),
+    () => new ColorMap(),
   )
   zLight = Array.from({ length: LIGHT_LEVELS },
     () => Array.from({ length: MAX_LIGHT_Z },
-      () => new Uint8ClampedArray(0)),
+      () => new ColorMap()),
   )
 
   // bumped light from gun blasts
@@ -319,7 +320,7 @@ export class Rendering implements RenderingInterface {
           level = NUM_COLOR_MAPS - 1
         }
 
-        this.zLight[i][j] = this.data.colorMaps.subarray(level * 256)
+        this.zLight[i][j] = this.data.colorMaps.c[level]
       }
     }
   }
@@ -426,7 +427,7 @@ export class Rendering implements RenderingInterface {
           level = NUM_COLOR_MAPS - 1
         }
 
-        this.scaleLight[i][j] = this.data.colorMaps.subarray(level * 256)
+        this.scaleLight[i][j] = this.data.colorMaps.c[level]
       }
     }
   }
@@ -476,7 +477,7 @@ export class Rendering implements RenderingInterface {
     this.ssCount = 0
 
     if (player.fixedColorMap) {
-      this.fixedColorMap = this.data.colorMaps.subarray(player.fixedColorMap * 256)
+      this.fixedColorMap = this.data.colorMaps.c[player.fixedColorMap]
 
       this.segs.wallLights = this.scaleLightFixed
       for (let i = 0; i < MAX_LIGHT_SCALE; ++i) {

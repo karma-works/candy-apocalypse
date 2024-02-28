@@ -2,6 +2,7 @@ import { ANG90, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table
 import { LIGHT_LEVELS, LIGHT_SEG_SHIFT, LIGHT_Z_SHIFT, MAX_LIGHT_Z, Rendering } from './rendering'
 import { div, mul } from '../misc/fixed'
 import { ANGLE_TO_SKY_SHIFT } from '../level/sky'
+import { ColorMap } from '../interfaces/colormap'
 import { Data } from './data'
 import { Draw } from './draw'
 import { Level } from '../level/level'
@@ -43,7 +44,7 @@ export class Plane {
   //
   // texture mapping
   //
-  protected planeZLight = new Array<Uint8ClampedArray>()
+  protected planeZLight = new Array<ColorMap>()
   private planeHeight = 0
 
   ySlope: number[]
@@ -340,7 +341,7 @@ export class Plane {
         //  i.e. colormaps[0] is used.
         // Because of this hack, sky is not affected
         //  by INVUL inverse mapping.
-        this.draw.dcColorMap = this.data.colorMaps
+        this.draw.dcColorMap = this.data.colorMaps.c[0]
         this.draw.dcTextureMid = this.level.sky.textureMid
         for (x = pl.minX; x <= pl.maxX; ++x) {
           this.draw.dcYl = pl.top[x]
@@ -385,7 +386,7 @@ export class Plane {
     }
   }
 
-  calculateLights(lightLevel: number): Uint8ClampedArray[] {
+  calculateLights(lightLevel: number): ColorMap[] {
     let light = (lightLevel >> LIGHT_SEG_SHIFT) + this.rendering.extraLight
 
     if (light >= LIGHT_LEVELS) {

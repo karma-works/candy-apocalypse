@@ -6,7 +6,7 @@ import { FRACBITS } from '../../misc/fixed';
 import { MeshBasicPaletteMaterial } from '../materials/mesh-basic-palette-material';
 import { PlaneGeometry } from '../geometries/plane-geometry';
 import { Seg } from './seg';
-import { Textures } from '../textures';
+import { TextureLoader } from '../texture-loader';
 
 type SectorMesh = Mesh<PlaneGeometry, MeshBasicPaletteMaterial>
 
@@ -19,7 +19,7 @@ export class Sector extends Group {
     private sector: DoomSector,
     segs: readonly DoomSeg[],
     lines: readonly DoomLine[],
-    private textures: Textures,
+    private textures: TextureLoader,
     private skyFlatNum: number,
   ) {
     super()
@@ -49,7 +49,7 @@ export class Sector extends Group {
     }
   }
 
-  update(colorMap: Uint8ClampedArray, lightLevel: number) {
+  update(lightLevel: number) {
     // already up to date
     if (this.visible) {
       return
@@ -58,11 +58,11 @@ export class Sector extends Group {
     this.visible = true
 
     this.updateHeight()
-    this.updateTextureMap(colorMap, lightLevel)
+    this.updateTextureMap(lightLevel)
   }
 
-  updateSeg(secId: number, colorMap: Uint8ClampedArray, lightLevel: number): void {
-    this.frontSegs[secId].update(colorMap, lightLevel)
+  updateSeg(secId: number, lightLevel: number): void {
+    this.frontSegs[secId].update(lightLevel)
   }
 
   private createMesh(geometry: PlaneGeometry, side: Side): SectorMesh {
@@ -88,13 +88,13 @@ export class Sector extends Group {
     this.ceiling.position.y = this.sector.ceilingHeight >> FRACBITS
   }
 
-  private updateTextureMap(colorMap: Uint8ClampedArray, lightLevel: number): void {
+  private updateTextureMap(lightLevel: number): void {
     // TODO test sky flatnum
 
     this.floor.material.lightLevel = lightLevel
     this.floor.material.map = this.textures.getFlatTexture(this.sector.floorPic)
     this.floor.material.paletteMap.palette = this.textures.palette
-    this.floor.material.paletteMap.colorMap = colorMap
+    this.floor.material.paletteMap.colorMap = this.textures.colorMap
 
     if (this.sector.ceilingPic === this.skyFlatNum) {
       this.ceiling.material.visible = false
@@ -102,7 +102,7 @@ export class Sector extends Group {
       this.ceiling.material.lightLevel = lightLevel
       this.ceiling.material.map = this.textures.getFlatTexture(this.sector.ceilingPic)
       this.ceiling.material.paletteMap.palette = this.textures.palette
-      this.ceiling.material.paletteMap.colorMap = colorMap
+      this.ceiling.material.paletteMap.colorMap = this.textures.colorMap
     }
   }
 }

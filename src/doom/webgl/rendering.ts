@@ -10,7 +10,7 @@ import { Level } from '../level/level'
 import { LevelScene } from './objects/level-scene'
 import { Player } from '../doom/player'
 import { Segs } from './segs'
-import { Textures } from './textures'
+import { TextureLoader } from './texture-loader'
 import { Things } from './things'
 import { Video } from './video'
 import { toRad } from '../misc/table'
@@ -25,11 +25,17 @@ export class Rendering extends LegacyRendering {
   private currentLevel: Level | null = null
   levelScene: LevelScene | null = null
 
-  textures = new Textures(this)
+  textures: TextureLoader
   things: Things
 
   constructor(doom: Doom, public iVideo: Video) {
     super(doom)
+
+    this.textures = new TextureLoader()
+    this.textures.flats = this.data.flats
+    this.textures.sprites = this.data.sprites
+    this.textures.textures = this.data.textures
+    this.textures.palette = iVideo.palette
 
     this.segs = new Segs(this)
     this.things = new Things(this, this.video.width)
@@ -64,6 +70,9 @@ export class Rendering extends LegacyRendering {
   }
 
   protected setupFrame(player: Player): void {
+    this.textures.palette = this.iVideo.palette
+    this.textures.colorMap = this.fixedColorMap || this.data.colorMaps.c[0]
+
     if (this.currentLevel !== this.level) {
       this.setupLevel(this.level)
       this.currentLevel = this.level

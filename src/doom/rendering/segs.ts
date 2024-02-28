@@ -3,6 +3,7 @@ import { DrawSeg, MAX_DRAW_SEGS, SIL_BOTH, SIL_BOTTOM, SIL_TOP } from './defs/dr
 import { FRACBITS, mul } from '../misc/fixed'
 import { LIGHT_LEVELS, LIGHT_SCALE_SHIFT, LIGHT_SEG_SHIFT, MAX_LIGHT_SCALE, Rendering } from './rendering'
 import { BSP } from './bsp'
+import { ColorMap } from '../interfaces/colormap'
 import { Column } from './defs/column'
 import { Data } from './data'
 import { Draw } from './draw'
@@ -70,7 +71,7 @@ export class Segs {
   private bottomFrac = 0
   private bottomStep = 0
 
-  wallLights = new Array<Uint8ClampedArray>()
+  wallLights = new Array<ColorMap>()
 
   private maskedTextureCol: null | Int16Array = null
 

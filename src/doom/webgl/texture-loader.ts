@@ -1,14 +1,18 @@
+import { ColorMap, ColorMaps } from '../interfaces/colormap'
 import {
   DataTexture,
   EquirectangularReflectionMapping,
   RGBAFormat,
 } from 'three'
+import { Palette, Palettes } from '../interfaces/palette'
+import { FlatArray } from '../textures/flat-array'
 import { FlatTexture } from './textures/flat-texture'
 import { Video as IVideo } from '../interfaces/video'
-import { Palette } from '../interfaces/palette'
+import { LumpReader } from '../wad/lump-reader'
 import { PatchTexture } from './textures/patch-texture'
 import { Video as RVideo } from '../rendering/video'
-import { Rendering } from './rendering'
+import { SpriteArray } from '../sprites/sprite-array'
+import { TextureArray } from '../textures/texture-array'
 import { VisSprite } from '../rendering/things/vis-sprite'
 
 type PatchTextures = {
@@ -16,27 +20,32 @@ type PatchTextures = {
   alphaMap: PatchTexture,
 }
 
-export class Textures {
+export class TextureLoader {
   private patchCache: PatchTextures[] = []
   private flipPatchCache: PatchTextures[] = []
   private patchTextureCache: PatchTextures[] = []
   private skyTextureCache: DataTexture[] = []
   private flatTextureCache: FlatTexture[] = []
 
-  get palette(): Palette {
-    return this.rendering.iVideo.palette
-  }
-  get flats() {
-    return this.rendering.data.flats
-  }
-  get sprites() {
-    return this.rendering.data.sprites
-  }
-  get textures() {
-    return this.rendering.data.textures
-  }
+  palette = new Palette()
+  colorMap = new ColorMap()
 
-  constructor(private rendering: Rendering) { }
+  flats: FlatArray
+  sprites: SpriteArray
+  textures: TextureArray
+
+  constructor(lumpReader?: LumpReader) {
+    if (lumpReader) {
+      const palettes = lumpReader.cacheLumpName(Palettes.DEFAULT_LUMP, Palettes)
+      this.palette = palettes.p[0]
+      const colorMaps = lumpReader.cacheLumpName(ColorMaps.DEFAULT_LUMP, ColorMaps)
+      this.colorMap = colorMaps.c[0]
+    }
+
+    this.flats = new FlatArray(lumpReader)
+    this.sprites = new SpriteArray(lumpReader)
+    this.textures = new TextureArray(lumpReader)
+  }
 
   getPatchTexture(num: number): PatchTextures {
     num = this.textures.getNum(num)

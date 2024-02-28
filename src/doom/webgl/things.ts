@@ -6,14 +6,14 @@ import { FRACBITS } from '../misc/fixed'
 import { Things as LegacyThings } from '../rendering/things'
 import { Rendering } from './rendering'
 import { SpritePaletteMaterial } from './materials/sprite-palette-material'
-import { Textures } from './textures'
+import { TextureLoader } from './texture-loader'
 import { VisSprite } from '../rendering/things/vis-sprite'
 
 export class Things extends LegacyThings {
   private spriteCache: {[id: number]: Sprite} = {}
   private group = new Group()
 
-  get textures(): Textures {
+  get textures(): TextureLoader {
     return this.rendering.textures
   }
 

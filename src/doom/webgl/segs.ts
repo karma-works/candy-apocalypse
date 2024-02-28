@@ -31,12 +31,8 @@ export class Segs extends LegacySegs {
     } else if (curLine.v1.x === curLine.v2.x) {
       segLightLevel += 16
     }
-    let colorMap = this.rendering.fixedColorMap
-    if (!colorMap) {
-      colorMap = this.plane.calculateLights(15)[0]
-    }
 
-    this.rendering.levelScene?.updateSector(frontSector.id, colorMap, secLightLevel)
-    this.rendering.levelScene?.updateSeg(frontSector.id, curLine.id, colorMap, segLightLevel)
+    this.rendering.levelScene?.updateSector(frontSector.id, secLightLevel)
+    this.rendering.levelScene?.updateSeg(frontSector.id, curLine.id, segLightLevel)
   }
 }

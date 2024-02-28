@@ -1,3 +1,4 @@
+import { ColorMaps } from '../interfaces/colormap'
 import { FlatArray } from '../textures/flat-array'
 import { LumpReader } from '../wad/lump-reader'
 import { SpriteArray } from '../sprites/sprite-array'
@@ -20,7 +21,7 @@ export class Data {
   sprites = new SpriteArray()
   spriteDefs = new SpriteDefsArray()
 
-  colorMaps = new Uint8ClampedArray(0)
+  colorMaps = new ColorMaps()
 
   //
   // R_InitColormaps
@@ -28,11 +29,7 @@ export class Data {
   private initColorMaps(): void {
     // Load in the light tables,
     //  256 byte align tables.
-
-    const lump = this.lumpReader.getNumForName('COLORMAP')
-
-    // const colorMaps
-    this.colorMaps = new Uint8ClampedArray(this.lumpReader.readLump(lump))
+    this.colorMaps = this.lumpReader.cacheLumpName(ColorMaps.DEFAULT_LUMP, ColorMaps)
   }
 
   //

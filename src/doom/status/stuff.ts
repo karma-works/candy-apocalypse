@@ -895,7 +895,7 @@ export class StatusBar {
 
   // 1201
   private loadData(): void {
-    this.playpal = this.wad.cacheLumpName('PLAYPAL', Palettes)
+    this.playpal = this.wad.cacheLumpName(Palettes.DEFAULT_LUMP, Palettes)
     this.loadGraphics()
   }
 

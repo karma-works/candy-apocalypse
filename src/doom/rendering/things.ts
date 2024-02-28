@@ -4,6 +4,7 @@ import { FRACBITS, FRACUNIT, div, mul } from '../misc/fixed'
 import { LIGHT_LEVELS, LIGHT_SCALE_SHIFT, LIGHT_SEG_SHIFT, MAX_LIGHT_SCALE, Rendering } from './rendering'
 import { PowerType, RANGE_CHECK } from '../global/doomdef'
 import { ANG45 } from '../misc/table'
+import { ColorMap } from '../interfaces/colormap'
 import { Column } from './defs/column'
 import { Data } from './data'
 import { Draw } from './draw'
@@ -56,7 +57,7 @@ export class Things {
   pSpriteScale = 0
   pSpriteIScale = 0
 
-  private spriteLights = new Array<Uint8ClampedArray>()
+  private spriteLights = new Array<ColorMap>()
 
   // constant arrays
   //  used for psprite clipping and initializing clipping
@@ -323,7 +324,7 @@ export class Things {
       vis.colorMap = this.rendering.fixedColorMap
     } else if (thing.frame & FF_FULLBRIGHT) {
       // full bright
-      vis.colorMap = this.data.colorMaps
+      vis.colorMap = this.data.colorMaps.c[0]
     } else {
       // diminished light
       let index = xScale >> LIGHT_SCALE_SHIFT - this.rendering.detailShift
@@ -448,7 +449,7 @@ export class Things {
       vis.colorMap = this.rendering.fixedColorMap
     } else if (psp.state.frame & FF_FULLBRIGHT) {
       // full bright
-      vis.colorMap = this.data.colorMaps
+      vis.colorMap = this.data.colorMaps.c[0]
     } else {
       // local light
       vis.colorMap = this.spriteLights[MAX_LIGHT_SCALE - 1]

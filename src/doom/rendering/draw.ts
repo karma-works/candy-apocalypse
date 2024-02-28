@@ -1,3 +1,4 @@
+import { ColorMap } from '../interfaces/colormap'
 import { Data } from './data'
 import { Doom } from '../doom'
 import { FRACBITS } from '../misc/fixed'
@@ -58,7 +59,7 @@ export class Draw {
   // R_DrawColumn
   // Source is the top of the column to scale.
   //
-  dcColorMap: Uint8ClampedArray | null = null
+  dcColorMap: ColorMap | null = null
   dcX = 0
   dcYl = 0
   dcYh = 0
@@ -236,14 +237,13 @@ export class Draw {
     // Looks like an attempt at dithering,
     //  using the colormap #6 (of 0-31, a bit
     //  brighter than average).
+    const colorMap = this.data.colorMaps.c[6]
     do {
       // Lookup framebuffer, and retrieve
       //  a pixel that is either one column
       //  left or right of the current one.
       // Add index from colormap to index.
-      dest[destPtr] = this.data.colorMaps[6 * 256 +
-        dest[destPtr + fuzzOffset[this.fuzzPos] * screenWidth]
-      ]
+      dest[destPtr] = colorMap[dest[destPtr + fuzzOffset[this.fuzzPos] * screenWidth]]
 
       // Clamp table lookup index.
       if (++this.fuzzPos === FUZZ_TABLE) {
@@ -296,17 +296,14 @@ export class Draw {
     // Looks like an attempt at dithering,
     //  using the colormap #6 (of 0-31, a bit
     //  brighter than average).
+    const colorMap = this.data.colorMaps.c[6]
     do {
       // Lookup framebuffer, and retrieve
       //  a pixel that is either one column
       //  left or right of the current one.
       // Add index from colormap to index.
-      dest[destPtr] = this.data.colorMaps[6 * 256 +
-        dest[destPtr + fuzzOffset[this.fuzzPos] * screenWidth]
-      ]
-      dest[destPtr2] = this.data.colorMaps[6 * 256 +
-        dest[destPtr2 + fuzzOffset[this.fuzzPos] * screenWidth]
-      ]
+      dest[destPtr] = colorMap[dest[destPtr + fuzzOffset[this.fuzzPos] * screenWidth]]
+      dest[destPtr2] = colorMap[dest[destPtr2 + fuzzOffset[this.fuzzPos] * screenWidth]]
 
       // Clamp table lookup index.
       if (++this.fuzzPos === FUZZ_TABLE) {
@@ -470,7 +467,7 @@ export class Draw {
   dsX1 = 0
   dsX2 = 0
 
-  dsColorMap = new Uint8ClampedArray(0)
+  dsColorMap = new ColorMap()
 
   dsXFrac = 0
   dsYFrac = 0

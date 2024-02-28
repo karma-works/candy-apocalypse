@@ -1,4 +1,5 @@
 import { DataTexture, RGBAFormat } from 'three'
+import { ColorMap } from '../../interfaces/colormap'
 import { Palette } from '../../interfaces/palette'
 
 export class PaletteTexture extends DataTexture {
@@ -10,8 +11,8 @@ export class PaletteTexture extends DataTexture {
       this.update()
     }
   }
-  private _colorMap: Uint8ClampedArray
-  set colorMap(m: Uint8ClampedArray) {
+  private _colorMap: ColorMap
+  set colorMap(m: ColorMap) {
     if (m !== this._colorMap) {
       this._colorMap = m
       this.update()
@@ -24,9 +25,7 @@ export class PaletteTexture extends DataTexture {
 
     this.data = palette
     this._palette = new Palette()
-    this._colorMap = new Uint8ClampedArray(
-      Array.from({ length: 256 }, (_, i) => i),
-    )
+    this._colorMap = new ColorMap()
     this.colorSpace = 'srgb'
   }
 

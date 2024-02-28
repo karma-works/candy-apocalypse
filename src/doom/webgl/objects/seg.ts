@@ -6,7 +6,7 @@ import { Line } from '../../rendering/defs/line';
 import { MapLineFlag } from '../../doom/data';
 import { MeshBasicPaletteMaterial } from '../materials/mesh-basic-palette-material';
 import { Sector } from '../../rendering/defs/sector';
-import { Textures } from '../textures';
+import { TextureLoader } from '../texture-loader';
 
 type SegMesh = Mesh<SegGeometry, MeshBasicPaletteMaterial>
 
@@ -17,7 +17,7 @@ export class Seg extends Group {
 
   constructor(
     private seg: DoomSeg,
-    private textures: Textures,
+    private textures: TextureLoader,
     private skyFlatNum: number,
   ) {
     super()
@@ -39,10 +39,10 @@ export class Seg extends Group {
     this.bottom?.material.dispose()
   }
 
-  update(colorMap: Uint8ClampedArray, lightLevel: number) {
+  update(lightLevel: number) {
     this.updateWallVertices()
     this.updateWallUvs()
-    this.updateTextureMaps(colorMap, lightLevel)
+    this.updateTextureMaps(lightLevel)
   }
 
   private createMesh(part: SegPart): SegMesh {
@@ -178,16 +178,13 @@ export class Seg extends Group {
     }
   }
 
-  private updateTextureMaps(
-    colorMap: Uint8ClampedArray,
-    lightLevel: number,
-  ): void {
+  private updateTextureMaps(lightLevel: number): void {
     const {
       seg: { frontSector, backSector, sideDef },
       bottom, mid, top,
     } = this
 
-    this.updateTextureMap(mid, sideDef.midTexture, colorMap, lightLevel);
+    this.updateTextureMap(mid, sideDef.midTexture, lightLevel);
 
     if (backSector) {
       if (top &&
@@ -196,16 +193,15 @@ export class Seg extends Group {
       ) {
         top.material.visible = false
       } else {
-        this.updateTextureMap(top, sideDef.topTexture, colorMap, lightLevel);
+        this.updateTextureMap(top, sideDef.topTexture, lightLevel);
       }
-      this.updateTextureMap(bottom, sideDef.bottomTexture, colorMap, lightLevel);
+      this.updateTextureMap(bottom, sideDef.bottomTexture, lightLevel);
     }
   }
 
   private updateTextureMap(
     mesh: SegMesh | undefined,
     texNum: number,
-    colorMap: Uint8ClampedArray,
     lightLevel: number,
   ) {
     if (!mesh) {
@@ -215,7 +211,7 @@ export class Seg extends Group {
     mesh.material.map = texture.map;
     mesh.material.alphaMap = texture.alphaMap;
     mesh.material.paletteMap.palette = this.textures.palette;
-    mesh.material.paletteMap.colorMap = colorMap;
+    mesh.material.paletteMap.colorMap = this.textures.colorMap;
     mesh.material.lightLevel = lightLevel
   }
 

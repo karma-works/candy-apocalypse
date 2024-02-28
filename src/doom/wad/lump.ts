@@ -24,7 +24,7 @@ export interface LumpStatic extends LumpCtor<unknown> {
   type: LumpType
 }
 
-export type LumpType = 'demo' | 'palettes' | 'sfx' | 'patch' | 'flat' | 'unknown' |
+export type LumpType = 'demo' | 'palettes' | 'colormaps' | 'sfx' | 'patch' | 'flat' | 'unknown' |
   'pnames' | 'textures' |
   'level' | 'things' | 'vertexes' | 'sub-sectors' | 'segs' | 'sectors' | 'nodes' | 'lines' | 'sides' | 'block-map' | 'reject'
 

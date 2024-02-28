@@ -1,3 +1,5 @@
+import { ColorMap } from '../../interfaces/colormap';
+
 // A vissprite_t is a thing
 //  that will be drawn during a refresh.
 // I.e. a sprite object that is partly visible.
@@ -24,6 +26,6 @@ export class VisSprite {
   patch = 0;
   // for color translation and shadow draw,
   //  maxbright frames as well
-  colorMap: Uint8ClampedArray | null = null;
+  colorMap: ColorMap | null = null;
   mobjFlags = 0;
 }
