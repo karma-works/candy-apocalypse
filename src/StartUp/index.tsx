@@ -1,10 +1,14 @@
 import { Button, Card, CardActions, CardContent, Divider, Grid, Typography } from '@mui/joy';
+import { Form, useSubmit } from 'react-router-dom';
 import AutoStartOptions from './AutoStartOptions';
 import ConfigOptions from './ControlOptions';
-import { Form } from 'react-router-dom';
 import RenderOptions from './RenderOptions';
+import { useRef } from 'react';
 
 export default function StartUp() {
+  const submit = useSubmit()
+  const form = useRef<HTMLFormElement>(null)
+
   return (
     <Grid
       container
@@ -13,7 +17,7 @@ export default function StartUp() {
     >
       <Grid sm={12} md={6}>
         <Card>
-          <Form action="play">
+          <Form action="play" ref={form}>
             <Typography level="title-lg">
               Doom.ts
             </Typography>
@@ -33,7 +37,14 @@ export default function StartUp() {
               </Grid>
             </CardContent>
 
-            <CardActions>
+            <CardActions buttonFlex="1">
+              <Button
+                type="button"
+                variant="outlined"
+                onClick={_ => submit(form.current, { action: 'explorer' })}
+              >
+                Explore
+              </Button>
               <Button
                 type="submit"
                 variant="solid"

@@ -36,6 +36,8 @@ export class Sector extends Group {
     const frontSegs = segs.filter(({ frontSector }) => frontSector === sector)
     this.frontSegs = this.createSegs(frontSegs)
     this.add(...Object.values(this.frontSegs))
+
+    this.update(255)
   }
 
   dispose(): void {

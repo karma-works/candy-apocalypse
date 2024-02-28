@@ -28,6 +28,7 @@ export class Seg extends Group {
       this.add(this.bottom = this.createMesh(SegPart.Bottom))
     }
 
+    this.update(255)
   }
 
   dispose() {

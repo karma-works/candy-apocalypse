@@ -16,6 +16,13 @@ const router = createBrowserRouter([
       return { Component: DoomFromRouter.default };
     },
   },
+  {
+    path: 'explorer',
+    async lazy() {
+      const WadExplorer = await import('./WadExplorer');
+      return { Component: WadExplorer.default };
+    },
+  },
 ], {
   basename: import.meta.env.BASE_URL,
 })
