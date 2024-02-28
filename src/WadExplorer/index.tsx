@@ -4,38 +4,25 @@ import { Canvas } from '@react-three/fiber';
 import { Level as DoomLevel } from '../doom/level/level';
 import Level from './Level';
 import { LumpReader } from '../doom/wad/lump-reader';
+import Selector from './Selector';
 import { TextureLoader } from '../doom/webgl/texture-loader';
 
-function fetchLevel(
-  lumpReader: LumpReader,
-  e: number, m: number,
-): DoomLevel | undefined {
-  const candidates = [ `E${e}M${m}`, `map0${m}`, `map${m}` ]
-  for (const name of candidates) {
-    try {
-      const num = lumpReader.getNumForName(name)
-      return lumpReader.cacheLumpNum(num, DoomLevel)
-    } finally { /* empty */ }
-  }
-}
-
 export default function WadExplorer() {
-  const [ episode ] = useState(1)
-  const [ map ] = useState(1)
+  const [ levelName, setLevelName ] = useState<string | undefined>()
   const [ lumpReader, setLumpReader ] = useState<LumpReader | undefined>(undefined)
 
   const textureLoader = useMemo(() => new TextureLoader(lumpReader), [ lumpReader ])
 
   const level = useMemo(() => {
-    if (!lumpReader) {
+    if (!lumpReader || !levelName) {
       return undefined
     }
-    const level = fetchLevel(lumpReader, episode, map)
-    if (level) {
+    try {
+      const level = lumpReader.cacheLumpName(levelName, DoomLevel)
       level.load(lumpReader, textureLoader.flats, textureLoader.textures)
-    }
-    return level
-  }, [ lumpReader, episode, map, textureLoader ])
+      return level
+    } finally { /* empty */ }
+  }, [ lumpReader, levelName, textureLoader ])
 
   useEffect(() => {
     const fileNames = [ 'doom1.wad' ]
@@ -44,6 +31,7 @@ export default function WadExplorer() {
       await lumpReader.initMultipleFiles(fileNames)
 
       setLumpReader(lumpReader)
+      setLevelName(lumpReader.listByType('level')[0]?.name)
     }
     fetchWad();
   }, [])
@@ -51,6 +39,13 @@ export default function WadExplorer() {
   return (
     <>
       <div className="WadExplorer">
+        <div className="WadExplorerToolbar">
+          <Selector
+            lumpReader={lumpReader}
+            levelName={levelName}
+            onChangeLevelName={l => setLevelName(l)}
+          />
+        </div>
         <Canvas
           camera={{
             position: [ -2, 2, -2 ],

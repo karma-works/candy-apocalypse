@@ -1,4 +1,4 @@
-import { LumpCtor } from './lump'
+import { LumpCtor, LumpType, guessLumpType } from './lump'
 import { LumpInfo } from './types'
 import { Wad } from './wad'
 import { fs } from '../system/fs'
@@ -193,5 +193,10 @@ export class LumpReader {
   cacheLumpName<T>(name: string, klass?: LumpCtor<T>, cache?: boolean): T
   cacheLumpName<T>(name: string, klass?: LumpCtor<T>, cache: boolean = true): T | ArrayBuffer {
     return this.cacheLumpNum(this.getNumForName(name), klass, cache)
+  }
+
+  listByType(t: LumpType) {
+    return this.lumpInfo
+      .filter(i => guessLumpType(i.buffer, i.name) === t)
   }
 }
