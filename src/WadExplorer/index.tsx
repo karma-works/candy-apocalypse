@@ -8,7 +8,7 @@ import Selector from './Selector';
 import { TextureLoader } from '../doom/webgl/texture-loader';
 
 export default function WadExplorer() {
-  const [ levelName, setLevelName ] = useState<string | undefined>()
+  const [ levelName, setLevelName ] = useState<string | null>(null)
   const [ lumpReader, setLumpReader ] = useState<LumpReader | undefined>(undefined)
 
   const textureLoader = useMemo(() => new TextureLoader(lumpReader), [ lumpReader ])
