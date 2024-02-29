@@ -12,6 +12,8 @@ export class LevelScene extends Scene {
   ) {
     super()
 
+    this.name = `e${level.episode}m${level.map}`
+
     const { flatNum, texture } = level.sky
     this.background = textures.getSkyTexture(texture)
 

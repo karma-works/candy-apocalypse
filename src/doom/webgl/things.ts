@@ -6,6 +6,7 @@ import { FRACBITS } from '../misc/fixed'
 import { Things as LegacyThings } from '../rendering/things'
 import { PSprite } from './objects/p-sprite'
 import { PSpriteDef } from '../play/sprite'
+import { PaletteTexture } from './textures/palette-texture'
 import { Rendering } from './rendering'
 import { SpritePaletteMaterial } from './materials/sprite-palette-material'
 import { TextureLoader } from './texture-loader'
@@ -43,8 +44,11 @@ export class Things extends LegacyThings {
   }
 
   reset(): Group {
-    Object.values(this.spriteCache).forEach((sprite) =>
-      sprite.material.dispose())
+    Object.values(this.spriteCache).forEach((sprite) => {
+      const mat = sprite.material as SpritePaletteMaterial
+      mat.paletteMap.dispose()
+      mat.dispose()
+    })
 
     this.spriteCache = {}
 
@@ -62,10 +66,10 @@ export class Things extends LegacyThings {
     material.map = map
     material.alphaMap = alphaMap;
 
-    material.paletteTexture.palette = this.textures.palette
+    material.paletteMap.palette = this.textures.paletteTexture.palette
 
     if (visSprite.colorMap) {
-      material.paletteTexture.colorMap = visSprite.colorMap
+      material.paletteMap.colorMap = visSprite.colorMap
     } else {
       // TODO: fuzz
     }
@@ -78,7 +82,12 @@ export class Things extends LegacyThings {
     let sprite: Sprite
     if (!this.spriteCache[visSprite.id]) {
       sprite = new Sprite(
-        new SpritePaletteMaterial(),
+        new SpritePaletteMaterial({
+          paletteMap: new PaletteTexture(
+            this.textures.paletteTexture.palette,
+            this.textures.paletteTexture.colorMap,
+          ),
+        }),
       )
       sprite.center.set(0.5, 0)
 

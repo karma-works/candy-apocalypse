@@ -104,6 +104,9 @@ export class Doom {
     }
     const { Rendering } = await import('./rendering/rendering')
     const { Video } = await import('./interfaces/video')
+    if (this.quitted) {
+      return
+    }
 
     const palette = this.iVideo.palette
     const gamma = this.iVideo.gamma
@@ -138,6 +141,9 @@ export class Doom {
     }
     const { Rendering } = await import('./webgl/rendering')
     const { Video } = await import('./webgl/video')
+    if (this.quitted) {
+      return
+    }
 
     const palette = this.iVideo.palette
     const gamma = this.iVideo.gamma

@@ -1,4 +1,4 @@
-import { MeshBasicMaterial, MeshBasicMaterialParameters, WebGLProgramParametersWithUniforms } from 'three'
+import { MeshBasicMaterial, MeshBasicMaterialParameters, Uniform, WebGLProgramParametersWithUniforms } from 'three'
 import { PaletteTexture } from '../textures/palette-texture'
 import lightFragment from '../shader-chunks/light_fragment.glsl'
 import lightParsFragment from '../shader-chunks/light_pars_fragment.glsl'
@@ -11,7 +11,7 @@ import redAlphamap from '../shader-chunks/redalphamap_fragment.glsl'
 
 export interface MeshBasicPaletteMaterialParameters extends MeshBasicMaterialParameters {
   lightLevel?: number | undefined
-  paletteMap?: PaletteTexture | null
+  paletteMap: PaletteTexture
 }
 
 export class MeshBasicPaletteMaterial extends MeshBasicMaterial {
@@ -22,8 +22,7 @@ export class MeshBasicPaletteMaterial extends MeshBasicMaterial {
   set paletteMap(paletteMap: PaletteTexture) {
     this._paletteMap.value = paletteMap
   }
-  _paletteMap = { value: new PaletteTexture() }
-
+  _paletteMap: Uniform<PaletteTexture>
 
   transparent = true
   alphaTest = 0.5
@@ -37,8 +36,9 @@ export class MeshBasicPaletteMaterial extends MeshBasicMaterial {
   }
   _lightLevel = { value: 255 }
 
-  constructor(parameters?: MeshBasicPaletteMaterialParameters) {
+  constructor({ paletteMap, ...parameters }: MeshBasicPaletteMaterialParameters) {
     super(parameters)
+    this._paletteMap = new Uniform(paletteMap)
   }
 
   onBeforeCompile(shader: WebGLProgramParametersWithUniforms): void {

@@ -11,6 +11,10 @@ export class PaletteTexture extends DataTexture {
       this.update()
     }
   }
+  get palette() {
+    return this._palette
+  }
+
   private _colorMap: ColorMap
   set colorMap(m: ColorMap) {
     if (m !== this._colorMap) {
@@ -18,15 +22,19 @@ export class PaletteTexture extends DataTexture {
       this.update()
     }
   }
+  get colorMap() {
+    return this._colorMap
+  }
 
-  constructor() {
-    const palette = new Uint8Array(256 * 4)
-    super(palette, 256, 1, RGBAFormat)
+  constructor(palette: Palette, colorMap: ColorMap) {
+    const data = new Uint8Array(256 * 4)
+    super(data, 256, 1, RGBAFormat)
 
-    this.data = palette
-    this._palette = new Palette()
-    this._colorMap = new ColorMap()
+    this.data = data
+    this._palette = palette
+    this._colorMap = colorMap
     this.colorSpace = 'srgb'
+    this.update()
   }
 
   update(): void {

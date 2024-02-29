@@ -10,7 +10,7 @@ export class PSprite extends Sprite {
     private pSpriteDef: PSpriteDef,
     private textures: TextureLoader,
   ) {
-    super(new SpritePaletteMaterial())
+    super(new SpritePaletteMaterial({ paletteMap: textures.paletteTexture }))
 
     this.center.set(0, 1)
   }
@@ -29,8 +29,6 @@ export class PSprite extends Sprite {
 
     material.map = map
     material.alphaMap = alphaMap
-    material.paletteTexture.palette = this.textures.palette
-    material.paletteTexture.colorMap = this.textures.colorMap
 
     this.scale.set(patch.width, patch.height, 1)
 

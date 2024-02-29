@@ -10,6 +10,7 @@ import { FlatArray } from '../textures/flat-array'
 import { FlatTexture } from './textures/flat-texture'
 import { Video as IVideo } from '../interfaces/video'
 import { LumpReader } from '../wad/lump-reader'
+import { PaletteTexture } from './textures/palette-texture'
 import { Patch } from '../rendering/defs/patch'
 import { PatchTexture } from './textures/patch-texture'
 import { Video as RVideo } from '../rendering/video'
@@ -32,8 +33,7 @@ export class TextureLoader {
   private skyTextureCache: DataTexture[] = []
   private flatTextureCache: FlatTexture[] = []
 
-  palette = new Palette()
-  colorMap = new ColorMap()
+  paletteTexture : PaletteTexture
 
   flats: FlatArray
   sprites: SpriteArray
@@ -41,17 +41,38 @@ export class TextureLoader {
   textures: TextureArray
 
   constructor(lumpReader?: LumpReader) {
+    let palette: Palette
+    let colorMap: ColorMap
     if (lumpReader) {
       const palettes = lumpReader.cacheLumpName(Palettes.DEFAULT_LUMP, Palettes)
-      this.palette = palettes.p[0]
+      palette = palettes.p[0]
       const colorMaps = lumpReader.cacheLumpName(ColorMaps.DEFAULT_LUMP, ColorMaps)
-      this.colorMap = colorMaps.c[0]
+      colorMap = colorMaps.c[0]
+    } else {
+      palette = new Palette()
+      colorMap = new ColorMap()
     }
+    this.paletteTexture = new PaletteTexture(palette, colorMap)
 
     this.flats = new FlatArray(lumpReader)
     this.sprites = new SpriteArray(lumpReader)
     this.spriteDefs = new SpriteDefsArray(this.sprites)
     this.textures = new TextureArray(lumpReader)
+  }
+
+  dispose() {
+    this.paletteTexture.dispose()
+    this.patchCache.forEach(({ map, alphaMap }) => {
+      map.dispose(); alphaMap.dispose()
+    })
+    this.flipPatchCache.forEach(({ map, alphaMap }) => {
+      map.dispose(); alphaMap.dispose()
+    })
+    this.patchTextureCache.forEach(({ map, alphaMap }) => {
+      map.dispose(); alphaMap.dispose()
+    })
+    this.skyTextureCache.forEach(t => t.dispose())
+    this.flatTextureCache.forEach(t => t.dispose())
   }
 
   getPatchTexture(num: number): PatchTextures {
@@ -119,7 +140,7 @@ export class TextureLoader {
   }
 
   getSkyTexture(num: number): DataTexture {
-    const palette = this.palette
+    const palette = this.paletteTexture.palette
     num = this.textures.getNum(num)
 
     if (!this.skyTextureCache[num]) {

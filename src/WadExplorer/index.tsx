@@ -4,6 +4,7 @@ import { Canvas } from '@react-three/fiber';
 import { Level as DoomLevel } from '../doom/level/level';
 import Level from './Level';
 import { LumpReader } from '../doom/wad/lump-reader';
+import { Perf } from 'r3f-perf';
 import Selector from './Selector';
 import { TextureLoader } from '../doom/webgl/texture-loader';
 
@@ -51,6 +52,8 @@ export default function WadExplorer() {
             position: [ -2, 2, -2 ],
           }}
         >
+          <Perf position="top-left" />
+
           { level && <Level level={level} textureLoader={textureLoader} /> }
         </Canvas>
       </div>

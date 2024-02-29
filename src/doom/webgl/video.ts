@@ -1,7 +1,9 @@
 import { Camera, DataTexture, Group, OrthographicCamera, RedFormat, Scene, Sprite, Vector4, WebGLRenderer } from 'three'
 import { SCREENHEIGHT, STRETCH } from '../global/doomdef'
+import { ColorMap } from '../interfaces/colormap'
 import { GUI } from 'lil-gui'
 import { Palette } from '../interfaces/palette'
+import { PaletteTexture } from './textures/palette-texture'
 import { Video as RVideo } from '../rendering/video'
 import { SpritePaletteMaterial } from './materials/sprite-palette-material'
 import { VideoInterface } from '../interfaces/video-interface'
@@ -77,8 +79,7 @@ export class Video implements VideoInterface {
   }
   updatePalette(): void {
     if (this.overlayMaterial) {
-      this.overlayMaterial.paletteTexture.palette = this.palette
-      this.overlayMaterial.paletteTexture.needsUpdate = true
+      this.overlayMaterial.paletteMap.palette = this.palette
     }
   }
 
@@ -167,8 +168,8 @@ export class Video implements VideoInterface {
     this.overlayMaterial = new SpritePaletteMaterial({
       map: this.overlayScreenMap,
       alphaMap: this.overlayAlphaMap,
+      paletteMap: new PaletteTexture(this.palette, new ColorMap()),
     })
-    this.overlayMaterial.paletteTexture.palette = this.palette
     const sprite = new Sprite(this.overlayMaterial)
     sprite.scale.set(data.width, data.height, 1)
     sprite.position.set(0, 0, 9)

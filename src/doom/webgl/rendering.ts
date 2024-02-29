@@ -40,7 +40,7 @@ export class Rendering extends LegacyRendering {
     this.textures.sprites = this.data.sprites
     this.textures.spriteDefs = this.data.spriteDefs
     this.textures.textures = this.data.textures
-    this.textures.palette = iVideo.palette
+    this.textures.paletteTexture.palette = iVideo.palette
 
     this.segs = new Segs(this)
     this.things = new Things(this, this.video.width)
@@ -76,8 +76,8 @@ export class Rendering extends LegacyRendering {
   }
 
   protected setupFrame(player: Player): void {
-    this.textures.palette = this.iVideo.palette
-    this.textures.colorMap = this.fixedColorMap || this.data.colorMaps.c[0]
+    this.textures.paletteTexture.palette = this.iVideo.palette
+    this.textures.paletteTexture.colorMap = this.fixedColorMap || this.data.colorMaps.c[0]
 
     if (this.currentLevel !== this.level) {
       this.setupLevel(this.level)

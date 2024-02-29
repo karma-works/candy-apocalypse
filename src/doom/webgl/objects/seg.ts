@@ -35,8 +35,8 @@ export class Seg extends Group {
     this.mid.geometry.dispose()
     this.mid.material.dispose()
     this.top?.geometry.dispose()
-    this.top?.geometry.dispose()
-    this.bottom?.material.dispose()
+    this.top?.material.dispose()
+    this.bottom?.geometry.dispose()
     this.bottom?.material.dispose()
   }
 
@@ -49,7 +49,9 @@ export class Seg extends Group {
   private createMesh(part: SegPart): SegMesh {
     const mesh = new Mesh(
       new SegGeometry(this.seg, part, this.textures.textures),
-      new MeshBasicPaletteMaterial(),
+      new MeshBasicPaletteMaterial({
+        paletteMap: this.textures.paletteTexture,
+      }),
     )
     mesh.visible = false
 
@@ -211,8 +213,6 @@ export class Seg extends Group {
     const texture = this.textures.getPatchTexture(texNum);
     mesh.material.map = texture.map;
     mesh.material.alphaMap = texture.alphaMap;
-    mesh.material.paletteMap.palette = this.textures.palette;
-    mesh.material.paletteMap.colorMap = this.textures.colorMap;
     mesh.material.lightLevel = lightLevel
   }
 

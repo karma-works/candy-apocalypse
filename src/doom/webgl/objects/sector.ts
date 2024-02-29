@@ -70,7 +70,10 @@ export class Sector extends Group {
   private createMesh(geometry: PlaneGeometry, side: Side): SectorMesh {
     const mesh = new Mesh(
       geometry,
-      new MeshBasicPaletteMaterial({ side }),
+      new MeshBasicPaletteMaterial({
+        side,
+        paletteMap: this.textures.paletteTexture,
+      }),
     )
 
     return mesh
@@ -91,20 +94,14 @@ export class Sector extends Group {
   }
 
   private updateTextureMap(lightLevel: number): void {
-    // TODO test sky flatnum
-
     this.floor.material.lightLevel = lightLevel
     this.floor.material.map = this.textures.getFlatTexture(this.sector.floorPic)
-    this.floor.material.paletteMap.palette = this.textures.palette
-    this.floor.material.paletteMap.colorMap = this.textures.colorMap
 
     if (this.sector.ceilingPic === this.skyFlatNum) {
       this.ceiling.material.visible = false
     } else {
       this.ceiling.material.lightLevel = lightLevel
       this.ceiling.material.map = this.textures.getFlatTexture(this.sector.ceilingPic)
-      this.ceiling.material.paletteMap.palette = this.textures.palette
-      this.ceiling.material.paletteMap.colorMap = this.textures.colorMap
     }
   }
 }
