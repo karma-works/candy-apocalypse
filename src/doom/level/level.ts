@@ -66,7 +66,7 @@ export class Level {
 
   sky = new Sky()
 
-  constructor(_?: ArrayBuffer, name = '', private lump = 0) {
+  constructor(_?: ArrayBuffer, public name = '', private lump = 0) {
     if (!name) {
       return
     }

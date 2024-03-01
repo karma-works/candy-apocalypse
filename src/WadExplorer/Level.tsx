@@ -1,8 +1,10 @@
 import { Center, MapControls } from '@react-three/drei';
-import { useEffect, useState } from 'react';
 import { Level as DoomLevel } from '../doom/level/level';
-import { LevelScene } from '../doom/webgl/objects/level-scene';
+import { LevelGroup } from '../doom/webgl/objects/level-scene';
 import { TextureLoader } from '../doom/webgl/texture-loader';
+import { extend } from '@react-three/fiber';
+
+extend({ LevelGroup })
 
 interface LevelProps {
   level: DoomLevel
@@ -10,16 +12,6 @@ interface LevelProps {
 }
 
 export default function Level({ level, textureLoader }: LevelProps) {
-  const [ levelScene, setLevelScene ] = useState<LevelScene | undefined>()
-
-  useEffect(() => {
-    const levelScene = new LevelScene(level, textureLoader)
-    setLevelScene(levelScene)
-    return () => {
-      levelScene.dispose()
-    }
-  }, [ level, textureLoader ])
-
   const scale = 1 / (1 << 8)
 
   return (
@@ -27,15 +19,13 @@ export default function Level({ level, textureLoader }: LevelProps) {
       <MapControls
         makeDefault
       />
-      {
-        levelScene &&
-        <Center cacheKey={levelScene.name}>
-          <primitive
-            object={levelScene}
-            scale={scale}
-          />
-        </Center>
-      }
+
+      <Center cacheKey={level.name}>
+        <levelGroup
+          args={[ level, textureLoader ]}
+          scale={ scale }
+        />
+      </Center>
     </>
   )
 }

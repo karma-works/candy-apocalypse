@@ -1,9 +1,9 @@
+import { Group, Scene } from 'three';
 import { Level as DoomLevel } from '../../level/level'
-import { Scene } from 'three';
 import { Sector } from './sector';
 import { TextureLoader } from '../texture-loader';
 
-export class LevelScene extends Scene {
+export class LevelGroup extends Group {
   sectors: Sector[];
 
   constructor(
@@ -14,8 +14,7 @@ export class LevelScene extends Scene {
 
     this.name = `e${level.episode}m${level.map}`
 
-    const { flatNum, texture } = level.sky
-    this.background = textures.getSkyTexture(texture)
+    const { flatNum } = level.sky
 
     const { sectors, segs, lines } = level
     this.sectors = sectors.map(sec => new Sector(sec, segs, lines, textures, flatNum))
@@ -40,6 +39,33 @@ export class LevelScene extends Scene {
   updateSeg(secId: number, segId: number, lightLevel: number): void {
     this.sectors[secId].updateSeg(segId, lightLevel)
   }
+}
 
+export class LevelScene extends Scene {
+  levelGroup: LevelGroup;
 
+  constructor(
+    level: DoomLevel,
+    textures: TextureLoader,
+  ) {
+    super()
+
+    this.add(this.levelGroup = new LevelGroup(level, textures))
+
+    const { texture } = level.sky
+    this.background = textures.getSkyTexture(texture)
+  }
+
+  dispose(): void {
+    this.levelGroup.dispose()
+  }
+  reset(): void {
+    this.levelGroup.reset()
+  }
+  updateSector(secId: number, lightLevel: number): void {
+    this.levelGroup.updateSector(secId, lightLevel)
+  }
+  updateSeg(secId: number, segId: number, lightLevel: number): void {
+    this.levelGroup.updateSeg(secId, segId, lightLevel)
+  }
 }
