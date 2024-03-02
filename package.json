@@ -40,8 +40,10 @@
     "eslint-plugin-react-refresh": "^0.4.4",
     "mocha": "^8.0.1",
     "typescript": "^5.2.2",
-    "vite": "^4.5.0"
+    "vite": "^4.5.0",
+    "vite-plugin-glsl": "^1.2.1"
   },
+  "type": "module",
   "browserslist": [
     "last 1 Chrome versions"
   ],

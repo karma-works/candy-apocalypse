@@ -2,7 +2,9 @@ import { ColorMap, ColorMaps } from '../interfaces/colormap'
 import {
   DataTexture,
   EquirectangularReflectionMapping,
+  Matrix3,
   RGBAFormat,
+  Vector2,
 } from 'three'
 import { Palette, Palettes } from '../interfaces/palette'
 import { FF_FRAMEMASK } from '../play/sprite'
@@ -16,13 +18,17 @@ import { PatchTexture } from './textures/patch-texture'
 import { Video as RVideo } from '../rendering/video'
 import { SpriteArray } from '../sprites/sprite-array'
 import { SpriteDefsArray } from '../sprites/sprite-defs-array'
+import { SpriteFrame } from '../sprites/sprite-frame'
 import { SpriteNum } from '../doom/info/sprite-num'
 import { TextureArray } from '../textures/texture-array'
 import { VisSprite } from '../rendering/things/vis-sprite'
 
-type PatchTextures = {
+export type PatchTextures = {
   map: PatchTexture,
+  mapTransform?: Matrix3
   alphaMap: PatchTexture,
+  alphaMapTransform?: Matrix3
+  scale?: Vector2
   patch: Patch,
 }
 
@@ -108,21 +114,38 @@ export class TextureLoader {
     const cache = flip ? this.flipPatchCache : this.patchCache
     if (!cache[lump]) {
       const patch = this.sprites[num].patch
-      cache[lump] = {
+      const textures: PatchTextures = {
         map: new PatchTexture(patch),
         alphaMap: new PatchTexture(patch, true),
         patch,
       }
-      cache[lump].map.needsUpdate = true
-      cache[lump].alphaMap.needsUpdate = true
-
       if (flip) {
-        cache[lump].map.repeat.set(-1, 1)
-        cache[lump].alphaMap.repeat.set(-1, 1)
+        textures.map.repeat.set(-1, 1)
+        textures.alphaMap.repeat.set(-1, 1)
       }
+
+      textures.map.needsUpdate = true
+      textures.map.updateMatrix()
+      textures.mapTransform = textures.map.matrix
+      textures.alphaMap.needsUpdate = true
+      textures.alphaMap.updateMatrix()
+      textures.alphaMapTransform = textures.alphaMap.matrix
+      textures.scale = new Vector2(patch.width, patch.height)
+
+      cache[lump] = textures
     }
 
     return cache[lump]
+  }
+
+  getSpriteFrame(sprFrame: SpriteFrame & { rotate: 0 }): PatchTextures
+  getSpriteFrame(sprFrame: SpriteFrame & { rotate: 1 }): PatchTextures[]
+  getSpriteFrame(sprFrame: SpriteFrame): PatchTextures | PatchTextures[]
+  getSpriteFrame({ flip, lump, rotate }: SpriteFrame): PatchTextures | PatchTextures[] {
+    if (rotate === 1) {
+      return lump.map((num, i) => this.getSpriteByNum(num, !!flip[i]))
+    }
+    return this.getSpriteByNum(lump[0], !!flip[0])
   }
 
   getSprite(sprite: VisSprite): PatchTextures {

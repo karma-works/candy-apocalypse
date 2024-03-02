@@ -1,19 +1,17 @@
-import {
-  Group,
-  Sprite,
-} from 'three'
-import { FRACBITS } from '../misc/fixed'
+import { MObj as DoomMObj } from '../play/mobj/mobj'
+import { Group } from 'three'
+import { LIGHT_SEG_SHIFT } from '../rendering/rendering'
 import { Things as LegacyThings } from '../rendering/things'
+import { MObj } from './objects/mobj'
 import { PSprite } from './objects/p-sprite'
 import { PSpriteDef } from '../play/sprite'
-import { PaletteTexture } from './textures/palette-texture'
 import { Rendering } from './rendering'
+import { Sector } from '../rendering/defs/sector'
 import { SpritePaletteMaterial } from './materials/sprite-palette-material'
 import { TextureLoader } from './texture-loader'
-import { VisSprite } from '../rendering/things/vis-sprite'
 
 export class Things extends LegacyThings {
-  private spriteCache: {[id: number]: Sprite} = {}
+  private spriteCache: {[id: number]: MObj} = {}
   private group = new Group()
 
   get textures(): TextureLoader {
@@ -28,8 +26,32 @@ export class Things extends LegacyThings {
     super(rendering, width)
   }
 
-  drawSprite(spr: VisSprite): void {
-    this.spawnThing(spr)
+  addSprites(sec: Sector): void {
+    if (sec.validCount === this.play.validCount) {
+      return
+    }
+    sec.validCount = this.play.validCount
+
+    const lightLevel = sec.lightLevel + (this.rendering.extraLight << LIGHT_SEG_SHIFT)
+
+    for (let thing = sec.thingList; thing; thing = thing.sNext) {
+      this.addSprite(thing, lightLevel)
+    }
+  }
+
+  private addSprite(thing: DoomMObj, lightLevel: number): void {
+    let sprite: MObj
+    if (!this.spriteCache[thing.id]) {
+      sprite = new MObj(thing, this.textures)
+
+      this.group.add(sprite)
+
+      this.spriteCache[thing.id] = sprite
+    } else {
+      sprite = this.spriteCache[thing.id]
+    }
+
+    sprite.update(lightLevel)
   }
 
   clearSprites(): void {
@@ -54,50 +76,6 @@ export class Things extends LegacyThings {
 
     this.group = new Group()
     return this.group
-  }
-
-  private updateThing(sprite: Sprite, visSprite: VisSprite): void {
-    const { map, alphaMap } = this.textures.getSprite(visSprite)
-
-    // y, z, x
-    sprite.position.set(visSprite.gY >> FRACBITS, visSprite.gZ >> FRACBITS, visSprite.gX >> FRACBITS)
-
-    const material = (sprite.material as SpritePaletteMaterial)
-    material.map = map
-    material.alphaMap = alphaMap;
-
-    material.paletteMap.palette = this.textures.paletteTexture.palette
-
-    if (visSprite.colorMap) {
-      material.paletteMap.colorMap = visSprite.colorMap
-    } else {
-      // TODO: fuzz
-    }
-
-    sprite.scale.set(map.image.width, map.image.height, 1)
-    sprite.visible = true
-  }
-
-  private spawnThing(visSprite: VisSprite) {
-    let sprite: Sprite
-    if (!this.spriteCache[visSprite.id]) {
-      sprite = new Sprite(
-        new SpritePaletteMaterial({
-          paletteMap: new PaletteTexture(
-            this.textures.paletteTexture.palette,
-            this.textures.paletteTexture.colorMap,
-          ),
-        }),
-      )
-      sprite.center.set(0.5, 0)
-
-      this.group.add(sprite)
-
-      this.spriteCache[visSprite.id] = sprite
-    } else {
-      sprite = this.spriteCache[visSprite.id]
-    }
-    this.updateThing(sprite, visSprite)
   }
 
   drawPSprite(psp: PSpriteDef): void {

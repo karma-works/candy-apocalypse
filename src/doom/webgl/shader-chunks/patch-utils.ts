@@ -25,5 +25,9 @@ export function patchShader(
   } else {
     from = patch.replace
   }
+  if (shader[candidate].indexOf(from) < 0) {
+    throw `Can't patch shader. '${from}' not found`
+  }
+
   shader[candidate] = shader[candidate].replace(from, to)
 }

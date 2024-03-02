@@ -30,7 +30,7 @@ export class Things {
   private get draw(): Draw {
     return this.rendering.draw
   }
-  private get play(): Play {
+  protected get play(): Play {
     return this.rendering.doom.play
   }
   private get segs(): Segs {
