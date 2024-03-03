@@ -28,6 +28,7 @@ import { Switch } from './switch'
 import { Tick } from './tick'
 import { pointToAngle } from '../misc/angle'
 import { random } from '../misc/random'
+import { validCounter } from './valid-counter'
 
 // keep track of special lines as they are hit,
 // but don't process them until the move is proven valid
@@ -162,7 +163,7 @@ export class Map {
     this.tmFloorZ = this.tmDropOffZ = newsubsec.sector.floorHeight
     this.tmCeilingZ = newsubsec.sector.ceilingHeight
 
-    this.play.validCount++
+    validCounter.inc()
     this.numSpecHit = 0
 
     // stomp on any things contacted
@@ -427,7 +428,7 @@ export class Map {
       newSubSec.sector.floorHeight
     this.tmCeilingZ = newSubSec.sector.ceilingHeight
 
-    this.play.validCount++
+    validCounter.inc()
     this.numSpecHit = 0
 
     if (this.tmFlags & MObjFlag.NoClip) {

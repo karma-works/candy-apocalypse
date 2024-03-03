@@ -28,9 +28,6 @@ import { Tick } from './tick'
 import { User } from './user'
 
 export class Play {
-  // increment every time a check is made
-  validCount = 1;
-
   public level = new Level()
 
   public tick = new Tick(this)

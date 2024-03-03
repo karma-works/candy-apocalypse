@@ -17,6 +17,7 @@ import { Segs } from './segs'
 import { SpriteArray } from '../sprites/sprite-array'
 import { SpriteDefsArray } from '../sprites/sprite-defs-array'
 import { VisSprite } from './things/vis-sprite'
+import { validCounter } from '../play/valid-counter'
 
 export const MINZ = FRACUNIT*4
 const BASE_Y_CENTER = 100
@@ -346,12 +347,9 @@ export class Things {
     // A sector might have been split into several
     //  subsectors during BSP building.
     // Thus we check whether its already added.
-    if (sec.validCount === this.play.validCount) {
+    if (validCounter.check(sec)) {
       return
     }
-
-    // Well, now it will be done.
-    sec.validCount = this.play.validCount
 
     const lightNum = (sec.lightLevel >> LIGHT_SEG_SHIFT) + this.rendering.extraLight
 

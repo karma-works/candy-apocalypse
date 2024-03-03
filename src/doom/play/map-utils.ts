@@ -9,6 +9,7 @@ import { MObj } from './mobj/mobj'
 import { MObjFlag } from './mobj/mobj-flag'
 import { Play } from './setup'
 import { SlopeType } from '../rendering/defs/slope-type'
+import { validCounter } from './valid-counter'
 
 export class MapUtils {
   private get level(): Level {
@@ -364,12 +365,10 @@ export class MapUtils {
     for (line of this.level.blockMap.getLines(x, y)) {
       ld = this.level.lines[line]
 
-      if (ld.validCount === this.play.validCount) {
+      if (validCounter.check(ld)) {
         // line has already been checked
         continue
       }
-
-      ld.validCount = this.play.validCount
 
       if (!func.call(thisArg, ld)) {
         return false
@@ -595,7 +594,7 @@ export class MapUtils {
 
     this.earlyOut = !!(flags & PT_EARLY_OUT)
 
-    this.play.validCount++
+    validCounter.inc()
     this.interceptPtr = 0
 
     if ((x1 - this.level.blockMap.originX & MAP_BLOCK_SIZE - 1) === 0) {

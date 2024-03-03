@@ -9,6 +9,7 @@ import { Rendering } from './rendering'
 import { Sector } from '../rendering/defs/sector'
 import { SpritePaletteMaterial } from './materials/sprite-palette-material'
 import { TextureLoader } from './texture-loader'
+import { validCounter } from '../play/valid-counter'
 
 export class Things extends LegacyThings {
   private spriteCache: {[id: number]: MObj} = {}
@@ -27,10 +28,9 @@ export class Things extends LegacyThings {
   }
 
   addSprites(sec: Sector): void {
-    if (sec.validCount === this.play.validCount) {
+    if (validCounter.check(sec)) {
       return
     }
-    sec.validCount = this.play.validCount
 
     const lightLevel = sec.lightLevel + (this.rendering.extraLight << LIGHT_SEG_SHIFT)
 

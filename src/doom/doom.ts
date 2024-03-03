@@ -30,6 +30,7 @@ import { Win } from './win/win'
 import { Wipe } from './wipe'
 import { displayEndoom } from './misc/endoom'
 import { getTime } from './system/system'
+import { validCounter } from './play/valid-counter'
 
 export class Doom {
   onError: (e: unknown) => void = () => ({})
@@ -302,7 +303,7 @@ export class Doom {
       this.rendering.renderPlayerView(
         this.game.players[this.game.displayPlayer],
       )
-      this.play.validCount++
+      validCounter.inc()
     }
 
     if (this.game.gameState === GameState.Level && this.game.gameTic) {

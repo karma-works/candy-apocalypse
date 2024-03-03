@@ -35,6 +35,7 @@ import { Tick } from './tick'
 import { mObjInfos } from '../doom/info/mobj-infos'
 import { pointToAngle } from '../misc/angle'
 import { random } from '../misc/random'
+import { validCounter } from './valid-counter'
 
 const xSpeed: readonly number[] = [ FRACUNIT, 47000, 0, -47000, -FRACUNIT, -47000, 0, 47000 ]
 const ySpeed: readonly number[] = [ 0, 47000, FRACUNIT, 47000, 0, -47000, -FRACUNIT, -47000 ]
@@ -101,14 +102,13 @@ export class Enemy {
 
   private recursiveSound(sec: Sector, soundBlocks: number): void {
     // wake up all monsters in this sector
-    if (sec.validCount === this.play.validCount &&
-      sec.soundTraversed <= soundBlocks + 1
+    if (sec.soundTraversed <= soundBlocks + 1 &&
+      validCounter.check(sec)
     ) {
       // already flooded
       return
     }
 
-    sec.validCount = this.play.validCount
     sec.soundTraversed = soundBlocks + 1
     sec.soundTarget = this.soundTarget
 
@@ -150,7 +150,7 @@ export class Enemy {
   //
   noiseAlert(target: MObj, emmiter: MObj): void {
     this.soundTarget = target
-    this.play.validCount++
+    validCounter.inc()
     if (emmiter.subSector === null) {
       throw 'emmiter.subSector = null'
     }

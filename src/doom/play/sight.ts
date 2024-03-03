@@ -13,6 +13,7 @@ import { Play } from './setup'
 import { RANGE_CHECK } from '../global/doomdef'
 import { Sector } from '../rendering/defs/sector'
 import { Vertex } from '../rendering/data/vertex'
+import { validCounter } from './valid-counter'
 
 export class Sight {
   //
@@ -196,11 +197,9 @@ export class Sight {
       line = seg.lineDef
 
       // allready checked other side?
-      if (line.validCount === this.play.validCount) {
+      if (validCounter.check(line)) {
         continue
       }
-
-      line.validCount = this.play.validCount
 
       v1 = line.v1
       v2 = line.v2
@@ -372,7 +371,7 @@ export class Sight {
     // Now look from eyes of t1 to any part of t2.
     this.sightCounts[1]++
 
-    this.play.validCount++
+    validCounter.inc()
 
     this.sightZStart = t1.z + t1.height - (t1.height >> 2)
     this.topSlope = t2.z + t2.height - this.sightZStart
