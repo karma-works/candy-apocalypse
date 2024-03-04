@@ -6,6 +6,7 @@ import { useSearchParams } from 'react-router-dom';
 type paramsTranslateFunc = (v: string, props: Partial<Params>) => void;
 
 const paramsTranslates: {[k: string]: paramsTranslateFunc} = {
+  iwad: (v, props) => v && (props.iwad = v),
   renderer: (v: string, props: Partial<Params>) => {
     switch (v) {
     case 'legacy':

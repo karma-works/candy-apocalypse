@@ -7,8 +7,14 @@ import { LumpReader } from '../doom/wad/lump-reader';
 import { Perf } from 'r3f-perf';
 import Selector from './Selector';
 import { TextureLoader } from '../doom/webgl/texture-loader';
+import { useSearchParams } from 'react-router-dom';
 
 export default function WadExplorer() {
+  const [ searchParams ] = useSearchParams();
+  const fileNames = useMemo(() => {
+    return [ searchParams.get('iwad') || 'doom1.wad' ]
+  }, [ searchParams ])
+
   const [ levelName, setLevelName ] = useState<string | null>(null)
   const [ lumpReader, setLumpReader ] = useState<LumpReader | undefined>(undefined)
 
@@ -26,16 +32,15 @@ export default function WadExplorer() {
   }, [ lumpReader, levelName, textureLoader ])
 
   useEffect(() => {
-    const fileNames = [ 'doom1.wad' ]
-    async function fetchWad() {
+    async function fetchWad(fileNames: string[]) {
       const lumpReader = new LumpReader()
       await lumpReader.initMultipleFiles(fileNames)
 
       setLumpReader(lumpReader)
       setLevelName(lumpReader.listByType('level')[0]?.name)
     }
-    fetchWad();
-  }, [])
+    fetchWad(fileNames);
+  }, [ fileNames ])
 
   return (
     <>

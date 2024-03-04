@@ -3,6 +3,7 @@ import { Form, useSubmit } from 'react-router-dom';
 import AutoStartOptions from './AutoStartOptions';
 import ConfigOptions from './ControlOptions';
 import RenderOptions from './RenderOptions';
+import WadOptions from './WadOptions';
 import { useRef } from 'react';
 
 export default function StartUp() {
@@ -31,6 +32,7 @@ export default function StartUp() {
                 justifyContent="center"
                 spacing={2}
               >
+                <WadOptions />
                 <RenderOptions />
                 <ConfigOptions />
                 <AutoStartOptions />
