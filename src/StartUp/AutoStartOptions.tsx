@@ -1,9 +1,12 @@
 import { FormControl, FormLabel, Grid, Input, Option, Select, Switch } from '@mui/joy';
 import { Skill } from '../doom/doom/mode';
-import { useState } from 'react';
+import { useLocalStorage } from '../useLocalStorage';
 
 export default function AutoStartOptions() {
-  const [ autoStart, setAutoStart ] = useState(false)
+  const [ autoStart, setAutoStart ] = useLocalStorage<boolean>('autostart', false)
+  const [ episode, setEpisode ] = useLocalStorage<number>('episode', 1)
+  const [ map, setMap ] = useLocalStorage<number>('map', 1)
+  const [ skill, setSkill ] = useLocalStorage<number|null>('skill', Skill.Medium)
 
   const skills = [
     { text: 'Baby', value: Skill.Baby },
@@ -29,6 +32,8 @@ export default function AutoStartOptions() {
             name="episode"
             type="number"
             disabled={!autoStart}
+            value={episode}
+            onChange={(ev) => setEpisode(ev.target.valueAsNumber)}
           />
         </FormControl>
       </Grid>
@@ -39,6 +44,8 @@ export default function AutoStartOptions() {
             name="map"
             type="number"
             disabled={!autoStart}
+            value={map}
+            onChange={(ev) => setMap(ev.target.valueAsNumber)}
           />
         </FormControl>
       </Grid>
@@ -46,8 +53,10 @@ export default function AutoStartOptions() {
         <FormControl>
           <FormLabel>Difficulty</FormLabel>
           <Select
-            name="skill"
+            name={autoStart ? 'skill' : undefined}
             disabled={!autoStart}
+            value={skill}
+            onChange={(_, v) => setSkill(v)}
           >
             {skills}
           </Select>
