@@ -14,6 +14,7 @@ export default function WadExplorer() {
   const fileNames = useMemo(() => {
     return [ searchParams.get('iwad') || 'doom1.wad' ]
   }, [ searchParams ])
+  const debug = searchParams.get('debug') !== null
 
   const [ levelName, setLevelName ] = useState<string | null>(null)
   const [ lumpReader, setLumpReader ] = useState<LumpReader | undefined>(undefined)
@@ -58,7 +59,7 @@ export default function WadExplorer() {
             position: [ -2, 2, -2 ],
           }}
         >
-          <Perf position="top-left" />
+          { debug && <Perf position="top-left" /> }
 
           { level && <Level level={level} textureLoader={textureLoader} /> }
         </Canvas>
