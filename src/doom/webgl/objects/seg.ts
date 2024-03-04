@@ -5,6 +5,7 @@ import { FRACBITS } from '../../misc/fixed';
 import { Line } from '../../rendering/defs/line';
 import { MapLineFlag } from '../../doom/data';
 import { MeshBasicPaletteMaterial } from '../materials/mesh-basic-palette-material';
+import { SKY_FLAT_NAME } from '../../level/sky';
 import { Sector } from '../../rendering/defs/sector';
 import { TextureLoader } from '../texture-loader';
 
@@ -15,12 +16,15 @@ export class Seg extends Group {
   mid: SegMesh
   bottom?: SegMesh
 
+  private skyFlatNum: number;
+
   constructor(
     private seg: DoomSeg,
     private textures: TextureLoader,
-    private skyFlatNum: number,
   ) {
     super()
+
+    this.skyFlatNum = textures.flats.numForName(SKY_FLAT_NAME)
 
     this.add(this.mid = this.createMesh(SegPart.Mid))
     if (seg.backSector) {

@@ -19,10 +19,8 @@ export class LevelGroup extends Group {
 
     this.name = `e${level.episode}m${level.map}`
 
-    const { flatNum } = level.sky
-
     const { sectors, segs, lines } = level
-    this.sectors = sectors.map(sec => new Sector(sec, segs, lines, textures, flatNum))
+    this.sectors = sectors.map(sec => new Sector(sec, segs, lines, textures))
     this.add(...this.sectors)
 
     sectors.forEach(s => this.updateLinkedThings(s.thingList, 255))

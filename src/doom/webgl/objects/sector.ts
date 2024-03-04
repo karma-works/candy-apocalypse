@@ -5,6 +5,7 @@ import { Seg as DoomSeg } from '../../rendering/segs/seg';
 import { FRACBITS } from '../../misc/fixed';
 import { MeshBasicPaletteMaterial } from '../materials/mesh-basic-palette-material';
 import { PlaneGeometry } from '../geometries/plane-geometry';
+import { SKY_FLAT_NAME } from '../../level/sky';
 import { Seg } from './seg';
 import { TextureLoader } from '../texture-loader';
 
@@ -15,16 +16,19 @@ export class Sector extends Group {
   ceiling: SectorMesh;
   frontSegs: {[id: number]: Seg};
 
+  private skyFlatNum: number;
+
   constructor(
     private sector: DoomSector,
     segs: readonly DoomSeg[],
     lines: readonly DoomLine[],
     private textures: TextureLoader,
-    private skyFlatNum: number,
   ) {
     super()
 
     this.visible = false
+
+    this.skyFlatNum = textures.flats.numForName(SKY_FLAT_NAME)
 
     const frontLines = lines.filter(({ frontSector }) => frontSector === sector)
     const backLines = lines.filter(({ backSector }) => backSector === sector)
@@ -83,7 +87,7 @@ export class Sector extends Group {
     return segs.reduce((acc, s) => {
       return {
         ...acc,
-        [s.id]: new Seg(s, this.textures, this.skyFlatNum),
+        [s.id]: new Seg(s, this.textures),
       }
     }, {} as {[i: number]: Seg})
   }
