@@ -27,6 +27,7 @@ export default function WadExplorer() {
     try {
       const level = lumpReader.cacheLumpName(levelName, DoomLevel)
       level.load(lumpReader, textureLoader.flats, textureLoader.textures)
+      level.spawnAllThings()
       return level
     } finally { /* empty */ }
   }, [ lumpReader, levelName, textureLoader ])

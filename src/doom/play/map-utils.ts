@@ -285,8 +285,11 @@ export class MapUtils {
   // Sets thing->subsector properly
   //
   setThingPosition(thing: MObj): void {
+    MapUtils.setThingPosition(this.level, thing)
+  }
+  static setThingPosition(level: Level, thing: MObj): void {
     // link into subsector
-    const ss = this.level.pointInSubSector(thing.x, thing.y)
+    const ss = level.pointInSubSector(thing.x, thing.y)
     thing.subSector = ss
 
     if (!(thing.flags & MObjFlag.NoSector)) {
@@ -308,22 +311,22 @@ export class MapUtils {
     // link into blockmap
     if (!(thing.flags & MObjFlag.NoBlockMap)) {
       // inert things don't need to be in blockmap
-      const blockX = thing.x - this.level.blockMap.originX >> MAP_BLOCK_SHIFT
-      const blockY = thing.y - this.level.blockMap.originY >> MAP_BLOCK_SHIFT
+      const blockX = thing.x - level.blockMap.originX >> MAP_BLOCK_SHIFT
+      const blockY = thing.y - level.blockMap.originY >> MAP_BLOCK_SHIFT
 
       if (blockX >= 0 &&
-          blockX < this.level.blockMap.width &&
+          blockX < level.blockMap.width &&
           blockY >= 0 &&
-          blockY < this.level.blockMap.height
+          blockY < level.blockMap.height
       ) {
-        const blockIdx = blockY * this.level.blockMap.width + blockX
-        const link = this.level.blockLinks[blockIdx]
+        const blockIdx = blockY * level.blockMap.width + blockX
+        const link = level.blockLinks[blockIdx]
         thing.bPrev = null
         thing.bNext = link
         if (link) {
           link.bPrev = thing
         }
-        this.level.blockLinks[blockIdx] = thing
+        level.blockLinks[blockIdx] = thing
       } else {
         // thing is off the map
         thing.bNext = thing.bPrev = null

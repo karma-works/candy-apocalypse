@@ -1,13 +1,17 @@
-import { MAP_BLOCK_SHIFT, MAX_RADIUS } from '../play/local'
+import { MAP_BLOCK_SHIFT, MAX_RADIUS, ON_CEILING_Z, ON_FLOOR_Z } from '../play/local'
+import { MapThing, ThingArray } from './thing-array'
 import { BBox } from '../misc/bbox'
 import { BlockMap } from './block-map'
+import { FRACBITS } from '../misc/fixed'
 import { FlatArray } from '../textures/flat-array'
 import { Line } from '../rendering/defs/line'
 import { LineArray } from './line-array'
 import { LumpReader } from '../wad/lump-reader'
 import { LumpType } from '../wad/lump'
 import { MObj } from '../play/mobj/mobj'
+import { MObjFlag } from '../play/mobj/mobj-flag'
 import { MapLumpOrder } from './map-lump-order'
+import { MapUtils } from '../play/map-utils'
 import { NF_SUBSECTOR } from '../doom/data'
 import { Node } from '../rendering/bsp/node'
 import { NodeArray } from './node-array'
@@ -22,9 +26,9 @@ import { Sky } from './sky'
 import { SubSector } from '../rendering/defs/sub-sector'
 import { SubSectorArray } from './sub-sector-array'
 import { TextureArray } from '../textures/texture-array'
-import { ThingArray } from './thing-array'
 import { Vertex } from '../rendering/data/vertex'
 import { VertexArray } from './vertex-array'
+import { mObjInfos } from '../doom/info/mobj-infos'
 
 const levelRegExp = /^map(\d\d)|e(\d)m(\d)$/i
 
@@ -110,6 +114,35 @@ export class Level {
     this.loadThings(lumpReader, lumpNum + MapLumpOrder.Things)
   }
 
+  /**
+   * Spawn all map things, regardless of difficulty, game version ...
+   */
+  spawnAllThings() {
+    for (const mt of this.things) {
+      this.spawnMapThing(mt)
+    }
+  }
+
+  private spawnMapThing(mThing: MapThing): void {
+    // find which type to spawn
+    const type = mObjInfos.findIndex(({ doomedNum }) => doomedNum === mThing.type)
+    if (type < 0) {
+      return
+    }
+
+    const mObj = new MObj(type)
+    mObj.x = mThing.x << FRACBITS
+    mObj.y = mThing.y << FRACBITS
+
+    MapUtils.setThingPosition(this, mObj)
+
+    mObj.setZ(
+      mObjInfos[type].flags & MObjFlag.SpawnCeiling ?
+        ON_CEILING_Z : ON_FLOOR_Z,
+    )
+
+    mObj.spawnPoint = mThing
+  }
 
   //
   // P_LoadVertexes

@@ -71,8 +71,6 @@ export class Rendering extends LegacyRendering {
     this.levelScene = new LevelScene(level, this.textures)
 
     this.iVideo.scene = this.levelScene
-
-    this.levelScene.add(this.things.reset())
   }
 
   protected setupFrame(player: Player): void {
