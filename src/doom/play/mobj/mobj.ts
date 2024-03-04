@@ -78,7 +78,7 @@ import { states } from '../../doom/info/states'
 //
 
 // Map Object definition.
-export class MObj extends Thinker<MObjHandler, [MObj]> {
+export class MObj extends Thinker<MObjHandler|undefined, [MObj]> {
   static sizeOf = 154
 
   static lastId = 0
@@ -163,14 +163,14 @@ export class MObj extends Thinker<MObjHandler, [MObj]> {
   // Thing being chased/attacked for tracers.
   tracer: MObj | null = null
 
-  constructor(buffer: ArrayBuffer, func: Action<MObjHandler, [MObj]>, handle: MObjHandler)
-  constructor(type: MObjType, func: Action<MObjHandler, [MObj]>, handle: MObjHandler)
+  constructor(buffer: ArrayBuffer, func?: Action<MObjHandler|undefined, [MObj]>, handle?: MObjHandler)
+  constructor(type: MObjType, func?: Action<MObjHandler|undefined, [MObj]>, handle?: MObjHandler)
 
   constructor(
     typeOrBuffer: MObjType | ArrayBuffer,
 
-    func: Action<MObjHandler, [MObj]>,
-    handle: MObjHandler,
+    func: Action<MObjHandler|undefined, [MObj]> | null = null,
+    handle?: MObjHandler,
   ) {
     super(func, handle)
 
@@ -231,7 +231,7 @@ export class MObj extends Thinker<MObjHandler, [MObj]> {
       this.reactionTime = int32[int32Ptr++]
       this.threshold = int32[int32Ptr++]
       const player = int32[int32Ptr++]
-      if (player) {
+      if (player && this.handler) {
         this.player = this.handler.players[player - 1]
         this.player.mo = this
       } else {
@@ -306,7 +306,7 @@ export class MObj extends Thinker<MObjHandler, [MObj]> {
     int32[int32Ptr++] = 0
     int32[int32Ptr++] = this.reactionTime
     int32[int32Ptr++] = this.threshold
-    if (this.player) {
+    if (this.player && this.handler) {
       int32[int32Ptr++] = this.handler.players.indexOf(this.player) + 1
     } else {
       int32[int32Ptr++] = 0
