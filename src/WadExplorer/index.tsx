@@ -3,9 +3,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Level as DoomLevel } from '../doom/level/level';
 import Level from './Level';
+import LevelSelector from './LevelSelector';
 import { LumpReader } from '../doom/wad/lump-reader';
 import { Perf } from 'r3f-perf';
-import Selector from './Selector';
 import { TextureLoader } from '../doom/webgl/texture-loader';
 import { useSearchParams } from 'react-router-dom';
 
@@ -48,7 +48,7 @@ export default function WadExplorer() {
     <>
       <div className="WadExplorer">
         <div className="WadExplorerToolbar">
-          <Selector
+          <LevelSelector
             lumpReader={lumpReader}
             levelName={levelName}
             onChangeLevelName={l => setLevelName(l)}
