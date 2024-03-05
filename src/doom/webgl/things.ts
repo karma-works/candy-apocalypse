@@ -27,7 +27,7 @@ export class Things extends LegacyThings {
     }
     const lightLevel = sec.lightLevel + (this.rendering.extraLight << LIGHT_SEG_SHIFT)
 
-    this.rendering.levelScene?.updateLinkedThings(sec.thingList, lightLevel)
+    this.rendering.levelGroup?.updateLinkedThings(sec.thingList, lightLevel)
   }
 
   clearSprites(): void {

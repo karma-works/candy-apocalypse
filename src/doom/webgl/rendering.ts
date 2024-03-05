@@ -8,7 +8,7 @@ import { Doom } from '../doom'
 import { FRACBITS } from '../misc/fixed'
 import { Rendering as LegacyRendering } from '../rendering/rendering'
 import { Level } from '../level/level'
-import { LevelScene } from './objects/level-scene'
+import { LevelGroup } from './objects/level'
 import { Player } from '../doom/player'
 import { Segs } from './segs'
 import { TextureLoader } from './texture-loader'
@@ -27,7 +27,7 @@ export class Rendering extends LegacyRendering {
   public pSpritesGroup: Group
 
   private currentLevel: Level | null = null
-  levelScene: LevelScene | null = null
+  levelGroup: LevelGroup | null = null
 
   textures: TextureLoader
   things: Things
@@ -64,13 +64,14 @@ export class Rendering extends LegacyRendering {
   }
 
   private setupLevel(level: Level): void {
-    if (this.levelScene) {
-      this.levelScene.dispose()
+    if (this.levelGroup) {
+      this.levelGroup.removeFromParent()
+      this.levelGroup.dispose()
     }
 
-    this.levelScene = new LevelScene(level, this.textures)
+    this.levelGroup = new LevelGroup(level, this.textures)
 
-    this.iVideo.scene = this.levelScene
+    this.iVideo.scene.add(this.levelGroup)
   }
 
   protected setupFrame(player: Player): void {
@@ -95,7 +96,7 @@ export class Rendering extends LegacyRendering {
   }
 
   renderPlayerView(pl: Player): void {
-    this.levelScene?.reset()
+    this.levelGroup?.reset()
 
     super.renderPlayerView(pl)
 

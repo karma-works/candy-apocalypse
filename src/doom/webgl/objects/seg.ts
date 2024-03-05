@@ -1,34 +1,42 @@
-import { Group, Mesh } from 'three';
+import { Group, Mesh, MeshLambertMaterial, MixOperation } from 'three';
 import { SegGeometry, SegPart } from '../geometries/seg-geometry';
 import { Seg as DoomSeg } from '../../rendering/segs/seg'
 import { FRACBITS } from '../../misc/fixed';
 import { Line } from '../../rendering/defs/line';
 import { MapLineFlag } from '../../doom/data';
 import { MeshBasicPaletteMaterial } from '../materials/mesh-basic-palette-material';
-import { SKY_FLAT_NAME } from '../../level/sky';
 import { Sector } from '../../rendering/defs/sector';
+import { Sky } from '../../level/sky';
 import { TextureLoader } from '../texture-loader';
 
 type SegMesh = Mesh<SegGeometry, MeshBasicPaletteMaterial>
+type SkyMesh = Mesh<SegGeometry, MeshLambertMaterial>
+
+function isSkyMesh(ceiling: SegMesh | SkyMesh): ceiling is SkyMesh {
+  return !!(ceiling as SkyMesh).material.isMeshLambertMaterial
+}
 
 export class Seg extends Group {
-  top?: SegMesh
+  top?: SegMesh | SkyMesh
   mid: SegMesh
   bottom?: SegMesh
-
-  private skyFlatNum: number;
 
   constructor(
     private seg: DoomSeg,
     private textures: TextureLoader,
+    private sky: Sky,
   ) {
     super()
 
-    this.skyFlatNum = textures.flats.numForName(SKY_FLAT_NAME)
-
     this.add(this.mid = this.createMesh(SegPart.Mid))
     if (seg.backSector) {
-      this.add(this.top = this.createMesh(SegPart.Top))
+      if (seg.frontSector.ceilingPic === sky.flatNum &&
+        seg.backSector.ceilingPic === sky.flatNum
+      ) {
+        this.add(this.top = this.createSkyMesh())
+      } else {
+        this.add(this.top = this.createMesh(SegPart.Top))
+      }
       this.add(this.bottom = this.createMesh(SegPart.Bottom))
     }
 
@@ -55,6 +63,18 @@ export class Seg extends Group {
       new SegGeometry(this.seg, part, this.textures.textures),
       new MeshBasicPaletteMaterial({
         paletteMap: this.textures.paletteTexture,
+      }),
+    )
+    mesh.visible = false
+
+    return mesh
+  }
+  private createSkyMesh(): SkyMesh {
+    const mesh = new Mesh(
+      new SegGeometry(this.seg, SegPart.Top, this.textures.textures),
+      new MeshLambertMaterial({
+        refractionRatio: 1,
+        combine: MixOperation,
       }),
     )
     mesh.visible = false
@@ -114,8 +134,8 @@ export class Seg extends Group {
       // top of texture at top
 
       // hack to allow height changes in outdoor areas
-      if (frontSector.ceilingPic === this.skyFlatNum &&
-        backSector.ceilingPic === this.skyFlatNum
+      if (frontSector.ceilingPic === this.sky.flatNum &&
+        backSector.ceilingPic === this.sky.flatNum
       ) {
         return backSector.ceilingHeight - frontSector.ceilingHeight
       } else {
@@ -135,8 +155,8 @@ export class Seg extends Group {
       // bottom of texture at bottom
 
       // hack to allow height changes in outdoor areas
-      if (frontSector.ceilingPic === this.skyFlatNum &&
-        backSector.ceilingPic === this.skyFlatNum
+      if (frontSector.ceilingPic === this.sky.flatNum &&
+        backSector.ceilingPic === this.sky.flatNum
       ) {
         return backSector.ceilingHeight - backSector.floorHeight
       } else {
@@ -187,18 +207,17 @@ export class Seg extends Group {
 
   private updateTextureMaps(lightLevel: number): void {
     const {
-      seg: { frontSector, backSector, sideDef },
+      seg: { backSector, sideDef },
       bottom, mid, top,
     } = this
 
     this.updateTextureMap(mid, sideDef.midTexture, lightLevel);
 
     if (backSector) {
-      if (top &&
-        frontSector.ceilingPic === this.skyFlatNum &&
-        backSector.ceilingPic === this.skyFlatNum
-      ) {
-        top.material.visible = false
+      if (top && isSkyMesh(top)) {
+        top.material.envMap = this.textures.getSkyTexture(this.sky.texture)
+        top.material.refractionRatio = 1
+        top.material.combine = MixOperation
       } else {
         this.updateTextureMap(top, sideDef.topTexture, lightLevel);
       }

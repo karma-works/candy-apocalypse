@@ -1,41 +1,47 @@
-import { BackSide, FrontSide, Group, Mesh, Side } from 'three';
+import { BackSide, FrontSide, Group, Mesh, MeshLambertMaterial, MixOperation, Side } from 'three';
 import { Line as DoomLine } from '../../rendering/defs/line';
 import { Sector as DoomSector } from '../../rendering/defs/sector'
 import { Seg as DoomSeg } from '../../rendering/segs/seg';
 import { FRACBITS } from '../../misc/fixed';
 import { MeshBasicPaletteMaterial } from '../materials/mesh-basic-palette-material';
 import { PlaneGeometry } from '../geometries/plane-geometry';
-import { SKY_FLAT_NAME } from '../../level/sky';
 import { Seg } from './seg';
+import { Sky } from '../../level/sky';
 import { TextureLoader } from '../texture-loader';
 
 type SectorMesh = Mesh<PlaneGeometry, MeshBasicPaletteMaterial>
+type SkyMesh = Mesh<PlaneGeometry, MeshLambertMaterial>
+
+function isSkyMesh(ceiling: SectorMesh | SkyMesh): ceiling is SkyMesh {
+  return !!(ceiling as SkyMesh).material.isMeshLambertMaterial
+}
 
 export class Sector extends Group {
   floor: SectorMesh;
-  ceiling: SectorMesh;
+  ceiling: SectorMesh | SkyMesh;
   frontSegs: {[id: number]: Seg};
-
-  private skyFlatNum: number;
 
   constructor(
     private sector: DoomSector,
     segs: readonly DoomSeg[],
     lines: readonly DoomLine[],
     private textures: TextureLoader,
+    private sky: Sky,
   ) {
     super()
 
     this.visible = false
-
-    this.skyFlatNum = textures.flats.numForName(SKY_FLAT_NAME)
 
     const frontLines = lines.filter(({ frontSector }) => frontSector === sector)
     const backLines = lines.filter(({ backSector }) => backSector === sector)
 
     const geometry = new PlaneGeometry(sector, [ ...frontLines, ...backLines ])
     this.add(this.floor = this.createMesh(geometry, FrontSide))
-    this.add(this.ceiling = this.createMesh(geometry, BackSide))
+    if (sector.ceilingPic === sky.flatNum) {
+      this.add(this.ceiling = this.createSkyMesh(geometry))
+    } else {
+      this.add(this.ceiling = this.createMesh(geometry, BackSide))
+    }
 
     const frontSegs = segs.filter(({ frontSector }) => frontSector === sector)
     this.frontSegs = this.createSegs(frontSegs)
@@ -82,12 +88,19 @@ export class Sector extends Group {
 
     return mesh
   }
+  private createSkyMesh(geometry: PlaneGeometry): SkyMesh {
+    return new Mesh(geometry, new MeshLambertMaterial({
+      side: BackSide,
+      refractionRatio: 1,
+      combine: MixOperation,
+    }))
+  }
 
   private createSegs(segs: readonly DoomSeg[]): {[i: number]: Seg} {
     return segs.reduce((acc, s) => {
       return {
         ...acc,
-        [s.id]: new Seg(s, this.textures),
+        [s.id]: new Seg(s, this.textures, this.sky),
       }
     }, {} as {[i: number]: Seg})
   }
@@ -101,8 +114,10 @@ export class Sector extends Group {
     this.floor.material.lightLevel = lightLevel
     this.floor.material.map = this.textures.getFlatTexture(this.sector.floorPic)
 
-    if (this.sector.ceilingPic === this.skyFlatNum) {
-      this.ceiling.material.visible = false
+    if (isSkyMesh(this.ceiling)) {
+      this.ceiling.material.envMap = this.textures.getSkyTexture(this.sky.texture)
+      this.ceiling.material.refractionRatio = 1
+      this.ceiling.material.combine = MixOperation
     } else {
       this.ceiling.material.lightLevel = lightLevel
       this.ceiling.material.map = this.textures.getFlatTexture(this.sector.ceilingPic)

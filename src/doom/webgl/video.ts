@@ -20,7 +20,7 @@ export class Video implements VideoInterface {
 
   screen: HTMLCanvasElement | null = null
   renderer: WebGLRenderer | null = null
-  scene: Scene | null = null
+  scene = new Scene()
   camera: Camera | null = null
   viewport = new Vector4()
   private scaledViewport = new Vector4()
@@ -51,9 +51,7 @@ export class Video implements VideoInterface {
     if (this.renderer === null) {
       return
     }
-    if (this.scene !== null &&
-      this.camera !== null
-    ) {
+    if (this.camera !== null) {
       this.renderer.setViewport(this.scaledViewport)
       this.renderer.render(this.scene, this.camera)
     }

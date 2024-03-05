@@ -1,6 +1,6 @@
 import { Center, MapControls } from '@react-three/drei';
 import { Level as DoomLevel } from '../doom/level/level';
-import { LevelGroup } from '../doom/webgl/objects/level-scene';
+import { LevelGroup } from '../doom/webgl/objects/level';
 import { TextureLoader } from '../doom/webgl/texture-loader';
 import { extend } from '@react-three/fiber';
 

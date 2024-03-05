@@ -1,7 +1,7 @@
 import { ColorMap, ColorMaps } from '../interfaces/colormap'
 import {
   DataTexture,
-  EquirectangularReflectionMapping,
+  EquirectangularRefractionMapping,
   Matrix3,
   RGBAFormat,
   Vector2,
@@ -183,7 +183,7 @@ export class TextureLoader {
       iVideo.drawInImageData(data, true)
 
       const t = new DataTexture(data, 1024, 512, RGBAFormat)
-      t.mapping = EquirectangularReflectionMapping
+      t.mapping = EquirectangularRefractionMapping
       t.flipY = true
       t.needsUpdate = true
       t.colorSpace = 'srgb'

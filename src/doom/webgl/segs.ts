@@ -32,7 +32,7 @@ export class Segs extends LegacySegs {
       segLightLevel += 16
     }
 
-    this.rendering.levelScene?.updateSector(frontSector.id, secLightLevel)
-    this.rendering.levelScene?.updateSeg(frontSector.id, curLine.id, segLightLevel)
+    this.rendering.levelGroup?.updateSector(frontSector.id, secLightLevel)
+    this.rendering.levelGroup?.updateSeg(frontSector.id, curLine.id, segLightLevel)
   }
 }

@@ -1,6 +1,6 @@
-import { Group, Scene } from 'three';
 import { Level as DoomLevel } from '../../level/level'
 import { MObj as DoomMObj } from '../../play/mobj/mobj';
+import { Group } from 'three';
 import { MObj } from './mobj';
 import { Sector } from './sector';
 import { TextureLoader } from '../texture-loader';
@@ -20,7 +20,7 @@ export class LevelGroup extends Group {
     this.name = `e${level.episode}m${level.map}`
 
     const { sectors, segs, lines } = level
-    this.sectors = sectors.map(sec => new Sector(sec, segs, lines, textures))
+    this.sectors = sectors.map(sec => new Sector(sec, segs, lines, textures, level.sky))
     this.add(...this.sectors)
 
     sectors.forEach(s => this.updateLinkedThings(s.thingList, 255))
@@ -63,37 +63,5 @@ export class LevelGroup extends Group {
     mObj.update(lightLevel)
 
     this.updateLinkedThings(thing.sNext, lightLevel)
-  }
-}
-
-export class LevelScene extends Scene {
-  levelGroup: LevelGroup;
-
-  constructor(
-    level: DoomLevel,
-    textures: TextureLoader,
-  ) {
-    super()
-
-    this.add(this.levelGroup = new LevelGroup(level, textures))
-
-    const { texture } = level.sky
-    this.background = textures.getSkyTexture(texture)
-  }
-
-  dispose(): void {
-    this.levelGroup.dispose()
-  }
-  reset(): void {
-    this.levelGroup.reset()
-  }
-  updateSector(secId: number, lightLevel: number): void {
-    this.levelGroup.updateSector(secId, lightLevel)
-  }
-  updateSeg(secId: number, segId: number, lightLevel: number): void {
-    this.levelGroup.updateSeg(secId, segId, lightLevel)
-  }
-  updateLinkedThings(thingList: DoomMObj | null, lightLevel: number) {
-    this.levelGroup.updateLinkedThings(thingList, lightLevel)
   }
 }

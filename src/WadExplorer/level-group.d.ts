@@ -1,4 +1,4 @@
-import { LevelGroup } from '../doom/webgl/objects/level-scene';
+import { LevelGroup } from '../doom/webgl/objects/level';
 import { Object3DNode } from '@react-three/fiber';
 
 declare type LevelGroupProps = Object3DNode<LevelGroup, typeof LevelGroup>;
