@@ -297,7 +297,7 @@ export class User {
         newWeapon = WeaponType.Chainsaw
       }
 
-      if (this.doom.gameMode === GameMode.Commercial &&
+      if (this.doom.instance.mode === GameMode.Commercial &&
         newWeapon === WeaponType.Shotgun &&
         player.weaponOwned[WeaponType.Supershotgun] &&
         player.readyWeapon !== WeaponType.Supershotgun
@@ -312,7 +312,7 @@ export class User {
         //  even if cheated.
         if (newWeapon !== WeaponType.Plasma &&
           newWeapon !== WeaponType.BFG ||
-          this.doom.gameMode !== GameMode.Shareware
+          this.doom.instance.mode !== GameMode.Shareware
         ) {
           player.pendingWeapon = newWeapon
         }

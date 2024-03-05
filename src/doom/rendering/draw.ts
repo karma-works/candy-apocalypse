@@ -635,7 +635,7 @@ export class Draw {
     const name2 = 'GRNROCK'
 
     let name: string
-    if (this.doom.gameMode === GameMode.Commercial) {
+    if (this.doom.instance.mode === GameMode.Commercial) {
       name = name2
     } else {
       name = name1

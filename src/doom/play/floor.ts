@@ -251,7 +251,7 @@ export class Floor {
         floor.direction = -1
         floor.speed = FLOOR_SPEED * 4
         floor.floorDestHeight = sec.findHighestFloorSurrounding()
-        if (this.doom.gameVersion <= GameVersion.Doom12 ||
+        if (this.doom.instance.version <= GameVersion.Doom12 ||
           floor.floorDestHeight !== sec.floorHeight
         ) {
           floor.floorDestHeight += 8 * FRACUNIT

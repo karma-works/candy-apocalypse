@@ -77,7 +77,7 @@ export class Play {
       spawn = true
 
       // Do not spawn cool, new monsters if !commercial
-      if (this.doom.gameMode !== GameMode.Commercial) {
+      if (this.doom.instance.mode !== GameMode.Commercial) {
         switch (mt.type) {
         /* eslint-disable line-comment-position */
         case 68: // Arachnotron
@@ -128,7 +128,7 @@ export class Play {
     this.tick.initThinkers()
 
     let lumpName: string
-    if (this.doom.gameMode === GameMode.Commercial) {
+    if (this.doom.instance.mode === GameMode.Commercial) {
       if (map < 10) {
         lumpName = `map0${map}`
       } else {

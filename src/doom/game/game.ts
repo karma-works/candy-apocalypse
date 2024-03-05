@@ -750,7 +750,7 @@ export class Game {
   // Here's for the german edition.
   secretExitLevel(): void {
     // IF NO WOLF3D LEVELS, NO SECRET EXIT!
-    if (this.doom.gameMode === GameMode.Commercial &&
+    if (this.doom.instance.mode === GameMode.Commercial &&
       this.wad.checkNumForName('map31') < 0
     ) {
       this.secretExit = false
@@ -774,8 +774,8 @@ export class Game {
       this.autoMap.stop()
     }
 
-    if (this.doom.gameMode !== GameMode.Commercial) {
-      if (this.doom.gameVersion === GameVersion.Chex) {
+    if (this.doom.instance.mode !== GameMode.Commercial) {
+      if (this.doom.instance.version === GameVersion.Chex) {
         if (this.gameMap === 5) {
           this.gameAction = GameAction.Victory
           return
@@ -799,7 +799,7 @@ export class Game {
     this.wmInfo.last = this.gameMap - 1
 
     // wminfo.next is 0 biased, unlike gamemap
-    if (this.doom.gameMode === GameMode.Commercial) {
+    if (this.doom.instance.mode === GameMode.Commercial) {
       if (this.secretExit) {
         switch (this.gameMap) {
         case 15:
@@ -850,7 +850,7 @@ export class Game {
     this.wmInfo.maxItems = this.totalItems
     this.wmInfo.maxSecret = this.totalSecret
     this.wmInfo.maxFrags = 0
-    if (this.doom.gameMode === GameMode.Commercial) {
+    if (this.doom.instance.mode === GameMode.Commercial) {
       if (this.gameMap === 33) {
         // wtf ?
         this.wmInfo.parTime = 1835884871
@@ -890,7 +890,7 @@ export class Game {
       this.player.didSecret = true
     }
 
-    if (this.doom.gameMode === GameMode.Commercial) {
+    if (this.doom.instance.mode === GameMode.Commercial) {
       switch (this.gameMap) {
       case 15:
       case 31:
@@ -1074,7 +1074,7 @@ export class Game {
       skill = Skill.Nightmare
     }
 
-    if (this.doom.gameVersion >= GameVersion.Ultimate) {
+    if (this.doom.instance.version >= GameVersion.Ultimate) {
       if (episode === 0) {
         episode = 4
       }
@@ -1087,7 +1087,7 @@ export class Game {
       }
     }
 
-    if (episode > 1 && this.doom.gameMode === GameMode.Shareware) {
+    if (episode > 1 && this.doom.instance.mode === GameMode.Shareware) {
       episode = 1
     }
 
@@ -1095,7 +1095,7 @@ export class Game {
       map = 1
     }
 
-    if (map > 9 && this.doom.gameMode !== GameMode.Commercial) {
+    if (map > 9 && this.doom.instance.mode !== GameMode.Commercial) {
       map = 9
     }
 
@@ -1147,31 +1147,8 @@ export class Game {
   private setSkyMap(sky: Sky): void {
     const rData = this.rData
 
-    // set the sky map for the episode
-    if (this.doom.gameMode === GameMode.Commercial) {
-      sky.texture = rData.textures.numForName('SKY3')
-      if (this.gameMap < 12) {
-        sky.texture = rData.textures.numForName('SKY1')
-      } else if (this.gameMap < 21) {
-        sky.texture = rData.textures.numForName('SKY2')
-      }
-    } else {
-      switch (this.gameEpisode) {
-      case 1:
-        sky.texture = rData.textures.numForName('SKY1')
-        break
-      case 2:
-        sky.texture = rData.textures.numForName('SKY2')
-        break
-      case 3:
-        sky.texture = rData.textures.numForName('SKY3')
-        break
-      case 4:
-        // Special Edition sky
-        sky.texture = rData.textures.numForName('SKY4')
-        break
-      }
-    }
+    const skyPatch = this.doom.instance.getSkyPatch(this.gameEpisode, this.gameMap)
+    sky.texture = rData.textures.numForName(skyPatch)
 
     // Set the sky map.
     // First thing, we have a dummy sky texture name,
@@ -1180,16 +1157,6 @@ export class Game {
     //  setting one.
 
     sky.flatNum = rData.flats.numForName(SKY_FLAT_NAME)
-
-    if (this.doom.gameMode as GameMode === GameMode.Commercial &&
-      (this.doom.gameVersion === GameVersion.Final2 || this.doom.gameVersion === GameVersion.Chex)) {
-      sky.texture = rData.textures.numForName('SKY3')
-      if (this.gameMap < 12) {
-        sky.texture = rData.textures.numForName('SKY1')
-      } else if (this.gameMap < 21) {
-        sky.texture = rData.textures.numForName('SKY2')
-      }
-    }
   }
 
   //
@@ -1239,7 +1206,7 @@ export class Game {
 
   private vanillaVersionCode(): number {
     // Get the demo version code appropriate for the version set in gameversion.
-    switch (this.doom.gameVersion) {
+    switch (this.doom.instance.version) {
     case GameVersion.Doom1666:
       return 106
     case GameVersion.Doom17:
@@ -1270,7 +1237,7 @@ export class Game {
     this.demo.beginPlaying()
 
     if (this.demo.version !== this.vanillaVersionCode() &&
-      !(this.doom.gameVersion <= GameVersion.Doom12 && this.demo.old)
+      !(this.doom.instance.version <= GameVersion.Doom12 && this.demo.old)
     ) {
       throw `Demo is from a different game version (read ${this.demo.version}, should be ${this.vanillaVersionCode()})`
     }

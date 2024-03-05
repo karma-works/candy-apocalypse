@@ -96,7 +96,7 @@ export class Teleport {
             return false
           }
 
-          if (this.doom.gameVersion !== GameVersion.Final) {
+          if (this.doom.instance.version !== GameVersion.Final) {
             thing.z = thing.floorZ
           }
 

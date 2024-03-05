@@ -1,5 +1,5 @@
 import { DEvent, EvType, GameAction } from '../doom/event'
-import { GameMission, GameMode, GameVersion, logicalGameMission } from '../doom/mode'
+import { GameMission, GameMode, GameVersion } from '../doom/mode'
 import { GameState, MAX_PLAYERS, SCREENHEIGHT, SCREENWIDTH } from '../global/doomdef'
 import { AutoMap } from '../auto-map/auto-map'
 import { Doom } from '../doom'
@@ -148,7 +148,7 @@ export class Finale {
     this.game.viewActive = false
     this.autoMap.active = false
 
-    const gameMission = logicalGameMission(this.doom.gameMission)
+    const gameMission = this.doom.instance.logicalMission
 
     if (gameMission === GameMission.Doom) {
       // S_StartMusic(mus_victor);
@@ -160,7 +160,7 @@ export class Finale {
     for (let i = 0; i < this.textScreens.length; ++i) {
       const s = this.textScreens[i]
 
-      if (this.doom.gameVersion === GameVersion.Chex &&
+      if (this.doom.instance.version === GameVersion.Chex &&
         s.mission === GameMission.Doom
       ) {
         s.level = 5
@@ -191,7 +191,7 @@ export class Finale {
   //
   ticker(): void {
     // check for skipping
-    if (this.doom.gameMode === GameMode.Commercial &&
+    if (this.doom.instance.mode === GameMode.Commercial &&
       this.count > 50
     ) {
       let i: number
@@ -219,7 +219,7 @@ export class Finale {
       return
     }
 
-    if (this.doom.gameMode === GameMode.Commercial) {
+    if (this.doom.instance.mode === GameMode.Commercial) {
       return
     }
 
@@ -581,13 +581,8 @@ export class Finale {
     } else {
       switch (this.game.gameEpisode) {
       case 1:
-        if (this.doom.gameVersion >= GameVersion.Ultimate) {
-          this.rVideo.drawPatch(0, 0, 0,
-            this.wad.cacheLumpName('CREDIT', Patch))
-        } else {
-          this.rVideo.drawPatch(0, 0, 0,
-            this.wad.cacheLumpName('HELP2', Patch))
-        }
+        this.rVideo.drawPatch(0, 0, 0,
+          this.wad.cacheLumpName(this.doom.instance.creditPatch, Patch))
         break
       case 2:
         this.rVideo.drawPatch(0, 0, 0,

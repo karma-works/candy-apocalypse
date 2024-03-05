@@ -310,7 +310,7 @@ export class MObjHandler {
       //  somebody left this after the setting momz to 0,
       //  kinda useless there.
 
-      const correctLostSoulBounce = this.doom.gameVersion >= GameVersion.Ultimate
+      const correctLostSoulBounce = this.doom.instance.version >= GameVersion.Ultimate
 
       if (correctLostSoulBounce &&
         mo.flags & MObjFlag.SkullFly

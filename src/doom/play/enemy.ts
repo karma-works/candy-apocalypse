@@ -172,7 +172,7 @@ export class Enemy {
     const dist = this.mapUtils.aproxDistance(pl.x - actor.x, pl.y - actor.y)
 
     let range = MELEE_RANGE - 20 * FRACUNIT + pl.info.radius
-    if (this.doom.gameVersion <= GameVersion.Doom12) {
+    if (this.doom.instance.version <= GameVersion.Doom12) {
       range = MELEE_RANGE
     }
 
@@ -641,7 +641,7 @@ export class Enemy {
 
     // modify target threshold
     if (actor.threshold) {
-      if (this.doom.gameVersion > GameVersion.Doom12 &&
+      if (this.doom.instance.version > GameVersion.Doom12 &&
         (!actor.target ||
         actor.target.health <= 0)
       ) {
@@ -878,7 +878,7 @@ export class Enemy {
 
     this.faceTarget(actor)
 
-    if (this.doom.gameVersion > GameVersion.Doom12) {
+    if (this.doom.instance.version > GameVersion.Doom12) {
       if (!this.checkMeleeRange(actor)) {
         return
       }
@@ -886,7 +886,7 @@ export class Enemy {
 
     const damage = (random.pRandom() % 10 + 1) * 4
 
-    if (this.doom.gameVersion <= GameVersion.Doom12) {
+    if (this.doom.instance.version <= GameVersion.Doom12) {
       this.map.lineAttack(actor, actor.angle, MELEE_RANGE, 0, damage)
     } else {
       this.inter.damageMObj(actor.target, actor, actor, damage)
@@ -1464,7 +1464,7 @@ export class Enemy {
   // if on first boss level
   //
   bossDeath(mo: MObj): void {
-    if (this.doom.gameMode === GameMode.Commercial) {
+    if (this.doom.instance.mode === GameMode.Commercial) {
       if (this.game.gameMap !== 7) {
         return
       }
@@ -1573,7 +1573,7 @@ export class Enemy {
 
     // victory!
     const junk = new Line()
-    if (this.doom.gameMode === GameMode.Commercial) {
+    if (this.doom.instance.mode === GameMode.Commercial) {
       if (this.game.gameMap === 7) {
         if (mo.type === MObjType.Fatso) {
           junk.tag = 666
@@ -1807,7 +1807,7 @@ export class Enemy {
     // Default death sound.
     let sound = SfxName.Pldeth
 
-    if (this.doom.gameMode === GameMode.Commercial &&
+    if (this.doom.instance.mode === GameMode.Commercial &&
       mo.health < -50
     ) {
       // IF THE PLAYER DIES

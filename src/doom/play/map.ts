@@ -1300,7 +1300,7 @@ export class Map {
     if (thing.health <= 0) {
       this.mObjHandler.setMObjState(thing, StateNum.Gibs)
 
-      if (this.doom.gameVersion > GameVersion.Doom12) {
+      if (this.doom.instance.version > GameVersion.Doom12) {
         thing.flags &= ~MObjFlag.Solid
       }
       thing.height = 0

@@ -1,4 +1,4 @@
-import { GameMission, GameVersion, logicalGameMission } from '../doom/mode'
+import { GameMission, GameVersion } from '../doom/mode'
 import { MAX_PLAYERS, TICRATE } from '../global/doomdef'
 import { AutoMap } from '../auto-map/auto-map'
 import { DEvent } from '../doom/event'
@@ -311,14 +311,14 @@ export class HeadsUp {
     )
 
     let s: string
-    switch (logicalGameMission(this.doom.gameMission)) {
+    switch (this.doom.instance.logicalMission) {
     case GameMission.Doom:
       s = this.TITLE
       break
     case GameMission.Doom2:
       s = this.TITLE2
       // Pre-Final Doom compatibility: map33-map35 names don't spill over
-      if (this.doom.gameVersion <= GameVersion.Doom19 &&
+      if (this.doom.instance.version <= GameVersion.Doom19 &&
         this.game.gameMap >= 33
       ) {
         s = ''

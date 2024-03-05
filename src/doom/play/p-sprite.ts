@@ -164,12 +164,12 @@ export class PSprite {
     // Preferences are set here.
     if (player.weaponOwned[WeaponType.Plasma] &&
       player.ammo[AmmoType.Cell] &&
-      this.doom.gameMode !== GameMode.Shareware
+      this.doom.instance.mode !== GameMode.Shareware
     ) {
       player.pendingWeapon = WeaponType.Plasma
     } else if (player.weaponOwned[WeaponType.Supershotgun] &&
       player.ammo[AmmoType.Shell] > 2 &&
-      this.doom.gameMode === GameMode.Commercial
+      this.doom.instance.mode === GameMode.Commercial
     ) {
       player.pendingWeapon = WeaponType.Supershotgun
     } else if (player.weaponOwned[WeaponType.Chaingun] &&
@@ -189,7 +189,7 @@ export class PSprite {
       player.pendingWeapon = WeaponType.Missile
     } else if (player.weaponOwned[WeaponType.BFG] &&
       player.ammo[AmmoType.Cell] > 40 &&
-      this.doom.gameMode !== GameMode.Shareware
+      this.doom.instance.mode !== GameMode.Shareware
     ) {
       player.pendingWeapon = WeaponType.BFG
     } else {

@@ -285,7 +285,7 @@ export class Menu {
       case ScanCode.F1:
         this.startControlPanel()
 
-        if (this.doom.gameVersion >= GameVersion.Ultimate) {
+        if (this.doom.instance.version >= GameVersion.Ultimate) {
           this.currentMenu = this.mainMenu.readThis2Menu
         } else {
           this.currentMenu = this.mainMenu.readThis1Menu
@@ -622,13 +622,13 @@ export class Menu {
 
     // The same hacks were used in the original Doom EXEs.
 
-    if (this.doom.gameVersion >= GameVersion.Final && this.doom.gameVersion <= GameVersion.Final2) {
+    if (this.doom.instance.version >= GameVersion.Final && this.doom.instance.version <= GameVersion.Final2) {
       this.mainMenu.readThis2Menu = new ReadThisCommercialMenu(this.mainMenu)
       this.mainMenu.readThis2Menu.prevMenu = this.mainMenu
       this.mainMenu.readThis2Menu.nextMenu = this.mainMenu
     }
 
-    if (this.doom.gameMode === GameMode.Commercial) {
+    if (this.doom.instance.mode === GameMode.Commercial) {
       this.mainMenu.menuItems.splice(MainEnum.ReadThis, 1)
       this.mainMenu.numItems--
       this.mainMenu.y += 8
@@ -642,9 +642,9 @@ export class Menu {
     // three episodes; if we're emulating one of those then don't try
     // to show episode four. If we are, then do show episode four
     // (should crash if missing).
-    if (this.doom.gameVersion < GameVersion.Ultimate) {
+    if (this.doom.instance.version < GameVersion.Ultimate) {
       this.mainMenu.episodeMenu.numItems--
-    } else if (this.doom.gameVersion === GameVersion.Chex) {
+    } else if (this.doom.instance.version === GameVersion.Chex) {
       // chex.exe shows only one episode.
       this.mainMenu.episodeMenu.numItems = 1
     }

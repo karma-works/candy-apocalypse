@@ -69,7 +69,7 @@ export class Switch {
   // Only called at game initialization.
   //
   initSwitchList(): void {
-    const gameMode = this.doom.gameMode
+    const gameMode = this.doom.instance.mode
 
     let episode = 1
 

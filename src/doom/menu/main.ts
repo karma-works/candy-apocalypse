@@ -178,8 +178,8 @@ export class MainMenu implements MenuStruct {
   // M_NewGame
   //
   private newGame(): void {
-    if (this.doom.gameMode === GameMode.Commercial ||
-      this.doom.gameVersion === GameVersion.Chex) {
+    if (this.doom.instance.mode === GameMode.Commercial ||
+      this.doom.instance.version === GameVersion.Chex) {
       this.menu.setupNextMenu(this.newGameMenu)
     } else {
       this.menu.setupNextMenu(this.episodeMenu)
@@ -194,7 +194,7 @@ export class MainMenu implements MenuStruct {
   // M_ReadThis
   //
   private readThis(): void {
-    if (this.doom.gameVersion >= GameVersion.Ultimate) {
+    if (this.doom.instance.version >= GameVersion.Ultimate) {
       this.menu.setupNextMenu(this.readThis2Menu)
     } else {
       this.menu.setupNextMenu(this.readThis1Menu)
@@ -206,7 +206,7 @@ export class MainMenu implements MenuStruct {
       return
     }
     if (!this.game.netGame) {
-      if (this.doom.gameMode === GameMode.Commercial) {
+      if (this.doom.instance.mode === GameMode.Commercial) {
         this.dSound.startSound(null,
           quitSounds2[this.game.gameTic >> 2 & 7])
       } else {

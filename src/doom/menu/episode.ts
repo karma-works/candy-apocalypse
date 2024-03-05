@@ -91,7 +91,7 @@ export class EpisodeMenu implements MenuStruct {
   }
 
   private episode(choice: number): void {
-    if (this.doom.gameMode === GameMode.Shareware && choice) {
+    if (this.doom.instance.mode === GameMode.Shareware && choice) {
       this.menu.startMessage(this.strings.swstring, false)
       this.menu.setupNextMenu(this.prevMenu.readThis1Menu)
       return

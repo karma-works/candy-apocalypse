@@ -21,13 +21,6 @@ export const enum GameMission {
   None,
 }
 
-export function logicalGameMission(mission: GameMission): GameMission {
-  return mission === GameMission.PackChex ?
-    GameMission.Doom :
-    mission === GameMission.PackHacx ?
-      GameMission.Doom2 : mission
-}
-
 // The "mode" allows more accurate specification of the game mode we are
 // in: eg. shareware vs. registered.  So doom1.wad and doom.wad are the
 // same mission, but a different mode.
@@ -45,25 +38,8 @@ export const enum GameMode {
   Indetermined
 }
 
-export const wads: readonly [ string, GameMission, GameMode, string ][] = [
-  [ 'doom2.wad', GameMission.Doom2, GameMode.Commercial, 'Doom II' ],
-  [ 'plutonia.wad', GameMission.PackPlut, GameMode.Commercial, 'Final Doom: Plutonia Experiment' ],
-  [ 'tnt.wad', GameMission.PackTNT, GameMode.Commercial, 'Final Doom: TNT: Evilution' ],
-  [ 'doom.wad', GameMission.Doom, GameMode.Retail, 'Doom' ],
-  [ 'doom1.wad', GameMission.Doom, GameMode.Shareware, 'Doom Shareware' ],
-  [ 'chex.wad', GameMission.PackChex, GameMode.Retail, 'Chex Quest' ],
-  [ 'hacx.wad', GameMission.PackHacx, GameMode.Commercial, 'Hacx' ],
-  [ 'freedoom2.wad', GameMission.Doom2, GameMode.Commercial, 'Freedoom: Phase 2' ],
-  [ 'freedoom1.wad', GameMission.Doom, GameMode.Retail, 'Freedoom: Phase 1' ],
-  [ 'freedm.wad', GameMission.Doom2, GameMode.Commercial, 'FreeDM' ],
-  [ 'heretic.wad', GameMission.Heretic, GameMode.Retail, 'Heretic' ],
-  [ 'heretic1.wad', GameMission.Heretic, GameMode.Shareware, 'Heretic Shareware' ],
-  [ 'hexen.wad', GameMission.Hexen, GameMode.Commercial, 'Hexen' ],
-  [ 'strife1.wad', GameMission.Strife, GameMode.Commercial, 'Strife' ],
-]
-
-
 export const enum GameVersion {
+  Undefined = -1,
   // Doom 1.2: shareware and registered
   Doom12,
   // Doom 1.666: for shareware, registered and commercial

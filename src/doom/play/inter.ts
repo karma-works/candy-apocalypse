@@ -354,7 +354,7 @@ export class Inter {
       // can go over 100%
       player.armorPoints++
       if (player.armorPoints > 200 &&
-        this.doom.gameVersion > GameVersion.Doom12
+        this.doom.instance.version > GameVersion.Doom12
       ) {
         player.armorPoints = 200
       }
@@ -371,20 +371,20 @@ export class Inter {
       }
       player.mo.health = player.health
       player.message = this.strings.gotsuper
-      if (this.doom.gameVersion > GameVersion.Doom12) {
+      if (this.doom.instance.version > GameVersion.Doom12) {
         sound = SfxName.Getpow
       }
       break
 
     case SpriteNum.Mega:
-      if (this.doom.gameMode !== GameMode.Commercial) {
+      if (this.doom.instance.mode !== GameMode.Commercial) {
         return
       }
       player.health = 200
       player.mo.health = player.health
       this.giveArmor(player, 2)
       player.message = this.strings.gotmsphere
-      if (this.doom.gameVersion > GameVersion.Doom12) {
+      if (this.doom.instance.version > GameVersion.Doom12) {
         sound = SfxName.Getpow
       }
       break
@@ -478,7 +478,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotinvul
-      if (this.doom.gameVersion > GameVersion.Doom12) {
+      if (this.doom.instance.version > GameVersion.Doom12) {
         sound = SfxName.Getpow
       }
       break
@@ -491,7 +491,7 @@ export class Inter {
       if (player.readyWeapon !== WeaponType.Fist) {
         player.pendingWeapon = WeaponType.Fist
       }
-      if (this.doom.gameVersion > GameVersion.Doom12) {
+      if (this.doom.instance.version > GameVersion.Doom12) {
         sound = SfxName.Getpow
       }
       break
@@ -501,7 +501,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotinvis
-      if (this.doom.gameVersion > GameVersion.Doom12) {
+      if (this.doom.instance.version > GameVersion.Doom12) {
         sound = SfxName.Getpow
       }
       break
@@ -511,7 +511,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotsuit
-      if (this.doom.gameVersion > GameVersion.Doom12) {
+      if (this.doom.instance.version > GameVersion.Doom12) {
         sound = SfxName.Getpow
       }
       break
@@ -521,7 +521,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotmap
-      if (this.doom.gameVersion > GameVersion.Doom12) {
+      if (this.doom.instance.version > GameVersion.Doom12) {
         sound = SfxName.Getpow
       }
       break
@@ -531,7 +531,7 @@ export class Inter {
         return
       }
       player.message = this.strings.gotvisor
-      if (this.doom.gameVersion > GameVersion.Doom12) {
+      if (this.doom.instance.version > GameVersion.Doom12) {
         sound = SfxName.Getpow
       }
       break
@@ -745,7 +745,7 @@ export class Inter {
       target.tics = 1
     }
 
-    if (this.doom.gameVersion === GameVersion.Chex) {
+    if (this.doom.instance.version === GameVersion.Chex) {
       return
     }
 
@@ -915,7 +915,7 @@ export class Inter {
     target.reactionTime = 0
 
     if ((!target.threshold || target.type === MObjType.Vile)
-      && source && (source !== target || this.doom.gameVersion <= GameVersion.Doom12)
+      && source && (source !== target || this.doom.instance.version <= GameVersion.Doom12)
       && source.type !== MObjType.Vile
     ) {
       // if not intent on another player,

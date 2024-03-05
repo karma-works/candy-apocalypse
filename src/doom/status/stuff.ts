@@ -3,7 +3,7 @@ import { ANG180, ANG45 } from '../misc/table'
 import { AmmoType, Card, MAX_PLAYERS, PowerType, TICRATE, WeaponType } from '../global/doomdef'
 import { BG, FG, Lib, ST_HEIGHT, ST_WIDTH } from './lib'
 import { DEvent, EvType } from '../doom/event'
-import { GameMission, GameMode, GameVersion, Skill, logicalGameMission } from '../doom/mode'
+import { GameMission, GameMode, GameVersion, Skill } from '../doom/mode'
 import { Cheat as PCheat, Player } from '../doom/player'
 import { Video as RVideo, Screen } from '../rendering/video'
 import { ammoCheat, ammoNoKeyCheat, choppersCheat, clevCheat, commercialNoClipCheat, godCheat, musCheat, myPosCheat, noClipCheat, powerupCheat } from './cheats'
@@ -355,17 +355,17 @@ export class StatusBar {
           // in the Ultimate Doom executable so that it would work for
           // the Doom 1 music as well.
 
-          if (this.doom.gameMode === GameMode.Commercial ||
-            this.doom.gameVersion < GameVersion.Ultimate
+          if (this.doom.instance.mode === GameMode.Commercial ||
+            this.doom.instance.version < GameVersion.Ultimate
           ) {
             // TODO
           } else {
             // TODO
           }
 
-        } else if (logicalGameMission(this.doom.gameMission) === GameMission.Doom &&
+        } else if (this.doom.instance.logicalMission === GameMission.Doom &&
           this.cheat.checkCheat(noClipCheat, ev.data2) ||
-          logicalGameMission(this.doom.gameMission) !== GameMission.Doom &&
+          this.doom.instance.logicalMission !== GameMission.Doom &&
           this.cheat.checkCheat(commercialNoClipCheat, ev.data2)
         ) {
           // Simplified, accepting both "noclip" and "idspispopd".
@@ -422,7 +422,7 @@ export class StatusBar {
 
         let episode: number
         let map: number
-        if (this.doom.gameMode === GameMode.Commercial) {
+        if (this.doom.instance.mode === GameMode.Commercial) {
           episode = 0
           map = Number(buf) || 0
         } else {
@@ -431,7 +431,7 @@ export class StatusBar {
 
           // Chex.exe always warps to episode 1.
 
-          if (this.doom.gameVersion === GameVersion.Chex) {
+          if (this.doom.instance.version === GameVersion.Chex) {
             if (episode > 1) {
               episode = 1
             }
@@ -442,7 +442,7 @@ export class StatusBar {
         }
 
         // Catch invalid maps.
-        if (this.doom.gameMode !== GameMode.Commercial) {
+        if (this.doom.instance.mode !== GameMode.Commercial) {
           if (episode < 1) {
             return false
           }
@@ -450,7 +450,7 @@ export class StatusBar {
             return false
           }
           if (episode === 4 &&
-            this.doom.gameVersion < GameVersion.Ultimate
+            this.doom.instance.version < GameVersion.Ultimate
           ) {
             return false
           }
@@ -732,7 +732,7 @@ export class StatusBar {
       palette = 0
     }
 
-    if (this.doom.gameVersion === GameVersion.Chex &&
+    if (this.doom.instance.version === GameVersion.Chex &&
       palette >= START_RED_PALS && palette < START_RED_PALS + NUM_RED_PALS
     ) {
       palette = RADIATION_PAL

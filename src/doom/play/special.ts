@@ -197,7 +197,7 @@ export class Special {
 
     const line = this.level.lines[lineNum]
 
-    if (this.doom.gameVersion <= GameVersion.Doom12) {
+    if (this.doom.instance.version <= GameVersion.Doom12) {
       if (line.special > 98 && line.special !== 104) {
         return
       }

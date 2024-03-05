@@ -377,7 +377,7 @@ export class Sight {
     this.topSlope = t2.z + t2.height - this.sightZStart
     this.bottomSlope = t2.z - this.sightZStart
 
-    if (this.doom.gameVersion <= GameVersion.Doom12) {
+    if (this.doom.instance.version <= GameVersion.Doom12) {
       return this.mapUtils.pathTraverse(t1.x, t1.y, t2.x, t2.y,
         PT_EARLY_OUT | PT_ADD_LINES, this.ptrSightTraverse, this)
     }

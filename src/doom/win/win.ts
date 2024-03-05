@@ -246,7 +246,7 @@ export class Win {
   }
 
   private initAnimatedBack(): void {
-    if (this.doom.gameMode === GameMode.Commercial) {
+    if (this.doom.instance.mode === GameMode.Commercial) {
       return
     }
 
@@ -275,7 +275,7 @@ export class Win {
   }
 
   private updateAnimatedBack(): void {
-    if (this.doom.gameMode === GameMode.Commercial) {
+    if (this.doom.instance.mode === GameMode.Commercial) {
       return
     }
 
@@ -322,7 +322,7 @@ export class Win {
   }
 
   private drawAnimatedBack(): void {
-    if (this.doom.gameMode === GameMode.Commercial) {
+    if (this.doom.instance.mode === GameMode.Commercial) {
       return
     }
 
@@ -478,7 +478,7 @@ export class Win {
     // draw animated background
     this.drawAnimatedBack()
 
-    if (this.doom.gameMode !== GameMode.Commercial) {
+    if (this.doom.instance.mode !== GameMode.Commercial) {
       if (this.wbs.episode > 2) {
         this.drawEL()
         return
@@ -503,7 +503,7 @@ export class Win {
     }
 
     // draws which level you are entering..
-    if (this.doom.gameMode !== GameMode.Commercial ||
+    if (this.doom.instance.mode !== GameMode.Commercial ||
       this.wbs.next !== 30
     ) {
       this.drawEL()
@@ -628,7 +628,7 @@ export class Win {
     } else if (this.spState === 10) {
       if (this.accelerateStage) {
         this.dSound.startSound(null, SfxName.Sgcock)
-        if (this.doom.gameMode === GameMode.Commercial) {
+        if (this.doom.instance.mode === GameMode.Commercial) {
           this.initNoState()
         } else {
           this.initShowNextLoc()
@@ -754,9 +754,9 @@ export class Win {
 
   private loadData(): void {
     let name: string
-    if (this.doom.gameMode === GameMode.Commercial) {
+    if (this.doom.instance.mode === GameMode.Commercial) {
       name = 'INTERPIC'
-    } else if (this.doom.gameVersion >= GameVersion.Ultimate &&
+    } else if (this.doom.instance.version >= GameVersion.Ultimate &&
       this.wbs.episode === 3
     ) {
       name = 'INTERPIC'
@@ -771,7 +771,7 @@ export class Win {
     this.bg = this.wad.cacheLumpName(name, Patch)
     this.rVideo.drawPatch(x, y, 1, this.bg)
 
-    if (this.doom.gameMode === GameMode.Commercial) {
+    if (this.doom.instance.mode === GameMode.Commercial) {
       this.numCMaps = 32
       this.lNames = new Array(this.numCMaps)
 
@@ -936,7 +936,7 @@ export class Win {
       this.wbs.maxSecret = 1
     }
 
-    if (this.doom.gameVersion < GameVersion.Ultimate) {
+    if (this.doom.instance.version < GameVersion.Ultimate) {
       if (this.wbs.episode > 2) {
         this.wbs.episode -= 3
       }

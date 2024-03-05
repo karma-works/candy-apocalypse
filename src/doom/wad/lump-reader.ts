@@ -20,6 +20,7 @@ function extractFileBase(path: string): string {
 }
 
 export class LumpReader {
+  fileNames: string[] = []
   // Location of each lump on disk.
   lumpInfo: LumpInfo[] = []
   numLumps = 0
@@ -48,6 +49,7 @@ export class LumpReader {
       return
     }
     console.log(` adding ${fileName}`)
+    this.fileNames.push(fileName)
 
     const startLump = this.numLumps
 
