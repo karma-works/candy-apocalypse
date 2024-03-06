@@ -1,10 +1,21 @@
 import './Doom.css'
-import { CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
+import { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { EvType } from '../doom/doom/event';
 import FocusInfo from './FocusInfo';
 import { Params } from '../doom/doom/params'
 import { Doom as RawDoom } from '../doom/doom'
 import { ScanCode } from '../doom/interfaces/scancodes';
+import { useAudio as useAudioContext } from '../AudioContext';
+import { useSearchParams } from 'react-router-dom';
+
+function useAudio() {
+  const audioCtx = useAudioContext()
+  const [ searchParams ] = useSearchParams();
+
+  return useMemo(() => {
+    return searchParams.has('sound') ? audioCtx : null
+  }, [ audioCtx, searchParams ])
+}
 
 export default function Doom(props?: Partial<Params>) {
   const [ running, setRunning ] = useState(false)
@@ -45,6 +56,14 @@ export default function Doom(props?: Partial<Params>) {
     }
   }, [])
 
+  const audioCtx = useAudio()
+  const updateSoundCtx = useCallback(() => {
+    if (doomInstRef.current) {
+      doomInstRef.current.iSound.audioCtx = audioCtx
+    }
+  }, [ audioCtx ])
+  useEffect(updateSoundCtx, [ updateSoundCtx ])
+
   function onResize() {
     setCanvasStyle({
       width: window.innerWidth,
@@ -72,6 +91,8 @@ export default function Doom(props?: Partial<Params>) {
   }, [])
 
   function onFocus() {
+    audioCtx?.resume()
+
     setTimeout(() => {
       inputRef.current?.focus()
       inputRef.current?.requestPointerLock()
@@ -103,9 +124,10 @@ export default function Doom(props?: Partial<Params>) {
 
   useEffect(() => {
     start();
+    updateSoundCtx()
     onResize()
     return stop;
-  }, [ start, stop ])
+  }, [ start, updateSoundCtx, stop ])
 
   return (
     <>

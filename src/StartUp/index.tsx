@@ -2,13 +2,17 @@ import { Button, Card, CardActions, CardContent, Divider, Grid, Typography } fro
 import { Form, useSubmit } from 'react-router-dom';
 import AutoStartOptions from './AutoStartOptions';
 import ConfigOptions from './ControlOptions';
+import MiscOptions from './MiscOptions';
 import RenderOptions from './RenderOptions';
 import WadOptions from './WadOptions';
+import { useAudio } from '../AudioContext';
 import { useRef } from 'react';
 
 export default function StartUp() {
   const submit = useSubmit()
   const form = useRef<HTMLFormElement>(null)
+
+  const audioCtx = useAudio()
 
   return (
     <Grid
@@ -36,6 +40,7 @@ export default function StartUp() {
                 <RenderOptions />
                 <ConfigOptions />
                 <AutoStartOptions />
+                <MiscOptions />
               </Grid>
             </CardContent>
 
@@ -51,6 +56,7 @@ export default function StartUp() {
                 type="submit"
                 variant="solid"
                 color="primary"
+                onClick={_ => audioCtx.resume()}
               >
                 Play
               </Button>

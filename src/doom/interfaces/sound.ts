@@ -7,7 +7,7 @@ import { SfxName } from '../doom/sounds/sfx-name'
 
 const NUM_CHANNELS = 8
 
-const SAMPLE_RATE = 11025
+export const SAMPLE_RATE = 11025
 
 export class Sound {
 
@@ -322,14 +322,7 @@ export class Sound {
     // TODO
   }
 
-
   init(): void {
-    const audioCtx = new AudioContext({
-      sampleRate: SAMPLE_RATE,
-    })
-    audioCtx.suspend()
-    this.audioCtx = audioCtx
-
     let sfxInfo: SfxInfo
     for (let i = 1; i < SfxName.NUM_SFX; ++i) {
       // Alias? Example is the chaingun sound linked to pistol.
