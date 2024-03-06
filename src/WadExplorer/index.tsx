@@ -64,7 +64,8 @@ export default function WadExplorer() {
         </div>
         <Canvas
           camera={{
-            position: [ -2, 2, -2 ],
+            position: [ -512, 512, -512 ],
+            far: 4000,
           }}
         >
           { debug && <Perf position="top-left" /> }

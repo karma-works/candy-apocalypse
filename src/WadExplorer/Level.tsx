@@ -12,18 +12,15 @@ interface LevelProps {
 }
 
 export default function Level({ level, textureLoader }: LevelProps) {
-  const scale = 1 / (1 << 8)
-
   return (
     <>
       <MapControls
         makeDefault
       />
 
-      <Center cacheKey={level.name}>
+      <Center top cacheKey={level.name}>
         <levelGroup
           args={[ level, textureLoader ]}
-          scale={ scale }
         />
       </Center>
     </>

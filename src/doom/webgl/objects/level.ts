@@ -23,7 +23,7 @@ export class LevelGroup extends Group {
     this.sectors = sectors.map(sec => new Sector(sec, segs, lines, textures, level.sky))
     this.add(...this.sectors)
 
-    sectors.forEach(s => this.updateLinkedThings(s.thingList, 255))
+    sectors.forEach(s => this.updateLinkedThings(s.thingList, s.lightLevel))
     this.add(this.thingsGroup)
   }
 

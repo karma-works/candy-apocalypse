@@ -47,7 +47,7 @@ export class Sector extends Group {
     this.frontSegs = this.createSegs(frontSegs)
     this.add(...Object.values(this.frontSegs))
 
-    this.update(255)
+    this.update(sector.lightLevel)
   }
 
   dispose(): void {

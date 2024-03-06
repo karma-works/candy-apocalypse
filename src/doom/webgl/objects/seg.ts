@@ -40,7 +40,7 @@ export class Seg extends Group {
       this.add(this.bottom = this.createMesh(SegPart.Bottom))
     }
 
-    this.update(255)
+    this.update(seg.frontSector.lightLevel)
   }
 
   dispose() {
@@ -207,9 +207,16 @@ export class Seg extends Group {
 
   private updateTextureMaps(lightLevel: number): void {
     const {
-      seg: { backSector, sideDef },
+      seg: { backSector, sideDef, v1, v2 },
       bottom, mid, top,
     } = this
+
+    if (v1.y === v2.y) {
+      lightLevel -= 16
+    } else if (v1.x === v2.x) {
+      lightLevel += 16
+    }
+    lightLevel = Math.max(0, Math.min(lightLevel, 255))
 
     this.updateTextureMap(mid, sideDef.midTexture, lightLevel);
 
