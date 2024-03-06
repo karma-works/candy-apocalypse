@@ -21,6 +21,9 @@ const paramsTranslates: {[k: string]: paramsTranslateFunc} = {
   episode: (v, props) => v && (props.episode = parseInt(v)),
   map: (v, props) => v && (props.map = parseInt(v)),
   skill: (v, props) => v && (props.skill = parseInt(v)),
+  noMonsters: (_, props) => props.noMonsters = true,
+  fast: (_, props) => props.fast = true,
+  respawn: (_, props) => props.respawn = true,
 
   debug: (_, props) => props.debug = true,
 }
