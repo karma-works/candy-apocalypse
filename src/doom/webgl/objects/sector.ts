@@ -2,7 +2,7 @@ import { BackSide, FrontSide, Group, Mesh, MeshLambertMaterial, MixOperation, Si
 import { Line as DoomLine } from '../../rendering/defs/line';
 import { Sector as DoomSector } from '../../rendering/defs/sector'
 import { Seg as DoomSeg } from '../../rendering/segs/seg';
-import { FRACBITS } from '../../misc/fixed';
+import { FRACUNIT } from '../../misc/fixed';
 import { MeshBasicPaletteMaterial } from '../materials/mesh-basic-palette-material';
 import { PlaneGeometry } from '../geometries/plane-geometry';
 import { Seg } from './seg';
@@ -106,8 +106,8 @@ export class Sector extends Group {
   }
 
   private updateHeight(): void {
-    this.floor.position.y = this.sector.floorHeight >> FRACBITS
-    this.ceiling.position.y = this.sector.ceilingHeight >> FRACBITS
+    this.floor.position.y = this.sector.floorHeight / FRACUNIT
+    this.ceiling.position.y = this.sector.ceilingHeight / FRACUNIT
   }
 
   private updateTextureMap(lightLevel: number): void {

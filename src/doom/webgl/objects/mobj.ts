@@ -1,7 +1,7 @@
 import { PatchTextures, TextureLoader } from '../texture-loader';
 import { MObj as DoomMObj } from '../../play/mobj/mobj';
 import { FF_FRAMEMASK } from '../../play/sprite';
-import { FRACBITS } from '../../misc/fixed';
+import { FRACUNIT } from '../../misc/fixed';
 import { Sprite } from 'three';
 import { SpritePaletteMaterial } from '../materials/sprite-palette-material';
 import { toRad } from '../../misc/table';
@@ -28,7 +28,7 @@ export class MObj extends Sprite {
 
   update(lightLevel: number) {
     const { y, z, x, angle } = this.mobj
-    this.position.set(y >> FRACBITS, z >> FRACBITS, x >> FRACBITS)
+    this.position.set(y / FRACUNIT, z / FRACUNIT, x / FRACUNIT)
     this.rotation.set(0, toRad(angle), 0)
 
     const { sprite, frame } = this.mobj

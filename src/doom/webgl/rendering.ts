@@ -5,7 +5,7 @@ import {
 } from 'three'
 import { Controller } from 'lil-gui'
 import { Doom } from '../doom'
-import { FRACBITS } from '../misc/fixed'
+import { FRACUNIT } from '../misc/fixed'
 import { Rendering as LegacyRendering } from '../rendering/rendering'
 import { Level } from '../level/level'
 import { LevelGroup } from './objects/level'
@@ -87,9 +87,9 @@ export class Rendering extends LegacyRendering {
 
     // axis are y, z, x
     this.camera.position.set(
-      this.viewY >> FRACBITS,
-      this.viewZ >> FRACBITS,
-      this.viewX >> FRACBITS,
+      this.viewY / FRACUNIT,
+      this.viewZ / FRACUNIT,
+      this.viewX / FRACUNIT,
     )
 
     this.camera.rotation.y = toRad(this.viewAngle) + Math.PI

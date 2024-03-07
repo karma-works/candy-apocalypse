@@ -1,5 +1,5 @@
 import { SCREENHEIGHT, SCREENWIDTH } from '../../global/doomdef';
-import { FRACBITS } from '../../misc/fixed';
+import { FRACUNIT } from '../../misc/fixed';
 import { PSpriteDef } from '../../play/sprite';
 import { Sprite } from 'three';
 import { SpritePaletteMaterial } from '../materials/sprite-palette-material';
@@ -32,7 +32,7 @@ export class PSprite extends Sprite {
 
     this.scale.set(patch.width, patch.height, 1)
 
-    this.position.x = (this.pSpriteDef.sX >> FRACBITS) - patch.leftOffset - SCREENWIDTH / 2
-    this.position.y = (-this.pSpriteDef.sY >> FRACBITS) + patch.topOffset + SCREENHEIGHT
+    this.position.x = this.pSpriteDef.sX / FRACUNIT - patch.leftOffset - SCREENWIDTH / 2
+    this.position.y = -this.pSpriteDef.sY / FRACUNIT + patch.topOffset + SCREENHEIGHT
   }
 }

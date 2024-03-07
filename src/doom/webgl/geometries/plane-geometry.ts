@@ -1,5 +1,5 @@
 import { Float32BufferAttribute, Matrix4, ShapeGeometry, ShapePath, Vector2 } from 'three';
-import { FRACBITS } from '../../misc/fixed';
+import { FRACUNIT } from '../../misc/fixed';
 import { Line } from '../../rendering/defs/line';
 import { Sector } from '../../rendering/defs/sector';
 import { Vertex } from '../../rendering/data/vertex';
@@ -42,7 +42,7 @@ export class PlaneGeometry extends ShapeGeometry {
         firstVertex = lastVertex = vertices[0]
         vertices.shift()
 
-        shapePath.moveTo(lastVertex[0].x >> FRACBITS, lastVertex[0].y >> FRACBITS)
+        shapePath.moveTo(lastVertex[0].x / FRACUNIT, lastVertex[0].y / FRACUNIT)
       }
 
       candidates = vertices.filter(([ v1 ]) => lastVertex &&
@@ -73,7 +73,7 @@ export class PlaneGeometry extends ShapeGeometry {
         lastVertex = null
       } else {
         lastVertex = candidates[0]
-        shapePath.lineTo(lastVertex[0].x >> FRACBITS, lastVertex[0].y >> FRACBITS)
+        shapePath.lineTo(lastVertex[0].x / FRACUNIT, lastVertex[0].y / FRACUNIT)
         vertices.splice(vertices.indexOf(lastVertex), 1)
       }
     }
