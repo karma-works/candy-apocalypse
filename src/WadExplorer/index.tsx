@@ -1,13 +1,11 @@
 import './style.css'
 import { useEffect, useMemo, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Level as DoomLevel } from '../doom/level/level';
 import { GameInstance } from '../doom/doom/instance';
 import Level from './Level';
 import LevelSelector from './LevelSelector';
 import { LumpReader } from '../doom/wad/lump-reader';
 import { Perf } from 'r3f-perf';
-import { SKY_FLAT_NAME } from '../doom/level/sky';
 import { TextureLoader } from '../doom/webgl/texture-loader';
 import { useSearchParams } from 'react-router-dom';
 
@@ -23,23 +21,6 @@ export default function WadExplorer() {
 
   const textureLoader = useMemo(() => new TextureLoader(lumpReader), [ lumpReader ])
   const gameInstance = useMemo(() => new GameInstance({}, lumpReader), [ lumpReader ])
-
-  const level = useMemo(() => {
-    if (!lumpReader || !levelName) {
-      return undefined
-    }
-    try {
-      const level = lumpReader.cacheLumpName(levelName, DoomLevel)
-      level.load(lumpReader, textureLoader.flats, textureLoader.textures)
-
-      const skyPatch = gameInstance.getSkyPatch(level.episode, level.map)
-      level.sky.texture = textureLoader.textures.numForName(skyPatch)
-      level.sky.flatNum = textureLoader.flats.numForName(SKY_FLAT_NAME)
-
-      level.spawnAllThings()
-      return level
-    } finally { /* empty */ }
-  }, [ lumpReader, levelName, textureLoader, gameInstance ])
 
   useEffect(() => {
     async function fetchWad(fileNames: string[]) {
@@ -59,7 +40,9 @@ export default function WadExplorer() {
           <LevelSelector
             lumpReader={lumpReader}
             levelName={levelName}
-            onChangeLevelName={l => setLevelName(l)}
+            onChangeLevelName={l => {
+              setLevelName(l)
+            }}
           />
         </div>
         <Canvas
@@ -70,7 +53,13 @@ export default function WadExplorer() {
         >
           { debug && <Perf position="top-left" /> }
 
-          { level && <Level level={level} textureLoader={textureLoader} /> }
+          { levelName && lumpReader &&
+            <Level
+              gameInstance={gameInstance}
+              lumpReader={lumpReader}
+              textureLoader={textureLoader}
+              levelName={levelName}
+            /> }
         </Canvas>
       </div>
     </>
