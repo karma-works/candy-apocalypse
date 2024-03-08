@@ -2,7 +2,7 @@ import { SpriteArray, SpriteLump } from './sprite-array'
 import { SpriteFrame } from './sprite-frame'
 import { sprNames } from './spr-names'
 
-interface SpriteDef {
+export interface SpriteDef {
   frames: SpriteFrame[]
 }
 

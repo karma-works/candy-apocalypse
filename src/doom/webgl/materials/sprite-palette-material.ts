@@ -1,72 +1,78 @@
-import { Matrix3, SpriteMaterial, SpriteMaterialParameters, Texture, Uniform, Vector2, WebGLProgramParametersWithUniforms } from 'three'
-import { PaletteTexture } from '../textures/palette-texture'
+import {
+  MeshBasicMaterial,
+  MeshBasicMaterialParameters,
+  Uniform,
+  WebGLProgramParametersWithUniforms,
+} from 'three';
+import { PaletteTexture } from '../textures/palette-texture';
 import frag from '../shaders/sprite.frag.glsl'
 import vert from '../shaders/sprite.vert.glsl'
 
-export interface RotationMap {
-  map?: Texture | null | undefined;
-  mapTransform?: Matrix3 | null | undefined;
-  alphaMap?: Texture | null | undefined;
-  alphaMapTransform?: Matrix3 | null | undefined;
-  scale?: Vector2
-}
-
-export interface SpritePaletteMaterialParameters extends SpriteMaterialParameters {
+export interface SpritePaletteMaterialParameters extends MeshBasicMaterialParameters {
   paletteMap: PaletteTexture
-  rotationMap?: RotationMap[]
 }
 
-export class SpritePaletteMaterial extends SpriteMaterial {
+export class SpritePaletteMaterial extends MeshBasicMaterial {
   get paletteMap() {
-    return this._paletteMap.value
+    return this.uPaletteMap.value
   }
   set paletteMap(paletteMap: PaletteTexture) {
-    this._paletteMap.value = paletteMap
+    this.uPaletteMap.value = paletteMap
   }
-  private _paletteMap
-
-  set rotationMap(map: RotationMap[] | null) {
-    if (map === null && this._rotationMap.value !== null ||
-      map !== null && this._rotationMap.value === null
-    ) {
-      this.needsUpdate = true
-    }
-    this._rotationMap.value = map
-  }
-  private _rotationMap = new Uniform<RotationMap[] | null>(null)
+  private uPaletteMap: Uniform<PaletteTexture>
 
   // Light level from 0 to 255
   get lightLevel() {
-    return this._lightLevel.value
+    return this.uLightLevel.value
   }
   set lightLevel(lightLevel: number) {
-    this._lightLevel.value = lightLevel
+    this.uLightLevel.value = lightLevel
   }
-  private _lightLevel = new Uniform(255)
+  private uLightLevel = new Uniform(255)
+
+  // Num of the frame to display
+  get frame() {
+    return this.uFrame.value
+  }
+  set frame(frame: number) {
+    this.uFrame.value = frame
+  }
+  private uFrame = new Uniform(0)
+
+  // Number of frames available
+  get frames() {
+    return this.uFrames.value
+  }
+  set frames(frames: number) {
+    this.uFrames.value = frames
+  }
+  private uFrames = new Uniform(1)
+
+  // Number of rotations available
+  get rotations() {
+    return this.uRotations.value
+  }
+  set rotations(rotations: number) {
+    this.uRotations.value = rotations
+  }
+  private uRotations = new Uniform(8)
 
   transparent = true
   alphaTest = 0.5
 
   constructor({ paletteMap, ...parameters }: SpritePaletteMaterialParameters) {
     super(parameters)
-    this._paletteMap = new Uniform(paletteMap)
+    this.uPaletteMap = new Uniform(paletteMap)
   }
 
-  onBeforeCompile(shader: WebGLProgramParametersWithUniforms): void {
-    shader.vertexShader = vert
-    shader.fragmentShader = frag
+  onBeforeCompile(parameters: WebGLProgramParametersWithUniforms): void {
+    parameters.vertexShader = vert
+    parameters.fragmentShader = frag
 
-    shader.uniforms.paletteMap = this._paletteMap
-    shader.uniforms.uLightLevel = this._lightLevel
-    shader.uniforms.uRotationMap = this._rotationMap
-
-    const rotMap = this._rotationMap.value
-    if (rotMap) {
-      shader.defines = { 'USE_ROTATIONMAP': '' }
-      shader.map = true
-      shader.mapUv = 'uv'
-      shader.alphaMap = true
-      shader.alphaMapUv = 'uv'
-    }
+    parameters.uniforms.paletteMap = this.uPaletteMap
+    parameters.uniforms.uLightLevel = this.uLightLevel
+    parameters.uniforms.uFrame = this.uFrame
+    parameters.uniforms.uFrames = this.uFrames
+    parameters.uniforms.uRotations = this.uRotations
   }
 }

@@ -2,10 +2,10 @@ import { Camera, DataTexture, Group, OrthographicCamera, RedFormat, Scene, Sprit
 import { SCREENHEIGHT, STRETCH } from '../global/doomdef'
 import { ColorMap } from '../interfaces/colormap'
 import { GUI } from 'lil-gui'
+import { OldSpritePaletteMaterial } from './materials/old-sprite-palette-material'
 import { Palette } from '../interfaces/palette'
 import { PaletteTexture } from './textures/palette-texture'
 import { Video as RVideo } from '../rendering/video'
-import { SpritePaletteMaterial } from './materials/sprite-palette-material'
 import { VideoInterface } from '../interfaces/video-interface'
 
 interface VideoOptions {
@@ -31,7 +31,7 @@ export class Video implements VideoInterface {
   overlayCamera = new OrthographicCamera(-1, 1, 1, -1, 0, 10)
   overlayScreenMap: DataTexture | null = null
   overlayAlphaMap: DataTexture | null = null
-  overlayMaterial: SpritePaletteMaterial | null = null
+  overlayMaterial: OldSpritePaletteMaterial | null = null
   private overlayViewport = new Vector4()
 
   gui: GUI | null = null
@@ -163,7 +163,7 @@ export class Video implements VideoInterface {
     )
     this.overlayAlphaMap.flipY = true
 
-    this.overlayMaterial = new SpritePaletteMaterial({
+    this.overlayMaterial = new OldSpritePaletteMaterial({
       map: this.overlayScreenMap,
       alphaMap: this.overlayAlphaMap,
       paletteMap: new PaletteTexture(this.palette, new ColorMap()),

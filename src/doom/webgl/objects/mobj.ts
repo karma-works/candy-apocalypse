@@ -1,22 +1,24 @@
-import { PatchTextures, TextureLoader } from '../texture-loader';
+import { FF_FRAMEMASK, FF_FULLBRIGHT } from '../../play/sprite';
+import { Mesh, PlaneGeometry } from 'three';
 import { MObj as DoomMObj } from '../../play/mobj/mobj';
-import { FF_FRAMEMASK } from '../../play/sprite';
 import { FRACUNIT } from '../../misc/fixed';
-import { Sprite } from 'three';
 import { SpritePaletteMaterial } from '../materials/sprite-palette-material';
+import { TextureLoader } from '../texture-loader';
 import { toRad } from '../../misc/table';
 
-export class MObj extends Sprite {
+export class MObj extends Mesh<PlaneGeometry, SpritePaletteMaterial> {
   constructor(
     private mobj: DoomMObj,
     private textures: TextureLoader,
   ) {
-    super(new SpritePaletteMaterial({
-      paletteMap: textures.paletteTexture,
-    }))
-
-    this.geometry.computeVertexNormals()
-    this.center.set(.5, 0)
+    const geo = new PlaneGeometry(1, 1)
+    geo.translate(0, .5, 0)
+    super(
+      geo,
+      new SpritePaletteMaterial({
+        paletteMap: textures.paletteTexture,
+      }),
+    )
 
     this.update(255)
   }
@@ -32,24 +34,15 @@ export class MObj extends Sprite {
     this.rotation.set(0, toRad(angle), 0)
 
     const { sprite, frame } = this.mobj
-    const sprDef = this.textures.spriteDefs[sprite]
-    const sprFrame = sprDef.frames[frame & FF_FRAMEMASK]
+    const map = this.textures.getSpriteTexture(sprite)
 
-    const material = (this.material as SpritePaletteMaterial)
-    if (sprFrame.rotate === 1) {
-      material.rotationMap = this.textures.getSpriteFrame(sprFrame) as PatchTextures[]
-      material.map = null
-      material.alphaMap = null
-      this.scale.set(64, 64, 1)
-    } else {
-      const { map, alphaMap } = this.textures.getSpriteFrame(sprFrame) as PatchTextures
-      material.map = map
-      material.alphaMap = alphaMap
-      material.rotationMap = null
-      this.scale.set(map.image.width, map.image.height, 1)
-    }
+    this.material.map = map
+    this.material.rotations = map.rotations
+    this.material.frames = map.frames
+    this.material.frame = frame & FF_FRAMEMASK
+    this.scale.set(map.width, map.height, map.width)
 
-    material.lightLevel = lightLevel
+    this.material.lightLevel = frame & FF_FULLBRIGHT ? 255 : lightLevel
 
     this.visible = true
   }
