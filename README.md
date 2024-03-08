@@ -42,4 +42,4 @@ yarn run dev
 
 ## Disclaimer
 
-This project is a fan-made port of the original DOOM game and is not affiliated with or endorsed by id Software.
+This project is a fan-made port of the original DOOM game and is not affiliated with or endorsed by id Software or ZeniMax Media Inc. All rights to the original DOOM source code belong to ZeniMax Media Inc.
