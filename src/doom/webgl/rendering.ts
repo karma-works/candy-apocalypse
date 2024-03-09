@@ -19,7 +19,7 @@ import { toRad } from '../misc/table'
 export class Rendering extends LegacyRendering {
 
   private camera = new PerspectiveCamera(
-    64, 320 / 200, 10, 3000,
+    64, 320 / 200, 10, 4000,
   )
   private cameraController: Controller | null = null
   private viewport = new Vector4()
