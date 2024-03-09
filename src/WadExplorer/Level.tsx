@@ -1,12 +1,12 @@
 import { Center, MapControls } from '@react-three/drei';
+import { extend, useThree } from '@react-three/fiber';
+import { useEffect, useMemo } from 'react';
 import { Level as DoomLevel } from '../doom/level/level';
 import { GameInstance } from '../doom/doom/instance';
 import { LevelGroup } from '../doom/webgl/objects/level';
 import { LumpReader } from '../doom/wad/lump-reader';
 import { SKY_FLAT_NAME } from '../doom/level/sky';
 import { TextureLoader } from '../doom/webgl/texture-loader';
-import { extend } from '@react-three/fiber';
-import { useMemo } from 'react';
 
 extend({ LevelGroup })
 
@@ -31,6 +31,11 @@ export default function Level({ gameInstance, lumpReader, textureLoader, levelNa
       return level
     } finally { /* empty */ }
   }, [ lumpReader, levelName, textureLoader, gameInstance ])
+
+  const { camera } = useThree()
+  useEffect(() => {
+    camera.position.set(-512, 512, -512)
+  }, [ camera ])
 
   return (
     <>
