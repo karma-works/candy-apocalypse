@@ -1,21 +1,25 @@
 import { ButtonGroup, IconButton, Option, Select } from '@mui/joy';
-import { LumpReader } from '../doom/wad/lump-reader';
+import { useEffect, useMemo } from 'react';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { useMemo } from 'react';
+import { useLumpReader } from './WadContext';
 interface SelectorProps {
-  lumpReader?: LumpReader
   levelName: string | null
   onChangeLevelName: (l: string | null) => void
 }
 
-export default function LevelSelector({ lumpReader, levelName, onChangeLevelName }: SelectorProps) {
+export default function LevelSelector({ levelName, onChangeLevelName }: SelectorProps) {
+  const lumpReader = useLumpReader()
+
   const levels = useMemo(() => {
     if (!lumpReader) {
       return []
     }
     return lumpReader.listByType('level').map(({ name }) => name)
   }, [ lumpReader ])
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => onChangeLevelName(levels[0]), [ levels ])
 
   const [ before, next ] = useMemo(() => {
     const idx = levels.indexOf(levelName!)

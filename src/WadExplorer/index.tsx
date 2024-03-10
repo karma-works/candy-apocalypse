@@ -1,15 +1,13 @@
 import './style.css'
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { GameInstance } from '../doom/doom/instance';
 import Level from './Level';
 import LevelSelector from './LevelSelector';
-import { LumpReader } from '../doom/wad/lump-reader';
 import MObj from './MObj';
 import MObjSelector from './MObjSelector';
 import { MObjType } from '../doom/doom/info/mobj-type';
 import { Perf } from 'r3f-perf';
-import { TextureLoader } from '../doom/webgl/texture-loader';
+import { WadProvider } from './WadContext';
 import { useSearchParams } from 'react-router-dom';
 
 export default function WadExplorer() {
@@ -21,28 +19,12 @@ export default function WadExplorer() {
 
   const [ levelName, setLevelName ] = useState<string | null>(null)
   const [ mObjType, setMObjType ] = useState<MObjType | null>(null)
-  const [ lumpReader, setLumpReader ] = useState<LumpReader | undefined>(undefined)
-
-  const textureLoader = useMemo(() => new TextureLoader(lumpReader), [ lumpReader ])
-  const gameInstance = useMemo(() => new GameInstance({}, lumpReader), [ lumpReader ])
-
-  useEffect(() => {
-    async function fetchWad(fileNames: string[]) {
-      const lumpReader = new LumpReader()
-      await lumpReader.initMultipleFiles(fileNames)
-
-      setLumpReader(lumpReader)
-      setLevelName(lumpReader.listByType('level')[0]?.name)
-    }
-    fetchWad(fileNames);
-  }, [ fileNames ])
 
   return (
-    <>
+    <WadProvider fileNames={fileNames}>
       <div className="WadExplorer">
         <div className="WadExplorerToolbar">
           <LevelSelector
-            lumpReader={lumpReader}
             levelName={levelName}
             onChangeLevelName={l => {
               setMObjType(null)
@@ -51,7 +33,6 @@ export default function WadExplorer() {
           />
 
           <MObjSelector
-            textureLoader={textureLoader}
             mObjType={mObjType}
             onChangeMObjType={n => {
               setLevelName(null)
@@ -67,21 +48,13 @@ export default function WadExplorer() {
         >
           { debug && <Perf position="top-left" /> }
 
-          { levelName && lumpReader &&
-            <Level
-              gameInstance={gameInstance}
-              lumpReader={lumpReader}
-              textureLoader={textureLoader}
-              levelName={levelName}
-            /> }
+          { levelName &&
+            <Level levelName={levelName} /> }
 
           { mObjType !== null &&
-            <MObj
-              textureLoader={textureLoader}
-              mObjType={mObjType}
-            />}
+            <MObj mObjType={mObjType} />}
         </Canvas>
       </div>
-    </>
+    </WadProvider>
   )
 }

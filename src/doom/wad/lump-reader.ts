@@ -90,7 +90,7 @@ export class LumpReader {
   // The name searcher looks backwards, so a later file
   //  does override all earlier ones.
   //
-  async initMultipleFiles(fileNames: string[]): Promise<void> {
+  async initMultipleFiles(fileNames: readonly string[]): Promise<void> {
     // open all the files, load headers, and count lumps
     this.numLumps = 0
     this.lumpInfo = []

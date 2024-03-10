@@ -1,23 +1,22 @@
 import { Center, MapControls } from '@react-three/drei';
 import { extend, useThree } from '@react-three/fiber';
 import { useEffect, useMemo } from 'react';
+import { useGameInstance, useLumpReader, useTextureLoader } from './WadContext';
 import { Level as DoomLevel } from '../doom/level/level';
-import { GameInstance } from '../doom/doom/instance';
 import { LevelGroup } from '../doom/webgl/objects/level';
-import { LumpReader } from '../doom/wad/lump-reader';
 import { SKY_FLAT_NAME } from '../doom/level/sky';
-import { TextureLoader } from '../doom/webgl/texture-loader';
 
 extend({ LevelGroup })
 
 interface LevelProps {
-  gameInstance: GameInstance
-  lumpReader: LumpReader
-  textureLoader: TextureLoader
   levelName: string
 }
 
-export default function Level({ gameInstance, lumpReader, textureLoader, levelName }: LevelProps) {
+export default function Level({ levelName }: LevelProps) {
+  const gameInstance = useGameInstance()
+  const lumpReader = useLumpReader()
+  const textureLoader = useTextureLoader()
+
   const level = useMemo(() => {
     try {
       const level = lumpReader.cacheLumpName(levelName, DoomLevel)

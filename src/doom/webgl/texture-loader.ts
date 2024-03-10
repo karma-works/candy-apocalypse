@@ -34,7 +34,7 @@ export class TextureLoader {
   private flatTextureCache: FlatTexture[] = []
   private spriteCache: SpriteTexture[] = []
 
-  paletteTexture : PaletteTexture
+  paletteTexture: PaletteTexture
 
   flats: FlatArray
   sprites: SpriteArray

@@ -4,21 +4,22 @@ import { Sector } from '../doom/rendering/defs/sector'
 import { Sector as SectorMesh } from '../doom/webgl/objects/sector'
 import { Seg } from '../doom/rendering/segs/seg'
 import { Side } from '../doom/rendering/defs/side'
-import { TextureLoader } from '../doom/webgl/texture-loader'
 import { Vertex } from '../doom/rendering/data/vertex'
 import { extend } from '@react-three/fiber'
 import { useControls } from 'leva'
 import { useMemo } from 'react'
+import { useTextureLoader } from './WadContext'
 
 extend({ Sector: SectorMesh })
 
 interface StudioProps {
-  textureLoader: TextureLoader
   width: number
   height: number
 }
 
-export default function Studio({ textureLoader, width, height }: StudioProps) {
+export default function Studio({ width, height }: StudioProps) {
+  const textureLoader = useTextureLoader()
+
   const defaultWall = useMemo(() => {
     const walls = textureLoader.textures
     const wall = walls[Math.floor(Math.random() * walls.length)]

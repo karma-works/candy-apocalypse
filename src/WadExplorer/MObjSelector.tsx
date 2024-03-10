@@ -3,18 +3,19 @@ import { MObjType } from '../doom/doom/info/mobj-type';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { SpriteNum } from '../doom/doom/info/sprite-num';
-import { TextureLoader } from '../doom/webgl/texture-loader';
 import { mObjInfos } from '../doom/doom/info/mobj-infos';
 import { states } from '../doom/doom/info/states';
 import { useMemo } from 'react';
+import { useTextureLoader } from './WadContext';
 
 interface SelectorProps {
-  textureLoader: TextureLoader
   mObjType: MObjType | null
   onChangeMObjType: (n: MObjType | null) => void
 }
 
-export default function MObjSelector({ textureLoader, mObjType, onChangeMObjType }: SelectorProps) {
+export default function MObjSelector({ mObjType, onChangeMObjType }: SelectorProps) {
+  const textureLoader = useTextureLoader()
+
   const mObjTypes = useMemo(() => {
     return Array.from({ length: MObjType.NUM_MOBJ_TYPES }, (_, i) => i)
       .filter((type: MObjType) => {

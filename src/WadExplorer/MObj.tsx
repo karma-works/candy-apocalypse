@@ -9,13 +9,12 @@ import { OrbitControls } from '@react-three/drei'
 import { StateNum } from '../doom/doom/info/state-num'
 import Studio from './Studio'
 import { TICRATE } from '../doom/global/doomdef'
-import { TextureLoader } from '../doom/webgl/texture-loader'
 import { states } from '../doom/doom/info/states'
+import { useTextureLoader } from './WadContext'
 
 extend({ MObj: MObjMesh })
 
 interface SpriteProps {
-  textureLoader: TextureLoader
   mObjType: MObjType
 }
 
@@ -42,7 +41,9 @@ function useTic(callback: () => void) {
   })
 }
 
-export default function MObj({ textureLoader, mObjType }: SpriteProps) {
+export default function MObj({ mObjType }: SpriteProps) {
+  const textureLoader = useTextureLoader()
+
   const mObj = useMemo(() => {
     return new DoomMObj(mObjType)
   }, [ mObjType ])
@@ -104,7 +105,6 @@ export default function MObj({ textureLoader, mObjType }: SpriteProps) {
         enablePan={false}
       />
       <Studio
-        textureLoader={textureLoader}
         width={256}
         height={150}
       />
