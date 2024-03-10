@@ -1,4 +1,5 @@
-export const enum MObjType {
+export enum MObjType {
+  Undefined = -1,
   Player,
   Possessed,
   Shotguy,

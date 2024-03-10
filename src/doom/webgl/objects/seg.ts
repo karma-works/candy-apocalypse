@@ -24,14 +24,14 @@ export class Seg extends Group {
   constructor(
     private seg: DoomSeg,
     private textures: TextureLoader,
-    private sky: Sky,
+    private sky?: Sky,
   ) {
     super()
 
     this.add(this.mid = this.createMesh(SegPart.Mid))
     if (seg.backSector) {
-      if (seg.frontSector.ceilingPic === sky.flatNum &&
-        seg.backSector.ceilingPic === sky.flatNum
+      if (seg.frontSector.ceilingPic === sky?.flatNum &&
+        seg.backSector.ceilingPic === sky?.flatNum
       ) {
         this.add(this.top = this.createSkyMesh())
       } else {
@@ -134,8 +134,8 @@ export class Seg extends Group {
       // top of texture at top
 
       // hack to allow height changes in outdoor areas
-      if (frontSector.ceilingPic === this.sky.flatNum &&
-        backSector.ceilingPic === this.sky.flatNum
+      if (frontSector.ceilingPic === this.sky?.flatNum &&
+        backSector.ceilingPic === this.sky?.flatNum
       ) {
         return backSector.ceilingHeight - frontSector.ceilingHeight
       } else {
@@ -155,8 +155,8 @@ export class Seg extends Group {
       // bottom of texture at bottom
 
       // hack to allow height changes in outdoor areas
-      if (frontSector.ceilingPic === this.sky.flatNum &&
-        backSector.ceilingPic === this.sky.flatNum
+      if (frontSector.ceilingPic === this.sky?.flatNum &&
+        backSector.ceilingPic === this.sky?.flatNum
       ) {
         return backSector.ceilingHeight - backSector.floorHeight
       } else {
@@ -222,7 +222,7 @@ export class Seg extends Group {
 
     if (backSector) {
       if (top && isSkyMesh(top)) {
-        top.material.envMap = this.textures.getSkyTexture(this.sky.texture)
+        top.material.envMap = this.textures.getSkyTexture(this.sky!.texture)
         top.material.refractionRatio = 1
         top.material.combine = MixOperation
       } else {

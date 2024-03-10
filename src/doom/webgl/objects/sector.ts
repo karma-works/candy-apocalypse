@@ -26,7 +26,7 @@ export class Sector extends Group {
     segs: readonly DoomSeg[],
     lines: readonly DoomLine[],
     private textures: TextureLoader,
-    private sky: Sky,
+    private sky?: Sky,
   ) {
     super()
 
@@ -37,7 +37,7 @@ export class Sector extends Group {
 
     const geometry = new PlaneGeometry(sector, [ ...frontLines, ...backLines ])
     this.add(this.floor = this.createMesh(geometry, FrontSide))
-    if (sector.ceilingPic === sky.flatNum) {
+    if (sector.ceilingPic === sky?.flatNum) {
       this.add(this.ceiling = this.createSkyMesh(geometry))
     } else {
       this.add(this.ceiling = this.createMesh(geometry, BackSide))
@@ -115,7 +115,7 @@ export class Sector extends Group {
     this.floor.material.map = this.textures.getFlatTexture(this.sector.floorPic)
 
     if (isSkyMesh(this.ceiling)) {
-      this.ceiling.material.envMap = this.textures.getSkyTexture(this.sky.texture)
+      this.ceiling.material.envMap = this.textures.getSkyTexture(this.sky!.texture)
       this.ceiling.material.refractionRatio = 1
       this.ceiling.material.combine = MixOperation
     } else {
