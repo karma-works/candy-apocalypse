@@ -3,25 +3,32 @@ import { MObjType } from '../doom/doom/info/mobj-type';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { SpriteNum } from '../doom/doom/info/sprite-num';
+import { TextureLoader } from '../doom/webgl/texture-loader';
+import { mObjInfos } from '../doom/doom/info/mobj-infos';
+import { states } from '../doom/doom/info/states';
 import { useMemo } from 'react';
 
 interface SelectorProps {
+  textureLoader: TextureLoader
   mObjType: MObjType | null
   onChangeMObjType: (n: MObjType | null) => void
 }
 
-export default function MObjSelector({ mObjType, onChangeMObjType }: SelectorProps) {
-  const sprites = useMemo(() => {
-    return Array.from({ length: MObjType.NUM_MOBJ_TYPES }, (_, i) => {
-      return MObjType[i]
-    })
-  }, [])
+export default function MObjSelector({ textureLoader, mObjType, onChangeMObjType }: SelectorProps) {
+  const mObjTypes = useMemo(() => {
+    return Array.from({ length: MObjType.NUM_MOBJ_TYPES }, (_, i) => i)
+      .filter((type: MObjType) => {
+        const st = states[mObjInfos[type].spawnState]
+        const sprDef = textureLoader.spriteDefs[st.sprite]
 
-  if (mObjType === null) {
-    mObjType = -1
-  }
-  const before = mObjType - 1
-  const next = mObjType + 1
+        return sprDef !== undefined && sprDef.frames.length
+      })
+  }, [ textureLoader ])
+
+  const [ before, next ] = useMemo(() => {
+    const idx = mObjTypes.indexOf(mObjType!)
+    return [ mObjTypes[idx - 1], mObjTypes[idx + 1] ]
+  }, [ mObjTypes, mObjType ])
 
   return <ButtonGroup>
     <IconButton
@@ -35,14 +42,14 @@ export default function MObjSelector({ mObjType, onChangeMObjType }: SelectorPro
       placeholder="Map Objects"
       variant="soft"
       value={mObjType}
-      onChange={(_, v) => onChangeMObjType(v)}
+      onChange={(_, v) => v !== null && onChangeMObjType(v)}
     >
-      { sprites.map((name, i) =>
+      { mObjTypes.map((type) =>
         <Option
-          key={i}
-          value={i}
+          key={type}
+          value={type}
         >
-          { name }
+          { MObjType[type] }
         </Option>,
       ) }
     </Select>

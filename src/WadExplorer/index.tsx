@@ -51,6 +51,7 @@ export default function WadExplorer() {
           />
 
           <MObjSelector
+            textureLoader={textureLoader}
             mObjType={mObjType}
             onChangeMObjType={n => {
               setLevelName(null)
