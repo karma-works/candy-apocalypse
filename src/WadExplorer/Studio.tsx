@@ -14,37 +14,35 @@ extend({ Sector: SectorMesh })
 
 interface StudioProps {
   width: number
-  height: number
+  minHeight: number
 }
 
-export default function Studio({ width, height }: StudioProps) {
+const wallPrefixes = [ 'brown', 'comp', 'gray', 'metal', 'pipe', 'star', 'ston', 'tek', 'cem', 'ickwall', 'marble' ]
+const floorPrefixes = [ 'floor' ]
+const ceilingPrefixes = [ 'ceil' ]
+
+function useRandomDefault(arr: readonly string[], prefixes: readonly string[]) {
+  return useMemo(() => {
+    let filteredArr: readonly string[] = arr.filter(name =>
+      !!prefixes.find(p => name.toLowerCase().startsWith(p.toLowerCase())))
+
+    if (filteredArr.length === 0) {
+      filteredArr = arr
+    }
+
+    return filteredArr[Math.floor(Math.random() * filteredArr.length)]
+  }, [ arr, prefixes ])
+}
+
+export default function Studio({ width, minHeight }: StudioProps) {
   const textureLoader = useTextureLoader()
-
-  const defaultWall = useMemo(() => {
-    const walls = textureLoader.textures
-    const wall = walls[Math.floor(Math.random() * walls.length)]
-
-    return wall.name
-  }, [ textureLoader.textures ])
-
-  const defaultFloor = useMemo(() => {
-    let floors = textureLoader.flats.filter(({ name }) => name.toLowerCase().startsWith('floor'))
-    if (floors.length === 0) {
-      floors = textureLoader.flats
-    }
-    return floors[Math.floor(Math.random() * floors.length)].name
-  }, [ textureLoader.flats ])
-
-  const defaultCeiling = useMemo(() => {
-    let ceilings = textureLoader.flats.filter(({ name }) => name.toLowerCase().startsWith('ceil'))
-    if (ceilings.length === 0) {
-      ceilings = textureLoader.flats
-    }
-    return ceilings[Math.floor(Math.random() * ceilings.length)].name
-  }, [ textureLoader.flats ])
 
   const walls = textureLoader.textures.map(t => t.name)
   const flats = textureLoader.flats.map(t => t.name)
+
+  const defaultWall = useRandomDefault(walls, wallPrefixes)
+  const defaultFloor = useRandomDefault(flats, floorPrefixes)
+  const defaultCeiling = useRandomDefault(flats, ceilingPrefixes)
 
   const { wall, floor, ceiling } = useControls('Studio', {
     wall: {
@@ -65,8 +63,11 @@ export default function Studio({ width, height }: StudioProps) {
   const floorPic = textureLoader.flats.findIndex(({ name }) => name === floor)
   const ceilingPic = textureLoader.flats.findIndex(({ name }) => name === ceiling)
 
+  const wallHeight = textureLoader.textures[wallPic].height
+  const height = wallHeight * Math.ceil((minHeight << FRACBITS) / wallHeight)
+
   const [ sector, segs, lines ] = useMemo(() => {
-    const sector = new Sector(1, 0, height << FRACBITS, floorPic, ceilingPic, 200, 0, 0, null)
+    const sector = new Sector(1, 0, height, floorPic, ceilingPic, 200, 0, 0, null)
 
     const v = [
       new Vertex(-width / 2 << FRACBITS, -width / 2 << FRACBITS),

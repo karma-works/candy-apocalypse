@@ -2,6 +2,7 @@ import { button, useControls } from 'leva'
 import { extend, useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { MObj as DoomMObj } from '../doom/play/mobj/mobj'
+import { FRACUNIT } from '../doom/misc/fixed'
 import { MObjInfo } from '../doom/doom/info/mobj-info'
 import { MObj as MObjMesh } from '../doom/webgl/objects/mobj'
 import { MObjType } from '../doom/doom/info/mobj-type'
@@ -106,7 +107,7 @@ export default function MObj({ mObjType }: SpriteProps) {
       />
       <Studio
         width={256}
-        height={150}
+        minHeight={Math.max(mObj.height / FRACUNIT, 64)}
       />
 
       <mObj
