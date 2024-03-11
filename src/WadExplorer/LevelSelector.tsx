@@ -19,7 +19,7 @@ export default function LevelSelector({ levelName, onChangeLevelName }: Selector
   }, [ lumpReader ])
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => onChangeLevelName(levels[0]), [ levels ])
+  useEffect(() => onChangeLevelName(levels[0] || null), [ levels ])
 
   const [ before, next ] = useMemo(() => {
     const idx = levels.indexOf(levelName!)
