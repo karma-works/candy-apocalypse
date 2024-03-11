@@ -17,10 +17,6 @@ An online version of doom.ts is available [here](https://tchandelle.gitlab.io/do
 - Deathmatch
 - Music
 
-### In WAD Explorer
-
-- Sprites viewer
-
 ## Usage
 
 To run the game locally, follow these steps:
