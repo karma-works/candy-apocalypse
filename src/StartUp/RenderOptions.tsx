@@ -2,7 +2,7 @@ import { FormControl, FormLabel, Grid, Option, Select } from '@mui/joy';
 import { useLocalStorage } from '../useLocalStorage';
 
 export default function RenderOptions() {
-  const [ renderer, setRenderer ] = useLocalStorage<string|null>('renderer', 'legacy')
+  const [ renderer, setRenderer ] = useLocalStorage<string|null>('renderer', 'webgl')
 
   return (
     <Grid xs={12}>
