@@ -2,6 +2,7 @@ import { LIGHT_SEG_SHIFT } from '../rendering/rendering'
 import { Segs as LegacySegs } from '../rendering/segs'
 import { MapLineFlag } from '../doom/data'
 import { Rendering } from './rendering'
+import { Sector } from '../rendering/defs/sector'
 
 export class Segs extends LegacySegs {
   constructor(protected rendering: Rendering) {
@@ -25,8 +26,30 @@ export class Segs extends LegacySegs {
     curLine.lineDef.flags |= MapLineFlag.Mapped
 
     const lightLevel = frontSector.lightLevel + (this.rendering.extraLight << LIGHT_SEG_SHIFT)
-
-    this.rendering.levelGroup?.updateSector(frontSector.id, lightLevel)
+    this.updateSector(frontSector)
     this.rendering.levelGroup?.updateSeg(frontSector.id, curLine.id, lightLevel)
+  }
+
+  updateSector({ id, lightLevel, lines }: Sector) {
+    if (this.rendering.levelGroup?.sectors[id].visible) {
+      return
+    }
+
+    lightLevel += this.rendering.extraLight << LIGHT_SEG_SHIFT
+
+    this.rendering.levelGroup?.updateSector(id, lightLevel)
+
+    // Check for neighbors sector that are on the same height.
+    // They might be skipped in the rendering because no segs are visible.
+    lines.forEach(({ frontSector, backSector }) => {
+      if (!frontSector || !backSector ||
+        frontSector.ceilingHeight !== backSector.ceilingHeight ||
+        frontSector.floorHeight !== backSector.floorHeight
+      ) {
+        return
+      }
+
+      this.updateSector(id === frontSector.id ? backSector : frontSector)
+    })
   }
 }
