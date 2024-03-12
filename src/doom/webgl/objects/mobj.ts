@@ -41,6 +41,7 @@ export class MObj extends Mesh<PlaneGeometry, SpritePaletteMaterial> {
     this.material.frames = map.frames
     this.material.frame = frame & FF_FRAMEMASK
     this.scale.set(map.width, map.height, map.width)
+    this.position.y -= map.bottomOffset
 
     this.material.lightLevel = frame & FF_FULLBRIGHT ? 255 : lightLevel
 

@@ -1,3 +1,4 @@
+import { Center, OrbitControls } from '@react-three/drei'
 import { button, useControls } from 'leva'
 import { extend, useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -6,7 +7,6 @@ import { FRACUNIT } from '../doom/misc/fixed'
 import { MObjInfo } from '../doom/doom/info/mobj-info'
 import { MObj as MObjMesh } from '../doom/webgl/objects/mobj'
 import { MObjType } from '../doom/doom/info/mobj-type'
-import { OrbitControls } from '@react-three/drei'
 import { StateNum } from '../doom/doom/info/state-num'
 import Studio from './Studio'
 import { TICRATE } from '../doom/global/doomdef'
@@ -110,10 +110,12 @@ export default function MObj({ mObjType }: SpriteProps) {
         minHeight={Math.max(mObj.height / FRACUNIT, 64)}
       />
 
-      <mObj
-        args={[ mObj, textureLoader ]}
-        ref={mObjMesh}
-      />
+      <Center top cacheKey={mObj}>
+        <mObj
+          args={[ mObj, textureLoader ]}
+          ref={mObjMesh}
+        />
+      </Center>
     </>
   )
 }

@@ -9,8 +9,7 @@ export class SpriteTexture extends DataTexture {
 
   width: number
   height: number
-  leftOffset: number
-  topOffset: number
+  bottomOffset: number
 
   constructor(
     sprDef: SpriteDef,
@@ -35,8 +34,7 @@ export class SpriteTexture extends DataTexture {
     this.frames = frames
     this.width = width
     this.height = height
-    this.leftOffset = -left
-    this.topOffset = -top
+    this.bottomOffset = bottom
 
     this.flipY = true
 
@@ -85,32 +83,21 @@ function drawPatches(
 }
 
 function getBoundingBox(sprDef: SpriteDef, sprites: SpriteArray) {
-  let top = Infinity, right = -Infinity, bottom = -Infinity, left = Infinity
+  let top = 0, right = 0, bottom = 0, left = 0
 
   sprDef.frames.forEach(f => {
 
     f.lump.forEach((num) => {
-
       const patch = sprites[num].patch
 
-      if (-patch.leftOffset < left) {
-        left = -patch.leftOffset
-      }
-      if (-patch.leftOffset + patch.width > right) {
-        right = -patch.leftOffset + patch.width
-      }
-      if (-patch.topOffset < top) {
-        top = -patch.topOffset
-      }
-      if (-patch.topOffset + patch.height > bottom) {
-        bottom = -patch.topOffset + patch.height
-      }
+      left = Math.min(-patch.leftOffset, left)
+      top = Math.min(-patch.topOffset, top)
 
+      right = Math.max(patch.width - patch.leftOffset, right)
+      bottom = Math.max(patch.height - patch.topOffset, bottom)
     })
 
   })
-
-  bottom = Math.max(bottom, 0)
 
   right = Math.max(-left, right)
   left = -right
