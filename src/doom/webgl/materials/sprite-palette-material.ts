@@ -57,12 +57,24 @@ export class SpritePaletteMaterial extends MeshBasicMaterial {
   }
   private uRotations = new Uniform(8)
 
+  get fuzz() {
+    return 'USE_FUZZ' in this.defines!
+  }
+  set fuzz(fuzz: boolean) {
+    if (fuzz) {
+      this.defines!['USE_FUZZ'] = ''
+    } else {
+      delete this.defines!['USE_FUZZ']
+    }
+  }
+
   transparent = true
-  alphaTest = 0.5
+  alphaTest = 0.3
 
   constructor({ paletteMap, ...parameters }: SpritePaletteMaterialParameters) {
     super(parameters)
     this.uPaletteMap = new Uniform(paletteMap)
+    this.defines = this.defines || {}
   }
 
   onBeforeCompile(parameters: WebGLProgramParametersWithUniforms): void {

@@ -23,6 +23,7 @@ import { TextureArray } from '../textures/texture-array'
 export type PatchTextures = {
   map: PatchTexture,
   alphaMap: PatchTexture,
+  transparent: boolean
   patch: Patch,
 }
 
@@ -81,13 +82,17 @@ export class TextureLoader {
 
     if (!this.patchTextureCache[num]) {
       const patch = this.textures[num].patch
-      this.patchTextureCache[num] = {
+      const patchTex: PatchTextures = {
         map: new PatchTexture(patch),
         alphaMap: new PatchTexture(patch, true),
+        transparent: true,
         patch,
       }
-      this.patchTextureCache[num].map.needsUpdate = true
-      this.patchTextureCache[num].alphaMap.needsUpdate = true
+      patchTex.map.needsUpdate = true
+      patchTex.alphaMap.needsUpdate = true
+      patchTex.transparent = patchTex.alphaMap.image.data.some(s => s !== 255)
+
+      this.patchTextureCache[num] = patchTex
     }
     return this.patchTextureCache[num]
   }
@@ -112,6 +117,7 @@ export class TextureLoader {
       const textures: PatchTextures = {
         map: new PatchTexture(patch),
         alphaMap: new PatchTexture(patch, true),
+        transparent: true,
         patch,
       }
       if (flip) {

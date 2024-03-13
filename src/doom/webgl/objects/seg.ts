@@ -242,7 +242,10 @@ export class Seg extends Group {
     }
     const texture = this.textures.getPatchTexture(texNum);
     mesh.material.map = texture.map;
-    mesh.material.alphaMap = texture.alphaMap;
+    if (texture.transparent) {
+      mesh.material.alphaMap = texture.alphaMap;
+      mesh.material.transparent = true
+    }
     mesh.material.lightLevel = lightLevel
   }
 

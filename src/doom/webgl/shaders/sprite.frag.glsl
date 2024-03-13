@@ -13,6 +13,7 @@ void main() {
 	vec4 diffuseColor = vec4( diffuse, opacity );
 
 	#include ./map_fragment
+	#include ./fuzz_fragment
 	#include <alphatest_fragment>
 	#include ./light_fragment
 

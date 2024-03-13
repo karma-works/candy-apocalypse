@@ -24,8 +24,7 @@ export class MeshBasicPaletteMaterial extends MeshBasicMaterial {
   }
   _paletteMap: Uniform<PaletteTexture>
 
-  transparent = true
-  alphaTest = 0.5
+  alphaTest = 0.9
 
   // Light level from 0 to 255
   get lightLevel() {
