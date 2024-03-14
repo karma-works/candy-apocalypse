@@ -9,7 +9,7 @@ import { toRad } from '../../misc/table';
 
 export class MObj extends Mesh<PlaneGeometry, SpritePaletteMaterial> {
   constructor(
-    private mobj: DoomMObj,
+    public mobj: DoomMObj,
     private textures: TextureLoader,
   ) {
     const geo = new PlaneGeometry(1, 1)
