@@ -1,7 +1,7 @@
 import { Center, OrbitControls } from '@react-three/drei'
 import { button, useControls } from 'leva'
 import { extend, useFrame, useThree } from '@react-three/fiber'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { MObj as DoomMObj } from '../doom/play/mobj/mobj'
 import { FRACUNIT } from '../doom/misc/fixed'
 import { MObjInfo } from '../doom/doom/info/mobj-info'
@@ -11,6 +11,7 @@ import { StateNum } from '../doom/doom/info/state-num'
 import Studio from './Studio'
 import { TICRATE } from '../doom/global/doomdef'
 import { states } from '../doom/doom/info/states'
+import { useDynamicRef } from '../useDynamicRef'
 import { useTextureLoader } from './WadContext'
 
 extend({ MObj: MObjMesh })
@@ -27,28 +28,13 @@ const allStates: States[] = [
   'spawnState', 'seeState', 'painState', 'meleeState', 'missileState', 'deathState', 'xdeathState', 'raiseState',
 ]
 
-// Tic at 35 frame per second, like the DOOM engine
-function useTic(callback: () => void) {
-  const [ pendingTics, setPendingTics ] = useState(0)
-
-  useFrame((_, delta) => {
-    let newPendingTics = pendingTics + delta * TICRATE
-
-    for (; newPendingTics >= 0; --newPendingTics) {
-      callback()
-    }
-
-    setPendingTics(newPendingTics)
-  })
-}
-
 export default function MObj({ mObjType }: SpriteProps) {
-  const textureLoader = useTextureLoader()
+  const [ mObjMesh, setMObjMesh ] = useDynamicRef<MObjMesh>()
 
-  const mObj = useMemo(() => {
-    return new DoomMObj(mObjType)
-  }, [ mObjType ])
-  const mObjMesh = useRef<MObjMesh | null>(null)
+  const textureLoader = useTextureLoader()
+  const mObj = useMemo(() => new DoomMObj(mObjType), [ mObjType ])
+
+  const setStateNum = useMObjAnimator(mObj, mObjMesh)
 
   useControls('States', () => {
     return allStates
@@ -60,38 +46,6 @@ export default function MObj({ mObjType }: SpriteProps) {
         }
       }, {})
   }, [ mObj ])
-
-  const [ stateNum, setStateNum ] = useState(mObj.info.spawnState)
-
-  // reset default state when changing mobj
-  useEffect(() => setStateNum(mObj.info.spawnState), [ mObj ])
-
-  // tics left before switching to next state
-  const [ ticsLeft, setTicsLeft ] = useState(Number.MAX_SAFE_INTEGER)
-
-  useEffect(() => {
-    if (mObjMesh.current === null) {
-      return
-    }
-    if (stateNum === StateNum.Null) {
-      mObjMesh.current.visible = false
-      return
-    }
-
-    const st = states[stateNum]
-    setTicsLeft(st.tics === -1 ? Number.MAX_SAFE_INTEGER : st.tics)
-    mObj.sprite = st.sprite
-    mObj.frame = st.frame
-
-    mObjMesh.current.update(255)
-  }, [ mObj, stateNum ])
-
-  useTic(() => {
-    setTicsLeft(t => t - 1)
-    if (ticsLeft - 1 < 0) {
-      setStateNum(states[stateNum].nextState)
-    }
-  })
 
   const { camera } = useThree()
   useEffect(() => {
@@ -113,9 +67,60 @@ export default function MObj({ mObjType }: SpriteProps) {
       <Center top cacheKey={mObj}>
         <mObj
           args={[ mObj, textureLoader ]}
-          ref={mObjMesh}
+          ref={setMObjMesh}
         />
       </Center>
     </>
   )
+}
+
+// Tic at 35 frame per second, like the DOOM engine
+function useTic(callback: () => void) {
+  const [ pendingTics, setPendingTics ] = useState(0)
+
+  useFrame((_, delta) => {
+    let newPendingTics = pendingTics + delta * TICRATE
+
+    for (; newPendingTics >= 0; --newPendingTics) {
+      callback()
+    }
+
+    setPendingTics(newPendingTics)
+  })
+}
+
+function useMObjAnimator(mObj: DoomMObj, mObjMesh: MObjMesh | undefined) {
+  const [ stateNum, setStateNum ] = useState(mObj.info.spawnState)
+
+  // reset default state when changing mobj
+  useEffect(() => setStateNum(mObj.info.spawnState), [ mObj ])
+
+  // tics left before switching to next state
+  const [ ticsLeft, setTicsLeft ] = useState(Number.MAX_SAFE_INTEGER)
+
+  useEffect(() => {
+    if (mObjMesh === undefined) {
+      return
+    }
+    if (stateNum === StateNum.Null) {
+      mObjMesh.visible = false
+      return
+    }
+
+    const st = states[stateNum]
+    setTicsLeft(st.tics === -1 ? Number.MAX_SAFE_INTEGER : st.tics)
+    mObj.sprite = st.sprite
+    mObj.frame = st.frame
+
+    mObjMesh.update(255)
+  }, [ mObj, mObjMesh, stateNum ])
+
+  useTic(() => {
+    setTicsLeft(t => t - 1)
+    if (ticsLeft - 1 < 0) {
+      setStateNum(states[stateNum].nextState)
+    }
+  })
+
+  return setStateNum
 }
