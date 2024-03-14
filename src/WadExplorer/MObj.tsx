@@ -14,6 +14,8 @@ import { states } from '../doom/doom/info/states'
 import { useDynamicRef } from '../useDynamicRef'
 import { useTextureLoader } from './WadContext'
 
+export const MOBJ_CONTROL_FOLDER = 'Map Object'
+
 extend({ MObj: MObjMesh })
 
 interface SpriteProps {
@@ -36,7 +38,7 @@ export default function MObj({ mObjType }: SpriteProps) {
 
   const setStateNum = useMObjAnimator(mObj, mObjMesh)
 
-  useControls('States', () => {
+  useControls(MOBJ_CONTROL_FOLDER, () => {
     return allStates
       .filter(s => mObj.info[s] !== StateNum.Null)
       .reduce((a, s) => {

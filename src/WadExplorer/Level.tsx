@@ -10,6 +10,8 @@ import { useDynamicRef } from '../useDynamicRef';
 
 extend({ LevelGroup })
 
+export const LEVEL_CONTROL_FOLDER = 'Level'
+
 interface LevelProps {
   levelName: string
 }
@@ -64,7 +66,7 @@ function useDoomLevel(levelName: string) {
 }
 
 function useDifficultyControls(levelGroup: LevelGroup | undefined) {
-  const { difficulty } = useControls('Level', {
+  const { difficulty } = useControls(LEVEL_CONTROL_FOLDER, {
     difficulty: {
       options: {
         'Easy': 1,
