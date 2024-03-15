@@ -1,5 +1,5 @@
+import { AlwaysStencilFunc, Mesh, PlaneGeometry, ReplaceStencilOp } from 'three';
 import { FF_FRAMEMASK, FF_FULLBRIGHT } from '../../play/sprite';
-import { Mesh, PlaneGeometry } from 'three';
 import { MObj as DoomMObj } from '../../play/mobj/mobj';
 import { FRACUNIT } from '../../misc/fixed';
 import { MObjFlag } from '../../play/mobj/mobj-flag';
@@ -8,6 +8,10 @@ import { TextureLoader } from '../texture-loader';
 import { toRad } from '../../misc/table';
 
 export class MObj extends Mesh<PlaneGeometry, SpritePaletteMaterial> {
+  static readonly RENDER_ORDER = 1
+
+  renderOrder = MObj.RENDER_ORDER
+
   constructor(
     public mobj: DoomMObj,
     private textures: TextureLoader,
@@ -21,6 +25,10 @@ export class MObj extends Mesh<PlaneGeometry, SpritePaletteMaterial> {
       }),
     )
 
+    this.material.stencilWrite = true
+    this.material.stencilFunc = AlwaysStencilFunc
+    this.material.stencilZPass = ReplaceStencilOp
+
     this.update(255)
   }
 
@@ -30,10 +38,19 @@ export class MObj extends Mesh<PlaneGeometry, SpritePaletteMaterial> {
   }
 
   update(lightLevel: number) {
+    this.updatePosition();
+    this.updateTexture(lightLevel);
+
+    this.visible = true
+  }
+
+  private updatePosition() {
     const { y, z, x, angle } = this.mobj
     this.position.set(y / FRACUNIT, z / FRACUNIT, x / FRACUNIT)
     this.rotation.set(0, toRad(angle), 0)
+  }
 
+  private updateTexture(lightLevel: number) {
     const { sprite, frame, flags } = this.mobj
     const map = this.textures.getSpriteTexture(sprite)
 
@@ -47,7 +64,5 @@ export class MObj extends Mesh<PlaneGeometry, SpritePaletteMaterial> {
     this.material.fuzz = !!(flags & MObjFlag.Shadow)
 
     this.material.lightLevel = frame & FF_FULLBRIGHT ? 255 : lightLevel
-
-    this.visible = true
   }
 }

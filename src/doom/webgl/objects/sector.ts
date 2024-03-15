@@ -1,8 +1,9 @@
-import { BackSide, FrontSide, Group, Mesh, MeshLambertMaterial, MixOperation, Side } from 'three';
+import { BackSide, FrontSide, Group, Mesh, MeshLambertMaterial, MixOperation, NotEqualStencilFunc, Side } from 'three';
 import { Line as DoomLine } from '../../rendering/defs/line';
 import { Sector as DoomSector } from '../../rendering/defs/sector'
 import { Seg as DoomSeg } from '../../rendering/segs/seg';
 import { FRACUNIT } from '../../misc/fixed';
+import { MObj } from './mobj';
 import { MeshBasicPaletteMaterial } from '../materials/mesh-basic-palette-material';
 import { PlaneGeometry } from '../geometries/plane-geometry';
 import { Seg } from './seg';
@@ -20,6 +21,14 @@ export class Sector extends Group {
   floor: SectorMesh;
   ceiling: SectorMesh | SkyMesh;
   frontSegs: {[id: number]: Seg};
+
+  get stencilRef() {
+    return this.floor.material.stencilRef
+  }
+  set stencilRef(ref: number) {
+    this.floor.material.stencilRef = ref
+    this.ceiling.material.stencilRef = ref
+  }
 
   constructor(
     private sector: DoomSector,
@@ -48,6 +57,8 @@ export class Sector extends Group {
     this.add(...Object.values(this.frontSegs))
 
     this.update(sector.lightLevel)
+
+    this.stencilRef = sector.id % 256
   }
 
   dispose(): void {
@@ -85,6 +96,12 @@ export class Sector extends Group {
         paletteMap: this.textures.paletteTexture,
       }),
     )
+
+    // After the MObj
+    mesh.renderOrder = MObj.RENDER_ORDER + 1
+
+    mesh.material.stencilWrite = true
+    mesh.material.stencilFunc = NotEqualStencilFunc
 
     return mesh
   }

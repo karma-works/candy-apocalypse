@@ -23,7 +23,7 @@ export class LevelGroup extends Group {
     this.sectors = sectors.map(sec => new Sector(sec, segs, lines, textures, level.sky))
     this.add(...this.sectors)
 
-    sectors.forEach(s => this.updateLinkedThings(s.thingList, s.lightLevel))
+    sectors.forEach(s => this.updateLinkedThings(s.id, s.thingList, s.lightLevel))
     this.add(this.thingsGroup)
   }
 
@@ -48,7 +48,7 @@ export class LevelGroup extends Group {
     this.sectors[secId].updateSeg(segId, lightLevel)
   }
 
-  updateLinkedThings(thing: DoomMObj | null, lightLevel: number) {
+  updateLinkedThings(secId: number, thing: DoomMObj | null, lightLevel: number) {
     if (thing === null) {
       return
     }
@@ -60,8 +60,10 @@ export class LevelGroup extends Group {
       this.mObjs[thing.id] = mObj
     }
 
+    mObj.material.stencilRef = secId
+
     mObj.update(lightLevel)
 
-    this.updateLinkedThings(thing.sNext, lightLevel)
+    this.updateLinkedThings(secId, thing.sNext, lightLevel)
   }
 }

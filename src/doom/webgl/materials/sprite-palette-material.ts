@@ -68,7 +68,6 @@ export class SpritePaletteMaterial extends MeshBasicMaterial {
     }
   }
 
-  transparent = true
   alphaTest = 0.3
 
   constructor({ paletteMap, ...parameters }: SpritePaletteMaterialParameters) {
