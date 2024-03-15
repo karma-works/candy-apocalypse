@@ -64,10 +64,12 @@ export class SpritePaletteMaterial extends MeshBasicMaterial {
     if (fuzz) {
       this.defines!['USE_FUZZ'] = ''
     } else {
+      this.transparent = false
       delete this.defines!['USE_FUZZ']
     }
   }
 
+  transparent = true
   alphaTest = 0.3
 
   constructor({ paletteMap, ...parameters }: SpritePaletteMaterialParameters) {
