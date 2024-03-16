@@ -60,7 +60,7 @@ export class LevelGroup extends Group {
       this.mObjs[thing.id] = mObj
     }
 
-    mObj.material.stencilRef = secId
+    mObj.material.stencilRef = secId % 255 + 1
 
     mObj.update(lightLevel)
 

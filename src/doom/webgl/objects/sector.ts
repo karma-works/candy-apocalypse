@@ -58,7 +58,7 @@ export class Sector extends Group {
 
     this.update(sector.lightLevel)
 
-    this.stencilRef = sector.id % 256
+    this.stencilRef = sector.id % 255 + 1
   }
 
   dispose(): void {
