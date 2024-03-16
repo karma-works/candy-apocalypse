@@ -54,7 +54,8 @@ export class Sector extends Group {
 
     const frontSegs = segs.filter(({ frontSector }) => frontSector === sector)
     this.frontSegs = this.createSegs(frontSegs)
-    this.add(...Object.values(this.frontSegs))
+    const frontSegsMeshes = Object.values(this.frontSegs)
+    frontSegsMeshes.length && this.add(...frontSegsMeshes)
 
     this.update(sector.lightLevel)
 
