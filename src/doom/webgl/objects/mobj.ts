@@ -7,6 +7,9 @@ import { SpritePaletteMaterial } from '../materials/sprite-palette-material';
 import { TextureLoader } from '../texture-loader';
 import { toRad } from '../../misc/table';
 
+const geo = new PlaneGeometry(1, 1)
+geo.translate(0, .5, 0)
+
 export class MObj extends Mesh<PlaneGeometry, SpritePaletteMaterial> {
   static readonly RENDER_ORDER = 1
 
@@ -16,8 +19,6 @@ export class MObj extends Mesh<PlaneGeometry, SpritePaletteMaterial> {
     public mobj: DoomMObj,
     private textures: TextureLoader,
   ) {
-    const geo = new PlaneGeometry(1, 1)
-    geo.translate(0, .5, 0)
     super(
       geo,
       new SpritePaletteMaterial({
@@ -33,7 +34,6 @@ export class MObj extends Mesh<PlaneGeometry, SpritePaletteMaterial> {
   }
 
   dispose() {
-    this.geometry.dispose()
     this.material.dispose()
   }
 
