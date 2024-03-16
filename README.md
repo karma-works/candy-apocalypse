@@ -11,9 +11,17 @@ An online version of doom.ts is available [here](https://tchandelle.gitlab.io/do
 - **Modern THREE.js Renderer Engine**: Play with either the legacy 2.5D rendering engine, or a modern 3D engine. Source code in [./src/doom/webgl/](./src/doom/webgl/)
 - **WAD Explorer**: Source code in [./src/WadExplorer/](./src/WadExplorer/)
 
+## Compatibility
+- DOOM v1.9
+- The Ultimate DOOM
+- Doom II - Hell on Earth
+- Final Doom - The Plutonia Experiment
+
+## Known issues
+- WebGL: Sky ceiling too low in some places. (See DOOM E3M1)
+
 ## Missing Features
 
-- **Compatibility test with other WAD**: Currently only tested on DOOM v1.9, other version might actually work.
 - Deathmatch
 - Music
 
