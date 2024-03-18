@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useLocalStorage } from '../useLocalStorage';
 
 export default function ConfigOptions() {
-  const [ fileName, setFileName ] = useLocalStorage<string|null>('config', null)
+  const [ fileName, setFileName ] = useLocalStorage<string|null>('config', 'modern.cfg')
   const [ file, setFile ] = useState<DbFile|undefined>(undefined)
 
   useEffect(() => {
