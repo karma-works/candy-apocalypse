@@ -78,7 +78,16 @@ export class PlaneGeometry extends ShapeGeometry {
       }
     }
 
-    super(shapePath.toShapes(false))
+    // Quick fix for bad shapes
+    // - The Ultimate DOOM: E4M3
+    // - Doom II - Hell on Earth: MAP19
+    // - Final Doom - TNT: Evilution: MAP27
+    // - Final Doom - The Plutonia Experiment: MAP31
+    shapePath.subPaths = shapePath.subPaths.filter(h => h.curves.length)
+    const shapes = shapePath.toShapes(false)
+    shapes.forEach(s => s.holes = s.holes.filter(h => h.curves.length))
+
+    super(shapes)
 
     // Use matrix for more precise rotation
     // this.rotateX(-Math.PI / 2)

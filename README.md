@@ -15,6 +15,7 @@ An online version of doom.ts is available [here](https://tchandelle.gitlab.io/do
 - DOOM v1.9
 - The Ultimate DOOM
 - Doom II - Hell on Earth
+- Final Doom - TNT: Evilution
 - Final Doom - The Plutonia Experiment
 
 ## Known issues
