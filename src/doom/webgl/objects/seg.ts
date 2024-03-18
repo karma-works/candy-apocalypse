@@ -1,20 +1,38 @@
-import { Group, Mesh, MeshLambertMaterial, MixOperation } from 'three';
-import { SegGeometry, SegPart } from '../geometries/seg-geometry';
+import { Float32BufferAttribute, Group, Mesh, MeshLambertMaterial, MixOperation, PlaneGeometry } from 'three';
 import { Seg as DoomSeg } from '../../rendering/segs/seg'
-import { FRACBITS } from '../../misc/fixed';
+import { FRACUNIT } from '../../misc/fixed';
 import { Line } from '../../rendering/defs/line';
 import { MapLineFlag } from '../../doom/data';
-import { MeshBasicPaletteMaterial } from '../materials/mesh-basic-palette-material';
 import { Sector } from '../../rendering/defs/sector';
+import { SegMaterial } from '../materials/seg-material';
 import { Sky } from '../../level/sky';
 import { TextureLoader } from '../texture-loader';
 
-type SegMesh = Mesh<SegGeometry, MeshBasicPaletteMaterial>
-type SkyMesh = Mesh<SegGeometry, MeshLambertMaterial>
+const enum SegPart { Top, Mid, Bottom }
+
+type SegMesh = Mesh<PlaneGeometry, SegMaterial>
+type SkyMesh = Mesh<PlaneGeometry, MeshLambertMaterial>
 
 function isSkyMesh(ceiling: SegMesh | SkyMesh): ceiling is SkyMesh {
   return !!(ceiling as SkyMesh).material.isMeshLambertMaterial
 }
+
+function segGeoFactory(): PlaneGeometry {
+  const geo = new PlaneGeometry(1, 1)
+
+  // invert uvs on the y
+  const uvs = geo.attributes.uv as Float32BufferAttribute
+  uvs.setXY(0, 0, 0)
+  uvs.setXY(1, 1, 0)
+  uvs.setXY(2, 0, 1)
+  uvs.setXY(3, 1, 1)
+
+  geo.translate(.5, .5, 0)
+
+  return geo
+}
+
+const geo = segGeoFactory()
 
 export class Seg extends Group {
   top?: SegMesh | SkyMesh
@@ -28,27 +46,24 @@ export class Seg extends Group {
   ) {
     super()
 
-    this.add(this.mid = this.createMesh(SegPart.Mid))
+    this.add(this.mid = this.createMesh())
     if (seg.backSector) {
       if (seg.frontSector.ceilingPic === sky?.flatNum &&
         seg.backSector.ceilingPic === sky?.flatNum
       ) {
-        this.add(this.top = this.createSkyMesh())
+        this.add(this.top = this.createMesh(true))
       } else {
-        this.add(this.top = this.createMesh(SegPart.Top))
+        this.add(this.top = this.createMesh())
       }
-      this.add(this.bottom = this.createMesh(SegPart.Bottom))
+      this.add(this.bottom = this.createMesh())
     }
 
     this.update(seg.frontSector.lightLevel)
   }
 
   dispose() {
-    this.mid.geometry.dispose()
     this.mid.material.dispose()
-    this.top?.geometry.dispose()
     this.top?.material.dispose()
-    this.bottom?.geometry.dispose()
     this.bottom?.material.dispose()
   }
 
@@ -58,26 +73,29 @@ export class Seg extends Group {
     this.updateTextureMaps(lightLevel)
   }
 
-  private createMesh(part: SegPart): SegMesh {
-    const mesh = new Mesh(
-      new SegGeometry(this.seg, part, this.textures.textures),
-      new MeshBasicPaletteMaterial({
-        paletteMap: this.textures.paletteTexture,
-      }),
-    )
-    mesh.visible = false
-
-    return mesh
-  }
-  private createSkyMesh(): SkyMesh {
-    const mesh = new Mesh(
-      new SegGeometry(this.seg, SegPart.Top, this.textures.textures),
-      new MeshLambertMaterial({
+  private createMesh(sky?: false): SegMesh
+  private createMesh(sky: true): SkyMesh
+  private createMesh(sky = false): SegMesh | SkyMesh {
+    const mesh = sky ?
+      new Mesh(geo, new MeshLambertMaterial({
         refractionRatio: 1,
         combine: MixOperation,
-      }),
-    )
-    mesh.visible = false
+      }))
+      :
+      new Mesh(geo, new SegMaterial({
+        paletteMap: this.textures.paletteTexture,
+      }))
+    mesh.visible = true
+
+    const { seg: { v1, v2 } } = this
+    const x1 = v1.x / FRACUNIT, y1 = v1.y / FRACUNIT
+    const x2 = v2.x / FRACUNIT, y2 = v2.y / FRACUNIT
+    const dx = x1 - x2, dy = y1 - y2
+
+    mesh.position.z = x1
+    mesh.position.x = y1
+    mesh.scale.x = Math.sqrt(dx * dx + dy * dy)
+    mesh.rotation.y = Math.atan2(dy, dx) + Math.PI / 2
 
     return mesh
   }
@@ -89,16 +107,16 @@ export class Seg extends Group {
     } = this
 
     if (top) {
-      top.geometry.updateHeight()
+      this.updateHeight(top, SegPart.Top)
       top.visible = true
     }
     if (bottom) {
-      bottom.geometry.updateHeight()
+      this.updateHeight(bottom, SegPart.Bottom)
       bottom.visible = true
     }
 
     if (sideDef.midTexture) {
-      mid.geometry.updateHeight()
+      this.updateHeight(mid, SegPart.Mid)
       mid.visible = true
     } else {
       mid.visible = false
@@ -106,9 +124,39 @@ export class Seg extends Group {
   }
 
 
+  private getTopBottom(part: SegPart): [number, number] {
+    const { backSector, frontSector } = this.seg
+    if (!backSector) {
+      return [ frontSector.ceilingHeight, frontSector.floorHeight ]
+    }
+    switch (part) {
+    case SegPart.Top:
+      return [ frontSector.ceilingHeight, backSector!.ceilingHeight ]
+    case SegPart.Bottom:
+      return [ backSector!.floorHeight, frontSector.floorHeight ]
+    default:
+      return [
+        Math.min(frontSector.ceilingHeight, backSector.ceilingHeight),
+        Math.max(frontSector.floorHeight, backSector.floorHeight),
+      ]
+    }
+  }
+
+  private updateHeight(mesh: Mesh, part: SegPart) {
+    let [ top, bottom ] = this.getTopBottom(part)
+    if (top < bottom) {
+      bottom = top
+    }
+    top /= FRACUNIT
+    bottom /= FRACUNIT
+
+    mesh.scale.y = top - bottom
+    mesh.position.y = bottom
+  }
+
   private getMidOffset(frontSector: Sector, lineDef: Line, tex: number): number {
     if (lineDef.flags & MapLineFlag.DontPegBottom) {
-      const textureHeight = this.textures.textures.getHeight(tex) << FRACBITS
+      const textureHeight = this.textures.textures.getHeight(tex) / FRACUNIT
       // bottom of texture at bottom
       return frontSector.floorHeight + textureHeight - frontSector.ceilingHeight
     } else {
@@ -118,7 +166,7 @@ export class Seg extends Group {
   }
   private getMaskedMidOffset(frontSector: Sector, backSector: Sector, lineDef: Line, tex: number): number {
     if (lineDef.flags & MapLineFlag.DontPegBottom) {
-      const textureHeight = this.textures.textures.getHeight(tex) << FRACBITS
+      const textureHeight = this.textures.textures.getHeight(tex) / FRACUNIT
 
       return Math.max(frontSector.floorHeight, backSector.floorHeight) +
         textureHeight -
@@ -143,7 +191,7 @@ export class Seg extends Group {
       }
 
     } else {
-      const textureHeight = this.textures.textures.getHeight(tex) << FRACBITS
+      const textureHeight = this.textures.textures.getHeight(tex) / FRACUNIT
       // bottom of texture
       return backSector.ceilingHeight + textureHeight - frontSector.ceilingHeight
     }
@@ -181,28 +229,44 @@ export class Seg extends Group {
       topOffset = this.getMidOffset(frontSector, lineDef, sideDef.midTexture)
       topOffset += sideDef.rowOffset
 
-      mid.geometry.updateUvs(leftOffset, topOffset, sideDef.midTexture)
+      this.updateUvs(mid, leftOffset, topOffset, sideDef.midTexture)
     } else {
-      if (top) {
+      if (top && !isSkyMesh(top)) {
         topOffset = this.getTopOffset(frontSector, backSector, lineDef, sideDef.topTexture)
         topOffset += sideDef.rowOffset
 
-        top.geometry.updateUvs(leftOffset, topOffset, sideDef.topTexture)
+        this.updateUvs(top, leftOffset, topOffset, sideDef.topTexture)
       }
       if (bottom) {
         topOffset = this.getBottomOffset(frontSector, backSector, lineDef)
         topOffset += sideDef.rowOffset
 
-        bottom.geometry.updateUvs(leftOffset, topOffset, sideDef.bottomTexture)
+        this.updateUvs(bottom, leftOffset, topOffset, sideDef.bottomTexture)
       }
 
       if (sideDef.midTexture) {
         topOffset = this.getMaskedMidOffset(frontSector, backSector, lineDef, sideDef.midTexture)
         topOffset += sideDef.rowOffset
 
-        mid.geometry.updateUvs(leftOffset, topOffset, sideDef.midTexture)
+        this.updateUvs(mid, leftOffset, topOffset, sideDef.midTexture)
       }
     }
+  }
+
+  private updateUvs(
+    mesh: SegMesh,
+    leftOffset: number,
+    topOffset: number,
+    tex: number,
+  ): void {
+    const texWidth = this.textures.textures[tex].patch.width
+    const texHeight = this.textures.textures[tex].patch.height
+
+    mesh.material.texOffset.set(
+      leftOffset / FRACUNIT,
+      topOffset / FRACUNIT,
+    )
+    mesh.material.texSize.set(texWidth, texHeight)
   }
 
   private updateTextureMaps(lightLevel: number): void {
