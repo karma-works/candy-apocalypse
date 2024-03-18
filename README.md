@@ -1,4 +1,4 @@
-# DOOM.ts
+# [DOOM.ts](https://tchandelle.gitlab.io/doom.ts/)
 
 **doom.ts** is a port of the classic game DOOM, implemented in TypeScript.
 It is based on the original source code available [here](https://github.com/id-Software/DOOM).
