@@ -1,15 +1,17 @@
-import { AmmoType, GameState, MAX_PLAYERS, TICRATE, WeaponType } from '../global/doomdef'
+import { AmmoType, ArmorType, Card, GameState, MAX_PLAYERS, TICRATE, WeaponType } from '../global/doomdef'
 import { ButtonCode, DEvent, EvType, GameAction } from '../doom/event'
+import { Cheat, Player, PlayerState, WbStart } from '../doom/player'
+import { FRACBITS, FRACUNIT } from '../misc/fixed'
 import { GameMode, GameVersion, Skill } from '../doom/mode'
-import { Player, PlayerState, WbStart } from '../doom/player'
 import { SKY_FLAT_NAME, Sky } from '../level/sky'
+import { fromDeg, toDeg } from '../misc/table'
 import { AutoMap } from '../auto-map/auto-map'
 import { BACKUP_TICS } from '../doom/net/doom-data'
 import { Sound as DSound } from '../doom/sound'
 import { Demo } from './demo'
 import { Doom } from '../doom'
-import { FRACUNIT } from '../misc/fixed'
 import { Finale } from '../finale/finale'
+import { GUI } from 'lil-gui'
 import { HeadsUp } from '../heads-up/stuff'
 import { LumpReader } from '../wad/lump-reader'
 import { MAX_HEALTH } from '../play/local'
@@ -649,6 +651,8 @@ export class Game {
       this.doom.pageTicker()
       break
     }
+
+    this.updateDebugFromGame()
   }
 
   //
@@ -1311,5 +1315,164 @@ export class Game {
     }
 
     return false
+  }
+
+  private debug = {
+    position: { x: 0, y: 0, z: 0, angle: 0 },
+    health: { health: 0, armor: false, megaArmor: false, armorPoints: 0 },
+    cards: {
+      blueCard: false, yellowCard: false, redCard: false,
+      blueSkull: false, yellowSkull: false, redSkull: false,
+    },
+    weapons: {
+      fist: false, pistol: false, shotgun: false,
+      chaingun: false, missile: false, plasma: false,
+      bfg: false, chainsaw: false, supershotgun: false,
+      clips: 0, shells: 0, cells: 0, missiles: 0,
+    },
+    cheats: { noClip: false, godMode: false, noMomentum: false },
+  }
+  private updateDebugFromGame() {
+    const {
+      debug: { position, health, cards, weapons, cheats },
+      player,
+    } = this
+
+    if (!player.mo) {
+      return
+    }
+    position.x = player.mo.x >> FRACBITS
+    position.y = player.mo.y >> FRACBITS
+    position.z = player.mo.z >> FRACBITS
+    position.angle = toDeg(player.mo.angle)
+
+    health.health = player.health
+    health.armor = player.armorType === ArmorType.Armor
+    health.megaArmor = player.armorType === ArmorType.MegaArmor
+    health.armorPoints = player.armorPoints
+
+    cards.blueCard = player.cards[Card.BlueCard]
+    cards.yellowCard = player.cards[Card.YellowCard]
+    cards.redCard = player.cards[Card.RedCard]
+    cards.blueSkull = player.cards[Card.BlueSkull]
+    cards.yellowSkull = player.cards[Card.YellowSkull]
+    cards.redSkull = player.cards[Card.RedSkull]
+
+    weapons.fist = player.weaponOwned[WeaponType.Fist]
+    weapons.pistol = player.weaponOwned[WeaponType.Pistol]
+    weapons.shotgun = player.weaponOwned[WeaponType.Shotgun]
+    weapons.chaingun = player.weaponOwned[WeaponType.Chaingun]
+    weapons.missile = player.weaponOwned[WeaponType.Missile]
+    weapons.plasma = player.weaponOwned[WeaponType.Plasma]
+    weapons.bfg = player.weaponOwned[WeaponType.BFG]
+    weapons.chainsaw = player.weaponOwned[WeaponType.Chainsaw]
+    weapons.supershotgun = player.weaponOwned[WeaponType.Supershotgun]
+
+    weapons.clips = player.ammo[AmmoType.Clip]
+    weapons.shells = player.ammo[AmmoType.Shell]
+    weapons.cells = player.ammo[AmmoType.Cell]
+    weapons.missiles = player.ammo[AmmoType.Misl]
+
+    cheats.noClip = !!(player.cheats & Cheat.NoClip)
+    cheats.godMode = !!(player.cheats & Cheat.GodMode)
+    cheats.noMomentum = !!(player.cheats & Cheat.NoMomentum)
+  }
+  private updateGameFromDebug() {
+    const {
+      debug: { position, health, cards, weapons, cheats },
+      player,
+    } = this
+
+    if (!player.mo) {
+      return
+    }
+
+    player.mo.x = position.x << FRACBITS
+    player.mo.y = position.y << FRACBITS
+    player.mo.z = position.z << FRACBITS
+    player.mo.angle = fromDeg(position.angle)
+
+    player.health = player.mo.health = health.health
+    player.armorType = health.megaArmor ? ArmorType.MegaArmor : health.armor ? ArmorType.Armor : ArmorType.None
+    player.armorPoints = health.armorPoints
+
+    player.cards[Card.BlueCard] = cards.blueCard
+    player.cards[Card.YellowCard] = cards.yellowCard
+    player.cards[Card.RedCard] = cards.redCard
+    player.cards[Card.BlueSkull] = cards.blueSkull
+    player.cards[Card.YellowSkull] = cards.yellowSkull
+    player.cards[Card.RedSkull] = cards.redSkull
+
+    player.weaponOwned[WeaponType.Fist] = weapons.fist
+    player.weaponOwned[WeaponType.Pistol] = weapons.pistol
+    player.weaponOwned[WeaponType.Shotgun] = weapons.shotgun
+    player.weaponOwned[WeaponType.Chaingun] = weapons.chaingun
+    player.weaponOwned[WeaponType.Missile] = weapons.missile
+    player.weaponOwned[WeaponType.Plasma] = weapons.plasma
+    player.weaponOwned[WeaponType.BFG] = weapons.bfg
+    player.weaponOwned[WeaponType.Chainsaw] = weapons.chainsaw
+    player.weaponOwned[WeaponType.Supershotgun] = weapons.supershotgun
+
+    player.ammo[AmmoType.Clip] = weapons.clips
+    player.ammo[AmmoType.Shell] = weapons.shells
+    player.ammo[AmmoType.Cell] = weapons.cells
+    player.ammo[AmmoType.Misl] = weapons.missiles
+
+    player.cheats = (cheats.noClip ? Cheat.NoClip : 0) |
+      (cheats.godMode ? Cheat.GodMode : 0) |
+      (cheats.noMomentum ? Cheat.NoMomentum : 0)
+  }
+  setupDebugGui(gui: GUI) {
+    const {
+      debug: { position, health, cards, weapons, cheats },
+    } = this
+
+    const playerFolder = gui.addFolder('Player')
+
+    const positionFolder = playerFolder.addFolder('Position').open(false)
+    positionFolder.add(position, 'x')
+    positionFolder.add(position, 'y')
+    positionFolder.add(position, 'z')
+    positionFolder.add(position, 'angle').min(0).max(360)
+
+    const healthFolder = playerFolder.addFolder('Health').open(false)
+    healthFolder.add(health, 'health').min(0).max(100).step(1)
+    healthFolder.add(health, 'armor')
+    healthFolder.add(health, 'megaArmor')
+    healthFolder.add(health, 'armorPoints').min(0).max(200).step(1)
+
+    const cardsFolder = playerFolder.addFolder('Cards').open(false)
+    cardsFolder.add(cards, 'blueCard')
+    cardsFolder.add(cards, 'yellowCard')
+    cardsFolder.add(cards, 'redCard')
+    cardsFolder.add(cards, 'blueSkull')
+    cardsFolder.add(cards, 'yellowSkull')
+    cardsFolder.add(cards, 'redSkull')
+
+    const weaponsFolder = playerFolder.addFolder('Weapons').open(false)
+    weaponsFolder.add(weapons, 'fist')
+    weaponsFolder.add(weapons, 'pistol')
+    weaponsFolder.add(weapons, 'shotgun')
+    weaponsFolder.add(weapons, 'chaingun')
+    weaponsFolder.add(weapons, 'missile')
+    weaponsFolder.add(weapons, 'plasma')
+    weaponsFolder.add(weapons, 'bfg')
+    weaponsFolder.add(weapons, 'chainsaw')
+    weaponsFolder.add(weapons, 'supershotgun')
+
+    weaponsFolder.add(weapons, 'clips').min(0).max(999).step(1)
+    weaponsFolder.add(weapons, 'shells').min(0).max(999).step(1)
+    weaponsFolder.add(weapons, 'cells').min(0).max(999).step(1)
+    weaponsFolder.add(weapons, 'missiles').min(0).max(999).step(1)
+
+    const cheatsFolder = playerFolder.addFolder('Cheats').open(false)
+    cheatsFolder.add(cheats, 'noClip')
+    cheatsFolder.add(cheats, 'godMode')
+    cheatsFolder.add(cheats, 'noMomentum')
+
+    playerFolder.controllersRecursive().forEach(c => {
+      c.onChange(() => this.updateGameFromDebug())
+      c.listen()
+    })
   }
 }

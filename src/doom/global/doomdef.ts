@@ -106,3 +106,9 @@ export enum PowerDuration {
   InfraTics = 120 * TICRATE,
   IronTics = 60 * TICRATE,
 }
+
+export const enum ArmorType {
+  None,
+  Armor,
+  MegaArmor,
+}

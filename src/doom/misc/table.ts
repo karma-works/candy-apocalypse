@@ -20,6 +20,14 @@ export function toRad(ang: number): number {
   return 2 * Math.PI * (ang >>> ANGLE_TO_FINE_SHIFT) / FINE_ANGLES
 }
 
+export function toDeg(ang: number): number {
+  return 360 * (ang >>> ANGLE_TO_FINE_SHIFT) / FINE_ANGLES
+}
+
+export function fromDeg(ang: number): number {
+  return ang * FINE_ANGLES / 360 << ANGLE_TO_FINE_SHIFT
+}
+
 export function slopeDiv(num: number, den: number): number {
   if (den < 512) {
     return SLOPE_RANGE

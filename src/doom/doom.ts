@@ -8,6 +8,7 @@ import { Sound as DSound } from './doom/sound'
 import { Defaults } from './misc/defaults'
 import { EnglishStrings } from './translation/english'
 import { Finale } from './finale/finale'
+import GUI from 'lil-gui'
 import { Game } from './game/game'
 import { GameInstance } from './doom/instance'
 import { HeadsUp } from './heads-up/stuff'
@@ -66,8 +67,8 @@ export class Doom {
   // debug flag to cancel adaptiveness
   singleTics = false
 
-  private debug = false
   private stats: Stats | null = null
+  public gui: GUI | null = null
 
   public wad = new LumpReader()
   public defaults = new Defaults(this)
@@ -158,7 +159,7 @@ export class Doom {
     }
 
     const { width, height } = this.iVideo
-    const iVideo = new Video(this.rVideo, { debug: this.debug })
+    const iVideo = new Video(this.rVideo)
     this.iVideo = iVideo
     this.iVideo.screen = this.params.screen3d
     this.iVideo.palette = palette
@@ -588,7 +589,9 @@ export class Doom {
     }
 
     if (this.params.debug && this.params.input) {
-      this.debug = true
+      this.gui = new GUI()
+      this.game.setupDebugGui(this.gui)
+
       const stats = new Stats()
       stats.showPanel(0)
       this.params.input.appendChild(stats.dom)
@@ -782,6 +785,7 @@ export class Doom {
     this.iVideo.screen = null
 
     this.stats?.dom.remove()
+    this.gui?.destroy()
 
     return
   }

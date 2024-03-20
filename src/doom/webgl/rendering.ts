@@ -1,9 +1,9 @@
+import { Controller, GUI } from 'lil-gui'
 import {
   Group,
   PerspectiveCamera,
   Vector4,
 } from 'three'
-import { Controller } from 'lil-gui'
 import { Doom } from '../doom'
 import { FRACUNIT } from '../misc/fixed'
 import { Rendering as LegacyRendering } from '../rendering/rendering'
@@ -21,7 +21,8 @@ export class Rendering extends LegacyRendering {
   private camera = new PerspectiveCamera(
     64, 320 / 200, 10, 4000,
   )
-  private cameraController: Controller | null = null
+  private cameraFovController: Controller | null = null
+  private cameraGui: GUI | null = null
   private viewport = new Vector4()
 
   public pSpritesGroup: Group
@@ -49,15 +50,17 @@ export class Rendering extends LegacyRendering {
     iVideo.viewport = this.viewport
     this.pSpritesGroup = iVideo.pSpritesGroup
 
-    if (iVideo.gui) {
-      this.cameraController = iVideo.gui.add(this.camera, 'fov')
+    if (doom.gui) {
+      this.cameraGui = doom.gui.addFolder('Camera')
+
+      this.cameraFovController = this.cameraGui.add(this.camera, 'fov')
         .min(1).max(180)
         .onChange(() => this.camera.updateProjectionMatrix())
 
-      iVideo.gui.add(this.camera, 'near')
+      this.cameraGui.add(this.camera, 'near')
         .min(0.1).max(100).step(1)
         .onChange(() => this.camera.updateProjectionMatrix())
-      iVideo.gui.add(this.camera, 'far')
+      this.cameraGui.add(this.camera, 'far')
         .min(100).max(5000).step(1)
         .onChange(() => this.camera.updateProjectionMatrix())
     }
@@ -127,7 +130,7 @@ export class Rendering extends LegacyRendering {
     this.camera.aspect = this.viewWidth / this.viewHeight
     this.camera.fov = this.fullScreen ? 64 : 54
     this.camera.updateProjectionMatrix()
-    this.cameraController?.updateDisplay()
+    this.cameraFovController?.updateDisplay()
 
     this.viewport.set(
       this.viewWindowX,

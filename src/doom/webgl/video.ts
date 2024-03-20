@@ -1,16 +1,11 @@
 import { Camera, DataTexture, Group, OrthographicCamera, RedFormat, Scene, Sprite, Vector4, WebGLRenderer } from 'three'
 import { SCREENHEIGHT, STRETCH } from '../global/doomdef'
 import { ColorMap } from '../interfaces/colormap'
-import { GUI } from 'lil-gui'
 import { OldSpritePaletteMaterial } from './materials/old-sprite-palette-material'
 import { Palette } from '../interfaces/palette'
 import { PaletteTexture } from './textures/palette-texture'
 import { Video as RVideo } from '../rendering/video'
 import { VideoInterface } from '../interfaces/video-interface'
-
-interface VideoOptions {
-  debug?: boolean
-}
 
 export class Video implements VideoInterface {
   width = 0
@@ -34,13 +29,7 @@ export class Video implements VideoInterface {
   overlayMaterial: OldSpritePaletteMaterial | null = null
   private overlayViewport = new Vector4()
 
-  gui: GUI | null = null
-
-  constructor(private rVideo: RVideo, { debug }: VideoOptions) {
-    if (debug) {
-      this.gui = new GUI()
-    }
-
+  constructor(private rVideo: RVideo) {
     this.updatePalette()
   }
 
@@ -184,7 +173,5 @@ export class Video implements VideoInterface {
     }
 
     this.renderer.dispose()
-
-    this.gui?.destroy()
   }
 }

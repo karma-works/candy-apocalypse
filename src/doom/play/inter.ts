@@ -1,5 +1,5 @@
 import { ANG180, ANGLE_TO_FINE_SHIFT, FINE_ANGLES, fineSine } from '../misc/table'
-import { AmmoType, Card, PowerDuration, PowerType, WeaponType } from '../global/doomdef'
+import { AmmoType, ArmorType, Card, PowerDuration, PowerType, WeaponType } from '../global/doomdef'
 import { BASE_THRESHOLD, MAX_HEALTH, ON_FLOOR_Z } from './local'
 import { Cheat, Player, PlayerState } from '../doom/player'
 import { FRACUNIT, mul } from '../misc/fixed'
@@ -230,7 +230,7 @@ export class Inter {
   // Returns false if the armor is worse
   // than the current armor.
   //
-  private giveArmor(player: Player, armorType: number): boolean {
+  private giveArmor(player: Player, armorType: ArmorType): boolean {
     const hits = armorType * 100
     if (player.armorPoints >= hits) {
       // don't pick up
@@ -326,14 +326,14 @@ export class Inter {
     switch (special.sprite) {
     // armor
     case SpriteNum.Arm1:
-      if (!this.giveArmor(player, 1)) {
+      if (!this.giveArmor(player, ArmorType.Armor)) {
         return
       }
       player.message = this.strings.gotarmor
       break
 
     case SpriteNum.Arm2:
-      if (!this.giveArmor(player, 2)) {
+      if (!this.giveArmor(player, ArmorType.MegaArmor)) {
         return
       }
       player.message = this.strings.gotmega
@@ -359,7 +359,7 @@ export class Inter {
         player.armorPoints = 200
       }
       if (!player.armorType) {
-        player.armorType = 1
+        player.armorType = ArmorType.Armor
       }
       player.message = this.strings.gotarmbonus
       break
@@ -382,7 +382,7 @@ export class Inter {
       }
       player.health = 200
       player.mo.health = player.health
-      this.giveArmor(player, 2)
+      this.giveArmor(player, ArmorType.MegaArmor)
       player.message = this.strings.gotmsphere
       if (this.doom.instance.version > GameVersion.Doom12) {
         sound = SfxName.Getpow
@@ -865,7 +865,7 @@ export class Inter {
 
       if (player.armorType) {
         let saved: number
-        if (player.armorType === 1) {
+        if (player.armorType === ArmorType.Armor) {
           saved = damage / 3 >> 0
         } else {
           saved = damage / 2 >> 0
@@ -874,7 +874,7 @@ export class Inter {
         if (player.armorPoints <= saved) {
           // armor is used up
           saved = player.armorPoints
-          player.armorType = 0
+          player.armorType = ArmorType.None
         }
         player.armorPoints -= saved
         damage -= saved

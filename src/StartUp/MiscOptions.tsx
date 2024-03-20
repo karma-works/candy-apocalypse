@@ -6,18 +6,11 @@ export default function MiscOptions() {
   const [ noMonsters, setNoMonsters ] = useLocalStorage<boolean>('noMonsters', false)
   const [ fast, setFast ] = useLocalStorage<boolean>('fast', false)
   const [ respawn, setRespawn ] = useLocalStorage<boolean>('respawn', false)
+  const [ debug, setDebug ] = useLocalStorage<boolean>('debug', false)
 
   return (
     <>
-      <Grid xs={3}>
-        <Checkbox
-          checked={sound}
-          onChange={(e) => setSound(e.target.checked) }
-          name="sound"
-          label='Sound'
-        />
-      </Grid>
-      <Grid xs={3}>
+      <Grid xs={4}>
         <Checkbox
           checked={noMonsters}
           onChange={(e) => setNoMonsters(e.target.checked) }
@@ -25,7 +18,7 @@ export default function MiscOptions() {
           label='No Monsters'
         />
       </Grid>
-      <Grid xs={3}>
+      <Grid xs={4}>
         <Checkbox
           checked={fast}
           disabled={noMonsters}
@@ -34,13 +27,33 @@ export default function MiscOptions() {
           label='Fast Monsters'
         />
       </Grid>
-      <Grid xs={3}>
+      <Grid xs={4}>
         <Checkbox
           checked={respawn}
           disabled={noMonsters}
           onChange={(e) => setRespawn(e.target.checked) }
           name="respawn"
           label='Respawn Monsters'
+        />
+      </Grid>
+
+      <Grid xs={4}>
+        <Checkbox
+          checked={sound}
+          onChange={(e) => setSound(e.target.checked) }
+          name="sound"
+          label='Sound'
+        />
+      </Grid>
+
+      <Grid xs={4} />
+
+      <Grid xs={4}>
+        <Checkbox
+          checked={debug}
+          onChange={(e) => setDebug(e.target.checked) }
+          name="debug"
+          label='Debug'
         />
       </Grid>
     </>

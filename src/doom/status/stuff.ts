@@ -1,6 +1,6 @@
 import { AM_MSGENTERED, AM_MSGEXITED, AM_MSGHEADER, AutoMap } from '../auto-map/auto-map'
 import { ANG180, ANG45 } from '../misc/table'
-import { AmmoType, Card, MAX_PLAYERS, PowerType, TICRATE, WeaponType } from '../global/doomdef'
+import { AmmoType, ArmorType, Card, MAX_PLAYERS, PowerType, TICRATE, WeaponType } from '../global/doomdef'
 import { BG, FG, Lib, ST_HEIGHT, ST_WIDTH } from './lib'
 import { DEvent, EvType } from '../doom/event'
 import { GameMission, GameMode, GameVersion, Skill } from '../doom/mode'
@@ -315,7 +315,7 @@ export class StatusBar {
         } else if (this.cheat.checkCheat(ammoNoKeyCheat, ev.data2)) {
           // 'fa' cheat for killer fucking arsenal
           plyr.armorPoints = 200
-          plyr.armorType = 2
+          plyr.armorType = ArmorType.MegaArmor
 
           for (let i = 0; i < WeaponType.NUM_WEAPONS; i++) {
             plyr.weaponOwned[i] = true
@@ -329,7 +329,7 @@ export class StatusBar {
         } else if (this.cheat.checkCheat(ammoCheat, ev.data2)) {
           // 'kfa' cheat for key full ammo
           plyr.armorPoints = 200
-          plyr.armorType = 2
+          plyr.armorType = ArmorType.MegaArmor
 
           for (let i = 0; i < WeaponType.NUM_WEAPONS; i++) {
             plyr.weaponOwned[i] = true

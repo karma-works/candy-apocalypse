@@ -1,4 +1,4 @@
-import { AmmoType, Card, MAX_PLAYERS, PowerType, WeaponType } from '../global/doomdef'
+import { AmmoType, ArmorType, Card, MAX_PLAYERS, PowerType, WeaponType } from '../global/doomdef'
 import { PSpriteDef, PSpriteNum } from '../play/sprite'
 import { MObj } from '../play/mobj/mobj'
 import { TickCmd } from './tick-cmd'
@@ -53,7 +53,7 @@ export class Player {
   health = 0
   armorPoints = 0
   // Armor type is 0-2.
-  armorType = 0
+  armorType = ArmorType.None
 
   // Power ups. invinc and invis are tic counters.
   powers = new Array<number>(PowerType.NUMPOWERS).fill(0)
