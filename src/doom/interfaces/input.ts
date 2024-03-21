@@ -73,7 +73,8 @@ export class Input {
       event.data2 = mouseEvent.movementX << 2
       event.data3 = -mouseEvent.movementY << 2
 
-      if (event.data2 || event.data3) {
+      if ((event.data2 || event.data3) &&
+        document.pointerLockElement !== null) {
         this.postEvent(event)
       }
 

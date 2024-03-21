@@ -116,9 +116,11 @@ export default function Doom(props?: Partial<Params>) {
   useEffect(() => {
     window.addEventListener('resize', onResize);
     document.addEventListener('pointerlockchange', onPointerLockChange);
+    document.addEventListener('pointerlockerror', onBlur);
     return () => {
       window.removeEventListener('resize', onResize);
       document.removeEventListener('pointerlockchange', onPointerLockChange);
+      document.removeEventListener('pointerlockerror', onBlur);
     }
   }, [ onPointerLockChange ]);
 
