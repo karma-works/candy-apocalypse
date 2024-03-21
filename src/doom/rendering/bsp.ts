@@ -1,7 +1,10 @@
 import { ANG180, ANG90, ANGLE_TO_FINE_SHIFT } from '../misc/table'
 import { BBox } from '../misc/bbox'
 import { ClipRange } from './bsp/clip-range'
+import { Doom } from '../doom'
 import { Draw } from './draw'
+import { FRACUNIT } from '../misc/fixed'
+import { GUI } from 'lil-gui'
 import { Level } from '../level/level'
 import { Line } from './defs/line'
 import { NF_SUBSECTOR } from '../doom/data'
@@ -13,6 +16,7 @@ import { Seg } from './segs/seg'
 import { Segs } from './segs'
 import { Side } from './defs/side'
 import { Things } from './things'
+import { validCounter } from '../play/valid-counter'
 
 
 export const MAX_SEGS = 32
@@ -49,6 +53,9 @@ export class BSP {
 
   private get draw(): Draw {
     return this.rendering.draw
+  }
+  private get doom(): Doom {
+    return this.rendering.doom
   }
   private get level(): Level {
     return this.rendering.level
@@ -213,6 +220,8 @@ export class BSP {
     this.solidSegs[1].first = this.draw.viewWidth
     this.solidSegs[1].last = 0x7fffffff
     this.newEndPtr = 2
+
+    this.clearDebug()
   }
 
   //
@@ -476,6 +485,8 @@ export class BSP {
       this.addLine(seg)
       segPtr++
     }
+
+    this.setDebugFromGame(this.frontSector)
   }
 
   //
@@ -507,4 +518,92 @@ export class BSP {
       this.renderBSPNode(bsp.children[side ^ 1])
     }
   }
+
+  private sectorsFolder: GUI | null = null
+  private sectorsDebug: SectorDebug[] = []
+
+  private setDebugFromGame(sector: Sector) {
+    if (!this.doom.gui) {
+      return
+    }
+    if (!this.sectorsFolder) {
+      this.sectorsFolder = this.doom.gui.addFolder('Map Sectors').open(false)
+    }
+
+    let debug = this.sectorsDebug[sector.id]
+    if (!debug) {
+      debug = {
+        sector, validCount: 0,
+        floorHeight: 0, ceilingHeight: 0, lightLevel: 0,
+        blinkTics: 0, blinkOriginal: 0,
+        gui: this.sectorsFolder.addFolder(`Sector ${sector.id}`).open(false),
+      }
+      debug.gui.add(debug, 'floorHeight').min(-2200).max(1800).step(1)
+      debug.gui.add(debug, 'ceilingHeight').min(-2200).max(1800).step(1)
+      debug.gui.add(debug, 'lightLevel').min(0).max(255).step(1)
+
+      debug.gui.domElement.addEventListener('mouseenter', () => {
+        if (debug.blinkTics <= 0) {
+          debug.blinkOriginal = sector.lightLevel
+          debug.blinkTics = 20
+        }
+      })
+
+      debug.gui.controllers.forEach(c => {
+        c.onChange(() => this.updateGameFromDebug(debug))
+        c.listen()
+      })
+
+      this.sectorsDebug[sector.id] = debug
+    }
+
+    if (validCounter.check(debug)) {
+      return
+    }
+
+    debug.sector = sector
+    debug.ceilingHeight = sector.ceilingHeight / FRACUNIT
+    debug.floorHeight = sector.floorHeight / FRACUNIT
+    debug.lightLevel = sector.lightLevel
+    debug.gui.show()
+
+    if (debug.blinkTics > 0) {
+      const blinkTics = Math.ceil(--debug.blinkTics / 5)
+      switch (blinkTics) {
+      case 4:
+      case 2:
+        sector.lightLevel = 255
+        break
+      case 3:
+      case 1:
+        sector.lightLevel = 0
+        break
+      case 0:
+        sector.lightLevel = debug.blinkOriginal
+      }
+    }
+  }
+
+  private updateGameFromDebug(debug: SectorDebug) {
+    debug.sector.floorHeight = debug.floorHeight * FRACUNIT
+    debug.sector.ceilingHeight = debug.ceilingHeight * FRACUNIT
+    debug.sector.lightLevel = debug.lightLevel
+  }
+
+  private clearDebug() {
+    this.sectorsDebug
+      .filter(({ gui }) => gui._closed)
+      .forEach(({ gui }) => gui.hide())
+  }
+}
+
+interface SectorDebug {
+  sector: Sector
+  validCount: number
+  floorHeight: number
+  ceilingHeight: number
+  lightLevel: number
+  blinkTics: number
+  blinkOriginal: number
+  gui: GUI
 }

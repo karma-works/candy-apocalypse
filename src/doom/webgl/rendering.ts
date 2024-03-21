@@ -51,7 +51,7 @@ export class Rendering extends LegacyRendering {
     this.pSpritesGroup = iVideo.pSpritesGroup
 
     if (doom.gui) {
-      this.cameraGui = doom.gui.addFolder('Camera')
+      this.cameraGui = doom.gui.addFolder('Camera').open(false)
 
       this.cameraFovController = this.cameraGui.add(this.camera, 'fov')
         .min(1).max(180)
