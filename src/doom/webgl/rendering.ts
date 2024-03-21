@@ -4,6 +4,7 @@ import {
   PerspectiveCamera,
   Vector4,
 } from 'three'
+import { BSP } from './bsp'
 import { Doom } from '../doom'
 import { FRACUNIT } from '../misc/fixed'
 import { Rendering as LegacyRendering } from '../rendering/rendering'
@@ -43,6 +44,7 @@ export class Rendering extends LegacyRendering {
     this.textures.textures = this.data.textures
     this.textures.paletteTexture.palette = iVideo.palette
 
+    this.bsp = new BSP(this)
     this.segs = new Segs(this)
     this.things = new Things(this, this.video.width)
 

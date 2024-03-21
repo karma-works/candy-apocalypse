@@ -70,7 +70,7 @@ export class BSP {
     return this.rendering.things
   }
 
-  constructor(private rendering: Rendering) { }
+  constructor(protected rendering: Rendering) { }
 
   //
   // R_ClipSolidWallSegment
@@ -229,7 +229,7 @@ export class BSP {
   // Clips the given segment
   // and adds any visible pieces to the line list.
   //
-  private addLine(line: Seg): void {
+  protected addLine(line: Seg): void {
     this.curLine = line
 
     // OPTIMIZE: quickly reject orthogonal back sides.
@@ -438,7 +438,7 @@ export class BSP {
   // Add sprites of things in sector.
   // Draw one or more line segments.
   //
-  private subSector(num: number) {
+  protected subSector(num: number) {
 
     if (RANGE_CHECK) {
       if (num >= this.level.subSectors.length) {
@@ -487,6 +487,8 @@ export class BSP {
     }
 
     this.setDebugFromGame(this.frontSector)
+
+    return this.frontSector
   }
 
   //
