@@ -1,12 +1,11 @@
 import { Center, MapControls } from '@react-three/drei';
 import { extend, useThree } from '@react-three/fiber';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useGameInstance, useLumpReader, useTextureLoader } from './WadContext';
 import { Level as DoomLevel } from '../doom/level/level';
 import { LevelGroup } from '../doom/webgl/objects/level';
 import { SKY_FLAT_NAME } from '../doom/level/sky';
 import { useControls } from 'leva';
-import { useDynamicRef } from '../useDynamicRef';
 
 extend({ LevelGroup })
 
@@ -17,7 +16,7 @@ interface LevelProps {
 }
 
 export default function Level({ levelName }: LevelProps) {
-  const [ levelGroup, setLevelGroup ] = useDynamicRef<LevelGroup>()
+  const [ levelGroup, setLevelGroup ] = useState<LevelGroup | null>(null)
 
   const textureLoader = useTextureLoader();
   const level = useDoomLevel(levelName);
@@ -65,7 +64,7 @@ function useDoomLevel(levelName: string) {
   }, [ lumpReader, levelName, textureLoader, gameInstance ]);
 }
 
-function useDifficultyControls(levelGroup: LevelGroup | undefined) {
+function useDifficultyControls(levelGroup: LevelGroup | null) {
   const { difficulty } = useControls(LEVEL_CONTROL_FOLDER, {
     difficulty: {
       options: {

@@ -11,7 +11,6 @@ import { StateNum } from '../doom/doom/info/state-num'
 import Studio from './Studio'
 import { TICRATE } from '../doom/global/doomdef'
 import { states } from '../doom/doom/info/states'
-import { useDynamicRef } from '../useDynamicRef'
 import { useTextureLoader } from './WadContext'
 
 export const MOBJ_CONTROL_FOLDER = 'Map Object'
@@ -31,7 +30,7 @@ const allStates: States[] = [
 ]
 
 export default function MObj({ mObjType }: SpriteProps) {
-  const [ mObjMesh, setMObjMesh ] = useDynamicRef<MObjMesh>()
+  const [ mObjMesh, setMObjMesh ] = useState<MObjMesh | null>(null)
 
   const textureLoader = useTextureLoader()
   const mObj = useMemo(() => new DoomMObj(mObjType), [ mObjType ])
@@ -91,7 +90,7 @@ function useTic(callback: () => void) {
   })
 }
 
-function useMObjAnimator(mObj: DoomMObj, mObjMesh: MObjMesh | undefined) {
+function useMObjAnimator(mObj: DoomMObj, mObjMesh: MObjMesh | null) {
   const [ stateNum, setStateNum ] = useState(mObj.info.spawnState)
 
   // reset default state when changing mobj
@@ -101,7 +100,7 @@ function useMObjAnimator(mObj: DoomMObj, mObjMesh: MObjMesh | undefined) {
   const [ ticsLeft, setTicsLeft ] = useState(Number.MAX_SAFE_INTEGER)
 
   useEffect(() => {
-    if (mObjMesh === undefined) {
+    if (mObjMesh === null) {
       return
     }
     if (stateNum === StateNum.Null) {
