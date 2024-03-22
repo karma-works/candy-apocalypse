@@ -1,38 +1,33 @@
 import { SCREENHEIGHT, SCREENWIDTH } from '../../global/doomdef';
 import { FRACUNIT } from '../../misc/fixed';
-import { OldSpritePaletteMaterial } from '../materials/old-sprite-palette-material';
+import { MObjFlag } from '../../play/mobj/mobj-flag';
 import { PSpriteDef } from '../../play/sprite';
-import { Sprite } from 'three';
+import { Sprite } from './abstract-sprite';
 import { TextureLoader } from '../texture-loader';
 
 export class PSprite extends Sprite {
-  constructor(
-    private pSpriteDef: PSpriteDef,
-    private textures: TextureLoader,
-  ) {
-    super(new OldSpritePaletteMaterial({ paletteMap: textures.paletteTexture }))
 
-    this.center.set(0, 1)
+  get sprite() {
+    return this.pSpriteDef.state?.sprite || 0
+  }
+  get frame() {
+    return this.pSpriteDef.state?.frame || 0
+  }
+  get flags() {
+    return this.fuzz ? MObjFlag.Shadow : MObjFlag.Undefined
   }
 
-  update() {
-    this.visible = true
+  fuzz = false
 
-    const state = this.pSpriteDef.state
-    if (state === null) {
-      return
-    }
+  constructor(
+    private pSpriteDef: PSpriteDef,
+    textures: TextureLoader,
+  ) {
+    super(textures)
+  }
 
-    const material = this.material as OldSpritePaletteMaterial
-
-    const { map, alphaMap, patch } = this.textures.getSpriteDef(state.sprite, state.frame)
-
-    material.map = map
-    material.alphaMap = alphaMap
-
-    this.scale.set(patch.width, patch.height, 1)
-
-    this.position.x = this.pSpriteDef.sX / FRACUNIT - patch.leftOffset - SCREENWIDTH / 2
-    this.position.y = -this.pSpriteDef.sY / FRACUNIT + patch.topOffset + SCREENHEIGHT
+  protected updatePosition() {
+    this.position.x = this.pSpriteDef.sX / FRACUNIT - SCREENWIDTH / 2
+    this.position.y = -this.pSpriteDef.sY / FRACUNIT + SCREENHEIGHT
   }
 }

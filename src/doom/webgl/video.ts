@@ -23,7 +23,7 @@ export class Video implements VideoInterface {
   pSpritesGroup = new Group()
 
   overlayScene = new Scene()
-  overlayCamera = new OrthographicCamera(-1, 1, 1, -1, 0, 10)
+  overlayCamera = new OrthographicCamera(-1, 1, 1, -1, 0, 50)
   overlayScreenMap: DataTexture | null = null
   overlayAlphaMap: DataTexture | null = null
   overlayMaterial: OldSpritePaletteMaterial | null = null
@@ -127,13 +127,12 @@ export class Video implements VideoInterface {
       this.viewport.z / 320,
       1,
     )
-    this.pSpritesGroup.position.set(0, (SCREENHEIGHT - this.viewport.w) / 2, 1)
+    this.pSpritesGroup.position.set(0, (SCREENHEIGHT - this.viewport.w) / 2, -40)
   }
 
   private createOverlay() {
     const { width, height } = this.rVideo
 
-    this.overlayCamera.position.z = 10
     this.overlayCamera.left = -width / 2
     this.overlayCamera.right = width / 2
     this.overlayCamera.top = height
@@ -159,7 +158,7 @@ export class Video implements VideoInterface {
     })
     const sprite = new Sprite(this.overlayMaterial)
     sprite.scale.set(data.width, data.height, 1)
-    sprite.position.set(0, 0, 9)
+    sprite.position.set(0, 0, -1)
     sprite.center.set(0.5, 0)
 
     this.overlayScene.add(sprite)

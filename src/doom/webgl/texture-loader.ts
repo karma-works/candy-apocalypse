@@ -5,7 +5,6 @@ import {
   RGBAFormat,
 } from 'three'
 import { Palette, Palettes } from '../interfaces/palette'
-import { FF_FRAMEMASK } from '../play/sprite'
 import { FlatArray } from '../textures/flat-array'
 import { FlatTexture } from './textures/flat-texture'
 import { Video as IVideo } from '../interfaces/video'
@@ -28,8 +27,6 @@ export type PatchTextures = {
 }
 
 export class TextureLoader {
-  private patchCache: PatchTextures[] = []
-  private flipPatchCache: PatchTextures[] = []
   private patchTextureCache: PatchTextures[] = []
   private skyTextureCache: DataTexture[] = []
   private flatTextureCache: FlatTexture[] = []
@@ -64,12 +61,6 @@ export class TextureLoader {
 
   dispose() {
     this.paletteTexture.dispose()
-    this.patchCache.forEach(({ map, alphaMap }) => {
-      map.dispose(); alphaMap.dispose()
-    })
-    this.flipPatchCache.forEach(({ map, alphaMap }) => {
-      map.dispose(); alphaMap.dispose()
-    })
     this.patchTextureCache.forEach(({ map, alphaMap }) => {
       map.dispose(); alphaMap.dispose()
     })
@@ -108,32 +99,6 @@ export class TextureLoader {
     return this.flatTextureCache[num]
   }
 
-  getSpriteByNum(num: number, flip: boolean): PatchTextures {
-    const lump = this.sprites[num].lump
-
-    const cache = flip ? this.flipPatchCache : this.patchCache
-    if (!cache[lump]) {
-      const patch = this.sprites[num].patch
-      const textures: PatchTextures = {
-        map: new PatchTexture(patch),
-        alphaMap: new PatchTexture(patch, true),
-        transparent: true,
-        patch,
-      }
-      if (flip) {
-        textures.map.repeat.set(-1, 1)
-        textures.alphaMap.repeat.set(-1, 1)
-      }
-
-      textures.map.needsUpdate = true
-      textures.alphaMap.needsUpdate = true
-
-      cache[lump] = textures
-    }
-
-    return cache[lump]
-  }
-
   getSpriteTexture(num: SpriteNum): SpriteTexture {
     if (!this.spriteCache[num]) {
       const sprDef = this.spriteDefs[num]
@@ -141,16 +106,6 @@ export class TextureLoader {
       this.spriteCache[num].needsUpdate = true
     }
     return this.spriteCache[num]
-  }
-
-  getSpriteDef(num: SpriteNum, frame: number): PatchTextures {
-    const sprDef = this.spriteDefs[num]
-    const sprFrame = sprDef.frames[frame & FF_FRAMEMASK]
-
-    const lump = sprFrame.lump[0]
-    const flip = !!sprFrame.flip[0]
-
-    return this.getSpriteByNum(lump, flip)
   }
 
   getSkyTexture(num: number): DataTexture {

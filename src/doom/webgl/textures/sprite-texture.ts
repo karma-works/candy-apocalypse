@@ -83,7 +83,7 @@ function drawPatches(
 }
 
 function getBoundingBox(sprDef: SpriteDef, sprites: SpriteArray) {
-  let top = 0, right = 0, bottom = 0, left = 0
+  let top = Infinity, right = 0, bottom = -Infinity, left = 0
 
   sprDef.frames.forEach(f => {
 

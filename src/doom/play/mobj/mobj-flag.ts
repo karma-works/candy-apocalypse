@@ -3,6 +3,7 @@
 //
 
 export const enum MObjFlag {
+  Undefined = 0,
   // Call P_SpecialThing when touched.
   Special = 1,
   // Blocks.
