@@ -61,8 +61,12 @@ export class SpritePaletteMaterial extends MeshBasicMaterial {
     return 'USE_FUZZ' in this.defines!
   }
   set fuzz(fuzz: boolean) {
+    if (this.fuzz !== fuzz) {
+      this.needsUpdate = true
+    }
     if (fuzz) {
       this.defines!['USE_FUZZ'] = ''
+      this.transparent = true
     } else {
       this.transparent = false
       delete this.defines!['USE_FUZZ']
