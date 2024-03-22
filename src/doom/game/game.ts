@@ -1,4 +1,4 @@
-import { AmmoType, ArmorType, Card, GameState, MAX_PLAYERS, TICRATE, WeaponType } from '../global/doomdef'
+import { AmmoType, ArmorType, Card, GameState, MAX_PLAYERS, PowerType, TICRATE, WeaponType } from '../global/doomdef'
 import { ButtonCode, DEvent, EvType, GameAction } from '../doom/event'
 import { Cheat, Player, PlayerState, WbStart } from '../doom/player'
 import { FRACBITS, FRACUNIT } from '../misc/fixed'
@@ -196,6 +196,9 @@ export class Game {
   }
   private get headsUp(): HeadsUp {
     return this.doom.headsUp
+  }
+  private get inter() {
+    return this.play.inter
   }
   private get menu(): Menu {
     return this.doom.menu
@@ -1331,6 +1334,14 @@ export class Game {
       clips: 0, shells: 0, cells: 0, missiles: 0,
     },
     cheats: { noClip: false, godMode: false, noMomentum: false },
+    powers: {
+      invulnerability: () => {},
+      strength: () => {},
+      invisibility: () => {},
+      ironfeet: () => {},
+      allMap: () => {},
+      infrared: () => {},
+    },
   }
   private updateDebugFromGame() {
     const {
@@ -1424,7 +1435,7 @@ export class Game {
   }
   setupDebugGui(gui: GUI) {
     const {
-      debug: { position, health, cards, weapons, cheats },
+      debug: { position, health, cards, weapons, cheats, powers },
     } = this
 
     const playerFolder = gui.addFolder('Player')
@@ -1469,6 +1480,20 @@ export class Game {
     cheatsFolder.add(cheats, 'noClip')
     cheatsFolder.add(cheats, 'godMode')
     cheatsFolder.add(cheats, 'noMomentum')
+
+    const powersFolder = playerFolder.addFolder('Powers').open(false)
+    powers.invulnerability = () => this.inter.givePower(this.player, PowerType.Invulnerability)
+    powersFolder.add(powers, 'invulnerability')
+    powers.strength = () => this.inter.givePower(this.player, PowerType.Strength)
+    powersFolder.add(powers, 'strength')
+    powers.invisibility = () => this.inter.givePower(this.player, PowerType.Invisibility)
+    powersFolder.add(powers, 'invisibility')
+    powers.ironfeet = () => this.inter.givePower(this.player, PowerType.Ironfeet)
+    powersFolder.add(powers, 'ironfeet')
+    powers.allMap = () => this.inter.givePower(this.player, PowerType.AllMap)
+    powersFolder.add(powers, 'allMap')
+    powers.infrared = () => this.inter.givePower(this.player, PowerType.Infrared)
+    powersFolder.add(powers, 'infrared')
 
     playerFolder.controllersRecursive().forEach(c => {
       c.onChange(() => this.updateGameFromDebug())
