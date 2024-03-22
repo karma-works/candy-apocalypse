@@ -24,6 +24,9 @@ export class BSP extends LegacyBSP {
     }
 
     lightLevel += this.rendering.extraLight << LIGHT_SEG_SHIFT
+    if (this.rendering.fixedColorMap) {
+      lightLevel = 255
+    }
 
     this.rendering.levelGroup?.updateSector(id, lightLevel)
   }
@@ -40,6 +43,9 @@ export class BSP extends LegacyBSP {
 
   private updateSeg({ id: secId, lightLevel }: Sector, { id }: Seg) {
     lightLevel += this.rendering.extraLight << LIGHT_SEG_SHIFT
+    if (this.rendering.fixedColorMap) {
+      lightLevel = 255
+    }
 
     this.rendering.levelGroup?.updateSeg(secId, id, lightLevel)
   }

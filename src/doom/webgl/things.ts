@@ -26,7 +26,10 @@ export class Things extends LegacyThings {
     if (validCounter.check(sec)) {
       return
     }
-    const lightLevel = sec.lightLevel + (this.rendering.extraLight << LIGHT_SEG_SHIFT)
+    let lightLevel = sec.lightLevel + (this.rendering.extraLight << LIGHT_SEG_SHIFT)
+    if (this.rendering.fixedColorMap) {
+      lightLevel = 255
+    }
 
     this.rendering.levelGroup?.updateLinkedThings(sec.id, sec.thingList, lightLevel)
   }
@@ -56,9 +59,13 @@ export class Things extends LegacyThings {
     sprite.fuzz = !!(powers[PowerType.Invisibility] > 4 * 32 ||
       powers[PowerType.Invisibility] & 8)
 
-    const lightLevel =
+    let lightLevel =
       this.rendering.viewPlayer.mo.subSector.sector.lightLevel +
       (this.rendering.extraLight << LIGHT_SEG_SHIFT)
+
+    if (this.rendering.fixedColorMap) {
+      lightLevel = 255
+    }
 
     sprite.update(lightLevel)
   }

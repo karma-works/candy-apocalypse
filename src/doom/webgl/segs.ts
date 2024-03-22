@@ -31,6 +31,9 @@ export class Segs extends LegacySegs {
 
   private updateSeg({ id: secId, lightLevel }: Sector, { id }: Seg) {
     lightLevel += this.rendering.extraLight << LIGHT_SEG_SHIFT
+    if (this.rendering.fixedColorMap) {
+      lightLevel = 255
+    }
 
     this.rendering.levelGroup?.updateSeg(secId, id, lightLevel)
   }
