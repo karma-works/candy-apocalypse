@@ -1,12 +1,14 @@
 import './style.css'
 import { useEffect, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
+import Jukebox from './Jukebox';
 import Level from './Level';
 import MObj from './MObj';
 import { Perf } from 'r3f-perf';
 import { WadProvider } from './WadContext';
 import { useLevelSelectorControl } from './useLevelSelectorControl';
 import { useMObjSelectorControl } from './useMObjSelectorControl';
+import { useMusicSelectorControl } from './useMusicSelectorControl';
 import { usePaletteControls } from './usePaletteControls';
 import { useSearchParams } from 'react-router-dom';
 
@@ -18,6 +20,7 @@ function WadExplorer() {
 
   const [ levelName, setLevelName ] = useLevelSelectorControl()
   const [ mObjType, setMObjType ] = useMObjSelectorControl()
+  const [ musicName ] = useMusicSelectorControl()
 
   useEffect(() => {
     mObjType !== null && setLevelName(null)
@@ -44,6 +47,9 @@ function WadExplorer() {
 
         { mObjType !== null &&
           <MObj mObjType={mObjType} />}
+
+        { musicName !== null &&
+          <Jukebox musicName={musicName} /> }
       </Canvas>
     </div>
   )

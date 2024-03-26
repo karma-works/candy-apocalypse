@@ -48,7 +48,10 @@ export default function StartUp() {
               <Button
                 type="button"
                 variant="outlined"
-                onClick={_ => submit(form.current, { action: 'explorer' })}
+                onClick={_ => {
+                  audioCtx.resume()
+                  submit(form.current, { action: 'explorer' })
+                }}
               >
                 Explore
               </Button>

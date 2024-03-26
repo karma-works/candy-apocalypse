@@ -4,6 +4,7 @@ import { Flat } from '../textures/flat'
 import { Level } from '../level/level'
 import { LineArray } from '../level/line-array'
 import { MapTextureArray } from '../textures/map-texture-array'
+import { Mus } from '../doom/sounds/mus'
 import { NodeArray } from '../level/node-array'
 import { PNameArray } from '../textures/pname-array'
 import { Palettes } from '../interfaces/palette'
@@ -24,7 +25,7 @@ export interface LumpStatic extends LumpCtor<unknown> {
   type: LumpType
 }
 
-export type LumpType = 'demo' | 'palettes' | 'colormaps' | 'sfx' | 'patch' | 'flat' | 'unknown' |
+export type LumpType = 'demo' | 'palettes' | 'colormaps' | 'sfx' | 'mus' | 'patch' | 'flat' | 'unknown' |
   'pnames' | 'textures' |
   'level' | 'things' | 'vertexes' | 'sub-sectors' | 'segs' | 'sectors' | 'nodes' | 'lines' | 'sides' | 'block-map' | 'reject'
 
@@ -45,6 +46,7 @@ const lumpCandidates: LumpStatic[] = [
   PNameArray,
   MapTextureArray,
   Sfx,
+  Mus,
   Palettes,
   Demo,
 ]

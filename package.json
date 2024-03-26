@@ -25,6 +25,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.0",
+    "smplr": "^0.12.2",
     "stats.js": "^0.17.0",
     "three": "^0.161.0"
   },
