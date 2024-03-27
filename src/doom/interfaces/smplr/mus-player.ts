@@ -36,19 +36,24 @@ export class MusPlayer {
     }
     const { instruments } = this.mus
 
+    const promises: Promise<unknown>[] = []
+
     let hasDrum = false
     for (let i = 0; i < instruments.length; ++i) {
       const num = instruments[i]
       if (num >= 0 && num <= 127) {
-        const instru = await this.getInstrument(num).load
+        const instru = this.getInstrument(num)
+        promises.push(instru.load)
         this.putInstrument(instru)
       } else if (num >= 135 && num <= 181) {
         hasDrum = true
       }
     }
     if (hasDrum) {
-      await this.getDrum().load
+      promises.push(this.getDrum().load)
     }
+
+    await Promise.all(promises)
 
     const tics = this.mus.byTicsByChannel()
     tics.forEach((tics, ch) => {
