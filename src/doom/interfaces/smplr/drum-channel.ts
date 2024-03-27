@@ -3,11 +3,7 @@ import { AbstractChannel } from './abstract-channel';
 import { DrumMachine } from 'smplr';
 import { percussionMap } from './instruments';
 
-export class DrumChannel extends AbstractChannel {
-  private instrument?: DrumMachine;
-
-  private noteVolume = 100
-
+export class DrumChannel extends AbstractChannel<DrumMachine> {
   handleEvent(ev: Event, _tic: number, time: number) {
     switch (ev.event) {
     case EventType.ChangeController:
@@ -17,11 +13,14 @@ export class DrumChannel extends AbstractChannel {
         break
       }
       case ControllerNum.Volume:
-        this.instrument?.output.setVolume(ev.val)
+        this.instruVolume = ev.val
+        this.setVolume()
         break
       default:
         // console.error(`controller event ${ev.num} not implemented`)
       }
+      break
+    case EventType.ReleaseNote:
       break
     case EventType.PlayNote: {
       if (!this.instrument) {
@@ -40,8 +39,11 @@ export class DrumChannel extends AbstractChannel {
       })
       break
     }
+    case EventType.ScoreEnd:
+      return true
     default:
-      // console.error(`event ${ev.event} not implemented`)
+      // console.error(`event ${ev.event} not implemented`, ev)
     }
+    return false
   }
 }

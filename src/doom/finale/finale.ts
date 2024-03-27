@@ -10,6 +10,7 @@ import { LumpReader } from '../wad/lump-reader'
 import { MObj } from '../play/mobj/mobj'
 import { MObjInfo } from '../doom/info/mobj-info'
 import { MObjType } from '../doom/info/mobj-type'
+import { MusicName } from '../doom/sounds/music-name'
 import { Patch } from '../rendering/defs/patch'
 import { Post } from '../rendering/defs/post'
 import { Data as RData } from '../rendering/data'
@@ -151,9 +152,9 @@ export class Finale {
     const gameMission = this.doom.instance.logicalMission
 
     if (gameMission === GameMission.Doom) {
-      // S_StartMusic(mus_victor);
+      this.dSound.startMusic(MusicName.Victor);
     } else {
-      // S_StartMusic(mus_read_m);
+      this.dSound.startMusic(MusicName.Read_m);
     }
 
     // Find the right screen and set the text and background
@@ -231,7 +232,7 @@ export class Finale {
       // force a wipe
       this.doom.wipeGameState = -1
       if (this.game.gameEpisode === 3) {
-        // S_StartMusic(mus_bunny);
+        this.dSound.startMusic(MusicName.Bunny)
       }
     }
   }
@@ -321,7 +322,7 @@ export class Finale {
     this.castFrames = 0
     this.castOnMelee = 0
     this.castAttacking = false
-    // S_ChangeMusic(mus_evil, true);
+    this.dSound.changeMusic(MusicName.Evil, true);
   }
 
   //

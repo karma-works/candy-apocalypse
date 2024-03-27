@@ -7,6 +7,7 @@ import { Sound as DSound } from '../doom/sound'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { LumpReader } from '../wad/lump-reader'
+import { MusicName } from '../doom/sounds/music-name'
 import { Patch } from '../rendering/defs/patch'
 import { SfxName } from '../doom/sounds/sfx-name'
 import { Video } from '../rendering/video'
@@ -730,6 +731,14 @@ export class Win {
   ticker(): void {
     // counter for general background animation
     this.bCnt++
+
+    if (this.bCnt === 1) {
+      if (this.doom.instance.mode === GameMode.Commercial) {
+        this.dSound.changeMusic(MusicName.Dm2int, true)
+      } else {
+        this.dSound.changeMusic(MusicName.Inter, true)
+      }
+    }
 
     this.checkForAccelerate()
 

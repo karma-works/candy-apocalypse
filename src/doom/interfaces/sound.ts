@@ -2,6 +2,8 @@ import { SfxInfo, sfxInfos } from '../doom/sounds/sfx-infos'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
 import { LumpReader } from '../wad/lump-reader'
+import { Mus } from '../doom/sounds/mus'
+import { MusPlayer } from './smplr/mus-player'
 import { Sfx } from '../doom/sounds/sfx'
 import { SfxName } from '../doom/sounds/sfx-name'
 
@@ -10,7 +12,6 @@ const NUM_CHANNELS = 8
 export const SAMPLE_RATE = 11025
 
 export class Sound {
-
   // The channel data pointers, start and end.
   private channels = new Array<Uint8Array | null>(NUM_CHANNELS).fill(null)
   private channelsBuffer = new Array<AudioBufferSourceNode | null>(NUM_CHANNELS).fill(null)
@@ -335,5 +336,70 @@ export class Sound {
         sfxInfo.data = sfxInfo.link.data
       }
     }
+  }
+
+  handles: unknown[] = []
+  private musicVolume = 64
+
+  quit() {
+    this.handles.forEach(h => this.stopSong(h))
+    this.handles = []
+  }
+
+  setMusicVolume(vol: number) {
+    vol *= 8
+    this.musicVolume = vol
+    this.handles.forEach(h => {
+      if (h instanceof MusPlayer) {
+        h.setVolume(vol)
+      }
+    })
+  }
+
+  playSong(handle: unknown, looping: boolean) {
+    if (!(handle instanceof MusPlayer)) {
+      return
+    }
+    handle.play(looping)
+  }
+
+  pauseSong(handle: unknown) {
+    if (!(handle instanceof MusPlayer)) {
+      return
+    }
+    handle.pause()
+  }
+
+  resumeSong(handle: unknown) {
+    if (!(handle instanceof MusPlayer)) {
+      return
+    }
+    handle.resume()
+  }
+
+  stopSong(handle: unknown) {
+    if (!(handle instanceof MusPlayer)) {
+      return
+    }
+    handle.stop()
+  }
+
+  unregisterSong(handle: unknown) {
+    const idx = this.handles.indexOf(handle)
+    if (idx >= 0) {
+      this.handles.splice(idx, 1)
+    }
+  }
+
+  registerSong(data: Mus) {
+    if (!this.audioCtx) {
+      return undefined
+    }
+    const handle = new MusPlayer(this.audioCtx, data)
+    handle.setVolume(this.musicVolume)
+    handle.load()
+
+    this.handles.push(handle)
+    return handle
   }
 }

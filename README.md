@@ -24,7 +24,6 @@ An online version of doom.ts is available [here](https://tchandelle.gitlab.io/do
 ## Missing Features
 
 - Deathmatch
-- Music
 
 ## Usage
 

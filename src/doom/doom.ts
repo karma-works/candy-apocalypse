@@ -17,6 +17,7 @@ import { Sound as ISound } from './interfaces/sound'
 import { Input } from './interfaces/input'
 import { LumpReader } from './wad/lump-reader'
 import { Menu } from './menu/menu'
+import { MusicName } from './doom/sounds/music-name'
 import { Net } from './doom/net'
 import { Palettes } from './interfaces/palette'
 import { Params } from './doom/params'
@@ -534,6 +535,11 @@ export class Doom {
       }
       this.game.gameState = GameState.DemoScreen
       this.pageName = 'TITLEPIC'
+      if (this.instance.mode === GameMode.Commercial) {
+        this.dSound.startMusic(MusicName.Dm2ttl)
+      } else {
+        this.dSound.startMusic(MusicName.Intro)
+      }
       break
     case 1:
       this.game.deferedPlayDemo('demo1')
@@ -551,6 +557,7 @@ export class Doom {
       if (this.instance.mode === GameMode.Commercial) {
         this.pageTic = 35 * 11
         this.pageName = 'TITLEPIC'
+        this.dSound.startMusic(MusicName.Dm2ttl)
       } else {
         this.pageTic = 200
 
@@ -766,6 +773,9 @@ export class Doom {
     }
 
     this.quitted = true
+
+    this.iSound.quit()
+
     const { width, height } = this.iVideo
     this.iVideo.quit()
     this.iVideo = new BlankVideo()

@@ -24,7 +24,7 @@ export default function Jukebox({ musicName }: MusicProps) {
   }, [ audioCtx, music ])
 
   useEffect(() => {
-    player?.play()
+    player?.play(false)
     return () => player?.stop()
   }, [ player ])
 

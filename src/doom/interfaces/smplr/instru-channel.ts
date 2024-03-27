@@ -2,11 +2,7 @@ import { ControllerNum, Event, EventType } from '../../doom/sounds/mus';
 import { AbstractChannel } from './abstract-channel';
 import { Soundfont } from 'smplr';
 
-export class InstruChannel extends AbstractChannel {
-  private instrument?: Soundfont;
-
-  private noteVolume = 100
-
+export class InstruChannel extends AbstractChannel<Soundfont> {
   handleEvent(ev: Event, tic: number, time: number) {
     switch (ev.event) {
     case EventType.ChangeController:
@@ -18,11 +14,14 @@ export class InstruChannel extends AbstractChannel {
         break
       }
       case ControllerNum.Volume:
-        this.instrument?.output.setVolume(ev.val)
+        this.instruVolume = ev.val
+        this.setVolume()
         break
       default:
         // console.error(`controller event ${ev.num} not implemented`)
       }
+      break
+    case EventType.ReleaseNote:
       break
     case EventType.PlayNote: {
       if (!this.instrument) {
@@ -39,9 +38,12 @@ export class InstruChannel extends AbstractChannel {
       })
       break
     }
+    case EventType.ScoreEnd:
+      return true
     default:
-      // console.error(`event ${ev.event} not implemented`)
+      // console.error(`event ${ev.event} not implemented`, ev)
     }
+    return false
   }
 
   // Find next Release Note event to calculate the duration

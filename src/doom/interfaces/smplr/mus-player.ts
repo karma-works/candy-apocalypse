@@ -4,12 +4,16 @@ import { DrumChannel } from './drum-channel';
 import { InstruChannel } from './instru-channel';
 import { instrumentMap } from './instruments';
 
+const LOOK_AHEAD = 500
+const INTERVAL = 250;
+
 export class MusPlayer {
   // TODO "Raptor: Call of the Shadow" should be 70
   readonly ticRate = 140
 
   private loaded = false
   private playing = false
+  private looping = false
 
   private currentTic = 0
   private currentTime = 0
@@ -19,6 +23,7 @@ export class MusPlayer {
   private preloadedInstruments: { [k: number]: Soundfont } = []
   private drum?: DrumMachine
   private cache = new CacheStorage()
+  private volume = 100
 
   constructor(
     public audioCtx: AudioContext,
@@ -57,11 +62,16 @@ export class MusPlayer {
     let instru = this.preloadedInstruments[num]
     if (instru) {
       delete this.preloadedInstruments[num]
+      instru.output.setVolume(this.volume)
       return instru
     }
 
     const instrument = instrumentMap[num]
-    instru = new Soundfont(this.audioCtx, { instrument, storage: this.cache });
+    instru = new Soundfont(this.audioCtx, {
+      instrument,
+      storage: this.cache,
+      volume: this.volume,
+    });
 
     return instru
   }
@@ -74,9 +84,18 @@ export class MusPlayer {
   }
   getDrum() {
     if (this.drum) {
+      this.drum.output.setVolume(this.volume)
       return this.drum
     }
-    return this.drum = new DrumMachine(this.audioCtx, { storage: this.cache })
+    return this.drum = new DrumMachine(this.audioCtx, {
+      storage: this.cache,
+      volume: this.volume,
+    })
+  }
+  setVolume(vol: number) {
+    this.volume = vol
+
+    this.channels.forEach(ch => ch.setVolume(vol))
   }
 
   private ticker() {
@@ -89,22 +108,33 @@ export class MusPlayer {
       this.currentTime = this.audioCtx.currentTime
     }
 
-    while (this.currentTime < this.audioCtx.currentTime + 0.5) {
+    while (this.currentTime < this.audioCtx.currentTime + LOOK_AHEAD / 1000) {
       this.tick()
     }
 
-    setTimeout(this.ticker.bind(this), 250)
+    setTimeout(this.ticker.bind(this), INTERVAL)
   }
 
   private tick() {
-    this.channels.forEach((ch) => ch.tick(this.currentTic, this.currentTime))
+    let scoreEnd = false
+    this.channels.forEach((ch) => {
+      scoreEnd = ch.tick(this.currentTic, this.currentTime) || scoreEnd
+    })
 
     this.currentTic++
     this.currentTime += 1 / this.ticRate
+
+    if (scoreEnd) {
+      this.playing = false
+    }
+    if (scoreEnd && this.looping) {
+      setTimeout(() => this.play(true), INTERVAL + LOOK_AHEAD)
+    }
   }
 
-  async play() {
+  async play(looping: boolean) {
     this.playing = true
+    this.looping = looping
     await this.load()
 
     this.currentTic = 0
@@ -113,8 +143,18 @@ export class MusPlayer {
     this.ticker()
   }
 
+  pause() {
+    this.playing = false
+  }
+  resume() {
+    this.playing = true
+    this.currentTime = this.audioCtx.currentTime
+
+    this.ticker()
+  }
   stop() {
     this.playing = false
+    this.currentTic = 0
   }
 
 }

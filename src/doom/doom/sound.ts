@@ -1,11 +1,16 @@
 import { ANGLE_TO_FINE_SHIFT, fineSine } from '../misc/table'
 import { FRACBITS, mul } from '../misc/fixed'
+import { MusicInfo, musicInfos } from './sounds/music-infos'
 import { SfxInfo, sfxInfos } from './sounds/sfx-infos'
 import { Channel } from './sounds/channel'
 import { Doom } from '../doom'
 import { Game } from '../game/game'
+import { GameMode } from './mode'
 import { Sound as ISound } from '../interfaces/sound'
+import { LumpReader } from '../wad/lump-reader'
 import { MObj } from '../play/mobj/mobj'
+import { Mus } from './sounds/mus'
+import { MusicName } from './sounds/music-name'
 import { SfxName } from './sounds/sfx-name'
 import { pointToAngle } from '../misc/angle'
 import { random } from '../misc/random'
@@ -36,13 +41,14 @@ export class Sound {
   // These are not used, but should be (menu).
   // Maximum volume of a sound effect.
   // Internal default is max out of 0-15.
-  sfxVolume = 15
+  sfxVolume = 8
 
   // Maximum volume of music. Useless so far.
-  musicVolume = 15
+  musicVolume = 8
 
   // whether songs are mus_paused
-  // private musicPaused = false
+  private musicPaused = false
+  private musicPlaying: MusicInfo | null = null
 
   // following is set
   //  by the defaults code in M_misc:
@@ -54,6 +60,9 @@ export class Sound {
   }
   private get iSound(): ISound {
     return this.doom.iSound
+  }
+  private get wad(): LumpReader {
+    return this.doom.wad
   }
 
   constructor(private doom: Doom) { }
@@ -85,7 +94,7 @@ export class Sound {
     }
 
     // no sounds are playing, and they are not mus_paused
-    // this.musicPaused = false
+    this.musicPaused = false
 
     // Note that sounds have not been cached (yet).
     for (let i = 1; i < SfxName.NUM_SFX; ++i) {
@@ -107,7 +116,44 @@ export class Sound {
       }
     }
 
-    // TODO: music
+    // start new music for the level
+    this.musicPaused = false
+
+    let musNum: MusicName
+    if (this.doom.instance.mode === GameMode.Commercial) {
+      musNum = MusicName.Runnin + (this.game.gameMap - 1)
+    } else if (this.game.gameEpisode < 4) {
+      musNum = MusicName.E1m1 + (this.game.gameEpisode - 1) * 9 + (this.game.gameMap - 1)
+    } else {
+      const mus = [
+        // Song - Who? - Where?
+        // American e4m1
+        MusicName.E3m4,
+        // Romero e4m2
+        MusicName.E3m2,
+        // Shawn e4m3
+        MusicName.E3m3,
+        // American e4m4
+        MusicName.E1m5,
+        // Tim  e4m5
+        MusicName.E2m7,
+        // Romero e4m6
+        MusicName.E2m4,
+        // J.Anderson e4m7 CHIRON.WAD
+        MusicName.E2m6,
+        // Shawn e4m8
+        MusicName.E2m5,
+        // Tim  e4m9
+        MusicName.E1m9,
+      ]
+      musNum = mus[this.game.gameMap - 1]
+    }
+
+    // HACK FOR COMMERCIAL
+    //  if (commercial && mnum > mus_e3m9)
+    //      mnum -= mus_e3m9;
+
+    this.changeMusic(musNum, true)
   }
 
   private startSoundAtVolume(origin: MObj | null, sfxId: SfxName, volume: number): void {
@@ -244,10 +290,16 @@ export class Sound {
   // Stop and resume music, during game PAUSE.
   //
   pauseSound(): void {
-    // TODO music
+    if (this.musicPlaying && !this.musicPaused) {
+      this.iSound.pauseSong(this.musicPlaying.handle)
+      this.musicPaused = true
+    }
   }
   resumeSound(): void {
-    // TODO music
+    if (this.musicPlaying && this.musicPaused) {
+      this.iSound.resumeSong(this.musicPlaying.handle)
+      this.musicPaused = false
+    }
   }
 
   //
@@ -309,19 +361,68 @@ export class Sound {
   }
 
   setMusicVolume(volume: number): void {
-    if (volume < 0 || volume > 127) {
+    if (volume < 0 || volume > 15) {
       throw `Attempt to set music volume at ${volume}`
     }
 
+    // this.iSound.setMusicVolume(15)
+    this.iSound.setMusicVolume(volume)
     this.musicVolume = volume
   }
 
   setSfxVolume(volume: number): void {
-    if (volume < 0 || volume > 127) {
+    if (volume < 0 || volume > 15) {
       throw `Attempt to set sfx volume at ${volume}`
     }
 
     this.sfxVolume = volume
+  }
+
+  //
+  // Starts some music with the music id found in sounds.h.
+  //
+  startMusic(mId: MusicName) {
+    this.changeMusic(mId, false)
+  }
+
+  changeMusic(musicNum: MusicName, looping: boolean) {
+    if (musicNum <= MusicName.None || musicNum >= MusicName.NUM_MUSIC) {
+      throw `Bad music number ${musicNum}`
+    }
+    const music = musicInfos[musicNum]
+
+    if (this.musicPlaying === music) {
+      return
+    }
+
+    // shutdown old music
+    this.stopMusic();
+
+    // get lumpnum if necessary
+    if (!music.lumpNum) {
+      music.lumpNum = this.wad.getNumForName(`d_${music.name}`)
+    }
+
+    // load & register it
+    music.data = this.wad.cacheLumpNum(music.lumpNum, Mus)
+    music.handle = this.iSound.registerSong(music.data)
+
+    // play it
+    this.iSound.playSong(music.handle, looping);
+
+    this.musicPlaying = music
+  }
+
+  private stopMusic() {
+    if (this.musicPlaying) {
+      if (this.musicPaused) {
+        this.iSound.resumeSong(this.musicPlaying.handle)
+      }
+      this.iSound.stopSong(this.musicPlaying.handle)
+      this.iSound.unregisterSong(this.musicPlaying.handle)
+
+      this.musicPlaying = null
+    }
   }
 
   private stopChannel(cNum: number): void {

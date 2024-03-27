@@ -14,6 +14,7 @@ import { Game } from '../game/game'
 import { Inter } from '../play/inter'
 import { LumpReader } from '../wad/lump-reader'
 import { MultiIcon } from './multi-icon'
+import { MusicName } from '../doom/sounds/music-name'
 import { NumberWidget } from './number-widget'
 import { Palettes } from '../interfaces/palette'
 import { Patch } from '../rendering/defs/patch'
@@ -348,7 +349,7 @@ export class StatusBar {
           // 'mus' cheat for changing music
 
           plyr.message = this.strings.ststrMus
-          // const buf = this.cheat.getParam(musCheat)
+          const buf = this.cheat.getParam(musCheat)
 
           // Note: The original v1.9 had a bug that tried to play back
           // the Doom II music regardless of gamemode.  This was fixed
@@ -358,9 +359,27 @@ export class StatusBar {
           if (this.doom.instance.mode === GameMode.Commercial ||
             this.doom.instance.version < GameVersion.Ultimate
           ) {
-            // TODO
+            const levelNum = (buf[0].charCodeAt(0) - '0'.charCodeAt(0)) * 10 +
+              (buf[1].charCodeAt(0) - '0'.charCodeAt(0))
+
+            const musNum = MusicName.Runnin + levelNum
+
+            if (levelNum > 35) {
+              plyr.message = this.strings.ststrNomus
+            } else {
+              this.doom.dSound.changeMusic(musNum, true)
+            }
           } else {
-            // TODO
+            const levelNum = (buf[0].charCodeAt(0) - '1'.charCodeAt(0)) * 9 +
+              (buf[1].charCodeAt(0) - '1'.charCodeAt(0))
+
+            const musNum = MusicName.E1m1 + levelNum
+
+            if (levelNum > 31) {
+              plyr.message = this.strings.ststrNomus
+            } else {
+              this.doom.dSound.changeMusic(musNum, true)
+            }
           }
 
         } else if (this.doom.instance.logicalMission === GameMission.Doom &&
