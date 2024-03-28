@@ -95,6 +95,7 @@ export class MusPlayer {
     return this.drum = new DrumMachine(this.audioCtx, {
       storage: this.cache,
       volume: this.volume,
+      url: '/midi/dm.json',
     })
   }
   setVolume(vol: number) {

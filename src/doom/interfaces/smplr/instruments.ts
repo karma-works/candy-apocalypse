@@ -1,5 +1,3 @@
-/* eslint-disable no-multi-spaces */
-/* eslint-disable line-comment-position */
 export const instrumentMap: string[] = [
   'acoustic_grand_piano',
   'bright_acoustic_piano',
@@ -130,54 +128,3 @@ export const instrumentMap: string[] = [
   'applause',
   'gunshot',
 ]
-
-// Map to TR-808. By Chat-GPT
-export const percussionMap: { [key: number]: string } = {
-  35: 'kick/bd0000',   // Acoustic Bass Drum
-  36: 'kick/bd0050',   // Bass Drum
-  37: 'rimshot/rs',    // Slide Stick
-  38: 'snare/sd0025',  // Acoustic Snare
-  39: 'clap/cp',       // Hand Clap
-  40: 'snare/sd1000',  // Electric Snare
-  41: 'tom-low/lt25',  // Low Floor Tom
-  42: 'hihat-close/ch',// Closed High-Hat
-  43: 'tom-hi/ht25',   // High Floor Tom
-  44: 'hihat-open/oh50',// Pedal High Hat
-  45: 'tom-low/lt10',  // Low Tom
-  46: 'hihat-open/oh10',// Open High Hat
-  47: 'tom-low/lt00',  // Low-Mid Tom
-  48: 'mid-tom/mt00',  // High-Mid Tom
-  49: 'cymbal/cy0025', // Crash Cymbal 1
-  50: 'tom-hi/ht00',   // High Tom
-  51: 'cymbal/cy1000', // Ride Cymbal 1
-  52: 'cymbal/cy1075', // Chinese Cymbal
-  53: 'cymbal/cy2525', // Ride Bell
-  54: 'maraca/ma',     // Tambourine
-  55: 'cymbal/cy0050', // Splash Cymbal
-  56: 'cowbell/cb',    // Cowbell
-  57: 'cymbal/cy0075', // Crash Cymbal 2
-  58: 'vibraslap/vs',  // Vibraslap
-  59: 'cymbal/cy1025', // Ride Cymbal 2
-  60: 'conga-low/lc25',// High Bongo
-  61: 'conga-low/lc75',// Low Bango
-  62: 'conga-hi/hc25', // Mute High Conga
-  63: 'conga-hi/hc75', // Open High Conga
-  64: 'conga-low/lc25',// Low Conga
-  65: 'conga-mid/mc25',// High Timbale
-  66: 'conga-mid/mc75',// Low Timbale
-  67: 'cowbell/cb',    // High Agogo
-  68: 'maraca/ma',     // Low Agogo
-  69: 'cowbell/cb',    // Cabasa
-  70: 'maraca/ma',     // Maracas
-  71: 'whistle/wh',    // Short Whistle
-  72: 'whistle/wh',    // Long Whistle
-  73: 'guiro/gy',      // Short Guiro
-  74: 'guiro/gy',      // Long Guiro
-  75: 'clave/cl',      // Claves
-  76: 'woodblock/wb',  // High Wood Block
-  77: 'woodblock/wb',  // Low Wood Block
-  78: 'cuica/cu',      // Mute Cuica
-  79: 'cuica/cu',      // Open Cuica
-  80: 'triangle/tri',  // Mute Triangle
-  81: 'triangle/tri',   // Open Triangle
-};

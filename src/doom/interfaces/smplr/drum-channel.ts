@@ -1,7 +1,6 @@
 import { ControllerNum, Event, EventType } from '../../doom/sounds/mus';
 import { AbstractChannel } from './abstract-channel';
 import { DrumMachine } from 'smplr';
-import { percussionMap } from './instruments';
 
 export class DrumChannel extends AbstractChannel<DrumMachine> {
   handleEvent(ev: Event, _tic: number, time: number) {
@@ -33,7 +32,7 @@ export class DrumChannel extends AbstractChannel<DrumMachine> {
       }
 
       this.instrument.start({
-        note: percussionMap[ev.note],
+        note: `${ev.note}`,
         time,
         velocity: this.noteVolume,
       })
