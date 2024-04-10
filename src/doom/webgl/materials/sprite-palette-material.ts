@@ -74,12 +74,12 @@ export class SpritePaletteMaterial extends MeshBasicMaterial {
   }
 
   transparent = true
-  alphaTest = 0.3
 
   constructor({ paletteMap, ...parameters }: SpritePaletteMaterialParameters) {
     super(parameters)
     this.uPaletteMap = new Uniform(paletteMap)
     this.defines = this.defines || {}
+    this.alphaTest = .3
   }
 
   onBeforeCompile(parameters: WebGLProgramParametersWithUniforms): void {

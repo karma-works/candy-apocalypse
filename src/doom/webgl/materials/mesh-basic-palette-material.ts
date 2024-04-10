@@ -24,8 +24,6 @@ export class MeshBasicPaletteMaterial extends MeshBasicMaterial {
   }
   _paletteMap: Uniform<PaletteTexture>
 
-  alphaTest = 0.9
-
   // Light level from 0 to 255
   get lightLevel() {
     return this._lightLevel.value
@@ -38,6 +36,7 @@ export class MeshBasicPaletteMaterial extends MeshBasicMaterial {
   constructor({ paletteMap, ...parameters }: MeshBasicPaletteMaterialParameters) {
     super(parameters)
     this._paletteMap = new Uniform(paletteMap)
+    this.alphaTest = .9
   }
 
   onBeforeCompile(shader: WebGLProgramParametersWithUniforms): void {

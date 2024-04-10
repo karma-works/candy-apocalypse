@@ -41,12 +41,11 @@ export class SegMaterial extends MeshBasicMaterial {
   }
   private uTexSize = new Uniform(new Vector2())
 
-  alphaTest = 0.9
-
   constructor({ paletteMap, ...parameters }: SegMaterialParameters) {
     super(parameters)
     this.uPaletteMap = new Uniform(paletteMap)
     this.defines = this.defines || {}
+    this.alphaTest = .9
   }
 
   onBeforeCompile(parameters: WebGLProgramParametersWithUniforms): void {

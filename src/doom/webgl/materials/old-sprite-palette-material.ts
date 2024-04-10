@@ -26,11 +26,11 @@ export class OldSpritePaletteMaterial extends SpriteMaterial {
   private _lightLevel = new Uniform(255)
 
   transparent = true
-  alphaTest = 0.5
 
   constructor({ paletteMap, ...parameters }: OldSpritePaletteMaterialParameters) {
     super(parameters)
     this._paletteMap = new Uniform(paletteMap)
+    this.alphaTest = .5
   }
 
   onBeforeCompile(shader: WebGLProgramParametersWithUniforms): void {
