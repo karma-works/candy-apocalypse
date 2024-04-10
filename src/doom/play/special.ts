@@ -127,7 +127,7 @@ export class Special {
       }
 
       this.lastAnim.speed = animDefs[i].speed
-      this.lastAnim = this.anims[animPtr++]
+      this.lastAnim = this.anims[++animPtr]
     }
   }
 
