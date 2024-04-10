@@ -25,9 +25,11 @@ export class TextureArray extends Array<TextureLump> {
   constructor(lumpReader?: LumpReader) {
     super()
 
-    if (!lumpReader) {
-      return
-    }
+    lumpReader && this.load(lumpReader)
+  }
+
+  load(lumpReader: LumpReader) {
+    this.length = 0
 
     const names = lumpReader.cacheLumpName('PNAMES', PNameArray)
     const patchLookup = names.getLookup(lumpReader)

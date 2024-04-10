@@ -18,9 +18,11 @@ export class FlatArray extends Array<FlatLump> {
   constructor(lumpReader?: LumpReader) {
     super()
 
-    if (!lumpReader) {
-      return
-    }
+    lumpReader && this.load(lumpReader)
+  }
+
+  load(lumpReader: LumpReader) {
+    this.length = 0
 
     const firstFlat = lumpReader.getNumForName('F_START') + 1
     const lastFlat = lumpReader.getNumForName('F_END') - 1

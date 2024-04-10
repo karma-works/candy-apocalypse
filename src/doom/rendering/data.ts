@@ -39,11 +39,11 @@ export class Data {
   // Must be called after W_Init.
   //
   initData(): void {
-    this.textures = new TextureArray(this.lumpReader)
+    this.textures.load(this.lumpReader)
     console.log('InitTextures')
-    this.flats = new FlatArray(this.lumpReader)
+    this.flats.load(this.lumpReader)
     console.log('InitFlats')
-    this.sprites = new SpriteArray(this.lumpReader)
+    this.sprites.load(this.lumpReader)
     this.spriteDefs = new SpriteDefsArray(this.sprites)
     console.log('InitSprites')
     this.initColorMaps()
