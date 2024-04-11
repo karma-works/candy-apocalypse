@@ -74,7 +74,7 @@ export function WadProvider({ children, fileNames }: WadProviderProps) {
     body = <>Loading...</>
     break
   case State.Error:
-    body = <>Error: { err }</>
+    body = <>Error: { `${err}` }</>
     break
   case State.Loaded:
     body = children
