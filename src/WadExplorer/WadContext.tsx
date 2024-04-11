@@ -25,29 +25,65 @@ export const useLumpReader = () => useContext(WadContext).lumpReader
 export const useTextureLoader = () => useContext(WadContext).textureLoader
 export const useGameInstance = () => useContext(WadContext).gameInstance
 
+const enum State { Loading, Loaded, Error }
+
 export function WadProvider({ children, fileNames }: WadProviderProps) {
   const [ lumpReader, setLumpReader ] = useState(new LumpReader())
 
+  const [ state, setState ] = useState(State.Loading)
+  const [ err, setErr ] = useState<unknown>()
+
   const textureLoader = useMemo(() => {
-    return new TextureLoader(lumpReader.numLumps ? lumpReader : undefined)
+    try {
+      return new TextureLoader(lumpReader.numLumps ? lumpReader : undefined)
+    } catch (err) {
+      setErr(err)
+      setState(State.Error)
+    }
+    return new TextureLoader()
   }, [ lumpReader ])
   const gameInstance = useMemo(() => {
-    return new GameInstance({}, lumpReader.numLumps ? lumpReader : undefined)
+    try {
+      return new GameInstance({}, lumpReader.numLumps ? lumpReader : undefined)
+    } catch (err) {
+      setErr(err)
+      setState(State.Error)
+    }
+    return new GameInstance({})
   }, [ lumpReader ])
 
   useEffect(() => {
     async function fetchWad(fileNames: readonly string[]) {
       const lumpReader = new LumpReader()
-      await lumpReader.initMultipleFiles(fileNames)
-
-      setLumpReader(lumpReader)
+      try {
+        await lumpReader.initMultipleFiles(fileNames)
+        setLumpReader(lumpReader)
+        setState(State.Loaded)
+      } catch (err) {
+        setErr(err)
+        setState(State.Error)
+      }
     }
+    setState(State.Loading)
     fetchWad(fileNames);
   }, [ fileNames ])
 
+  let body: ReactNode = <></>
+  switch (state) {
+  case State.Loading:
+    body = <>Loading...</>
+    break
+  case State.Error:
+    body = <>Error: { err }</>
+    break
+  case State.Loaded:
+    body = children
+    break
+  }
+
   return (
     <WadContext.Provider value={{ lumpReader, textureLoader, gameInstance }}>
-      { children }
+      { body }
     </WadContext.Provider>
   )
 }
