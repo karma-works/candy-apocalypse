@@ -1,6 +1,8 @@
 import './WadOptions.css'
 import { Button, Grid, Link, Option, Select, Typography } from '@mui/joy';
 import { ChangeEvent, useEffect, useState } from 'react';
+import Patch from '../WadExplorer/Patch';
+import { WadProvider } from '../WadExplorer/WadContext';
 import { fs } from '../doom/system/fs';
 import { useLocalStorage } from '../useLocalStorage';
 
@@ -65,7 +67,19 @@ export default function WadOptions() {
           />
         </Button>
       </Grid>
+
+      { iwad && <Logo iwad={iwad} /> }
     </>
+  )
+}
+
+function Logo({ iwad }: { iwad: string }) {
+  return (
+    <Grid xs={12} style={{ textAlign: 'center' }}>
+      <WadProvider fileNames={[ iwad ]}>
+        <Patch lump="M_DOOM" />
+      </WadProvider>
+    </Grid>
   )
 }
 
