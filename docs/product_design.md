@@ -885,6 +885,69 @@ ENTRANCE → COMBAT AREAS → MINI-CHALLENGE → BOSS/EXIT
 
 ---
 
+## Future Enhancements: Multiplayer & Leaderboards
+
+While Arcade Mode mentions leaderboards, currently there is no backend service or networking planned for the initial release. 
+- **Leaderboards**: Daily, weekly, and all-time tracking will be considered a post-launch enhancement requiring a dedicated backend service.
+- **Multiplayer**: Cooperative or competitive multiplayer is out of scope for the MVP and slated as a future enhancement.
+
+---
+
+## Pre-Rasterization and Memory Management
+
+Pre-rasterizing SVGs to `OffscreenCanvas` contexts at 2x resolution is necessary for performance but can be highly memory-intensive in a 3D environment.
+
+**Recommendations:**
+1. **Lazy Loading**: Instead of rasterizing every possible SVG upfront, dynamically load and rasterize only the assets required for the current WAD level geometry and Thing placement.
+2. **Memory Purging**: Implement a texture cache manager that explicitly disposes of `ImageBitmap` and Three.js textures when transitioning between levels.
+3. **Texture Atlasing**: Rather than separate `OffscreenCanvas` contexts for each sprite, pack rasterized sprites into large WebGL-friendly texture atlases (e.g., 2048x2048) to minimize bind calls and memory overhead.
+
+---
+
+## WAD Texture to SVG Mapping Logic
+
+**Basic Idea:** Create SVGs for all required game elements.
+
+*Q: How do we map original WAD textures (like a specific switch texture changing from OFF to ON) to our new SVG system without referencing the original graphical assets?*
+
+**A:** The goal is to completely decouple the graphical look from the original Doom textures while maintaining the behavioral logic of the map.
+1. **Identify Required Elements**: Parse the WAD strictly for its structural triggers (e.g., this is a switch linedef, this is a door linedef).
+2. **Create SVG Equivalents**: For every functional required element in the game (switches, doors, keys, hazards), create a corresponding Candy Apocalypse stylized SVG (e.g., `item-switch-off.svg` and `item-switch-on.svg`).
+3. **Map the Triggers**: The game engine will listen to the WAD's sector/linedef state changes. When a switch linedef changes state from unactivated to activated, the engine swaps the Three.js texture mapped to that surface from `item-switch-off` to `item-switch-on`. We do not care what the original Doom texture was called; we only care about the *functional state* of the geometry.
+
+---
+
+## Integrated Black Humor & Fun Elements
+
+The default tone of Candy Apocalypse is "Disney-style poofs" and lighthearted action. However, to add varied comedic flavor inspired by Moorhuhn and cartoon slapstick, the following specific "Black Humor" mechanics are central to the product:
+
+### Satirical Enemies
+These enemies add personality and comedic variety to the standard cast of demons:
+- **Suicide Sheep**: Fluffy sheep wearing dynamite vests. They chase the player, baa "Baaaa-byeee!" before detonating in a massive explosion of wool confetti.
+- **Business Imp**: A tiny demon wearing a suit and tie. Throws exploding spreadsheets and PowerPoint presentations, yelling "Quarterly reports were due!" upon death.
+- **Karen Demon**: A floating head with a manager haircut. Demands to see the manager, attacks with passive-aggressive emails, and screams "I want to speak to Satan!" when defeated.
+- **Pigeon Possessed**: An annoying, demonic pigeon that pecks at the player's eyes and flies erratically. Explodes into a cloud of feathers when shot.
+
+### Comedic Death Effects
+Instead of gory gibs, enemies experience varied, cartoonish deaths:
+- **Confetti Burst**: The standard explosion. The enemy bursts into colorful paper accompanied by a party horn sound effect.
+- **Deflate**: Like a balloon losing air, the enemy rapidly deflates and flies wildly around the room making a *Pfffffffft* sound before vanishing.
+
+### Kill Messages (Moorhuhn Style)
+On specific environmental kills or overkill scenarios, Moorhuhn-style popup text appears on screen:
+- "Natural Selection!" (Enemy walks into lava)
+- "Darwin would be proud" (Enemy kills itself)
+- "Overkill much?" (Using the BFG on a 1HP enemy)
+- "Unexpected item in bagging area"
+
+### Satirical Pickups
+Power-ups and items lean into the corporate/modern satire theme:
+- **Energy Drink**: Replaces Medikit. "Now with MORE caffeine!"
+- **Avocado Toast**: Replaces Stimpack. "Millennial power-up."
+- **Participation Trophy**: Replaces Health/Armor bonuses. +10 Score. "Everyone's a winner!"
+
+---
+
 ## Conclusion
 
 Candy Apocalypse is not just a Doom clone—it's a celebration of chaos, a party in game form. Every element, from the cotton-candy colors to the confetti explosions, is designed to make players smile while they paint the walls with demon confetti.

@@ -20,6 +20,8 @@
   - Replace doom.ts's graphics rendering with our SVG-based rendering system following the "Candy Apocalypse" color theme.
   - Adapt the player camera to walk around the parsed 3D level geometry.
 
+  - increase coverage to 70%
+
 ## Phase 2: E2E Test Levels (Pre-Level 1)
 
 - **Goal**: Create test levels with E2E tests BEFORE implementing the first actual game level. This ensures the rendering engine correctly displays all basic elements. _Outcome MUST be verifiable via automated Playwright tests._
@@ -38,8 +40,8 @@
 
 ## Phase 3: Vectorization, Atmosphere & Shaders
 
-- **Goal**: Move from doom.ts's basic Three.js renderer to the SVG spritemap system, generate comic-style SVGs following the [Product Design styleguide](./product_design.md#visual-style-guide), and integrate modern visual effects. _Outcome MUST be verifiable visually and via E2E tests._
-- **Performance Requirement**: The game must run at a consistent **30 FPS**. If raw SVG manipulation is too slow, introduce a pre-rendering step to rasterize SVGs to `OffscreenCanvas` contexts during load to guarantee performance.
+- **Goal**: Use SVGs as textures in Three.js. Keep Three.js for the 3D scene graph and camera perspective, but replace standard texture mapping with our SVG spritemap system. Generate comic-style SVGs following the [Product Design styleguide](./product_design.md#visual-style-guide), and integrate modern visual effects. _Outcome MUST be verifiable visually and via E2E tests._
+- **Performance Requirement**: The game must run at a consistent **30 FPS**. If raw SVG manipulation is too slow, introduce a pre-rendering step to rasterize SVGs to `OffscreenCanvas` contexts during load to guarantee performance (See [Product Design Memory Management](./product_design.md#pre-rasterization-and-memory-management)).
 - **Tasks**:
   - Reference doom.ts's Three.js renderer implementation for 3D engine structure.
   - Investigate which assets (textures, sprites) are necessary based on the parsed Freedoom level data.
@@ -48,6 +50,7 @@
     - Accent Palette: Rage Orange (#FF6B35), Mystic Violet (#9B5DE5), Cherry Bomb (#FF0044)
     - Outlines: Deep Space (#1A1A2E) at 3-5px stroke width
     - Style: Chibi-cute characters, oversized weapons, pop-art environments
+  - **Asset Generation Contingency Plan**: To avoid development bottlenecks waiting for final AI-generated SVGs during Phases 2-5, simple colored geometric vector placeholders (e.g., a pink triangle for an Imp, a yellow block for a door) will be used. This ensures all gameplay loops and logic parsing can be verified independently of final art delivery.
   - some of the SVGs may already be availble in the public/assets/spritemap.svg
   - **Generate weapon SVGs** with first-person perspective, trapezoid shape, and playful personality per [Product Design weapon specs](./product_design.md#weapons). Weapons are already available in public/assets/spritemap.svg
   - Create the SVG CLI pack/unpack script to manage the `<symbol>` spritemap.
@@ -58,14 +61,7 @@
 
 - **Goal**: Implement all weapons with proper first-person SVG assets (following [Product Design](./product_design.md) styleguide) and mouse controls. _Outcome MUST include E2E tests for weapon switching and firing._
 - **Reference Implementation**: Use doom.ts's weapon input handling and shooting mechanics as reference, but adapt for our "Candy Apocalypse" style.
-- **Weapons to Implement** (see [Product Design - Weapons](./product_design.md#weapon-design-philosophy) for personality and visual gimmicks):
-  1. **Chainsaw** - Overly enthusiastic handyman, confetti spray on contact
-  2. **Pistol** - Eager rookie, "PEW!" text on shot
-  3. **Shotgun** - Grumpy grandpa, wide spray of stars
-  4. **Chaingun** - Hyperactive kid, rainbow bullet trails
-  5. **Rocket Launcher** - Dramatic opera singer, fireworks explosion
-  6. **Plasma Rifle** - Sci-fi nerd, electric arcs in happy colors
-  7. **BFG 9000** - Ultimate party animal, disco screen effect
+- **Weapons to Implement**: Reference [Product Design - Weapons](./product_design.md#weapon-design-philosophy) for the definitive list of weapons, their personalities, and visual gimmicks. Avoid duplicating weapon details here to maintain a single source of truth.
 - **Tasks**:
   - Generate first-person trapezoid-shaped SVG assets for all 7 weapons using the "Candy Apocalypse" color theme.
   - Reference doom.ts's input handling and weapon switching logic, adapt for our mouse controls.

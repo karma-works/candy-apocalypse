@@ -101,15 +101,7 @@ A vector-based, responsive browser game inspired by classic FPS games but reimag
 
 ## Weapons
 
-All weapons from the original Doom must be implemented:
-
-1. **Chainsaw** - No ammo limit, melee weapon
-2. **Pistol** - Standard starting weapon
-3. **Shotgun** - Close-range powerhouse
-4. **Chaingun** - Rapid-fire bullet hose
-5. **Rocket Launcher** - Explosive damage
-6. **Plasma Rifle** - Energy-based rapid fire
-7. **BFG 9000** - Ultimate weapon
+Reference [Product Design - Weapons](./product_design.md#weapon-design-philosophy) for the definitive list of weapons, their mechanics, and visual gimmicks.
 
 ### SVG Weapon Design Requirements
 
