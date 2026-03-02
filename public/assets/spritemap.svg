@@ -1,0 +1,292 @@
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <!--
+    Candy Apocalypse Spritemap
+    All symbols follow the "Candy Apocalypse" color theme:
+      Primary:  #00D4FF (Sky Pop), #FFB7C5 (Cotton Cloud), #FFE135 (Solar Burst), #32FF00 (Toxic Lime)
+      Accent:   #FF6B35 (Rage Orange), #9B5DE5 (Mystic Violet), #FF0044 (Cherry Bomb)
+      Outline:  #1A1A2E (Deep Space) at 3-5px stroke
+  -->
+
+  <!-- Barrel sprite – Rage Orange barrel with yellow bands, 64×64 -->
+  <symbol id="sprite-barrel" viewBox="0 0 64 64">
+    <!-- Body -->
+    <rect x="16" y="8" width="32" height="48" rx="10" ry="10" fill="#FF6B35" stroke="#1A1A2E" stroke-width="3"/>
+    <!-- Highlight -->
+    <rect x="20" y="10" width="10" height="44" rx="5" ry="5" fill="#FFB7C5" opacity="0.35"/>
+    <!-- Top band -->
+    <rect x="14" y="14" width="36" height="7" rx="2" fill="#FFE135" stroke="#1A1A2E" stroke-width="2"/>
+    <!-- Middle band -->
+    <rect x="14" y="28" width="36" height="7" rx="2" fill="#FFE135" stroke="#1A1A2E" stroke-width="2"/>
+    <!-- Bottom band -->
+    <rect x="14" y="43" width="36" height="7" rx="2" fill="#FFE135" stroke="#1A1A2E" stroke-width="2"/>
+    <!-- Top cap -->
+    <ellipse cx="32" cy="8" rx="16" ry="5" fill="#FF6B35" stroke="#1A1A2E" stroke-width="3"/>
+    <!-- Bottom cap -->
+    <ellipse cx="32" cy="56" rx="16" ry="5" fill="#FF6B35" stroke="#1A1A2E" stroke-width="3"/>
+    <!-- Toxic drip detail -->
+    <ellipse cx="32" cy="8" rx="7" ry="3" fill="#32FF00" stroke="#1A1A2E" stroke-width="2"/>
+  </symbol>
+
+  <!-- Wall tile: Rage Orange -->
+  <symbol id="wall-rage-orange" viewBox="0 0 64 64">
+    <rect x="0" y="0" width="64" height="64" fill="#FF6B35"/>
+    <rect x="2" y="2" width="60" height="60" fill="none" stroke="#1A1A2E" stroke-width="2" opacity="0.3"/>
+    <!-- Comic halftone dots -->
+    <circle cx="16" cy="16" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="48" cy="16" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="16" cy="48" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="48" cy="48" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="32" cy="32" r="4" fill="#1A1A2E" opacity="0.1"/>
+  </symbol>
+
+  <!-- Wall tile: Sky Pop -->
+  <symbol id="wall-sky-pop" viewBox="0 0 64 64">
+    <rect x="0" y="0" width="64" height="64" fill="#00D4FF"/>
+    <rect x="2" y="2" width="60" height="60" fill="none" stroke="#1A1A2E" stroke-width="2" opacity="0.3"/>
+    <circle cx="16" cy="16" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="48" cy="16" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="16" cy="48" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="48" cy="48" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="32" cy="32" r="4" fill="#1A1A2E" opacity="0.1"/>
+  </symbol>
+
+  <!-- Wall tile: Cotton Cloud -->
+  <symbol id="wall-cotton-cloud" viewBox="0 0 64 64">
+    <rect x="0" y="0" width="64" height="64" fill="#FFB7C5"/>
+    <rect x="2" y="2" width="60" height="60" fill="none" stroke="#1A1A2E" stroke-width="2" opacity="0.3"/>
+    <circle cx="16" cy="16" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="48" cy="16" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="16" cy="48" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="48" cy="48" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="32" cy="32" r="4" fill="#1A1A2E" opacity="0.1"/>
+  </symbol>
+
+  <!-- Wall tile: Toxic Lime -->
+  <symbol id="wall-toxic-lime" viewBox="0 0 64 64">
+    <rect x="0" y="0" width="64" height="64" fill="#32FF00"/>
+    <rect x="2" y="2" width="60" height="60" fill="none" stroke="#1A1A2E" stroke-width="2" opacity="0.3"/>
+    <circle cx="16" cy="16" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="48" cy="16" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="16" cy="48" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="48" cy="48" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="32" cy="32" r="4" fill="#1A1A2E" opacity="0.1"/>
+  </symbol>
+
+  <!-- Wall tile: Mystic Violet -->
+  <symbol id="wall-mystic-violet" viewBox="0 0 64 64">
+    <rect x="0" y="0" width="64" height="64" fill="#9B5DE5"/>
+    <rect x="2" y="2" width="60" height="60" fill="none" stroke="#1A1A2E" stroke-width="2" opacity="0.3"/>
+    <circle cx="16" cy="16" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="48" cy="16" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="16" cy="48" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="48" cy="48" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="32" cy="32" r="4" fill="#1A1A2E" opacity="0.1"/>
+  </symbol>
+
+  <!-- Wall tile: Solar Burst -->
+  <symbol id="wall-solar-burst" viewBox="0 0 64 64">
+    <rect x="0" y="0" width="64" height="64" fill="#FFE135"/>
+    <rect x="2" y="2" width="60" height="60" fill="none" stroke="#1A1A2E" stroke-width="2" opacity="0.3"/>
+    <circle cx="16" cy="16" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="48" cy="16" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="16" cy="48" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="48" cy="48" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="32" cy="32" r="4" fill="#1A1A2E" opacity="0.1"/>
+  </symbol>
+
+  <!-- Wall tile: Cherry Bomb -->
+  <symbol id="wall-cherry-bomb" viewBox="0 0 64 64">
+    <rect x="0" y="0" width="64" height="64" fill="#FF0044"/>
+    <rect x="2" y="2" width="60" height="60" fill="none" stroke="#1A1A2E" stroke-width="2" opacity="0.3"/>
+    <circle cx="16" cy="16" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="48" cy="16" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="16" cy="48" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="48" cy="48" r="4" fill="#1A1A2E" opacity="0.1"/>
+    <circle cx="32" cy="32" r="4" fill="#1A1A2E" opacity="0.1"/>
+  </symbol>
+  <!-- Weapon: Chainsaw (Handyman theme, Rage Orange & Warm Gray) -->
+  <symbol id="weapon-chainsaw" viewBox="0 0 100 100">
+    <rect x="20" y="50" width="60" height="30" fill="#FF6B35" stroke="#1A1A2E" stroke-width="4" rx="5"/>
+    <!-- Blade -->
+    <rect x="40" y="10" width="20" height="50" fill="#888888" stroke="#1A1A2E" stroke-width="4"/>
+    <!-- Teeth -->
+    <path d="M 35 15 L 40 20 L 35 25 L 40 30 L 35 35 L 40 40 L 35 45 L 40 50 Z" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="2"/>
+    <path d="M 65 15 L 60 20 L 65 25 L 60 30 L 65 35 L 60 40 L 65 45 L 60 50 Z" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="2"/>
+    <!-- Handle -->
+    <rect x="20" y="80" width="60" height="15" fill="#333333" stroke="#1A1A2E" stroke-width="3"/>
+  </symbol>
+
+  <!-- Weapon: Pistol (Rookie, Bouncy, Sky Pop & Pure Light) -->
+  <symbol id="weapon-pistol" viewBox="0 0 100 100">
+    <!-- Barrel -->
+    <rect x="40" y="20" width="20" height="40" fill="#00D4FF" stroke="#1A1A2E" stroke-width="4" rx="3"/>
+    <rect x="45" y="22" width="5" height="30" fill="#FFFFFF" opacity="0.6"/>
+    <!-- Grip -->
+    <path d="M 35 60 L 65 60 L 70 100 L 30 100 Z" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="4"/>
+    <!-- Sight -->
+    <circle cx="50" cy="18" r="4" fill="#FF0044" stroke="#1A1A2E" stroke-width="2"/>
+  </symbol>
+
+  <!-- Weapon: Shotgun (Grumpy Grandpa, Warm Gray & Rage Orange) -->
+  <symbol id="weapon-shotgun" viewBox="0 0 100 100">
+    <!-- Double Barrel -->
+    <rect x="30" y="20" width="18" height="60" fill="#666666" stroke="#1A1A2E" stroke-width="4" rx="2"/>
+    <rect x="52" y="20" width="18" height="60" fill="#666666" stroke="#1A1A2E" stroke-width="4" rx="2"/>
+    <!-- Highlights -->
+    <rect x="33" y="22" width="5" height="50" fill="#FFFFFF" opacity="0.3"/>
+    <rect x="55" y="22" width="5" height="50" fill="#FFFFFF" opacity="0.3"/>
+    <!-- Wooden Grip -->
+    <path d="M 25 80 L 75 80 L 80 100 L 20 100 Z" fill="#FF6B35" stroke="#1A1A2E" stroke-width="4"/>
+  </symbol>
+
+  <!-- Weapon: Chaingun (Hyperactive Kid, Toxic Lime multi-barrel) -->
+  <symbol id="weapon-chaingun" viewBox="0 0 100 100">
+    <!-- Barrels -->
+    <rect x="35" y="10" width="10" height="70" fill="#32FF00" stroke="#1A1A2E" stroke-width="3" rx="2"/>
+    <rect x="55" y="10" width="10" height="70" fill="#32FF00" stroke="#1A1A2E" stroke-width="3" rx="2"/>
+    <rect x="45" y="15" width="10" height="65" fill="#1A1A2E" stroke="#1A1A2E" stroke-width="2" rx="2"/>
+    <!-- Chassis -->
+    <rect x="25" y="60" width="50" height="40" fill="#FF0044" stroke="#1A1A2E" stroke-width="4" rx="5"/>
+    <circle cx="50" cy="80" r="10" fill="#FFE135" stroke="#1A1A2E" stroke-width="3"/>
+  </symbol>
+
+  <!-- Weapon: Rocket Launcher (Opera Singer, Mystic Violet tube) -->
+  <symbol id="weapon-rocket" viewBox="0 0 100 100">
+    <!-- Huge Tube -->
+    <rect x="30" y="10" width="40" height="90" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="4" rx="8"/>
+    <!-- Muzzle ring -->
+    <ellipse cx="50" cy="15" rx="22" ry="8" fill="#1A1A2E" stroke="#1A1A2E" stroke-width="2"/>
+    <ellipse cx="50" cy="12" rx="14" ry="4" fill="#FF0044"/>
+    <!-- Accents -->
+    <rect x="25" y="40" width="50" height="15" fill="#FFE135" stroke="#1A1A2E" stroke-width="3"/>
+    <rect x="25" y="60" width="50" height="15" fill="#FFE135" stroke="#1A1A2E" stroke-width="3"/>
+  </symbol>
+
+  <!-- Weapon: Plasma Rifle (Sci-fi nerd, Solar Burst arcs) -->
+  <symbol id="weapon-plasma" viewBox="0 0 100 100">
+    <rect x="25" y="30" width="50" height="70" fill="#00D4FF" stroke="#1A1A2E" stroke-width="4" rx="6"/>
+    <!-- Arcs / Coils -->
+    <line x1="15" y1="40" x2="85" y2="40" stroke="#FFE135" stroke-width="6"/>
+    <line x1="15" y1="55" x2="85" y2="55" stroke="#FFE135" stroke-width="6"/>
+    <line x1="15" y1="70" x2="85" y2="70" stroke="#FFE135" stroke-width="6"/>
+    <!-- Muzzle -->
+    <rect x="40" y="10" width="20" height="20" fill="#1A1A2E" stroke="#1A1A2E" stroke-width="2"/>
+    <circle cx="50" cy="15" r="5" fill="#32FF00"/>
+  </symbol>
+
+  <!-- Weapon: BFG 9000 (Party animal, Deep Space with Cotton Cloud accents) -->
+  <symbol id="weapon-bfg" viewBox="0 0 100 100">
+    <!-- Massive Chassis -->
+    <rect x="10" y="30" width="80" height="70" fill="#1A1A2E" stroke="#00D4FF" stroke-width="4" rx="15"/>
+    <rect x="20" y="40" width="60" height="50" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="3" rx="10"/>
+    <!-- Energy Core -->
+    <circle cx="50" cy="65" r="15" fill="#32FF00" stroke="#FFE135" stroke-width="4"/>
+    <circle cx="50" cy="65" r="5" fill="#FFFFFF"/>
+    <!-- Muzzle -->
+    <rect x="20" y="10" width="60" height="20" fill="#1A1A2E" stroke="#FF0044" stroke-width="4" rx="5"/>
+  </symbol>
+
+  <!-- FX: Muzzle Flash (Happy Fire gradient burst) -->
+  <symbol id="sprite-muzzle-flash" viewBox="0 0 100 100">
+    <!-- Outer Burst (Cherry Bomb) -->
+    <path d="M 50 0 L 60 30 L 100 20 L 70 50 L 100 80 L 60 70 L 50 100 L 40 70 L 0 80 L 30 50 L 0 20 L 40 30 Z" fill="#FF0044" opacity="0.8"/>
+    <!-- Mid Burst (Rage Orange) -->
+    <path d="M 50 15 L 57 37 L 85 30 L 65 50 L 85 70 L 57 63 L 50 85 L 43 63 L 15 70 L 35 50 L 15 30 L 43 37 Z" fill="#FF6B35"/>
+    <!-- Inner Burst (Solar Burst) -->
+    <circle cx="50" cy="50" r="15" fill="#FFE135"/>
+    <circle cx="50" cy="50" r="8" fill="#FFFFFF"/>
+  </symbol>
+  <!-- ENEMY: Imp (Happy Imp) -->
+  <symbol id="sprite-imp" viewBox="0 0 64 64">
+    <!-- Body -->
+    <path d="M 20 60 L 25 30 L 15 20 L 32 10 L 49 20 L 39 30 L 44 60 Z" fill="#FF0044" stroke="#1A1A2E" stroke-width="3"/>
+    <!-- Party Hat -->
+    <polygon points="32,0 22,12 42,12" fill="#00D4FF" stroke="#1A1A2E" stroke-width="2"/>
+    <circle cx="32" cy="0" r="4" fill="#FFE135"/>
+    <!-- Eyes -->
+    <circle cx="27" cy="20" r="3" fill="#FFE135"/>
+    <circle cx="37" cy="20" r="3" fill="#FFE135"/>
+    <circle cx="27" cy="20" r="1" fill="#1A1A2E"/>
+    <circle cx="37" cy="20" r="1" fill="#1A1A2E"/>
+    <!-- Grin -->
+    <path d="M 25 25 Q 32 30 39 25" fill="none" stroke="#FFE135" stroke-width="2"/>
+  </symbol>
+
+  <!-- ENEMY: Zombie (Cheerful Zombie) -->
+  <symbol id="sprite-zombie" viewBox="0 0 64 64">
+    <!-- Legs -->
+    <rect x="22" y="45" width="8" height="15" fill="#1A1A2E"/>
+    <rect x="34" y="45" width="8" height="15" fill="#1A1A2E"/>
+    <!-- Shirt -->
+    <rect x="18" y="25" width="28" height="25" rx="4" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="3"/>
+    <text x="32" y="40" font-family="sans-serif" font-size="8" font-weight="bold" fill="#FF0044" text-anchor="middle">I ❤️ BRN</text>
+    <!-- Head -->
+    <rect x="20" y="5" width="24" height="24" rx="6" fill="#32FF00" stroke="#1A1A2E" stroke-width="3"/>
+    <!-- Eyes (derpy) -->
+    <circle cx="26" cy="15" r="4" fill="#FFFFFF"/>
+    <circle cx="38" cy="15" r="3" fill="#FFFFFF"/>
+    <circle cx="26" cy="16" r="1" fill="#1A1A2E"/>
+    <circle cx="38" cy="14" r="1" fill="#1A1A2E"/>
+    <!-- Smile -->
+    <path d="M 24 22 Q 32 26 40 20" fill="none" stroke="#1A1A2E" stroke-width="2"/>
+  </symbol>
+
+  <!-- ENEMY: Demon (Party Demon) -->
+  <symbol id="sprite-demon" viewBox="0 0 64 64">
+    <!-- Balloon string -->
+    <line x1="32" y1="20" x2="32" y2="40" stroke="#1A1A2E" stroke-width="2"/>
+    <!-- Balloon -->
+    <circle cx="32" cy="12" r="10" fill="#FF0044" stroke="#1A1A2E" stroke-width="2"/>
+    <!-- Body -->
+    <circle cx="32" cy="40" r="18" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="3"/>
+    <!-- Big Eye -->
+    <circle cx="32" cy="35" r="8" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+    <circle cx="32" cy="35" r="3" fill="#00D4FF"/>
+    <!-- Teeth -->
+    <path d="M 22 45 L 26 50 L 30 45 L 34 50 L 38 45 L 42 50 Z" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+  </symbol>
+
+  <!-- PROJECTILE: Fireball (Confetti blast) -->
+  <symbol id="sprite-fireball" viewBox="0 0 32 32">
+    <circle cx="16" cy="16" r="12" fill="#FFE135" stroke="#FF6B35" stroke-width="3"/>
+    <circle cx="16" cy="16" r="6" fill="#FFFFFF"/>
+    <!-- Trails -->
+    <line x1="4" y1="16" x2="-4" y2="16" stroke="#FF0044" stroke-width="3" stroke-linecap="round"/>
+    <line x1="8" y1="8" x2="0" y2="0" stroke="#00D4FF" stroke-width="3" stroke-linecap="round"/>
+    <line x1="8" y1="24" x2="0" y2="32" stroke="#32FF00" stroke-width="3" stroke-linecap="round"/>
+  </symbol>
+
+  <!-- FX: Dead (Cartoon skull/poof) -->
+  <symbol id="sprite-dead" viewBox="0 0 64 64">
+    <!-- Splat background -->
+    <path d="M 32 10 Q 50 10 50 30 Q 60 40 45 50 Q 32 60 20 50 Q 5 40 15 30 Q 15 10 32 10 Z" fill="#1A1A2E" opacity="0.5"/>
+    <!-- Skull -->
+    <path d="M 22 25 Q 32 15 42 25 L 42 35 L 38 40 L 32 38 L 26 40 L 22 35 Z" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+    <!-- Dead eyes (X) -->
+    <path d="M 26 26 L 30 30 M 30 26 L 26 30" stroke="#1A1A2E" stroke-width="2"/>
+    <path d="M 34 26 L 38 30 M 38 26 L 34 30" stroke="#1A1A2E" stroke-width="2"/>
+  </symbol>
+
+  <!-- DOOR: Standard Door (Candy Door) -->
+  <symbol id="sprite-door" viewBox="0 0 64 128">
+    <!-- Frame -->
+    <rect x="4" y="4" width="56" height="120" fill="#1A1A2E" stroke="#FF6B35" stroke-width="4" rx="4"/>
+    <!-- Door panels -->
+    <rect x="10" y="10" width="44" height="50" fill="#9B5DE5" stroke="#00D4FF" stroke-width="2" rx="3"/>
+    <rect x="10" y="68" width="44" height="50" fill="#9B5DE5" stroke="#00D4FF" stroke-width="2" rx="3"/>
+    <!-- Door handle -->
+    <circle cx="48" cy="64" r="5" fill="#FFE135" stroke="#1A1A2E" stroke-width="2"/>
+    <!-- Highlight -->
+    <rect x="14" y="14" width="8" height="42" fill="#FFFFFF" opacity="0.3" rx="2"/>
+    <rect x="14" y="72" width="8" height="42" fill="#FFFFFF" opacity="0.3" rx="2"/>
+  </symbol>
+
+  <!-- DOOR: Open Door (empty frame) -->
+  <symbol id="sprite-door-open" viewBox="0 0 64 128">
+    <!-- Frame only -->
+    <rect x="4" y="4" width="56" height="120" fill="none" stroke="#FF6B35" stroke-width="4" rx="4"/>
+    <!-- Interior shadow -->
+    <rect x="8" y="8" width="48" height="112" fill="#0a0a15" opacity="0.5"/>
+  </symbol>
+
+</svg>
