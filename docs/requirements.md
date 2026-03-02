@@ -53,12 +53,51 @@ A vector-based, responsive browser game inspired by classic FPS games but reimag
   - Multiple weapons (see Weapons section below).
   - **Mouse Support**: Full mouse control for looking/aiming and interaction.
 - **SVG Asset System**:
+
+  **Directory Structure**:
+
+  ```
+  assets/
+    └── svg_raw/           # Individual SVG source files
+        ├── pistol.svg
+        ├── shotgun.svg
+        ├── imp.svg
+        └── ...
+
+  public/assets/
+    └── spritemap.svg      # Packed sprite atlas (generated)
+  ```
+
+  **Workflow**:
+  1. **Create/Edit SVGs**: Work with individual SVG files in `assets/svg_raw/`
+  2. **Pack**: Run `pnpm svg:pack` to combine all SVGs into `public/assets/spritemap.svg`
+  3. **Unpack**: Run `pnpm svg:unpack` to extract symbols back to individual files (for editing)
+
+  **Spritemap Details**:
   - Single SVG spritemap at `public/assets/spritemap.svg` with `<symbol>` elements
+  - Generated from individual SVGs using `scripts/svg-spritemap.mjs`
+  - Symbol IDs derived from filenames (e.g., `pistol.svg` → `id="pistol"`)
   - Loaded via file fetch at game initialization
-  - Extend existing `spritemap.svg` with new sprites (weapons, enemies, effects)
   - Animated sprites store multiple frames within single SVG symbols
   - Pre-rasterize ALL SVGs to OffscreenCanvas at 2x screen resolution during load phase
   - Scale down on-demand during rendering to prevent blur effects
+
+  **SVG Naming Conventions**:
+
+  ```
+  Weapons:     {weapon-name}.svg           (e.g., pistol.svg, shotgun.svg)
+  Enemies:     {enemy-name}.svg            (e.g., imp.svg, zombie.svg)
+  Walls:       wall-{variant}.svg          (e.g., wall-base.svg)
+  Effects:     effect-{type}.svg           (e.g., explosion.svg)
+  Items:       item-{type}.svg             (e.g., health-large.svg)
+  ```
+
+  **Asset Creation Guidelines**:
+  - All SVGs must follow "Candy Apocalypse" color theme (see Product Design)
+  - Include viewBox attribute (default: "0 0 64 64" if not specified)
+  - Use semantic IDs for elements (e.g., `<g id="weapon-body">`)
+  - Keep file sizes minimal (avoid embedded raster images)
+  - For animated sprites: create separate files for each frame (e.g., `imp-walk-1.svg`, `imp-walk-2.svg`)
 
 ## Weapons
 
@@ -172,15 +211,28 @@ MusPlayer (doom.ts/interfaces/smplr/mus-player.ts)
 
 ### SVG Spritemap Structure
 
-**Location**: `public/assets/spritemap.svg`
+**Location**: `public/assets/spritemap.svg` (auto-generated, do not edit manually)
+
+**Generation**: Run `pnpm svg:pack` to generate from `assets/svg_raw/`
 
 **Current Symbols** (existing):
 
-- `sprite-barrel`: Explosive barrel
-- `wall-rage-orange`, `wall-sky-pop`, etc.: Wall tiles
-- (To be extended with weapons, enemies, effects)
+- Weapons: `pistol`, `shotgun`, `chaingun`, `supershotgun`
+- Enemies: `imp`
+- Environment: `barrel`, `door`, `wall-base`
 
-**Symbol Naming Convention**:
+**Symbol ID Mapping**:
+
+```
+Filename                → Symbol ID
+pistol.svg             → id="pistol"
+shotgun.svg            → id="shotgun"
+imp.svg                → id="imp"
+wall-base.svg          → id="wall-base"
+```
+
+**For Candy Apocalypse Style** (to be updated):
+Current SVGs use generic Doom colors. Update to follow naming:
 
 ```
 Walls:       wall-{color-name}           (e.g., wall-sky-pop)
@@ -189,12 +241,6 @@ Weapons:     weapon-{name}-{frame}       (e.g., weapon-pistol-fire-1)
 Effects:     effect-{type}-{variant}     (e.g., effect-explosion-1)
 Items:       item-{type}                 (e.g., item-health-large)
 ```
-
-**Animated Sprites**:
-
-- Multiple frames stored in single SVG
-- Frame naming: `enemy-imp-walk-1`, `enemy-imp-walk-2`, etc.
-- Animation system switches between symbol references
 
 ### Performance Optimization
 
