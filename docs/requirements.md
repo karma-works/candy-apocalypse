@@ -23,18 +23,28 @@ A vector-based, responsive browser game inspired by classic FPS games but reimag
 5. **Documentation-First**: Comprehensive markdown documentation precedes project planning and implementation.
 6. **Styleguide Adherence**: All visual assets must follow the "Candy Apocalypse" color theme defined in [Product Design](./product_design.md#color-theme-candy-apocalypse).
 
-## Core Mechanics & Scope (Full Game)
+## Core Mechanics
 
-- **Performance Target**: The game MUST maintain a consistent framerate of at least **30 FPS**. If parsing and rendering SVGs directly via Canvas `drawImage` or DOM manipulation proves too slow, we will implement performance optimizations such as off-screen pre-rendering (rasterizing) of SVGs to `OffscreenCanvas` or standard image buffers during the loading phase.
+- **Performance Target**: The game MUST maintain a consistent framerate of at least **30 FPS**.
+  - All SVGs pre-rasterized to OffscreenCanvas at 2x resolution during load phase
+  - Rasterized sprites stored in memory cache for fast Canvas 2D draw operations
+  - Three.js handles 3D scene graph, camera, and perspective transformations
+  - SVG sprites rendered as billboards/textures mapped to 3D geometry
 - **Modern Reimagined Visuals**:
   - "Candy Apocalpyse" is a modern, reimagined DOOM.
   - Freely scalable screen size, uniformly crisp and sharp vector graphics.
   - Modern technology for lighting (Shaders).
   - Implementation of modern fire and water effects in the environment.
-- **Technical Foundation**: Use **`doom.ts`** (Thomas Chandelle) as reference implementation. A TypeScript port of DOOM with Three.js renderer, demonstrating adapting classic DOOM logic to a browser-based 3D renderer. See [GitLab](https://gitlab.com/thomas.chandelle/doom.ts).
-- **WAD Parsing**: Reference doom.ts's WAD handling implementation. For Candy Apocalypse, we'll use Freedoom WAD files to extract structural level data (geometry, sectors, BSP nodes) while replacing all graphics with our SVG-based rendering.
-- **Audio Architecture**: doom.ts uses **`smplr`** library - a TypeScript Web Audio API wrapper for sampled instrument playback. It provides high-quality audio samples (pianos, marimbas, guitars, drums) with effects support (reverb). We'll adapt this architecture for our "Happy Metal" chiptune + heavy metal fusion audio style.
-- **License**: doom.ts is GPL v3-licensed. Our project will be GPL-3.0 compliant. We'll use doom.ts as reference and adapt its logic while maintaining GPL-3.0 compliance.
+- **Technical Foundation**: Use **`doom.ts`** (Thomas Chandelle) as the primary codebase. A TypeScript port of DOOM with Three.js renderer, demonstrating adapting classic DOOM logic to a browser-based 3D renderer. See [GitLab](https://gitlab.com/thomas.chandelle/doom.ts). We will fork and extend doom.ts directly.
+- **Rendering Strategy**: Keep Three.js for 3D scene graph, camera, and perspective. Replace all texture rendering with SVG sprites that are rasterized to canvas at load time.
+- **WAD Parsing**: Use doom.ts's built-in WAD parser (`src/doom/wad/wad.ts`). For Candy Apocalypse, we'll use Freedoom WAD files to extract structural level data (vertices, linedefs, sectors, BSP nodes, things) while replacing all graphics with our SVG-based rendering.
+- **Audio Architecture**: Use doom.ts's audio system based on the **`smplr`** library:
+  - `MusPlayer` class for MUS format playback (Doom's native music format)
+  - `Soundfont` instruments for melodic tracks
+  - `DrumMachine` for percussion
+  - Web Audio API integration with scheduling
+  - We'll compose new music in MUS format and generate new sound effect samples for the "Happy Metal" style.
+- **License**: doom.ts is GPL v3-licensed. Our project is GPL-3.0 compliant as we're using doom.ts as our primary codebase.
 - **Features**:
   - Navigation of 3D non-grid environments.
   - Doors and Keys.
@@ -42,7 +52,13 @@ A vector-based, responsive browser game inspired by classic FPS games but reimag
   - Enemies and shooting mechanics.
   - Multiple weapons (see Weapons section below).
   - **Mouse Support**: Full mouse control for looking/aiming and interaction.
-- **Assets**: Upfront AI-generated SVGs for graphics. Single SVG spritemap with `<symbol>` elements. We will implement a Node.js CLI utility script to pack individual `SVG` files into the master symbol file.
+- **SVG Asset System**:
+  - Single SVG spritemap at `public/assets/spritemap.svg` with `<symbol>` elements
+  - Loaded via file fetch at game initialization
+  - Extend existing `spritemap.svg` with new sprites (weapons, enemies, effects)
+  - Animated sprites store multiple frames within single SVG symbols
+  - Pre-rasterize ALL SVGs to OffscreenCanvas at 2x screen resolution during load phase
+  - Scale down on-demand during rendering to prevent blur effects
 
 ## Weapons
 
@@ -67,3 +83,151 @@ All weapons from the original Doom must be implemented:
 ## Development Stack & Tooling
 
 see #tech_stack.md
+
+## Technical Architecture
+
+### Rendering Pipeline
+
+**Three.js Integration**:
+
+- Keep Three.js for 3D scene graph, camera management, and perspective transformations
+- Replace texture system with SVG-based sprites
+- SVG sprites rendered as Three.js textures mapped to 3D geometry
+
+**SVG Rasterization Strategy**:
+
+```
+Load Phase:
+  1. Fetch spritemap.svg via HTTP
+  2. Parse SVG DOM to extract all <symbol> elements
+  3. For each symbol:
+     - Create OffscreenCanvas at 2x screen resolution
+     - Render SVG symbol to canvas
+     - Store as ImageBitmap in sprite cache
+
+Runtime:
+  - Three.js textures reference cached ImageBitmaps
+  - Scale down from 2x resolution on-demand (prevents blur)
+  - Maintain 30 FPS target
+```
+
+### WAD Data Flow
+
+**Parser**: doom.ts built-in WAD parser (`src/doom/wad/wad.ts`)
+
+**Data Extraction**:
+
+```
+WAD File (freedoom.wad)
+    ↓
+Wad class (doom.ts)
+    ↓
+Lump Extraction:
+    - VERTEXES: Wall corner coordinates
+    - LINEDEFS: Wall definitions, doors, triggers
+    - SECTORS: Floor/ceiling heights, lighting
+    - THINGS: Entity placement (enemies, items, decorations)
+    - NODES: BSP tree for rendering order
+    - SEGS/SSECTORS: Rendering segments
+    ↓
+Game Engine (extended doom.ts)
+    ↓
+Render with SVG Sprites
+```
+
+**What We Ignore from WAD**:
+
+- `PNAMES`, `TEXTURE1`, `TEXTURE2`: Texture definitions
+- `SPRITES`: Original Doom sprite graphics
+- `FLATS`: Floor/ceiling textures
+- `PLAYPAL`, `COLORMAP`: Color palettes
+
+### Audio System Architecture
+
+**Music Playback** (doom.ts `MusPlayer`):
+
+```
+MUS File (from WAD or custom)
+    ↓
+Mus class (doom.ts/doom/sounds/mus.ts)
+    ↓
+MusPlayer (doom.ts/interfaces/smplr/mus-player.ts)
+    ├─ Soundfont instruments (melodic tracks)
+    ├─ DrumMachine (percussion)
+    └─ Web Audio API scheduling
+```
+
+**Custom Music Creation**:
+
+- Compose new tracks in MUS format
+- Use Doom's MUS structure: 16 channels, tic-based timing
+- Instrument mapping: Map to "Happy Metal" soundfont instruments
+- Tempo: 140-180 BPM
+
+**Sound Effects**:
+
+- Generate new samples (cartoon-style, exaggerated)
+- Integrate with doom.ts's existing sound system
+- Web Audio API for playback
+
+### SVG Spritemap Structure
+
+**Location**: `public/assets/spritemap.svg`
+
+**Current Symbols** (existing):
+
+- `sprite-barrel`: Explosive barrel
+- `wall-rage-orange`, `wall-sky-pop`, etc.: Wall tiles
+- (To be extended with weapons, enemies, effects)
+
+**Symbol Naming Convention**:
+
+```
+Walls:       wall-{color-name}           (e.g., wall-sky-pop)
+Enemies:     enemy-{name}-{frame}        (e.g., enemy-imp-walk-1)
+Weapons:     weapon-{name}-{frame}       (e.g., weapon-pistol-fire-1)
+Effects:     effect-{type}-{variant}     (e.g., effect-explosion-1)
+Items:       item-{type}                 (e.g., item-health-large)
+```
+
+**Animated Sprites**:
+
+- Multiple frames stored in single SVG
+- Frame naming: `enemy-imp-walk-1`, `enemy-imp-walk-2`, etc.
+- Animation system switches between symbol references
+
+### Performance Optimization
+
+**Pre-rasterization**:
+
+- All SVGs rasterized at load time (no runtime SVG parsing)
+- 2x resolution cache (e.g., 1920x1080 screen → 3840x2160 raster)
+- Downscaling on render prevents blur, maintains crisp edges
+
+**Memory Management**:
+
+- ImageBitmap cache for all sprites
+- Three.js texture cache
+- Dispose unused textures when changing levels
+
+**Frame Rate Target**:
+
+- 30 FPS minimum
+- Monitor with `requestAnimationFrame` timing
+- Performance budget: < 33ms per frame
+
+### Input System
+
+**Mouse Controls** (extend doom.ts):
+
+- Mouse look: X/Y axis for camera rotation
+- Left click: Fire weapon
+- Scroll wheel: Weapon switching
+- Pointer lock API for immersive control
+
+**Keyboard** (use doom.ts existing):
+
+- WASD: Movement
+- 1-7: Weapon selection
+- E/Enter: Interaction (doors, switches)
+- R: Restart level

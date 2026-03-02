@@ -12,14 +12,11 @@ Candy Apocalypse is a delightfully chaotic browser game that reimagines the clas
 
 **Decision: Direct WAD Reading (No JSON Conversion)**
 
-We will read WAD files directly at runtime using `@rojo2/wad-parser`. No WAD-to-JSON conversion step. This approach:
+We will read WAD files directly at runtime using doom.ts's built-in WAD parser (`src/doom/wad/wad.ts`). No WAD-to-JSON conversion step. This approach:
 
 - ✅ Maximizes performance (no conversion overhead)
 - ✅ Simplifies development (fewer moving parts)
 - ✅ Ensures data integrity (single source of truth)
-- ✅ Enables rapid prototyping (MVP in < 2 weeks)
-
-**Future Consideration**: If debugging becomes difficult or we need custom level editing tools, we can add a build-time conversion step (WAD → optimized JSON) as a separate utility, but it won't be part of the MVP.
 
 ---
 
@@ -44,16 +41,17 @@ WAD files from classic Doom provide:
 #### WAD Integration Strategy
 
 ```
-WAD Parser (@rojo2/wad-parser)
+doom.ts WAD Parser (src/doom/wad/wad.ts)
     ↓
     ├─→ Extract Structural Data
     │   ├─ Vertices
     │   ├─ Linedefs
     │   ├─ Sectors
+    │   ├─ Things (enemies, items, decorations)
     │   └─ BSP Nodes (for 3D rendering)
     │
     ├─→ Extract Audio Data
-    │   ├─ Music (MIDI-style sequences)
+    │   ├─ Music (MUS format sequences)
     │   └─ Sound Effects (PCM samples)
     │
     └─→ Extract Minimal Texture Mapping
@@ -95,78 +93,104 @@ WAD Parser (@rojo2/wad-parser)
 
 ### Technical Implementation
 
-#### Phase 1: WAD Parser Setup (Already in plan)
+#### WAD Parser Setup
 
-Use `@rojo2/wad-parser` to read Freedoom WAD files at runtime.
+Use doom.ts's built-in WAD parser to read Freedoom WAD files at runtime.
 
 ```typescript
-// Example: What we extract from WAD
-const wad = await WADParser.load("freedoom.wad");
+// Example: What we extract from WAD using doom.ts parser
+import { Wad } from "./doom/wad/wad";
+
+const wadBuffer = await fetch("freedoom.wad").then((r) => r.arrayBuffer());
+const wad = new Wad(wadBuffer);
 
 // Keep for structure
-const vertices = wad.findVertices();
-const linedefs = wad.findLinedefs();
-const sectors = wad.findSectors();
-const nodes = wad.findNodes(); // For BSP
+const vertices = wad.findLump("VERTEXES");
+const linedefs = wad.findLump("LINEDEFS");
+const sectors = wad.findLump("SECTORS");
+const things = wad.findLump("THINGS");
+const nodes = wad.findLump("NODES"); // For BSP
 
 // Skip for graphics
-// const sprites = wad.findSprites(); // IGNORE
-// const textures = wad.findTextures(); // IGNORE
+// const sprites = wad.findLump('SPRITES') // IGNORE
+// const textures = wad.findLump('PNAMES') // IGNORE
 ```
 
-#### Phase 2: Structural Rendering Engine
+#### Structural Rendering Engine
 
-Create a raycasting engine that:
+Extend doom.ts's Three.js renderer to use SVG spritemaps:
 
-1. Parses WAD structural data
-2. Renders using our SVG spritemaps
-3. Applies "Candy Apocalypse" styling
+1. Parse WAD structural data using doom.ts's WAD parser
+2. Pre-rasterize SVG symbols to OffscreenCanvas at 2x resolution
+3. Render using rasterized sprites via Three.js textures
+4. Apply "Candy Apocalypse" styling
 
 ```typescript
-// The rendering engine doesn't know about textures
-// It only knows about SVG symbols
-function renderWall(linedef: Linedef) {
-  const svgSymbol = getSVGSymbol("wall-sprite");
-  drawSVG(svgSymbol, linedef, {
+// SVG spritemap loading and rasterization
+async function loadSprites() {
+  const response = await fetch("/assets/spritemap.svg");
+  const svgText = await response.text();
+  const parser = new DOMParser();
+  const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
+
+  // Pre-rasterize all symbols at 2x resolution
+  const sprites = new Map<string, ImageBitmap>();
+  const symbols = svgDoc.querySelectorAll("symbol");
+
+  for (const symbol of symbols) {
+    const canvas = new OffscreenCanvas(screenWidth * 2, screenHeight * 2);
+    const ctx = canvas.getContext("2d")!;
+    // Render SVG symbol to canvas
+    // Store in cache
+    sprites.set(symbol.id, await createImageBitmap(canvas));
+  }
+
+  return sprites;
+}
+
+// The rendering engine uses rasterized sprites
+function renderWall(linedef: Linedef, sprites: Map<string, ImageBitmap>) {
+  const sprite = sprites.get("wall-sky-pop");
+  // Apply to Three.js texture
+  drawSprite(sprite, linedef, {
     colorTheme: "Candy Apocalypse",
     style: "comic-outlines",
   });
 }
 ```
 
-#### Phase 3: Texture Mapping (Optional, Limited)
+#### Texture Mapping (Optional, Limited)
 
-For elements that have WAD textures we want to preserve:
+For elements that need texture mapping from WAD:
 
 ```typescript
-function renderTexturedWall(linedef: Linedef) {
-  if (linedef.texture) {
-    // Map WAD texture to SVG pattern
-    const svgPattern = createSVGPattern(linedef.texture);
-    renderUsingPattern(svgPattern, linedef);
-  } else {
-    // Use our pure SVG theme
-    renderWithTheme(linedef);
-  }
+function renderTexturedWall(
+  linedef: Linedef,
+  sprites: Map<string, ImageBitmap>,
+) {
+  const textureName = linedef.texture;
+  const sprite =
+    sprites.get(`wall-${textureName}`) || sprites.get("wall-sky-pop");
+  renderUsingSprite(sprite, linedef);
 }
 ```
 
-**Note**: We'll likely use only 1-2 textures max (e.g., floor tiles) to maintain the pure SVG aesthetic.
+**Note**: We'll use SVG symbols for most textures to maintain the pure SVG aesthetic.
 
-#### Phase 4: Asset Generation Pipeline
+#### SVG Asset Management
 
 ```typescript
-// Asset Generation Script
-const assets = [
-  "enemies/happy_imp.svg",
-  "enemies/cheerful_zombie.svg",
-  "weapons/chaingun.svg",
-  "weapons/rocket_launcher.svg",
-  // ... all SVGs
-];
+// SVG spritemap is loaded and parsed at game initialization
+async function initializeAssets() {
+  const spritemap = await loadSVGSpriteMap("/assets/spritemap.svg");
+  const rasterized = await preRasterizeAll(spritemap, screenWidth * 2);
+  return rasterized;
+}
 
-const spritemap = packSVGs(assets, "Candy Apocalypse");
-spritemap.save("assets/spritemap.svg");
+// Existing spritemap.svg is extended with new sprites
+// - Weapons (pistol, shotgun, chaingun, etc.)
+// - Enemies (happy_imp, cheerful_zombie, etc.)
+// - Effects (explosions, particles, etc.)
 ```
 
 ### Benefits of This Approach
@@ -192,13 +216,6 @@ spritemap.save("assets/spritemap.svg");
 **Risk**: WAD format might have elements we can't use
 
 - **Mitigation**: WAD parser handles any unknown data gracefully; we only use what we need
-
-### Technical Priorities
-
-1. **MVP**: WAD parser + basic raycasting + simple SVG rendering
-2. **Visuals**: Complete SVG spritemaps with "Candy Apocalypse" theme
-3. **Audio**: Adapt WAD music to "Happy Metal" style
-4. **Polish**: Exaggerated effects, comic style, happy colors
 
 ---
 
@@ -817,7 +834,7 @@ ENTRANCE → COMBAT AREAS → MINI-CHALLENGE → BOSS/EXIT
 
 ### Performance Targets
 
-- **Frame Rate**: 60 FPS minimum
+- **Frame Rate**: 30 FPS minimum
 - **Load Time**: < 3 seconds initial, < 1 second level transitions
 - **Responsiveness**: < 16ms input lag
 - **Particle Limit**: 1000+ simultaneous particles
@@ -868,32 +885,9 @@ ENTRANCE → COMBAT AREAS → MINI-CHALLENGE → BOSS/EXIT
 
 ---
 
-## Development Priorities
-
-### MVP (Minimum Viable Product)
-
-1. ✅ Core movement and shooting
-2. ✅ 3-4 weapons with exaggerated effects
-3. ✅ 2-3 enemy types
-4. ✅ 1 complete level
-5. ✅ Basic combo system
-6. ✅ Happy color palette
-7. ✅ Comic-style effects
-
-### Post-MVP Enhancements
-
-1. Full weapon roster
-2. All enemy types
-3. Complete story mode
-4. Arcade mode
-5. Social features
-6. Cosmetic system
-
----
-
 ## Conclusion
 
-Vector Doom 2 is not just a Doom clone—it's a celebration of chaos, a party in game form. Every element, from the cotton-candy colors to the confetti explosions, is designed to make players smile while they paint the walls with demon confetti.
+Candy Apocalypse is not just a Doom clone—it's a celebration of chaos, a party in game form. Every element, from the cotton-candy colors to the confetti explosions, is designed to make players smile while they paint the walls with demon confetti.
 
 **Remember**: If it doesn't make the player go "Haha, nice!", it doesn't belong in the game.
 
