@@ -3,3 +3,9 @@
 /data/
 dist/
 node_modules/
+
+# Test artifacts
+tests/e2e/screenshots/
+tests/e2e/results/
+playwright-report/
+test-results/
