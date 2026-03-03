@@ -1,7 +1,6 @@
 import {
   BlankRenderer,
   RenderingInterface,
-  RenderingMode,
 } from "./rendering/rendering-interface";
 import { BlankVideo, VideoInterface } from "./interfaces/video-interface";
 import { DEvent, GameAction, MAX_EVENTS } from "./doom/event";
@@ -35,7 +34,6 @@ import { StatusBar } from "./status/stuff";
 import { Strings } from "./translation/strings";
 import { Win } from "./win/win";
 import { Wipe } from "./wipe";
-import { displayEndoom } from "./misc/endoom";
 import { svgRasterizer } from "./webgl/svg-rasterizer";
 import { getTime } from "./system/system";
 import { validCounter } from "./play/valid-counter";
@@ -102,45 +100,6 @@ export class Doom {
     this.input.postEvent = (ev) => this.postEvent(ev);
   }
 
-  renderingMode: RenderingMode = RenderingMode.Legacy;
-
-  async setLegacyRenderer(): Promise<void> {
-    if (this.params.screen2d === undefined) {
-      throw "no 2d screen defined";
-    }
-    const { Rendering } = await import("./rendering/rendering");
-    const { Video } = await import("./interfaces/video");
-    if (this.quitted) {
-      return;
-    }
-
-    const palette = this.iVideo.palette;
-    const gamma = this.iVideo.gamma;
-
-    this.iVideo.quit();
-
-    const { width, height } = this.iVideo;
-    this.iVideo = new Video(this.rVideo);
-    this.iVideo.screen = this.params.screen2d;
-    this.iVideo.palette = palette;
-    this.iVideo.gamma = gamma;
-    this.iVideo.setSize(width, height);
-
-    const highDetails = this.rendering.highDetails;
-    const screenSize = this.rendering.screenSize;
-
-    this.rendering = new Rendering(this);
-    this.rendering.highDetails = highDetails;
-    this.rendering.screenSize = screenSize;
-
-    this.rendering.init();
-    this.iVideo.init();
-
-    this.rVideo.screens[0].alpha.fill(255);
-
-    this.renderingMode = RenderingMode.Legacy;
-  }
-
   async setWebGLRenderer(): Promise<void> {
     if (this.params.screen3d === undefined) {
       throw "no 3d screen defined";
@@ -155,14 +114,6 @@ export class Doom {
     const gamma = this.iVideo.gamma;
 
     this.iVideo.quit();
-
-    const screen2d = this.params.screen2d;
-    if (screen2d !== undefined) {
-      const ctx = screen2d.getContext("2d");
-      if (ctx !== null) {
-        ctx.clearRect(0, 0, screen2d.width, screen2d.height);
-      }
-    }
 
     const { width, height } = this.iVideo;
     const iVideo = new Video(this.rVideo);
@@ -181,8 +132,6 @@ export class Doom {
 
     this.rendering.init();
     this.iVideo.init();
-
-    this.renderingMode = RenderingMode.WebGL;
   }
 
   //
@@ -724,9 +673,6 @@ export class Doom {
 
     console.log("R_Init: Init DOOM refresh daemon - ");
     this.rData.initData();
-    if (this.params.renderingMode !== undefined) {
-      this.renderingMode = this.params.renderingMode;
-    }
     if (this.params.resolutionWidth !== undefined) {
       this.rVideo.physicalWidth = this.params.resolutionWidth;
     }
@@ -737,14 +683,7 @@ export class Doom {
       this.rVideo.scale = this.params.scale;
     }
     this.rVideo.init();
-    switch (this.renderingMode) {
-      case RenderingMode.Legacy:
-        await this.setLegacyRenderer();
-        break;
-      case RenderingMode.WebGL:
-        await this.setWebGLRenderer();
-        break;
-    }
+    await this.setWebGLRenderer();
 
     console.log("P_Init: Init Playloop state.");
     this.play.init();
@@ -802,15 +741,6 @@ export class Doom {
     this.rendering = new BlankRenderer();
 
     this.input.quit();
-
-    try {
-      if (this.params.screen2d) {
-        const endoom = this.wad.cacheLumpName("ENDOOM");
-        displayEndoom(endoom, this.params.screen2d);
-      }
-    } catch {
-      /* */
-    }
 
     this.iVideo.screen = null;
 

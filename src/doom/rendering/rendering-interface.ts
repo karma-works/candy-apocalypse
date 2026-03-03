@@ -1,45 +1,40 @@
-import { Player } from '../doom/player'
-
-export const enum RenderingMode {
-  Legacy,
-  WebGL,
-}
+import { Player } from "../doom/player";
 
 export interface RenderingInterface {
-  readonly fullScreen: boolean
-  readonly viewWindowX: number
-  readonly viewWindowY: number
-  readonly viewWidth: number
-  readonly viewHeight: number
+  readonly fullScreen: boolean;
+  readonly viewWindowX: number;
+  readonly viewWindowY: number;
+  readonly viewWidth: number;
+  readonly viewHeight: number;
 
-  setSizeNeeded: boolean
-  executeSetViewSize(): void
+  setSizeNeeded: boolean;
+  executeSetViewSize(): void;
 
-  highDetails: boolean
-  screenSize: number
+  highDetails: boolean;
+  screenSize: number;
 
-  renderPlayerView(pl: Player): void
+  renderPlayerView(pl: Player): void;
 
-  fillBackScreen(): void
-  drawViewBorder(): void
+  fillBackScreen(): void;
+  drawViewBorder(): void;
 
-  init(): void
+  init(): void;
 }
 
 export class BlankRenderer implements RenderingInterface {
-  readonly fullScreen = false
-  readonly viewWindowX = 0
-  readonly viewWindowY = 0
-  readonly viewWidth = 0
-  readonly viewHeight = 0
+  readonly fullScreen = false;
+  readonly viewWindowX = 0;
+  readonly viewWindowY = 0;
+  readonly viewWidth = 0;
+  readonly viewHeight = 0;
 
-  setSizeNeeded = false
+  setSizeNeeded = false;
   executeSetViewSize(): void {
     // noop
   }
 
-  highDetails = false
-  screenSize = 6
+  highDetails = false;
+  screenSize = 6;
 
   renderPlayerView(): void {
     // noop

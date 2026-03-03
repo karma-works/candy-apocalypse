@@ -18,10 +18,9 @@ import CandyHud from "./CandyHud";
 
 export default function Doom(props?: Partial<Params>) {
   const inputRef = useRef<HTMLDivElement>(null);
-  const screen2dRef = useRef<HTMLCanvasElement>(null);
   const screen3dRef = useRef<HTMLCanvasElement>(null);
 
-  const doomInst = useDoomInst(inputRef, screen2dRef, screen3dRef, props);
+  const doomInst = useDoomInst(inputRef, screen3dRef, props);
 
   const canvasStyle = useCanvasResizer(doomInst);
 
@@ -34,7 +33,6 @@ export default function Doom(props?: Partial<Params>) {
       <div className="screen-root" ref={inputRef}>
         <div className="screen-wrapper">
           <canvas ref={screen3dRef} style={canvasStyle}></canvas>
-          <canvas ref={screen2dRef} style={canvasStyle}></canvas>
         </div>
         <CandyHud doomInst={doomInst} />
       </div>
@@ -46,7 +44,6 @@ export default function Doom(props?: Partial<Params>) {
 
 function useDoomInst(
   inputRef: RefObject<HTMLDivElement>,
-  screen2dRef: RefObject<HTMLCanvasElement>,
   screen3dRef: RefObject<HTMLCanvasElement>,
   params: Partial<Params> = {},
 ) {
@@ -54,12 +51,10 @@ function useDoomInst(
 
   useEffect(() => {
     const input = inputRef.current!;
-    const screen2d = screen2dRef.current!;
     const screen3d = screen3dRef.current!;
 
     const doomInst = new RawDoom({
       input,
-      screen2d,
       screen3d,
       iwad: "doom1.wad",
       ...params,
@@ -73,7 +68,7 @@ function useDoomInst(
     }
 
     return () => doomInst.quit();
-  }, [params, inputRef, screen2dRef, screen3dRef]);
+  }, [params, inputRef, screen3dRef]);
 
   return doom;
 }

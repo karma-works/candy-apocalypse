@@ -2,6 +2,7 @@ import {
   Camera,
   DataTexture,
   Group,
+  LinearFilter,
   OrthographicCamera,
   RedFormat,
   Scene,
@@ -81,6 +82,7 @@ export class Video implements VideoInterface {
     this.renderer = new WebGLRenderer({
       canvas: this.screen,
     });
+    this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.autoClear = false;
     this.setSize(this.width, this.height);
   }
@@ -142,6 +144,8 @@ export class Video implements VideoInterface {
       RedFormat,
     );
     this.overlayScreenMap.flipY = true;
+    this.overlayScreenMap.magFilter = LinearFilter;
+    this.overlayScreenMap.minFilter = LinearFilter;
 
     const alpha = data.alpha;
     this.overlayAlphaMap = new DataTexture(
@@ -151,6 +155,8 @@ export class Video implements VideoInterface {
       RedFormat,
     );
     this.overlayAlphaMap.flipY = true;
+    this.overlayAlphaMap.magFilter = LinearFilter;
+    this.overlayAlphaMap.minFilter = LinearFilter;
 
     this.overlayMaterial = new OldSpritePaletteMaterial({
       map: this.overlayScreenMap,

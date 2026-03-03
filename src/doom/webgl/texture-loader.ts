@@ -7,12 +7,11 @@ import {
 import { Palette, Palettes } from "../interfaces/palette";
 import { FlatArray } from "../textures/flat-array";
 import { FlatTexture } from "./textures/flat-texture";
-import { Video as IVideo } from "../interfaces/video";
 import { LumpReader } from "../wad/lump-reader";
 import { PaletteTexture } from "./textures/palette-texture";
 import { Patch } from "../rendering/defs/patch";
 import { PatchTexture } from "./textures/patch-texture";
-import { Video as RVideo } from "../rendering/video";
+import { Video as RVideo, drawInImageData } from "../rendering/video";
 import { SpriteArray } from "../sprites/sprite-array";
 import { SpriteDefsArray } from "../sprites/sprite-defs-array";
 import { SpriteNum } from "../doom/info/sprite-num";
@@ -200,8 +199,6 @@ export class TextureLoader {
 
       const rVideo = new RVideo({ logical: [1024, 512] });
       rVideo.init(1);
-      const iVideo = new IVideo(rVideo);
-      iVideo.palette = palette;
 
       const y = 160;
       for (let i = 0; i < 4; ++i) {
@@ -209,7 +206,7 @@ export class TextureLoader {
       }
 
       const data = new Uint8ClampedArray(1024 * 512 * 4);
-      iVideo.drawInImageData(data, true);
+      drawInImageData(rVideo.screens[0], data, palette, 0, true);
 
       const t = new DataTexture(data, 1024, 512, RGBAFormat);
       t.mapping = EquirectangularRefractionMapping;
