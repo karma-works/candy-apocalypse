@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
+
 .screen-wrapper {
   position: relative;
   margin: 0 auto;
@@ -7,7 +9,6 @@
   position: absolute;
   top: 0;
   left: 0;
-  image-rendering: crisp-edges;
   outline: none;
 }
 
@@ -85,5 +86,3 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');

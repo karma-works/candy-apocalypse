@@ -68,7 +68,7 @@ export class Sector extends Group {
     const frontSegsMeshes = Object.values(this.frontSegs);
     frontSegsMeshes.length && this.add(...frontSegsMeshes);
 
-    this.update(sector.lightLevel);
+    this.update(255);
 
     this.stencilRef = (sector.id % 255) + 1;
   }
@@ -93,11 +93,11 @@ export class Sector extends Group {
     this.visible = true;
 
     this.updateHeight();
-    this.updateTextureMap(lightLevel);
+    this.updateTextureMap(255);
   }
 
   updateSeg(secId: number, lightLevel: number): void {
-    this.frontSegs[secId].update(lightLevel);
+    this.frontSegs[secId].update(255);
   }
 
   private createMesh(geometry: PlaneGeometry, side: Side): SectorMesh {
