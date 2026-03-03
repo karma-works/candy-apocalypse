@@ -5,16 +5,17 @@ import { useSearchParams } from 'react-router-dom';
 
 type paramsTranslateFunc = (v: string, props: Partial<Params>) => void;
 
-const paramsTranslates: {[k: string]: paramsTranslateFunc} = {
+const paramsTranslates: { [k: string]: paramsTranslateFunc } = {
   iwad: (v, props) => v && (props.iwad = v),
+  pwads: (v, props) => v && (props.pwads = v.split(',')),
   renderer: (v: string, props: Partial<Params>) => {
     switch (v) {
-    case 'legacy':
-      props.renderingMode = RenderingMode.Legacy;
-      break;
-    case 'webgl':
-      props.renderingMode = RenderingMode.WebGL;
-      break;
+      case 'legacy':
+        props.renderingMode = RenderingMode.Legacy;
+        break;
+      case 'webgl':
+        props.renderingMode = RenderingMode.WebGL;
+        break;
     }
   },
   config: (v, props) => props.config = v,
@@ -31,8 +32,8 @@ const paramsTranslates: {[k: string]: paramsTranslateFunc} = {
 
 export default function DoomFromRouter(props?: Partial<Params>) {
   const propsCopy = { ...props }
-  const [ searchParams ] = useSearchParams();
-  for (const [ key, value ] of searchParams) {
+  const [searchParams] = useSearchParams();
+  for (const [key, value] of searchParams) {
     if (key in paramsTranslates) {
       paramsTranslates[key](value, propsCopy)
     }

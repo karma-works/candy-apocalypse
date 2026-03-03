@@ -155,6 +155,7 @@ describe("Game Logic - Weapons", () => {
         type: "shotgun",
         ammoType: "shells",
         ammoPerShot: 2,
+        _ammo: 20,
         fire() {
           if (this.ammo >= this.ammoPerShot) {
             this.ammo -= this.ammoPerShot;
@@ -163,8 +164,11 @@ describe("Game Logic - Weapons", () => {
           return false;
         },
         get ammo() {
-          return 20; // from ammo inventory
+          return this._ammo; // from ammo inventory
         },
+        set ammo(val: number) {
+          this._ammo = val;
+        }
       };
 
       const fired = weapon.fire();

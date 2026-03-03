@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { Wad } from "../../src/doom/wad/wad";
+import { Wad } from "../../../src/doom/wad/wad";
 import { readFileSync } from "fs";
 import { join } from "path";
 
@@ -70,6 +70,7 @@ describe("WAD Parser", () => {
       const lumpSize = lumpData.length;
       const tocEntrySize = 16; // 4 + 4 + 8
       const tocOffset = headerSize;
+      const lumpOffset = headerSize + tocEntrySize;
 
       const buffer = new ArrayBuffer(headerSize + lumpSize + tocEntrySize);
       const view = new DataView(buffer);
@@ -83,7 +84,7 @@ describe("WAD Parser", () => {
       view.setInt32(8, tocOffset, true);
 
       // TOC entry
-      view.setInt32(tocOffset, headerSize, true); // lump offset
+      view.setInt32(tocOffset, lumpOffset, true); // lump offset
       view.setInt32(tocOffset + 4, lumpSize, true); // lump size
 
       // Lump name (8 bytes, null-padded)
@@ -96,7 +97,7 @@ describe("WAD Parser", () => {
       }
 
       // Lump data
-      const lumpView = new Uint8Array(buffer, headerSize, lumpSize);
+      const lumpView = new Uint8Array(buffer, lumpOffset, lumpSize);
       lumpView.set(lumpData);
 
       const wad = new Wad(buffer);

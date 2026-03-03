@@ -17,7 +17,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
-    "test:e2e:update-snapshots": "playwright test --update-snapshots"
+    "test:e2e:update-snapshots": "playwright test --update-snapshots",
+    "preinstall": "npx only-allow pnpm"
   },
   "main": "index.js",
   "dependencies": {
@@ -40,6 +41,9 @@
     "three": "^0.163.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/chai": "^4.2.11",
     "@types/mocha": "^7.0.2",
     "@types/react": "^18.2.37",
@@ -48,14 +52,17 @@
     "@typescript-eslint/eslint-plugin": "^6.11.0",
     "@typescript-eslint/parser": "^6.11.0",
     "@vitejs/plugin-react": "^4.1.1",
+    "@vitest/coverage-v8": "^4.0.18",
     "chai": "^4.2.0",
     "eslint": "^8.53.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.4",
+    "jsdom": "^28.1.0",
     "mocha": "^8.0.1",
     "typescript": "^5.2.2",
     "vite": "^4.5.0",
-    "vite-plugin-glsl": "^1.2.1"
+    "vite-plugin-glsl": "^1.2.1",
+    "vitest": "^4.0.18"
   },
   "type": "module",
   "browserslist": [

@@ -32,6 +32,7 @@ import { Strings } from './translation/strings'
 import { Win } from './win/win'
 import { Wipe } from './wipe'
 import { displayEndoom } from './misc/endoom'
+import { svgRasterizer } from './webgl/svg-rasterizer'
 import { getTime } from './system/system'
 import { validCounter } from './play/valid-counter'
 
@@ -80,7 +81,7 @@ export class Doom {
   public headsUp = new HeadsUp(this)
   public statusBar = new StatusBar(this)
   public play = new Play(this)
-  public rVideo = new RVIdeo({ logical: [ SCREENWIDTH, SCREENHEIGHT ] })
+  public rVideo = new RVIdeo({ logical: [SCREENWIDTH, SCREENHEIGHT] })
   public rData = new RData(this.wad)
   public rendering: RenderingInterface = new BlankRenderer()
   public game = new Game(this)
@@ -206,7 +207,7 @@ export class Doom {
   processEvents(): void {
     // IF STORE DEMO, DO NOT ACCEPT INPUT
     if (this.instance.mode === GameMode.Commercial &&
-        this.wad.checkNumForName('map01') < 0) {
+      this.wad.checkNumForName('map01') < 0) {
       return
     }
 
@@ -266,34 +267,34 @@ export class Doom {
 
     // do buffered drawing
     switch (this.game.gameState) {
-    case GameState.Level:
-      if (!this.game.gameTic) {
+      case GameState.Level:
+        if (!this.game.gameTic) {
+          break
+        }
+        if (this.autoMap.active) {
+          this.autoMap.drawer()
+        }
+        if (wipe ||
+          !this.rendering.fullScreen && this.fullScreen
+        ) {
+          redrawsBar = true
+        }
+        // just put away the help screen
+        if (this.inHelpScreenState && !this.menu.inHelpScreens) {
+          redrawsBar = true
+        }
+        this.statusBar.drawer(this.rendering.fullScreen, redrawsBar)
+        this.fullScreen = this.rendering.fullScreen
         break
-      }
-      if (this.autoMap.active) {
-        this.autoMap.drawer()
-      }
-      if (wipe ||
-        !this.rendering.fullScreen && this.fullScreen
-      ) {
-        redrawsBar = true
-      }
-      // just put away the help screen
-      if (this.inHelpScreenState && !this.menu.inHelpScreens) {
-        redrawsBar = true
-      }
-      this.statusBar.drawer(this.rendering.fullScreen, redrawsBar)
-      this.fullScreen = this.rendering.fullScreen
-      break
-    case GameState.Intermission:
-      this.win.drawer()
-      break
-    case GameState.Finale:
-      this.finale.drawer()
-      break
-    case GameState.DemoScreen:
-      this.pageDrawer()
-      break
+      case GameState.Intermission:
+        this.win.drawer()
+        break
+      case GameState.Finale:
+        this.finale.drawer()
+        break
+      case GameState.DemoScreen:
+        this.pageDrawer()
+        break
     }
 
     // draw the view directly
@@ -527,50 +528,50 @@ export class Doom {
     this.demoSequence = (this.demoSequence + 1) % this.instance.demoSequenceCount
 
     switch (this.demoSequence) {
-    case 0:
-      if (this.instance.mode === GameMode.Commercial) {
-        this.pageTic = 35 * 11
-      } else {
-        this.pageTic = 170
-      }
-      this.game.gameState = GameState.DemoScreen
-      this.pageName = 'TITLEPIC'
-      if (this.instance.mode === GameMode.Commercial) {
-        this.dSound.startMusic(MusicName.Dm2ttl)
-      } else {
-        this.dSound.startMusic(MusicName.Intro)
-      }
-      break
-    case 1:
-      this.game.deferedPlayDemo('demo1')
-      break
-    case 2:
-      this.pageTic = 200
-      this.game.gameState = GameState.DemoScreen
-      this.pageName = 'CREDIT'
-      break
-    case 3:
-      this.game.deferedPlayDemo('demo2')
-      break
-    case 4:
-      this.game.gameState = GameState.DemoScreen
-      if (this.instance.mode === GameMode.Commercial) {
-        this.pageTic = 35 * 11
+      case 0:
+        if (this.instance.mode === GameMode.Commercial) {
+          this.pageTic = 35 * 11
+        } else {
+          this.pageTic = 170
+        }
+        this.game.gameState = GameState.DemoScreen
         this.pageName = 'TITLEPIC'
-        this.dSound.startMusic(MusicName.Dm2ttl)
-      } else {
+        if (this.instance.mode === GameMode.Commercial) {
+          this.dSound.startMusic(MusicName.Dm2ttl)
+        } else {
+          this.dSound.startMusic(MusicName.Intro)
+        }
+        break
+      case 1:
+        this.game.deferedPlayDemo('demo1')
+        break
+      case 2:
         this.pageTic = 200
+        this.game.gameState = GameState.DemoScreen
+        this.pageName = 'CREDIT'
+        break
+      case 3:
+        this.game.deferedPlayDemo('demo2')
+        break
+      case 4:
+        this.game.gameState = GameState.DemoScreen
+        if (this.instance.mode === GameMode.Commercial) {
+          this.pageTic = 35 * 11
+          this.pageName = 'TITLEPIC'
+          this.dSound.startMusic(MusicName.Dm2ttl)
+        } else {
+          this.pageTic = 200
 
-        this.pageName = this.instance.creditPatch
-      }
-      break
-    case 5:
-      this.game.deferedPlayDemo('demo3')
-      break
-    case 6:
-      // THE DEFINITIVE DOOM Special Edition demo
-      this.game.deferedPlayDemo('demo4')
-      break
+          this.pageName = this.instance.creditPatch
+        }
+        break
+      case 5:
+        this.game.deferedPlayDemo('demo3')
+        break
+      case 6:
+        // THE DEFINITIVE DOOM Special Edition demo
+        this.game.deferedPlayDemo('demo4')
+        break
     }
   }
 
@@ -594,6 +595,8 @@ export class Doom {
     if (this.quitted) {
       throw 'Can\'t init previously destroyed Doom instance'
     }
+
+    await svgRasterizer.init();
 
     if (this.params.debug && this.params.input) {
       this.gui = new GUI()
@@ -680,23 +683,23 @@ export class Doom {
 
     // Check and print which version is executed.
     switch (this.instance.mode) {
-    case GameMode.Shareware:
-    case GameMode.Indetermined:
-      console.log('===========================================================================')
-      console.log('                                Shareware!')
-      console.log('===========================================================================')
-      break
-    case GameMode.Registered:
-    case GameMode.Retail:
-    case GameMode.Commercial:
-      console.log('===========================================================================')
-      console.log('                 Commercial product - do not distribute!')
-      console.log('         Please report software piracy to the SPA: 1-800-388-PIR8')
-      console.log('===========================================================================')
-      break
-    default:
-      // Ouch.
-      break
+      case GameMode.Shareware:
+      case GameMode.Indetermined:
+        console.log('===========================================================================')
+        console.log('                                Shareware!')
+        console.log('===========================================================================')
+        break
+      case GameMode.Registered:
+      case GameMode.Retail:
+      case GameMode.Commercial:
+        console.log('===========================================================================')
+        console.log('                 Commercial product - do not distribute!')
+        console.log('         Please report software piracy to the SPA: 1-800-388-PIR8')
+        console.log('===========================================================================')
+        break
+      default:
+        // Ouch.
+        break
     }
 
     console.log('M_Init: Init miscellaneous info.')
@@ -718,12 +721,12 @@ export class Doom {
     }
     this.rVideo.init()
     switch (this.renderingMode) {
-    case RenderingMode.Legacy:
-      await this.setLegacyRenderer()
-      break
-    case RenderingMode.WebGL:
-      await this.setWebGLRenderer()
-      break
+      case RenderingMode.Legacy:
+        await this.setLegacyRenderer()
+        break
+      case RenderingMode.WebGL:
+        await this.setWebGLRenderer()
+        break
     }
 
     console.log('P_Init: Init Playloop state.')

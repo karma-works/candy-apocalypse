@@ -18,6 +18,7 @@ import { SpriteDefsArray } from '../sprites/sprite-defs-array'
 import { SpriteNum } from '../doom/info/sprite-num'
 import { SpriteTexture } from './textures/sprite-texture'
 import { TextureArray } from '../textures/texture-array'
+import { svgRasterizer } from './svg-rasterizer'
 
 export type PatchTextures = {
   map: PatchTexture,
@@ -73,15 +74,17 @@ export class TextureLoader {
 
     if (!this.patchTextureCache[num]) {
       const patch = this.textures[num].patch
+      const patchName = this.textures[num].name || 'UNKNOWN'
+      let tex = svgRasterizer.getTexture(patchName, patch.width, patch.height)
+      if (!tex) tex = svgRasterizer.getFallbackTexture('wall', patchName, patch.width || 64, patch.height || 64)
+      tex.userData.isSvg = true
+
       const patchTex: PatchTextures = {
-        map: new PatchTexture(patch),
-        alphaMap: new PatchTexture(patch, true),
+        map: tex as any,
+        alphaMap: tex as any,
         transparent: true,
         patch,
       }
-      patchTex.map.needsUpdate = true
-      patchTex.alphaMap.needsUpdate = true
-      patchTex.transparent = patchTex.alphaMap.image.data.some(s => s !== 255)
 
       this.patchTextureCache[num] = patchTex
     }
@@ -92,9 +95,12 @@ export class TextureLoader {
     num = this.flats.getNum(num)
 
     if (!this.flatTextureCache[num]) {
-      const flat = this.flats[num].flat
-      this.flatTextureCache[num] = new FlatTexture(flat)
-      this.flatTextureCache[num].needsUpdate = true
+      const flatName = this.flats[num].name || 'UNKNOWN'
+      let tex = svgRasterizer.getTexture(flatName, 64, 64)
+      if (!tex) tex = svgRasterizer.getFallbackTexture('flat', flatName, 64, 64)
+      tex.userData.isSvg = true
+
+      this.flatTextureCache[num] = tex as any
     }
     return this.flatTextureCache[num]
   }
@@ -102,8 +108,22 @@ export class TextureLoader {
   getSpriteTexture(num: SpriteNum): SpriteTexture {
     if (!this.spriteCache[num]) {
       const sprDef = this.spriteDefs[num]
-      this.spriteCache[num] = new SpriteTexture(sprDef, this.sprites)
-      this.spriteCache[num].needsUpdate = true
+      const firstPatchName = this.sprites[sprDef.frames[0].lump[0]]?.name || 'UNKNOWN'
+      const spriteName = firstPatchName.substring(0, 4)
+
+      let tex = svgRasterizer.getTexture(spriteName, 64, 64)
+      if (!tex) tex = svgRasterizer.getFallbackTexture('sprite', spriteName, 64, 64)
+      tex.userData.isSvg = true
+
+      // We spoof the SpriteTexture fields to keep shaders happy
+      const fakeSpriteTexture: any = tex;
+      fakeSpriteTexture.rotations = 1;
+      fakeSpriteTexture.frames = 1;
+      fakeSpriteTexture.width = 64;
+      fakeSpriteTexture.height = 64;
+      fakeSpriteTexture.bottomOffset = 64;
+
+      this.spriteCache[num] = fakeSpriteTexture
     }
     return this.spriteCache[num]
   }
@@ -115,7 +135,7 @@ export class TextureLoader {
     if (!this.skyTextureCache[num]) {
       const patch = this.textures[num].patch
 
-      const rVideo = new RVideo({ logical: [ 1024, 512 ] })
+      const rVideo = new RVideo({ logical: [1024, 512] })
       rVideo.init(1)
       const iVideo = new IVideo(rVideo)
       iVideo.palette = palette
