@@ -32,10 +32,10 @@ export class Video implements VideoInterface {
   //
   finishUpdate(): void {
     if (this.screen === null ||
-        this.screenCtx === null ||
-        this.tmpCanvas === null ||
-        this.tmpCtx === null ||
-        this.image === null) {
+      this.screenCtx === null ||
+      this.tmpCanvas === null ||
+      this.tmpCtx === null ||
+      this.image === null) {
       return
     }
 
@@ -90,7 +90,7 @@ export class Video implements VideoInterface {
           oLine[oLinePtr++] = alpha[iLinePtr]
         }
         iLinePtr++
-      // eslint-disable-next-line no-cond-assign
+        // eslint-disable-next-line no-cond-assign
       } while (x -= 1)
     }
   }
@@ -108,9 +108,9 @@ export class Video implements VideoInterface {
   private blues = new Uint8ClampedArray()
 
   private updatePalette(): void {
-    this.reds = this.palette.getColors(Color.Red, this.gamma)
-    this.greens = this.palette.getColors(Color.Green, this.gamma)
-    this.blues = this.palette.getColors(Color.Blue, this.gamma)
+    this.reds = new Uint8ClampedArray(this.palette.getColors(Color.Red, this.gamma).buffer as ArrayBuffer)
+    this.greens = new Uint8ClampedArray(this.palette.getColors(Color.Green, this.gamma).buffer as ArrayBuffer)
+    this.blues = new Uint8ClampedArray(this.palette.getColors(Color.Blue, this.gamma).buffer as ArrayBuffer)
   }
 
   private firstTime = true

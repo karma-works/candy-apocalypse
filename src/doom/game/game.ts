@@ -45,22 +45,22 @@ const NUM_KEYS = 256
 
 // DOOM Par Times
 const pars = [
-  [ 0 ],
-  [ 0,30,75,120,90,165,180,180,30,165 ],
-  [ 0,90,90,90,120,90,360,240,30,170 ],
-  [ 0,90,45,90,150,90,90,165,30,135 ],
+  [0],
+  [0, 30, 75, 120, 90, 165, 180, 180, 30, 165],
+  [0, 90, 90, 90, 120, 90, 360, 240, 30, 170],
+  [0, 90, 45, 90, 150, 90, 90, 165, 30, 135],
 ]
 
 // DOOM II Par Times
 const cPars = [
   //  1-10
-  30,90,120,120,90,150,120,120,270,90,
+  30, 90, 120, 120, 90, 150, 120, 120, 270, 90,
   // 11-20
-  210,150,150,150,210,150,420,150,210,150,
+  210, 150, 150, 150, 210, 150, 420, 150, 210, 150,
   // 21-30
-  240,150,180,150,150,300,330,420,300,180,
+  240, 150, 180, 150, 150, 300, 330, 420, 300, 180,
   // 31-32
-  120,30,
+  120, 30,
 ]
 
 export const SAVE_GAME_NAME = 'doomsav'
@@ -151,10 +151,10 @@ export class Game {
   joyBUse = 3
   joyBSpeed = 2
 
-  private forwardMove = [ 0x19, 0x32 ]
-  private sideMove = [ 0x18, 0x28 ]
+  private forwardMove = [0x19, 0x32]
+  private sideMove = [0x18, 0x28]
   // + slow turn
-  private angleTurn = [ 640, 1280, 320 ]
+  private angleTurn = [640, 1280, 320]
 
   private gameKeyDown = new Array<boolean>(NUM_KEYS).fill(false)
   // for accelerative turning
@@ -373,7 +373,10 @@ export class Game {
       }
     }
 
-    forward += this.mouseY
+    // Add mouseY to lookPitch instead of forward.
+    cmd.lookPitch += this.mouseY
+    if (cmd.lookPitch > 80) cmd.lookPitch = 80
+    if (cmd.lookPitch < -80) cmd.lookPitch = -80
     if (strafe) {
       side += this.mouseX * 2
     } else {
@@ -506,41 +509,41 @@ export class Game {
     }
 
     switch (ev.type) {
-    case EvType.KeyDown:
-      if (ev.data1 === ScanCode.Pause) {
-        this.sendPause = true
+      case EvType.KeyDown:
+        if (ev.data1 === ScanCode.Pause) {
+          this.sendPause = true
+          return true
+        }
+        if (ev.data1 < NUM_KEYS) {
+          this.gameKeyDown[ev.data1] = true
+        }
+        // eat key down events
         return true
-      }
-      if (ev.data1 < NUM_KEYS) {
-        this.gameKeyDown[ev.data1] = true
-      }
-      // eat key down events
-      return true
-    case EvType.KeyUp:
-      if (ev.data1 < NUM_KEYS) {
-        this.gameKeyDown[ev.data1] = false
-      }
-      // always let key up events filter down
-      return false
-    case EvType.Mouse:
-      this.mouseButtons[0] = !!(ev.data1 & 1)
-      this.mouseButtons[1] = !!(ev.data1 & 2)
-      this.mouseButtons[2] = !!(ev.data1 & 4)
-      this.mouseX = ev.data2 * (this.mouseSensitivity + 5) / 10
-      this.mouseY = ev.data3 * (this.mouseSensitivity + 5) / 10
-      // eat events
-      return true
-    case EvType.Joystick:
-      this.joyButtons[0] = !!(ev.data1 & 1)
-      this.joyButtons[1] = !!(ev.data1 & 2)
-      this.joyButtons[2] = !!(ev.data1 & 4)
-      this.joyButtons[2] = !!(ev.data1 & 8)
-      this.joyXMove = ev.data2
-      this.joyYMove = ev.data3
-      // eat events
-      return true
-    default:
-      break
+      case EvType.KeyUp:
+        if (ev.data1 < NUM_KEYS) {
+          this.gameKeyDown[ev.data1] = false
+        }
+        // always let key up events filter down
+        return false
+      case EvType.Mouse:
+        this.mouseButtons[0] = !!(ev.data1 & 1)
+        this.mouseButtons[1] = !!(ev.data1 & 2)
+        this.mouseButtons[2] = !!(ev.data1 & 4)
+        this.mouseX = ev.data2 * (this.mouseSensitivity + 5) / 10
+        this.mouseY = ev.data3 * (this.mouseSensitivity + 5) / 10
+        // eat events
+        return true
+      case EvType.Joystick:
+        this.joyButtons[0] = !!(ev.data1 & 1)
+        this.joyButtons[1] = !!(ev.data1 & 2)
+        this.joyButtons[2] = !!(ev.data1 & 4)
+        this.joyButtons[2] = !!(ev.data1 & 8)
+        this.joyXMove = ev.data2
+        this.joyYMove = ev.data3
+        // eat events
+        return true
+      default:
+        break
     }
 
     return false
@@ -560,32 +563,32 @@ export class Game {
 
     while (this.gameAction !== GameAction.Nothing) {
       switch (this.gameAction) {
-      case GameAction.Pending:
-        return
-      case GameAction.LoadLevel:
-        this.doLoadLevel()
-        break
-      case GameAction.NewGame:
-        this.doNewGame()
-        break
-      case GameAction.LoadGame:
-        this.doLoadGame()
-        break
-      case GameAction.SaveGame:
-        this.doSaveGame()
-        break
-      case GameAction.PlayDemo:
-        this.doPlayDemo()
-        break
-      case GameAction.Completed:
-        this.doCompleted()
-        break
-      case GameAction.Victory:
-        this.finale.start()
-        break
-      case GameAction.WorldDone:
-        this.doWorldDone()
-        break
+        case GameAction.Pending:
+          return
+        case GameAction.LoadLevel:
+          this.doLoadLevel()
+          break
+        case GameAction.NewGame:
+          this.doNewGame()
+          break
+        case GameAction.LoadGame:
+          this.doLoadGame()
+          break
+        case GameAction.SaveGame:
+          this.doSaveGame()
+          break
+        case GameAction.PlayDemo:
+          this.doPlayDemo()
+          break
+        case GameAction.Completed:
+          this.doCompleted()
+          break
+        case GameAction.Victory:
+          this.finale.start()
+          break
+        case GameAction.WorldDone:
+          this.doWorldDone()
+          break
       }
     }
 
@@ -613,24 +616,24 @@ export class Game {
       if (this.playerInGame[i]) {
         if (this.players[i].cmd.buttons & ButtonCode.Special) {
           switch (this.players[i].cmd.buttons & ButtonCode.SpecialMask) {
-          case ButtonCode.Pause:
-            this.paused = !this.paused
-            if (this.paused) {
-              this.dSound.pauseSound()
-            } else {
-              this.dSound.resumeSound()
-            }
-            break
+            case ButtonCode.Pause:
+              this.paused = !this.paused
+              if (this.paused) {
+                this.dSound.pauseSound()
+              } else {
+                this.dSound.resumeSound()
+              }
+              break
 
-          case ButtonCode.SaveGame:
-            if (!this.saveDescription) {
-              this.saveDescription = 'NET GAME'
-            }
-            this.saveGameSlot = (this.players[i].cmd.buttons & ButtonCode.SaveMask) >>
+            case ButtonCode.SaveGame:
+              if (!this.saveDescription) {
+                this.saveDescription = 'NET GAME'
+              }
+              this.saveGameSlot = (this.players[i].cmd.buttons & ButtonCode.SaveMask) >>
                 ButtonCode.SaveShift
 
-            this.gameAction = GameAction.SaveGame
-            break
+              this.gameAction = GameAction.SaveGame
+              break
           }
         }
       }
@@ -638,21 +641,21 @@ export class Game {
 
     // do main actions
     switch (this.gameState) {
-    case GameState.Level:
-      this.tick.ticker()
-      this.statusBar.ticker()
-      this.autoMap.ticker()
-      this.headsUp.ticker()
-      break
-    case GameState.Intermission:
-      this.win.ticker()
-      break
-    case GameState.Finale:
-      this.finale.ticker()
-      break
-    case GameState.DemoScreen:
-      this.doom.pageTicker()
-      break
+      case GameState.Level:
+        this.tick.ticker()
+        this.statusBar.ticker()
+        this.autoMap.ticker()
+        this.headsUp.ticker()
+        break
+      case GameState.Intermission:
+        this.win.ticker()
+        break
+      case GameState.Finale:
+        this.finale.ticker()
+        break
+      case GameState.DemoScreen:
+        this.doom.pageTicker()
+        break
     }
 
     this.updateDebugFromGame()
@@ -704,7 +707,7 @@ export class Game {
   // almost everything is cleared and initialized
   //
   playerReborn(player: number): void {
-    const frags = [ ...this.players[player].frags ]
+    const frags = [...this.players[player].frags]
     const killCount = this.players[player].killCount
     const itemCount = this.players[player].itemCount
     const secretCount = this.players[player].secretCount
@@ -789,14 +792,14 @@ export class Game {
         }
       } else {
         switch (this.gameMap) {
-        case 8:
-          this.gameAction = GameAction.Victory
-          return
-        case 9:
-          for (let i = 0; i < MAX_PLAYERS; ++i) {
-            this.players[i].didSecret = true
-          }
-          break
+          case 8:
+            this.gameAction = GameAction.Victory
+            return
+          case 9:
+            for (let i = 0; i < MAX_PLAYERS; ++i) {
+              this.players[i].didSecret = true
+            }
+            break
         }
       }
     }
@@ -809,22 +812,22 @@ export class Game {
     if (this.doom.instance.mode === GameMode.Commercial) {
       if (this.secretExit) {
         switch (this.gameMap) {
-        case 15:
-          this.wmInfo.next = 30
-          break
-        case 31:
-          this.wmInfo.next = 31
-          break
+          case 15:
+            this.wmInfo.next = 30
+            break
+          case 31:
+            this.wmInfo.next = 31
+            break
         }
       } else {
         switch (this.gameMap) {
-        case 31:
-        case 32:
-          this.wmInfo.next = 15
-          break
-        default:
-          this.wmInfo.next = this.gameMap
-          break
+          case 31:
+          case 32:
+            this.wmInfo.next = 15
+            break
+          default:
+            this.wmInfo.next = this.gameMap
+            break
         }
       }
     } else {
@@ -834,18 +837,18 @@ export class Game {
       } else if (this.gameMap === 9) {
         // returning from secret level
         switch (this.gameEpisode) {
-        case 1:
-          this.wmInfo.next = 3
-          break
-        case 2:
-          this.wmInfo.next = 5
-          break
-        case 3:
-          this.wmInfo.next = 6
-          break
-        case 4:
-          this.wmInfo.next = 2
-          break
+          case 1:
+            this.wmInfo.next = 3
+            break
+          case 2:
+            this.wmInfo.next = 5
+            break
+          case 3:
+            this.wmInfo.next = 6
+            break
+          case 4:
+            this.wmInfo.next = 2
+            break
         }
       } else {
         // go to next level
@@ -877,7 +880,7 @@ export class Game {
       this.wmInfo.players[i].sItems = this.players[i].itemCount
       this.wmInfo.players[i].sSecret = this.players[i].secretCount
       this.wmInfo.players[i].sTime = this.tick.levelTime
-      this.wmInfo.players[i].frags = [ ...this.players[i].frags ]
+      this.wmInfo.players[i].frags = [...this.players[i].frags]
     }
 
     this.gameState = GameState.Intermission
@@ -899,18 +902,18 @@ export class Game {
 
     if (this.doom.instance.mode === GameMode.Commercial) {
       switch (this.gameMap) {
-      case 15:
-      case 31:
-        if (!this.secretExit) {
-          break
-        }
+        case 15:
+        case 31:
+          if (!this.secretExit) {
+            break
+          }
         // fallthrough
-      case 6:
-      case 11:
-      case 20:
-      case 30:
-        this.finale.start()
-        break
+        case 6:
+        case 11:
+        case 20:
+        case 30:
+          this.finale.start()
+          break
       }
     }
   }
@@ -1115,7 +1118,7 @@ export class Game {
     }
 
     if (this.doom.fastParam ||
-        skill === Skill.Nightmare && this.gameSkill !== Skill.Nightmare) {
+      skill === Skill.Nightmare && this.gameSkill !== Skill.Nightmare) {
       for (let i = StateNum.SargRun1; i <= StateNum.SargPain2; ++i) {
         states[i].tics >>= 1
         mObjInfos[MObjType.Bruisershot].speed = 20 * FRACUNIT
@@ -1206,7 +1209,7 @@ export class Game {
     this.demo.noMonsters = this.doom.noMonsters
     this.demo.consolePlayer = this.consolePlayer
 
-    this.demo.playerInGame = [ ...this.playerInGame ]
+    this.demo.playerInGame = [...this.playerInGame]
 
     this.demo.beginRecording()
   }
@@ -1214,16 +1217,16 @@ export class Game {
   private vanillaVersionCode(): number {
     // Get the demo version code appropriate for the version set in gameversion.
     switch (this.doom.instance.version) {
-    case GameVersion.Doom1666:
-      return 106
-    case GameVersion.Doom17:
-      return 107
-    case GameVersion.Doom18:
-      return 108
-    case GameVersion.Doom19:
-    default:
-      // All other versions are variants on v1.9:
-      return 109
+      case GameVersion.Doom1666:
+        return 106
+      case GameVersion.Doom17:
+        return 107
+      case GameVersion.Doom18:
+        return 108
+      case GameVersion.Doom19:
+      default:
+        // All other versions are variants on v1.9:
+        return 109
     }
   }
 
@@ -1335,12 +1338,12 @@ export class Game {
     },
     cheats: { noClip: false, godMode: false, noMomentum: false },
     powers: {
-      invulnerability: () => {},
-      strength: () => {},
-      invisibility: () => {},
-      ironfeet: () => {},
-      allMap: () => {},
-      infrared: () => {},
+      invulnerability: () => { },
+      strength: () => { },
+      invisibility: () => { },
+      ironfeet: () => { },
+      allMap: () => { },
+      infrared: () => { },
     },
   }
   private updateDebugFromGame() {

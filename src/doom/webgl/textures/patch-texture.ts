@@ -4,12 +4,12 @@ import { Video as RVideo } from '../../rendering/video'
 
 export class PatchTexture extends DataTexture {
   constructor(patch: Patch, alphaMap = false) {
-    const rVideo = new RVideo({ logical: [ patch.width, patch.height ] })
+    const rVideo = new RVideo({ logical: [patch.width, patch.height] })
     rVideo.init(1)
     rVideo.drawPatch(patch.leftOffset, patch.topOffset, 0, patch)
 
     const source = rVideo.screens[0]
-    super(alphaMap ? source.alpha : source, patch.width, patch.height, RedFormat)
+    super(alphaMap ? source.alpha.buffer as ArrayBuffer : source.buffer as ArrayBuffer, patch.width, patch.height, RedFormat)
 
     this.flipY = true
 

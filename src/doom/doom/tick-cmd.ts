@@ -22,6 +22,14 @@ export class TickCmd {
   set sideMove(v: number) {
     this.chars[1] = v
   }
+
+  // Custom: Store pitch look in chars[2], replacing unused byte.
+  get lookPitch(): number {
+    return this.chars[2]
+  }
+  set lookPitch(v: number) {
+    this.chars[2] = v
+  }
   // <<16 for angle delta
   get angleTurn(): number {
     return this.shorts[1]

@@ -16,7 +16,7 @@ export class ColorMaps {
       const size = buffer.byteLength / 256
 
       for (let i = 0; i < size; ++i) {
-        this.c[i] = new Uint8ClampedArray(buffer.slice(i * 256, (i+1) * 256))
+        this.c[i] = new Uint8ClampedArray(buffer.slice(i * 256, (i + 1) * 256))
       }
     }
   }
@@ -27,6 +27,10 @@ export class ColorMap extends Uint8ClampedArray {
     if (!array) {
       array = Array.from({ length: 256 }, (_, i) => i)
     }
-    super(array)
+    if ((array as any).buffer) {
+      super((array as any).buffer)
+    } else {
+      super(array as ArrayLike<number> | ArrayBuffer)
+    }
   }
 }

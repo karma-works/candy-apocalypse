@@ -17,7 +17,7 @@ interface GetSet<T> {
 }
 
 export class AgnosticDefaults {
-  defaults: {[k: string]: number | GetSet<number>} = {
+  defaults: { [k: string]: number | GetSet<number> } = {
     mouse_sensitivity: 5,
     sfx_volume: 8,
     music_volume: 8,
@@ -67,7 +67,7 @@ export class AgnosticDefaults {
     const te = new TextEncoder()
     const buffer = te.encode(lines.join('\n'))
 
-    return await fs.write(this.configFile, buffer)
+    return await fs.write(this.configFile, buffer.buffer as ArrayBuffer)
   }
 
   async load(configFile?: string): Promise<void> {
@@ -83,7 +83,7 @@ export class AgnosticDefaults {
       let name: string
       let param: string
       let value: number
-      for ([ , name, param ] of matches) {
+      for ([, name, param] of matches) {
         if (param.startsWith('"')) {
           value = param.charCodeAt(1)
         } else if (param.startsWith('0x')) {
@@ -119,7 +119,7 @@ export class AgnosticDefaults {
 }
 
 export class Defaults extends AgnosticDefaults {
-  defaults: {[k: string]: number | GetSet<number>} = {
+  defaults: { [k: string]: number | GetSet<number> } = {
     mouse_sensitivity: {
       get: () => this.game.mouseSensitivity,
       set: v => this.game.mouseSensitivity = v,

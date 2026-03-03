@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="256" height="256">
+  <!-- Glowing aura behind the pistol -->
+  <circle cx="32" cy="32" r="30" fill="#00ffff" opacity="0.3" filter="blur(10px)"/>
+
+  <!-- Pistol Body (Sleek Geometric Cyan/White) -->
+  <path d="M 20 25 L 45 25 L 45 35 L 20 35 Z" fill="#e0ffff" />
+  
+  <!-- Pistol Grip -->
+  <path d="M 20 35 L 28 35 L 24 50 L 16 50 Z" fill="#008080" />
+
+  <!-- Barrel highlight -->
+  <rect x="20" y="25" width="25" height="3" fill="#ffffff" />
+
+  <!-- Neon Accents -->
+  <rect x="25" y="30" width="15" height="2" fill="#00ffff" />
+  <circle cx="40" cy="30" r="3" fill="#ff00ff" />
+</svg>

@@ -98,6 +98,10 @@ export class Rendering extends LegacyRendering {
     )
 
     this.camera.rotation.y = toRad(this.viewAngle) + Math.PI
+    this.camera.rotation.x = toRad(player.cmd.lookPitch)
+
+    // In Rendering.ts context, 'player' isn't explicitly stored as a class property,
+    // but setupFrame is passed the 'player'. We can do this in setupFrame.
   }
 
   renderPlayerView(pl: Player): void {

@@ -1,24 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 100">
 <rect x="22" y="78" width="12" height="22" fill="#4a2a10" rx="3"/>
-      <rect x="46" y="78" width="12" height="22" fill="#4a2a10" rx="3"/>
-      
-      <ellipse cx="28" cy="100" rx="10" ry="4" fill="#3a1a08"/>
-      <ellipse cx="52" cy="100" rx="10" ry="4" fill="#3a1a08"/>
-      
-      <path d="M 15 78 Q 10 50 20 30 Q 30 10 40 8 Q 50 10 60 30 Q 70 50 65 78 Z" fill="#6b3a20"/>
-      
-      <path d="M 15 60 L 2 70 L 8 50 Z" fill="#7a4a28"/>
-      <path d="M 65 60 L 78 70 L 72 50 Z" fill="#7a4a28"/>
-      
-      <ellipse cx="40" cy="22" rx="22" ry="20" fill="#6b3a20"/>
-      
-      <path d="M 22 14 L 12 0 L 28 10 Z" fill="#888"/>
-      <path d="M 58 14 L 68 0 L 52 10 Z" fill="#888"/>
-      
-      <circle cx="30" cy="20" r="5" fill="#ff2200"/>
-      <circle cx="50" cy="20" r="5" fill="#ff2200"/>
-      <circle cx="30" cy="20" r="2" fill="#ffaa00"/>
-      <circle cx="50" cy="20" r="2" fill="#ffaa00"/>
-      
-      <path d="M 28 34 Q 40 44 52 34" stroke="#fff" stroke-width="2" fill="none"/>
+          <rect x="46" y="78" width="12" height="22" fill="#4a2a10" rx="3"/>
+          
+          <ellipse cx="28" cy="100" rx="10" ry="4" fill="#3a1a08"/>
+          <ellipse cx="52" cy="100" rx="10" ry="4" fill="#3a1a08"/>
+          
+          <path d="M 15 78 Q 10 50 20 30 Q 30 10 40 8 Q 50 10 60 30 Q 70 50 65 78 Z" fill="#6b3a20"/>
+          
+          <path d="M 15 60 L 2 70 L 8 50 Z" fill="#7a4a28"/>
+          <path d="M 65 60 L 78 70 L 72 50 Z" fill="#7a4a28"/>
+          
+          <ellipse cx="40" cy="22" rx="22" ry="20" fill="#6b3a20"/>
+          
+          <path d="M 22 14 L 12 0 L 28 10 Z" fill="#888"/>
+          <path d="M 58 14 L 68 0 L 52 10 Z" fill="#888"/>
+          
+          <circle cx="30" cy="20" r="5" fill="#ff2200"/>
+          <circle cx="50" cy="20" r="5" fill="#ff2200"/>
+          <circle cx="30" cy="20" r="2" fill="#ffaa00"/>
+          <circle cx="50" cy="20" r="2" fill="#ffaa00"/>
+          
+          <path d="M 28 34 Q 40 44 52 34" stroke="#fff" stroke-width="2" fill="none"/>
 </svg>
