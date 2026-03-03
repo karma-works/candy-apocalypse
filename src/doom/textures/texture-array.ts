@@ -128,12 +128,7 @@ export class TextureArray extends Array<TextureLump> {
             CANDY_COLORS.deepSpace.b,
           );
         } else {
-          const variation = Math.floor(Math.random() * 10) - 5;
-          post.bytes[y] = this.colorToPaletteIndex(
-            Math.max(0, Math.min(255, color.r + variation)),
-            Math.max(0, Math.min(255, color.g + variation)),
-            Math.max(0, Math.min(255, color.b + variation)),
-          );
+          post.bytes[y] = this.colorToPaletteIndex(color.r, color.g, color.b);
         }
       }
 
@@ -168,7 +163,13 @@ export class TextureArray extends Array<TextureLump> {
   }
 
   private colorToPaletteIndex(r: number, g: number, b: number): number {
-    return Math.floor((r + g + b) / 3);
+    const brightness = (r + g + b) / 3;
+
+    if (brightness < 50) return 0;
+    if (brightness < 100) return 32;
+    if (brightness < 150) return 80;
+    if (brightness < 200) return 160;
+    return 250;
   }
 
   //

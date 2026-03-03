@@ -1,56 +1,68 @@
-import { FF_FRAMEMASK, FF_FULLBRIGHT } from '../../play/sprite';
-import { Mesh, PlaneGeometry } from 'three';
-import { MObjFlag } from '../../play/mobj/mobj-flag';
-import { SpriteNum } from '../../doom/info/sprite-num';
-import { SpritePaletteMaterial } from '../materials/sprite-palette-material';
-import { TextureLoader } from '../texture-loader';
+import { FF_FRAMEMASK, FF_FULLBRIGHT } from "../../play/sprite";
+import { Mesh, PlaneGeometry } from "three";
+import { MObjFlag } from "../../play/mobj/mobj-flag";
+import { SpriteNum } from "../../doom/info/sprite-num";
+import { SpritePaletteMaterial } from "../materials/sprite-palette-material";
+import { TextureLoader } from "../texture-loader";
 
-const geo = new PlaneGeometry(1, 1)
-geo.translate(0, .5, 0)
+const geo = new PlaneGeometry(1, 1);
+geo.translate(0, 0.5, 0);
 
-export abstract class Sprite extends Mesh<PlaneGeometry, SpritePaletteMaterial> {
-  abstract sprite: SpriteNum
-  abstract frame: number
-  abstract flags: MObjFlag
+export abstract class Sprite extends Mesh<
+  PlaneGeometry,
+  SpritePaletteMaterial
+> {
+  abstract sprite: SpriteNum;
+  abstract frame: number;
+  abstract flags: MObjFlag;
 
-  constructor(
-    private textures: TextureLoader,
-  ) {
+  constructor(private textures: TextureLoader) {
     super(
       geo,
       new SpritePaletteMaterial({
         paletteMap: textures.paletteTexture,
       }),
-    )
+    );
   }
 
   dispose() {
-    this.material.dispose()
+    this.material.dispose();
   }
 
   update(lightLevel: number) {
-    this.updatePosition()
-    this.updateTexture(lightLevel)
+    this.updatePosition();
+    this.updateTexture(lightLevel);
 
-    this.visible = true
+    this.visible = true;
   }
 
-  protected abstract updatePosition(): void
+  protected abstract updatePosition(): void;
 
   private updateTexture(lightLevel: number) {
-    const { sprite, frame, flags } = this
+    const { sprite, frame, flags } = this;
 
-    const map = this.textures.getSpriteTexture(sprite)
+    const map = this.textures.getSpriteTexture(sprite);
 
-    this.material.map = map
-    this.material.rotations = map.rotations
-    this.material.frames = map.frames
-    this.material.frame = frame & FF_FRAMEMASK
-    this.scale.set(map.width, map.height, map.width)
-    this.position.y -= map.bottomOffset
+    const isSvg = map.userData?.isSvg;
+    if (isSvg !== "IS_SVG" in (this.material.defines || {})) {
+      this.material.needsUpdate = true;
+    }
+    if (isSvg) {
+      this.material.defines = this.material.defines || {};
+      this.material.defines["IS_SVG"] = "";
+    } else {
+      delete this.material.defines?.["IS_SVG"];
+    }
 
-    this.material.fuzz = !!(flags & MObjFlag.Shadow)
+    this.material.map = map;
+    this.material.rotations = map.rotations;
+    this.material.frames = map.frames;
+    this.material.frame = frame & FF_FRAMEMASK;
+    this.scale.set(map.width, map.height, map.width);
+    this.position.y -= map.bottomOffset;
 
-    this.material.lightLevel = frame & FF_FULLBRIGHT ? 255 : lightLevel
+    this.material.fuzz = !!(flags & MObjFlag.Shadow);
+
+    this.material.lightLevel = frame & FF_FULLBRIGHT ? 255 : lightLevel;
   }
 }

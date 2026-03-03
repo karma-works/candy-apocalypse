@@ -1,184 +1,188 @@
-import { BlankRenderer, RenderingInterface, RenderingMode } from './rendering/rendering-interface'
-import { BlankVideo, VideoInterface } from './interfaces/video-interface'
-import { DEvent, GameAction, MAX_EVENTS } from './doom/event'
-import { GameMode, Language, Skill } from './doom/mode'
-import { GameState, SCREENHEIGHT, SCREENWIDTH } from './global/doomdef'
-import { AutoMap } from './auto-map/auto-map'
-import { Sound as DSound } from './doom/sound'
-import { Defaults } from './misc/defaults'
-import { EnglishStrings } from './translation/english'
-import { Finale } from './finale/finale'
-import GUI from 'lil-gui'
-import { Game } from './game/game'
-import { GameInstance } from './doom/instance'
-import { HeadsUp } from './heads-up/stuff'
-import { Net as INet } from './interfaces/net'
-import { Sound as ISound } from './interfaces/sound'
-import { Input } from './interfaces/input'
-import { LumpReader } from './wad/lump-reader'
-import { Menu } from './menu/menu'
-import { MusicName } from './doom/sounds/music-name'
-import { Net } from './doom/net'
-import { Palettes } from './interfaces/palette'
-import { Params } from './doom/params'
-import { Patch } from './rendering/defs/patch'
-import { Play } from './play/setup'
-import { PlayerState } from './doom/player'
-import { Data as RData } from './rendering/data'
-import { Video as RVIdeo } from './rendering/video'
-import Stats from 'stats.js'
-import { StatusBar } from './status/stuff'
-import { Strings } from './translation/strings'
-import { Win } from './win/win'
-import { Wipe } from './wipe'
-import { displayEndoom } from './misc/endoom'
-import { svgRasterizer } from './webgl/svg-rasterizer'
-import { getTime } from './system/system'
-import { validCounter } from './play/valid-counter'
+import {
+  BlankRenderer,
+  RenderingInterface,
+  RenderingMode,
+} from "./rendering/rendering-interface";
+import { BlankVideo, VideoInterface } from "./interfaces/video-interface";
+import { DEvent, GameAction, MAX_EVENTS } from "./doom/event";
+import { GameMode, Language, Skill } from "./doom/mode";
+import { GameState, SCREENHEIGHT, SCREENWIDTH } from "./global/doomdef";
+import { AutoMap } from "./auto-map/auto-map";
+import { Sound as DSound } from "./doom/sound";
+import { Defaults } from "./misc/defaults";
+import { EnglishStrings } from "./translation/english";
+import { Finale } from "./finale/finale";
+import GUI from "lil-gui";
+import { Game } from "./game/game";
+import { GameInstance } from "./doom/instance";
+import { HeadsUp } from "./heads-up/stuff";
+import { Net as INet } from "./interfaces/net";
+import { Sound as ISound } from "./interfaces/sound";
+import { Input } from "./interfaces/input";
+import { LumpReader } from "./wad/lump-reader";
+import { Menu } from "./menu/menu";
+import { MusicName } from "./doom/sounds/music-name";
+import { Net } from "./doom/net";
+import { Palettes } from "./interfaces/palette";
+import { Params } from "./doom/params";
+import { Patch } from "./rendering/defs/patch";
+import { Play } from "./play/setup";
+import { PlayerState } from "./doom/player";
+import { Data as RData } from "./rendering/data";
+import { Video as RVIdeo } from "./rendering/video";
+import Stats from "stats.js";
+import { StatusBar } from "./status/stuff";
+import { Strings } from "./translation/strings";
+import { Win } from "./win/win";
+import { Wipe } from "./wipe";
+import { displayEndoom } from "./misc/endoom";
+import { svgRasterizer } from "./webgl/svg-rasterizer";
+import { getTime } from "./system/system";
+import { validCounter } from "./play/valid-counter";
 
 export class Doom {
-  onError: (e: unknown) => void = () => ({})
+  onError: (e: unknown) => void = () => ({});
 
-  instance = new GameInstance({})
+  instance = new GameInstance({});
 
   // Language
-  language: Language = Language.English
-  strings: Strings = new EnglishStrings()
+  language: Language = Language.English;
+  strings: Strings = new EnglishStrings();
 
   // Set if homebrew PWAD stuff has been added.
-  modifiedGame = false
+  modifiedGame = false;
 
-  startSkill: Skill = -1
-  startEpisode = -1
-  startMap = -1
-  private autoStart = false
+  startSkill: Skill = -1;
+  startEpisode = -1;
+  startMap = -1;
+  private autoStart = false;
 
-  advancedemo = false
+  advancedemo = false;
 
-  private wadfiles: string[] = []
+  private wadfiles: string[] = [];
 
   // started game with -devparm
-  private devParam = false
+  private devParam = false;
   // checkparm of -nomonsters
-  noMonsters = false
+  noMonsters = false;
   // checkparm of -respawn
-  respawnParam = false
+  respawnParam = false;
   // checkparm of -fast
-  fastParam = false
+  fastParam = false;
 
   // debug flag to cancel adaptiveness
-  singleTics = false
+  singleTics = false;
 
-  private stats: Stats | null = null
-  public gui: GUI | null = null
+  private stats: Stats | null = null;
+  public gui: GUI | null = null;
 
-  public wad = new LumpReader()
-  public defaults = new Defaults(this)
-  public net = new Net(this)
-  public iNet = new INet(this)
-  public dSound = new DSound(this)
-  public iSound = new ISound(this)
-  public headsUp = new HeadsUp(this)
-  public statusBar = new StatusBar(this)
-  public play = new Play(this)
-  public rVideo = new RVIdeo({ logical: [SCREENWIDTH, SCREENHEIGHT] })
-  public rData = new RData(this.wad)
-  public rendering: RenderingInterface = new BlankRenderer()
-  public game = new Game(this)
-  public menu = new Menu(this)
-  private wipe = new Wipe(this)
-  public autoMap = new AutoMap(this)
-  public win = new Win(this)
-  public finale = new Finale(this)
+  public wad = new LumpReader();
+  public defaults = new Defaults(this);
+  public net = new Net(this);
+  public iNet = new INet(this);
+  public dSound = new DSound(this);
+  public iSound = new ISound(this);
+  public headsUp = new HeadsUp(this);
+  public statusBar = new StatusBar(this);
+  public play = new Play(this);
+  public rVideo = new RVIdeo({ logical: [SCREENWIDTH, SCREENHEIGHT] });
+  public rData = new RData(this.wad);
+  public rendering: RenderingInterface = new BlankRenderer();
+  public game = new Game(this);
+  public menu = new Menu(this);
+  private wipe = new Wipe(this);
+  public autoMap = new AutoMap(this);
+  public win = new Win(this);
+  public finale = new Finale(this);
 
-  public iVideo: VideoInterface = new BlankVideo()
-  public input = new Input()
+  public iVideo: VideoInterface = new BlankVideo();
+  public input = new Input();
 
   constructor(public params: Params) {
-    this.input.postEvent = ev => this.postEvent(ev)
+    this.input.postEvent = (ev) => this.postEvent(ev);
   }
 
-  renderingMode: RenderingMode = RenderingMode.Legacy
+  renderingMode: RenderingMode = RenderingMode.Legacy;
 
   async setLegacyRenderer(): Promise<void> {
     if (this.params.screen2d === undefined) {
-      throw 'no 2d screen defined'
+      throw "no 2d screen defined";
     }
-    const { Rendering } = await import('./rendering/rendering')
-    const { Video } = await import('./interfaces/video')
+    const { Rendering } = await import("./rendering/rendering");
+    const { Video } = await import("./interfaces/video");
     if (this.quitted) {
-      return
+      return;
     }
 
-    const palette = this.iVideo.palette
-    const gamma = this.iVideo.gamma
+    const palette = this.iVideo.palette;
+    const gamma = this.iVideo.gamma;
 
-    this.iVideo.quit()
+    this.iVideo.quit();
 
-    const { width, height } = this.iVideo
-    this.iVideo = new Video(this.rVideo)
-    this.iVideo.screen = this.params.screen2d
-    this.iVideo.palette = palette
-    this.iVideo.gamma = gamma
-    this.iVideo.setSize(width, height)
+    const { width, height } = this.iVideo;
+    this.iVideo = new Video(this.rVideo);
+    this.iVideo.screen = this.params.screen2d;
+    this.iVideo.palette = palette;
+    this.iVideo.gamma = gamma;
+    this.iVideo.setSize(width, height);
 
-    const highDetails = this.rendering.highDetails
-    const screenSize = this.rendering.screenSize
+    const highDetails = this.rendering.highDetails;
+    const screenSize = this.rendering.screenSize;
 
-    this.rendering = new Rendering(this)
-    this.rendering.highDetails = highDetails
-    this.rendering.screenSize = screenSize
+    this.rendering = new Rendering(this);
+    this.rendering.highDetails = highDetails;
+    this.rendering.screenSize = screenSize;
 
-    this.rendering.init()
-    this.iVideo.init()
+    this.rendering.init();
+    this.iVideo.init();
 
-    this.rVideo.screens[0].alpha.fill(255)
+    this.rVideo.screens[0].alpha.fill(255);
 
-    this.renderingMode = RenderingMode.Legacy
+    this.renderingMode = RenderingMode.Legacy;
   }
 
   async setWebGLRenderer(): Promise<void> {
     if (this.params.screen3d === undefined) {
-      throw 'no 3d screen defined'
+      throw "no 3d screen defined";
     }
-    const { Rendering } = await import('./webgl/rendering')
-    const { Video } = await import('./webgl/video')
+    const { Rendering } = await import("./webgl/rendering");
+    const { Video } = await import("./webgl/video");
     if (this.quitted) {
-      return
+      return;
     }
 
-    const palette = this.iVideo.palette
-    const gamma = this.iVideo.gamma
+    const palette = this.iVideo.palette;
+    const gamma = this.iVideo.gamma;
 
-    this.iVideo.quit()
+    this.iVideo.quit();
 
-    const screen2d = this.params.screen2d
+    const screen2d = this.params.screen2d;
     if (screen2d !== undefined) {
-      const ctx = screen2d.getContext('2d')
+      const ctx = screen2d.getContext("2d");
       if (ctx !== null) {
-        ctx.clearRect(0, 0, screen2d.width, screen2d.height)
+        ctx.clearRect(0, 0, screen2d.width, screen2d.height);
       }
     }
 
-    const { width, height } = this.iVideo
-    const iVideo = new Video(this.rVideo)
-    this.iVideo = iVideo
-    this.iVideo.screen = this.params.screen3d
-    this.iVideo.palette = palette
-    this.iVideo.gamma = gamma
-    iVideo.setSize(width, height)
+    const { width, height } = this.iVideo;
+    const iVideo = new Video(this.rVideo);
+    this.iVideo = iVideo;
+    this.iVideo.screen = this.params.screen3d;
+    this.iVideo.palette = palette;
+    this.iVideo.gamma = gamma;
+    iVideo.setSize(width, height);
 
-    const highDetails = this.rendering.highDetails
-    const screenSize = this.rendering.screenSize
+    const highDetails = this.rendering.highDetails;
+    const screenSize = this.rendering.screenSize;
 
-    this.rendering = new Rendering(this, iVideo)
-    this.rendering.highDetails = highDetails
-    this.rendering.screenSize = screenSize
+    this.rendering = new Rendering(this, iVideo);
+    this.rendering.highDetails = highDetails;
+    this.rendering.screenSize = screenSize;
 
-    this.rendering.init()
-    this.iVideo.init()
+    this.rendering.init();
+    this.iVideo.init();
 
-    this.renderingMode = RenderingMode.WebGL
+    this.renderingMode = RenderingMode.WebGL;
   }
 
   //
@@ -187,17 +191,17 @@ export class Doom {
   // Events are asynchronous inputs generally generated by the game user.
   // Events can be discarded if no responder claims them
   //
-  private events = new Array<DEvent>(MAX_EVENTS)
-  private eventHead = 0
-  private eventTail = 0
+  private events = new Array<DEvent>(MAX_EVENTS);
+  private eventHead = 0;
+  private eventTail = 0;
 
   //
   // D_PostEvent
   // Called by the I/O functions when input is detected
   //
   postEvent(ev: DEvent): void {
-    this.events[this.eventHead] = ev
-    this.eventHead = ++this.eventHead & MAX_EVENTS - 1
+    this.events[this.eventHead] = ev;
+    this.eventHead = ++this.eventHead & (MAX_EVENTS - 1);
   }
 
   //
@@ -206,32 +210,36 @@ export class Doom {
   //
   processEvents(): void {
     // IF STORE DEMO, DO NOT ACCEPT INPUT
-    if (this.instance.mode === GameMode.Commercial &&
-      this.wad.checkNumForName('map01') < 0) {
-      return
+    if (
+      this.instance.mode === GameMode.Commercial &&
+      this.wad.checkNumForName("map01") < 0
+    ) {
+      return;
     }
 
-    let ev: DEvent
-    for (; this.eventTail !== this.eventHead;
-      this.eventTail = ++this.eventTail & MAX_EVENTS - 1
+    let ev: DEvent;
+    for (
+      ;
+      this.eventTail !== this.eventHead;
+      this.eventTail = ++this.eventTail & (MAX_EVENTS - 1)
     ) {
-      ev = this.events[this.eventTail]
+      ev = this.events[this.eventTail];
       if (this.menu.responder(ev)) {
         // menu ate the event
-        continue
+        continue;
       }
-      this.game.responder(ev)
+      this.game.responder(ev);
     }
   }
 
   // wipegamestate can be set to -1 to force a wipe on the next draw
-  wipeGameState = GameState.DemoScreen
-  private viewActiveState = false
-  private menuActiveState = false
-  private inHelpScreenState = false
-  private fullScreen = false
-  private oldGameState: GameState = -1
-  private borderDrawCount = 0
+  wipeGameState = GameState.DemoScreen;
+  private viewActiveState = false;
+  private menuActiveState = false;
+  private inHelpScreenState = false;
+  private fullScreen = false;
+  private oldGameState: GameState = -1;
+  private borderDrawCount = 0;
   //
   // D_Display
   //  draw current display, possibly wiping it from the previous
@@ -239,173 +247,187 @@ export class Doom {
   private display(): void {
     // for comparative timing / profiling
     if (this.game.noDrawers) {
-      return
+      return;
     }
 
-    let wipe: boolean
-    let redrawsBar = false
+    let wipe: boolean;
+    let redrawsBar = false;
 
     // change the view size if needed
     if (this.rendering.setSizeNeeded) {
-      this.rendering.executeSetViewSize()
+      this.rendering.executeSetViewSize();
       // force background redraw
-      this.oldGameState = -1
-      this.borderDrawCount = 3
+      this.oldGameState = -1;
+      this.borderDrawCount = 3;
     }
 
     // save the current screen if about to wipe
     if (this.game.gameState !== this.wipeGameState) {
-      wipe = true
-      this.wipe.startScreen()
+      wipe = true;
+      this.wipe.startScreen();
     } else {
-      wipe = false
+      wipe = false;
     }
 
     if (this.game.gameState === GameState.Level && this.game.gameTic) {
-      this.headsUp.erase()
+      this.headsUp.erase();
     }
 
     // do buffered drawing
     switch (this.game.gameState) {
       case GameState.Level:
         if (!this.game.gameTic) {
-          break
+          break;
         }
         if (this.autoMap.active) {
-          this.autoMap.drawer()
+          this.autoMap.drawer();
         }
-        if (wipe ||
-          !this.rendering.fullScreen && this.fullScreen
-        ) {
-          redrawsBar = true
+        if (wipe || (!this.rendering.fullScreen && this.fullScreen)) {
+          redrawsBar = true;
         }
         // just put away the help screen
         if (this.inHelpScreenState && !this.menu.inHelpScreens) {
-          redrawsBar = true
+          redrawsBar = true;
         }
-        this.statusBar.drawer(this.rendering.fullScreen, redrawsBar)
-        this.fullScreen = this.rendering.fullScreen
-        break
+        this.statusBar.drawer(this.rendering.fullScreen, redrawsBar);
+        this.fullScreen = this.rendering.fullScreen;
+        break;
       case GameState.Intermission:
-        this.win.drawer()
-        break
+        this.win.drawer();
+        break;
       case GameState.Finale:
-        this.finale.drawer()
-        break
+        this.finale.drawer();
+        break;
       case GameState.DemoScreen:
-        this.pageDrawer()
-        break
+        this.pageDrawer();
+        break;
     }
 
     // draw the view directly
-    if (this.game.gameState === GameState.Level &&
-      !this.autoMap.active && this.game.gameTic
+    if (
+      this.game.gameState === GameState.Level &&
+      !this.autoMap.active &&
+      this.game.gameTic
     ) {
       this.rendering.renderPlayerView(
         this.game.players[this.game.displayPlayer],
-      )
-      validCounter.inc()
+      );
+      validCounter.inc();
     }
 
     if (this.game.gameState === GameState.Level && this.game.gameTic) {
-      this.headsUp.drawer()
+      this.headsUp.drawer();
     }
 
     // clean up border stuff
-    if (this.game.gameState !== this.oldGameState &&
+    if (
+      this.game.gameState !== this.oldGameState &&
       this.game.gameState !== GameState.Level
     ) {
-      this.iVideo.palette = this.wad.cacheLumpName(Palettes.DEFAULT_LUMP, Palettes).p[0]
+      this.iVideo.palette = this.wad.cacheLumpName(
+        Palettes.DEFAULT_LUMP,
+        Palettes,
+      ).p[0];
     }
 
     // see if the border needs to be initially drawn
-    if (this.game.gameState === GameState.Level &&
+    if (
+      this.game.gameState === GameState.Level &&
       this.oldGameState !== GameState.Level
     ) {
       // view was not active
-      this.viewActiveState = false
+      this.viewActiveState = false;
       // draw the pattern into the back screen
-      this.rendering.fillBackScreen()
+      this.rendering.fillBackScreen();
     }
 
     // see if the border needs to be updated to the screen
-    if (this.game.gameState === GameState.Level &&
+    if (
+      this.game.gameState === GameState.Level &&
       !this.autoMap.active &&
       !this.rendering.fullScreen
     ) {
-      if (this.menu.menuActive || this.menuActiveState || !this.viewActiveState) {
-        this.borderDrawCount = 3
+      if (
+        this.menu.menuActive ||
+        this.menuActiveState ||
+        !this.viewActiveState
+      ) {
+        this.borderDrawCount = 3;
       }
       if (this.borderDrawCount) {
         // erase old menu stuff
-        this.rendering.drawViewBorder()
-        this.borderDrawCount--
-        this.statusBar.drawer(this.rendering.fullScreen, true)
+        this.rendering.drawViewBorder();
+        this.borderDrawCount--;
+        this.statusBar.drawer(this.rendering.fullScreen, true);
       }
     }
 
-    this.menuActiveState = this.menu.menuActive
-    this.viewActiveState = this.game.viewActive
-    this.inHelpScreenState = this.menu.inHelpScreens
-    this.oldGameState = this.wipeGameState = this.game.gameState
+    this.menuActiveState = this.menu.menuActive;
+    this.viewActiveState = this.game.viewActive;
+    this.inHelpScreenState = this.menu.inHelpScreens;
+    this.oldGameState = this.wipeGameState = this.game.gameState;
 
     // draw pause pic
     if (this.game.paused) {
-      let y = 4 * this.rVideo.scale
+      let y = 4 * this.rVideo.scale;
       if (!this.autoMap.active) {
-        y += this.rendering.viewWindowY
+        y += this.rendering.viewWindowY;
       }
-      const width = 68 * this.rVideo.scale
-      const x = this.rendering.viewWindowX +
-        (this.rendering.viewWidth - width) / 2
-      this.rVideo.drawPatch(x, y, 0,
-        this.wad.cacheLumpName('M_PAUSE', Patch))
+      const width = 68 * this.rVideo.scale;
+      const x =
+        this.rendering.viewWindowX + (this.rendering.viewWidth - width) / 2;
+      this.rVideo.drawPatch(x, y, 0, this.wad.cacheLumpName("M_PAUSE", Patch));
     }
 
     // menus go directly to the screen
     // menu is drawn even on top of everything
-    this.menu.drawer()
+    this.menu.drawer();
     // send out any new accumulation
-    this.net.netUpdate()
+    this.net.netUpdate();
 
     // normal update
     if (!wipe) {
       // page flip or blit buffer
-      this.iVideo.finishUpdate()
-      return
+      this.iVideo.finishUpdate();
+      return;
     }
 
     // wipe update
-    this.wipe.endScreen(0, 0, this.rVideo.width, this.rVideo.height)
+    this.wipe.endScreen(0, 0, this.rVideo.width, this.rVideo.height);
 
-    this.wipeActive = true
-    this.wipeStart = getTime() - 1
+    this.wipeActive = true;
+    this.wipeStart = getTime() - 1;
   }
 
-  private wipeActive = false
-  private wipeStart = 0
+  private wipeActive = false;
+  private wipeStart = 0;
 
   private displayWipe(): void {
-    let nowTime = getTime()
-    let tics = 0
+    let nowTime = getTime();
+    let tics = 0;
 
-    let done = false
+    let done = false;
 
     do {
-      nowTime = getTime()
-      tics = nowTime - this.wipeStart
-    } while (!tics)
-    this.wipeStart = nowTime
+      nowTime = getTime();
+      tics = nowTime - this.wipeStart;
+    } while (!tics);
+    this.wipeStart = nowTime;
 
-    done = this.wipe.screenWipe(0, 0,
-      this.rVideo.width, this.rVideo.height, tics * this.rVideo.scale)
+    done = this.wipe.screenWipe(
+      0,
+      0,
+      this.rVideo.width,
+      this.rVideo.height,
+      tics * this.rVideo.scale,
+    );
 
     // menu is drawn even on top of wipes
-    this.menu.drawer()
-    this.iVideo.finishUpdate()
+    this.menu.drawer();
+    this.iVideo.finishUpdate();
 
     if (done) {
-      this.wipeActive = false
+      this.wipeActive = false;
     }
   }
 
@@ -420,68 +442,68 @@ export class Doom {
   //
   private doomLoop(): void {
     if (this.game.demoRecording) {
-      this.game.beginRecording()
+      this.game.beginRecording();
     }
-    this.iVideo.init()
+    this.iVideo.init();
     if (this.params.input) {
-      this.input.init(this.params.input)
+      this.input.init(this.params.input);
     }
 
     const w = () => {
-      this.stats?.begin()
+      this.stats?.begin();
       try {
         if (this.quitted) {
-          return
+          return;
         }
 
         if (this.wipeActive) {
-          this.displayWipe()
-          requestAnimationFrame(w.bind(this))
-          return
+          this.displayWipe();
+          requestAnimationFrame(w.bind(this));
+          return;
         }
 
         // process one or more tics
         if (this.singleTics) {
-          this.input.startTic()
-          this.processEvents()
+          this.input.startTic();
+          this.processEvents();
           this.game.buildTicCmd(
             this.net.netCmds[this.game.consolePlayer][this.net.makeTic],
-          )
+          );
           if (this.advancedemo) {
-            this.doAdvanceDemo()
+            this.doAdvanceDemo();
           }
-          this.menu.ticker()
-          this.game.ticker()
-          this.game.gameTic++
-          this.net.makeTic++
+          this.menu.ticker();
+          this.game.ticker();
+          this.game.gameTic++;
+          this.net.makeTic++;
         } else {
           // will run at least one tic
-          this.net.tryRunTics()
+          this.net.tryRunTics();
         }
 
         // move positional sounds
-        this.dSound.updateSounds(this.game.player.mo)
+        this.dSound.updateSounds(this.game.player.mo);
 
         // Update display, next frame, with current state.
-        this.display()
+        this.display();
 
         // Sound mixing for the buffer is snychronous.
-        this.iSound.updateSound()
+        this.iSound.updateSound();
       } catch (e) {
-        this.onError(e)
+        this.onError(e);
       }
-      requestAnimationFrame(w.bind(this))
-      this.stats?.end()
-    }
-    w()
+      requestAnimationFrame(w.bind(this));
+      this.stats?.end();
+    };
+    w();
   }
 
   //
   //  DEMO LOOP
   //
-  private demoSequence = -1
-  private pageTic = -1
-  private pageName = ''
+  private demoSequence = -1;
+  private pageTic = -1;
+  private pageName = "";
 
   //
   // D_PageTicker
@@ -489,7 +511,7 @@ export class Doom {
   //
   pageTicker(): void {
     if (--this.pageTic < 0) {
-      this.advanceDemo()
+      this.advanceDemo();
     }
   }
 
@@ -497,11 +519,11 @@ export class Doom {
   // D_PageDrawer
   //
   private pageDrawer(): void {
-    const patch = this.wad.cacheLumpName(this.pageName, Patch)
-    const scale = this.rVideo.scale
-    const x = (this.rVideo.width - SCREENWIDTH * scale) / 2
-    const y = (this.rVideo.height - SCREENHEIGHT * scale) / 2
-    this.rVideo.drawPatch(x, y, 0, patch)
+    const patch = this.wad.cacheLumpName(this.pageName, Patch);
+    const scale = this.rVideo.scale;
+    const x = (this.rVideo.width - SCREENWIDTH * scale) / 2;
+    const y = (this.rVideo.height - SCREENHEIGHT * scale) / 2;
+    this.rVideo.drawPatch(x, y, 0, patch);
   }
 
   //
@@ -509,7 +531,7 @@ export class Doom {
   // Called after each demo or intro demosequence finishes
   //
   advanceDemo(): void {
-    this.advancedemo = true
+    this.advancedemo = true;
   }
 
   //
@@ -518,60 +540,61 @@ export class Doom {
   //
   doAdvanceDemo(): void {
     // not reborn
-    this.game.player.playerState = PlayerState.Live
-    this.advancedemo = false
+    this.game.player.playerState = PlayerState.Live;
+    this.advancedemo = false;
     // no save / end game here
-    this.game.userGame = false
-    this.game.paused = false
-    this.game.gameAction = GameAction.Nothing
+    this.game.userGame = false;
+    this.game.paused = false;
+    this.game.gameAction = GameAction.Nothing;
 
-    this.demoSequence = (this.demoSequence + 1) % this.instance.demoSequenceCount
+    this.demoSequence =
+      (this.demoSequence + 1) % this.instance.demoSequenceCount;
 
     switch (this.demoSequence) {
       case 0:
         if (this.instance.mode === GameMode.Commercial) {
-          this.pageTic = 35 * 11
+          this.pageTic = 35 * 11;
         } else {
-          this.pageTic = 170
+          this.pageTic = 170;
         }
-        this.game.gameState = GameState.DemoScreen
-        this.pageName = 'TITLEPIC'
+        this.game.gameState = GameState.DemoScreen;
+        this.pageName = "TITLEPIC";
         if (this.instance.mode === GameMode.Commercial) {
-          this.dSound.startMusic(MusicName.Dm2ttl)
+          this.dSound.startMusic(MusicName.Dm2ttl);
         } else {
-          this.dSound.startMusic(MusicName.Intro)
+          this.dSound.startMusic(MusicName.Intro);
         }
-        break
+        break;
       case 1:
-        this.game.deferedPlayDemo('demo1')
-        break
+        this.game.deferedPlayDemo("demo1");
+        break;
       case 2:
-        this.pageTic = 200
-        this.game.gameState = GameState.DemoScreen
-        this.pageName = 'CREDIT'
-        break
+        this.pageTic = 200;
+        this.game.gameState = GameState.DemoScreen;
+        this.pageName = "CREDIT";
+        break;
       case 3:
-        this.game.deferedPlayDemo('demo2')
-        break
+        this.game.deferedPlayDemo("demo2");
+        break;
       case 4:
-        this.game.gameState = GameState.DemoScreen
+        this.game.gameState = GameState.DemoScreen;
         if (this.instance.mode === GameMode.Commercial) {
-          this.pageTic = 35 * 11
-          this.pageName = 'TITLEPIC'
-          this.dSound.startMusic(MusicName.Dm2ttl)
+          this.pageTic = 35 * 11;
+          this.pageName = "TITLEPIC";
+          this.dSound.startMusic(MusicName.Dm2ttl);
         } else {
-          this.pageTic = 200
+          this.pageTic = 200;
 
-          this.pageName = this.instance.creditPatch
+          this.pageName = this.instance.creditPatch;
         }
-        break
+        break;
       case 5:
-        this.game.deferedPlayDemo('demo3')
-        break
+        this.game.deferedPlayDemo("demo3");
+        break;
       case 6:
         // THE DEFINITIVE DOOM Special Edition demo
-        this.game.deferedPlayDemo('demo4')
-        break
+        this.game.deferedPlayDemo("demo4");
+        break;
     }
   }
 
@@ -579,228 +602,233 @@ export class Doom {
   // D_StartTitle
   //
   startTitle(): void {
-    this.game.gameAction = GameAction.Nothing
-    this.demoSequence = -1
-    this.advanceDemo()
+    this.game.gameAction = GameAction.Nothing;
+    this.demoSequence = -1;
+    this.advanceDemo();
   }
 
   //
   // D_AddFile
   //
   private addFile(file: string) {
-    this.wadfiles.push(file)
+    this.wadfiles.push(file);
   }
 
   async init(): Promise<void> {
     if (this.quitted) {
-      throw 'Can\'t init previously destroyed Doom instance'
+      throw "Can't init previously destroyed Doom instance";
     }
 
     await svgRasterizer.init();
 
     if (this.params.debug && this.params.input) {
-      this.gui = new GUI()
-      this.game.setupDebugGui(this.gui)
+      this.gui = new GUI();
+      this.game.setupDebugGui(this.gui);
 
-      const stats = new Stats()
-      stats.showPanel(0)
-      this.params.input.appendChild(stats.dom)
-      this.stats = stats
+      const stats = new Stats();
+      stats.showPanel(0);
+      this.params.input.appendChild(stats.dom);
+      this.stats = stats;
     }
 
-    this.noMonsters = !!this.params.noMonsters
-    this.respawnParam = !!this.params.respawn
-    this.fastParam = !!this.params.fast
-    this.devParam = !!this.params.dev
+    this.noMonsters = !!this.params.noMonsters;
+    this.respawnParam = !!this.params.respawn;
+    this.fastParam = !!this.params.fast;
+    this.devParam = !!this.params.dev;
     if (this.params.altDeath) {
-      this.game.deathMatch = 2
+      this.game.deathMatch = 2;
     } else if (this.params.deathMatch) {
-      this.game.deathMatch = 1
+      this.game.deathMatch = 1;
     }
 
     if (this.devParam) {
-      console.log(this.strings.dDevstr)
+      console.log(this.strings.dDevstr);
     }
 
     // start the apropriate game based on parms
-    const recordDemo = this.params.record
+    const recordDemo = this.params.record;
     if (recordDemo) {
-      this.game.recordDemo(recordDemo)
-      this.autoStart = true
+      this.game.recordDemo(recordDemo);
+      this.autoStart = true;
     }
 
-    let playDemo = this.params.playDemo
+    let playDemo = this.params.playDemo;
     if (playDemo) {
-      if (playDemo.toLowerCase().endsWith('.lmp')) {
-        this.addFile(playDemo)
-        console.log(`Playing demo ${playDemo}`)
-        playDemo = playDemo.substr(0, playDemo.length - 4)
+      if (playDemo.toLowerCase().endsWith(".lmp")) {
+        this.addFile(playDemo);
+        console.log(`Playing demo ${playDemo}`);
+        playDemo = playDemo.substr(0, playDemo.length - 4);
       } else if (playDemo === playDemo.toUpperCase()) {
-        this.addFile(`${playDemo}.LMP`)
-        console.log(`Playing demo ${playDemo}.LMP`)
+        this.addFile(`${playDemo}.LMP`);
+        console.log(`Playing demo ${playDemo}.LMP`);
       } else {
-        this.addFile(`${playDemo}.lmp`)
-        console.log(`Playing demo ${playDemo}.lmp`)
+        this.addFile(`${playDemo}.lmp`);
+        console.log(`Playing demo ${playDemo}.lmp`);
       }
     }
 
-    console.log('M_LoadDefaults: Load system defaults.')
+    console.log("M_LoadDefaults: Load system defaults.");
     // load before initing other systems
-    this.defaults.load(this.params.config)
+    this.defaults.load(this.params.config);
 
-    this.addFile(this.params.iwad)
+    this.addFile(this.params.iwad);
 
     if (this.params.pwads) {
-      this.params.pwads.forEach(f => this.addFile(f))
+      this.params.pwads.forEach((f) => this.addFile(f));
     }
 
-    console.log('W_Init: Init WADfiles.')
-    await this.wad.initMultipleFiles(this.wadfiles)
+    console.log("W_Init: Init WADfiles.");
+    await this.wad.initMultipleFiles(this.wadfiles);
 
     // Now that we've loaded the IWAD, we can figure out what gamemission
     // we're playing and which version of Vanilla Doom we need to emulate.
-    this.instance = new GameInstance(this.params, this.wad)
+    this.instance = new GameInstance(this.params, this.wad);
 
     // get skill / episode / map from parms
-    this.startSkill = Skill.Medium
-    this.startEpisode = 1
-    this.startMap = 1
-    this.autoStart = false
+    this.startSkill = Skill.Baby;
+    this.startEpisode = 1;
+    this.startMap = 1;
+    this.autoStart = true;
 
     if (this.params.skill !== undefined) {
-      this.startSkill = this.params.skill
-      this.autoStart = true
+      this.startSkill = this.params.skill;
     }
     if (this.params.episode !== undefined) {
-      this.startEpisode = this.params.episode
-      this.autoStart = true
+      this.startEpisode = this.params.episode;
     }
     if (this.params.map !== undefined) {
-      this.startMap = this.params.map
-      this.autoStart = true
+      this.startMap = this.params.map;
     }
-
 
     // Check and print which version is executed.
     switch (this.instance.mode) {
       case GameMode.Shareware:
       case GameMode.Indetermined:
-        console.log('===========================================================================')
-        console.log('                                Shareware!')
-        console.log('===========================================================================')
-        break
+        console.log(
+          "===========================================================================",
+        );
+        console.log("                                Shareware!");
+        console.log(
+          "===========================================================================",
+        );
+        break;
       case GameMode.Registered:
       case GameMode.Retail:
       case GameMode.Commercial:
-        console.log('===========================================================================')
-        console.log('                 Commercial product - do not distribute!')
-        console.log('         Please report software piracy to the SPA: 1-800-388-PIR8')
-        console.log('===========================================================================')
-        break
+        console.log(
+          "===========================================================================",
+        );
+        console.log("                 Commercial product - do not distribute!");
+        console.log(
+          "         Please report software piracy to the SPA: 1-800-388-PIR8",
+        );
+        console.log(
+          "===========================================================================",
+        );
+        break;
       default:
         // Ouch.
-        break
+        break;
     }
 
-    console.log('M_Init: Init miscellaneous info.')
-    this.menu.init()
+    console.log("M_Init: Init miscellaneous info.");
+    this.menu.init();
 
-    console.log('R_Init: Init DOOM refresh daemon - ')
-    this.rData.initData()
+    console.log("R_Init: Init DOOM refresh daemon - ");
+    this.rData.initData();
     if (this.params.renderingMode !== undefined) {
-      this.renderingMode = this.params.renderingMode
+      this.renderingMode = this.params.renderingMode;
     }
     if (this.params.resolutionWidth !== undefined) {
-      this.rVideo.physicalWidth = this.params.resolutionWidth
+      this.rVideo.physicalWidth = this.params.resolutionWidth;
     }
     if (this.params.resolutionHeight !== undefined) {
-      this.rVideo.physicalHeight = this.params.resolutionHeight
+      this.rVideo.physicalHeight = this.params.resolutionHeight;
     }
     if (this.params.scale !== undefined) {
-      this.rVideo.scale = this.params.scale
+      this.rVideo.scale = this.params.scale;
     }
-    this.rVideo.init()
+    this.rVideo.init();
     switch (this.renderingMode) {
       case RenderingMode.Legacy:
-        await this.setLegacyRenderer()
-        break
+        await this.setLegacyRenderer();
+        break;
       case RenderingMode.WebGL:
-        await this.setWebGLRenderer()
-        break
+        await this.setWebGLRenderer();
+        break;
     }
 
-    console.log('P_Init: Init Playloop state.')
-    this.play.init()
+    console.log("P_Init: Init Playloop state.");
+    this.play.init();
 
-    console.log('I_Init: Setting up machine state.')
-    this.iSound.init()
+    console.log("I_Init: Setting up machine state.");
+    this.iSound.init();
 
-    console.log('D_CheckNetGame: Checking network game status.')
-    this.net.checkNetGame()
+    console.log("D_CheckNetGame: Checking network game status.");
+    this.net.checkNetGame();
 
-    console.log('S_Init: Setting up sound')
-    this.dSound.init(this.dSound.sfxVolume, this.dSound.musicVolume)
+    console.log("S_Init: Setting up sound");
+    this.dSound.init(this.dSound.sfxVolume, this.dSound.musicVolume);
 
-    console.log('HU_Init: Setting up heads up display.')
-    this.headsUp.init()
+    console.log("HU_Init: Setting up heads up display.");
+    this.headsUp.init();
 
-    console.log('ST_Init: Init status bar.')
-    this.statusBar.init()
+    console.log("ST_Init: Init status bar.");
+    this.statusBar.init();
 
     if (playDemo) {
       // quit after one demo
-      this.game.singleDemo = true
-      this.game.deferedPlayDemo(playDemo)
+      this.game.singleDemo = true;
+      this.game.deferedPlayDemo(playDemo);
       // never returns
-      return this.doomLoop()
+      return this.doomLoop();
     }
 
     if (this.game.gameAction !== GameAction.LoadGame) {
       if (this.autoStart) {
-        this.game.initNew(
-          this.startSkill, this.startEpisode, this.startMap,
-        )
+        this.game.initNew(this.startSkill, this.startEpisode, this.startMap);
       } else {
         // start up intro loop
-        this.startTitle()
+        this.startTitle();
       }
     }
 
-    this.doomLoop()
+    this.doomLoop();
   }
 
-  private quitted = false
+  private quitted = false;
   quit(): void {
     if (this.quitted) {
-      return
+      return;
     }
 
-    this.quitted = true
+    this.quitted = true;
 
-    this.iSound.quit()
+    this.iSound.quit();
 
-    const { width, height } = this.iVideo
-    this.iVideo.quit()
-    this.iVideo = new BlankVideo()
-    this.iVideo.setSize(width, height)
+    const { width, height } = this.iVideo;
+    this.iVideo.quit();
+    this.iVideo = new BlankVideo();
+    this.iVideo.setSize(width, height);
 
-    this.rendering = new BlankRenderer()
+    this.rendering = new BlankRenderer();
 
-    this.input.quit()
+    this.input.quit();
 
     try {
       if (this.params.screen2d) {
-        const endoom = this.wad.cacheLumpName('ENDOOM')
-        displayEndoom(endoom, this.params.screen2d)
+        const endoom = this.wad.cacheLumpName("ENDOOM");
+        displayEndoom(endoom, this.params.screen2d);
       }
-    } catch { /* */ }
+    } catch {
+      /* */
+    }
 
-    this.iVideo.screen = null
+    this.iVideo.screen = null;
 
-    this.stats?.dom.remove()
-    this.gui?.destroy()
+    this.stats?.dom.remove();
+    this.gui?.destroy();
 
-    return
+    return;
   }
 }
-
