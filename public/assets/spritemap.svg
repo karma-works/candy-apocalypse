@@ -65,37 +65,46 @@
               <path d="M 28 34 Q 40 44 52 34" stroke="#fff" stroke-width="2" fill="none"/>
   </symbol>
 
-  <!-- Glowing aura behind the pistol -->
-  <symbol id="pistol" viewBox="0 0 64 64">
-    <circle cx="32" cy="32" r="30" fill="#00ffff" opacity="0.3" filter="blur(10px)"/>
-    
-      
-      <path d="M 20 25 L 45 25 L 45 35 L 20 35 Z" fill="#e0ffff" />
-      
-      
-      <path d="M 20 35 L 28 35 L 24 50 L 16 50 Z" fill="#008080" />
-    
-      
-      <rect x="20" y="25" width="25" height="3" fill="#ffffff" />
-    
-      
-      <rect x="25" y="30" width="15" height="2" fill="#00ffff" />
-      <circle cx="40" cy="30" r="3" fill="#ff00ff" />
+  <symbol id="pistol" viewBox="0 0 256 256">
+    <g transform="translate(128, 240)">
+        <path d="M -40 0 L 40 0 L 30 -60 L -30 -60 Z" fill="#00D4FF" stroke="#1A1A2E" stroke-width="4"/>
+        
+        <path d="M -30 -60 L 30 -60 L 20 -100 L -20 -100 Z" fill="#00D4FF" stroke="#1A1A2E" stroke-width="4"/>
+        
+        <path d="M -25 -100 L 25 -100 L 15 -140 L -15 -140 Z" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="4"/>
+        
+        <rect x="-20" y="-140" width="40" height="10" fill="#1A1A2E"/>
+        
+        <ellipse cx="0" cy="-145" rx="12" ry="4" fill="#1A1A2E"/>
+        
+        <path d="M -35 0 L -20 -20 L -20 0 Z" fill="#00D4FF" stroke="#1A1A2E" stroke-width="3"/>
+        
+        <circle cx="25" cy="-50" r="8" fill="#FF0044" stroke="#1A1A2E" stroke-width="3"/>
+        
+        <path d="M -15 -40 L 15 -40 L 10 -50 L -10 -50 Z" fill="#FFE135" stroke="#1A1A2E" stroke-width="2"/>
+        
+        <text x="0" y="-80" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A1A2E" font-family="Arial Black">PEW!</text>
+      </g>
   </symbol>
 
-  <symbol id="shotgun" viewBox="0 0 200 200">
-    <g transform="translate(100, 150)">
-                
-                <rect x="5" y="-100" width="30" height="120" fill="#222" rx="5" />
-                <ellipse cx="20" cy="-100" rx="15" ry="5" fill="#000" />
-                
-                <rect x="-35" y="-100" width="30" height="120" fill="#222" rx="5" />
-                <ellipse cx="-20" cy="-100" rx="15" ry="5" fill="#000" />
-                
-                <rect x="-5" y="-95" width="10" height="110" fill="#444" />
-                
-                <path d="M -40 20 Q 0 -10 40 20 L 50 60 L -50 60 Z" fill="#4a2e15" />
-              </g>
+  <symbol id="shotgun" viewBox="0 0 256 256">
+    <g transform="translate(128, 240)">
+        <path d="M -50 0 L 50 0 L 35 -40 L -35 -40 Z" fill="#8B4513" stroke="#1A1A2E" stroke-width="4"/>
+        
+        <path d="M -35 -40 L -15 -40 L -10 -120 L -25 -120 Z" fill="#1A1A2E"/>
+        <path d="M 15 -40 L 35 -40 L 25 -120 L 10 -120 Z" fill="#1A1A2E"/>
+        
+        <ellipse cx="-18" cy="-120" rx="6" ry="3" fill="#1A1A2E"/>
+        <ellipse cx="18" cy="-120" rx="6" ry="3" fill="#1A1A2E"/>
+        
+        <path d="M -10 -120 L 10 -120 L 5 -160 L -5 -160 Z" fill="#4a4a4a" stroke="#1A1A2E" stroke-width="3"/>
+        
+        <path d="M -55 0 L -35 0 L -35 -20 L -50 -20 Z" fill="#FF6B35" stroke="#1A1A2E" stroke-width="3"/>
+        
+        <circle cx="0" cy="-20" r="6" fill="#FFE135" stroke="#1A1A2E" stroke-width="2"/>
+        
+        <text x="0" y="-70" text-anchor="middle" font-size="12" font-weight="bold" fill="#FF6B35" font-family="Arial Black">CLICK!</text>
+      </g>
   </symbol>
 
   <symbol id="wall_base" viewBox="0 0 100 100">

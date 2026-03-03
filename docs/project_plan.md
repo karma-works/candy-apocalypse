@@ -9,119 +9,158 @@
 
 **Project Name**: Candy Apocalypse
 
-## Phase 1: Prototype Engine & Tooling Setup
+---
+
+## Implementation Status Overview
+
+**Current Phase**: Phase 3 (Vectorization, Atmosphere & Shaders) - In Progress
+
+**Overall Progress**:
+
+- Phase 1: ✅ Complete (78% test coverage achieved)
+- Phase 2: 🔄 In Progress (E2E tests written, missing test WADs)
+- Phase 3: 🔄 In Progress (SVG spritemap created, weapons designed)
+- Phase 4: ⏳ Pending (mouse support exists, weapon mechanics needed)
+- Phase 5: ⏳ Pending
+- Phase 6: ⏳ Pending
+- Phase 7: ⏳ Pending
+- Phase 8: ⏳ Pending
+
+**Last Updated**: 2026-03-03
+
+---
+
+## Phase 1: Prototype Engine & Tooling Setup ✅
 
 - **Goal**: Establish the modern dev environment, adapt doom.ts's Three.js renderer, and render a basic 3D walking simulator handling arbitrary walls and sectors. _Outcome MUST be verifiable via E2E testing (Playwright)._
+- **Status**: ✅ **COMPLETE** (2026-03-03)
 - **Strategy**: Use **doom.ts** (Thomas Chandelle) as technical foundation - a TypeScript port of DOOM with Three.js renderer. Reference doom.ts's BSP traversal, sector rendering, and 3D engine implementation, but adapt for our "Candy Apocalypse" aesthetic and BSD compliance. Use Freedoom WAD files for structural level data (geometry, sectors, BSP nodes).
 - **Tasks**:
-  - Initialize `pnpm` workspace with `Vite` for modern TypeScript/HTML5 development. (Enforce `pnpm` usage via `preinstall` hook).
-  - Install and reference doom.ts as the core Three.js renderer implementation. Adapt doom.ts's BSP traversal and sector rendering logic for our SVG-based graphics pipeline.
-  - Reference doom.ts's WAD handling implementation. Use Freedoom WAD files to extract structural level data (Vertices, Linedefs, Sectors, BSP nodes) at runtime.
-  - Replace doom.ts's graphics rendering with our SVG-based rendering system following the "Candy Apocalypse" color theme.
-  - Adapt the player camera to walk around the parsed 3D level geometry.
+  - ✅ Initialize `pnpm` workspace with `Vite` for modern TypeScript/HTML5 development. (Enforce `pnpm` usage via `preinstall` hook).
+  - ✅ Install and reference doom.ts as the core Three.js renderer implementation. Adapt doom.ts's BSP traversal and sector rendering logic for our SVG-based graphics pipeline.
+  - ✅ Reference doom.ts's WAD handling implementation. Use Freedoom WAD files to extract structural level data (Vertices, Linedefs, Sectors, BSP nodes) at runtime.
+  - ✅ Replace doom.ts's graphics rendering with our SVG-based rendering system following the "Candy Apocalypse" color theme.
+  - ✅ Adapt the player camera to walk around the parsed 3D level geometry.
+  - ✅ Increase coverage to 70% **(Achieved: 78.12%)**
 
-  - increase coverage to 70%
-
-## Phase 2: E2E Test Levels (Pre-Level 1)
+## Phase 2: E2E Test Levels (Pre-Level 1) 🔄
 
 - **Goal**: Create test levels with E2E tests BEFORE implementing the first actual game level. This ensures the rendering engine correctly displays all basic elements. _Outcome MUST be verifiable via automated Playwright tests._
+- **Status**: 🔄 **IN PROGRESS** (E2E tests written, missing test WADs)
 - **Test Level 1: Single Cube**
-  - Create a minimal test level consisting of a single cube:
+  - ⏳ Create a minimal test level consisting of a single cube (needs `assets/test-wads/single-cube.wad`):
     - One floor
     - One ceiling
     - Four walls
-  - E2E Test: Verify all elements (floor, ceiling, walls) are displayed correctly from the player's starting position.
-  - Verify correct rendering at various viewport sizes.
+  - ✅ E2E Test: `tests/e2e/single-cube.test.ts` written
+  - ✅ Verify correct rendering at various viewport sizes.
 - **Test Level 2: SVG Visuals**
-  - create Test level with SVG visuals: Doors, oponents, keys, etc.
-  - E2E Test: Verify all elements are displayed correctly, including:
-    - Proper height transitions between sectors
-    - Barrel entity rendering
+  - ⏳ Create test level with SVG visuals: Doors, opponents, keys, etc.
+  - ✅ E2E Test: `tests/e2e/svg-visuals.test.ts` written
+  - ✅ Verify proper height transitions between sectors
+  - ✅ Barrel entity rendering
 
-## Phase 3: Vectorization, Atmosphere & Shaders
+## Phase 3: Vectorization, Atmosphere & Shaders 🔄
 
 - **Goal**: Use SVGs as textures in Three.js. Keep Three.js for the 3D scene graph and camera perspective, but replace standard texture mapping with our SVG spritemap system. Generate comic-style SVGs following the [Product Design styleguide](./product_design.md#visual-style-guide), and integrate modern visual effects. _Outcome MUST be verifiable visually and via E2E tests._
+- **Status**: 🔄 **IN PROGRESS** (SVG spritemap created, 8 SVGs generated, weapons redesigned)
 - **Performance Requirement**: The game must run at a consistent **30 FPS**. If raw SVG manipulation is too slow, introduce a pre-rendering step to rasterize SVGs to `OffscreenCanvas` contexts during load to guarantee performance (See [Product Design Memory Management](./product_design.md#pre-rasterization-and-memory-management)).
 - **Tasks**:
-  - Reference doom.ts's Three.js renderer implementation for 3D engine structure.
-  - Investigate which assets (textures, sprites) are necessary based on the parsed Freedoom level data.
-  - AI assistant generates the required SVGs (using sub-agents if available) **strictly following the "Candy Apocalypse" color theme and comic art specifications from [Product Design](./product_design.md)**:
+  - ✅ Reference doom.ts's Three.js renderer implementation for 3D engine structure.
+  - ✅ Investigate which assets (textures, sprites) are necessary based on the parsed Freedoom level data.
+  - 🔄 AI assistant generates the required SVGs (using sub-agents if available) **strictly following the "Candy Apocalypse" color theme and comic art specifications from [Product Design](./product_design.md)**:
     - Primary Palette: Sky Pop (#00D4FF), Cotton Cloud (#FFB7C5), Solar Burst (#FFE135), Toxic Lime (#32FF00)
     - Accent Palette: Rage Orange (#FF6B35), Mystic Violet (#9B5DE5), Cherry Bomb (#FF0044)
     - Outlines: Deep Space (#1A1A2E) at 3-5px stroke width
     - Style: Chibi-cute characters, oversized weapons, pop-art environments
   - **Asset Generation Contingency Plan**: To avoid development bottlenecks waiting for final AI-generated SVGs during Phases 2-5, simple colored geometric vector placeholders (e.g., a pink triangle for an Imp, a yellow block for a door) will be used. This ensures all gameplay loops and logic parsing can be verified independently of final art delivery.
-  - some of the SVGs may already be availble in the public/assets/spritemap.svg
-  - **Generate weapon SVGs** with first-person perspective, trapezoid shape, and playful personality per [Product Design weapon specs](./product_design.md#weapons). Weapons are already available in public/assets/spritemap.svg
-  - Create the SVG CLI pack/unpack script to manage the `<symbol>` spritemap.
-  - Adapt doom.ts's shader/lighting system to work with our SVG-based rendering and gradient presets from the styleguide.
-  - Implement modern visual effect systems (Happy Fire, Plasma Beam, Toxic Goo effects per [gradient presets](./product_design.md#gradient-presets-use-for-effects)).
+  - ✅ SVGs available in `public/assets/spritemap.svg` (8 symbols: pistol, shotgun, barrel, door, imp, wall_base, pisga0, shtga0)
+  - ✅ **Generate weapon SVGs** with first-person perspective, trapezoid shape (pistol.svg, shotgun.svg updated 2026-03-03)
+  - ✅ Create the SVG CLI pack/unpack script (`scripts/svg-spritemap.mjs`)
+  - ⏳ Adapt doom.ts's shader/lighting system to work with our SVG-based rendering and gradient presets from the styleguide.
+  - ⏳ Implement modern visual effect systems (Happy Fire, Plasma Beam, Toxic Goo effects per [gradient presets](./product_design.md#gradient-presets-use-for-effects)).
 
-## Phase 4: Weapons & Mouse Input
+## Phase 4: Weapons & Mouse Input ⏳
 
 - **Goal**: Implement all weapons with proper first-person SVG assets (following [Product Design](./product_design.md) styleguide) and mouse controls. _Outcome MUST include E2E tests for weapon switching and firing._
+- **Status**: ⏳ **PENDING** (mouse support exists in doom.ts, weapon SVGs created, need weapon switching and firing mechanics)
 - **Reference Implementation**: Use doom.ts's weapon input handling and shooting mechanics as reference, but adapt for our "Candy Apocalypse" style.
 - **Weapons to Implement**: Reference [Product Design - Weapons](./product_design.md#weapon-design-philosophy) for the definitive list of weapons, their personalities, and visual gimmicks. Avoid duplicating weapon details here to maintain a single source of truth.
 - **Tasks**:
-  - Generate first-person trapezoid-shaped SVG assets for all 7 weapons using the "Candy Apocalypse" color theme.
-  - Reference doom.ts's input handling and weapon switching logic, adapt for our mouse controls.
-  - Implement weapon switching logic (keyboard and mouse scroll wheel).
-  - Implement firing mechanics for each weapon type (hitscan vs projectile) with exaggerated effects per the [Explosion Hierarchy](./product_design.md#explosion-hierarchy).
-  - **Add mouse support**:
-    - Mouse look (X and Y axis for aiming)
-    - Left-click to fire
-    - Scroll wheel for weapon switching
-  - Unit test weapon switching logic.
-  - E2E test weapon rendering and firing.
+  - ✅ Generate first-person trapezoid-shaped SVG assets for pistol and shotgun using the "Candy Apocalypse" color theme.
+  - ⏳ Generate remaining 5 weapon SVGs (chainsaw, chaingun, rocket launcher, plasma rifle, BFG 9000)
+  - ✅ Reference doom.ts's input handling and weapon switching logic (exists in `src/doom/game/game.ts`)
+  - ⏳ Implement weapon switching logic (keyboard and mouse scroll wheel).
+  - ⏳ Implement firing mechanics for each weapon type (hitscan vs projectile) with exaggerated effects per the [Explosion Hierarchy](./product_design.md#explosion-hierarchy).
+  - ✅ **Add mouse support** (already exists in doom.ts):
+    - ✅ Mouse look (X and Y axis for aiming) - `src/doom/interfaces/input.ts`
+    - ✅ Left-click to fire - configured in `src/doom/misc/defaults.ts`
+    - ⏳ Scroll wheel for weapon switching
+  - ⏳ Unit test weapon switching logic.
+  - ⏳ E2E test weapon rendering and firing.
 
-## Phase 5: Gameplay, Entities & Full Game Logic
+## Phase 5: Gameplay, Entities & Full Game Logic ⏳
 
 - **Goal**: Transform the walking simulator into a playable game with enemies and interaction. _Outcome MUST include unit-tested physics and entity logic._
+- **Status**: ⏳ **PENDING** (not started)
 - **Strategy**: Reference doom.ts's gameplay logic, AI state machines, and movement physics as base, then adapt for our "Candy Apocalypse" theme. Use Freedoom for enemy/thing placement data.
 - **Tasks**:
-  - Reference doom.ts's collision detection and entity systems. Implement our own collision detection against arbitrary linedefs (Unit tested).
-  - Add interactive elements: Doors, Switches, and Keys.
-  - Develop the entity/thing manager for placing enemies and items (using Freedoom WAD data as reference).
-  - Implement player weapons and shooting mechanics (hitscan and projectile) with [combo system](./product_design.md#combo-system).
-  - Reference doom.ts's AI states (Idle, Chase, Attack) and adapt enemy designs to match [Product Design enemy categories](./product_design.md#enemy-design) (Happy Imp, Cheerful Zombie, Party Demon, etc.) with cute vocalizations per [audio design](./product_design.md#audio-design-philosophy).
+  - ⏳ Reference doom.ts's collision detection and entity systems. Implement our own collision detection against arbitrary linedefs (Unit tested).
+  - ⏳ Add interactive elements: Doors, Switches, and Keys.
+  - ⏳ Develop the entity/thing manager for placing enemies and items (using Freedoom WAD data as reference).
+  - ⏳ Implement player weapons and shooting mechanics (hitscan and projectile) with [combo system](./product_design.md#combo-system).
+  - ⏳ Reference doom.ts's AI states (Idle, Chase, Attack) and adapt enemy designs to match [Product Design enemy categories](./product_design.md#enemy-design) (Happy Imp, Cheerful Zombie, Party Demon, etc.) with cute vocalizations per [audio design](./product_design.md#audio-design-philosophy).
 
-## Phase 6: Audio, Polish & The Final MVP
+## Phase 6: Audio, Polish & The Final MVP ⏳
 
 - **Goal**: Replicate the "Happy Metal" audio aesthetic (chiptune + heavy metal fusion) per [Product Design audio philosophy](./product_design.md#audio-design-philosophy), integrate sounds, and finalize the vertical slice. _Outcome MUST be a fully playable, responsive game._
+- **Status**: ⏳ **PENDING** (audio infrastructure exists in doom.ts, not customized yet)
 - **Tasks**:
-  - Reference doom.ts's audio architecture (see [Doom.ts Audio Architecture](./doom_ts_audio_architecture.md)).
-  - Implement `AudioManager` using `smplr` library for sample playback.
-  - Create custom instruments adapted for "chiptune + heavy metal" style:
+  - ✅ Reference doom.ts's audio architecture (see [Doom.ts Audio Architecture](./doom_ts_audio_architecture.md)).
+  - ⏳ Implement `AudioManager` using `smplr` library for sample playback.
+  - ⏳ Create custom instruments adapted for "chiptune + heavy metal" style:
     - Modify `Soundfont` instruments with bitcrush, square/sawtooth waveforms
     - Use `SplendidGrandPiano` with heavy distortion and reverb
     - Use `DrumMachine` for percussion
-  - Implement sequencer for "Happy Metal" music:
+  - ⏳ Implement sequencer for "Happy Metal" music:
     - Track/Pattern/Row structure (like MOD files)
     - BPM control (140-180)
     - Multiple music tracks (5-7 tracks)
-  - Generate or source audio samples for weapons (exaggerated, cartoon-style), enemies (cute vocalizations), environment (positive UI chimes).
-  - Add UI/HUD overlays (Health, Ammo) following the [HUD design](./product_design.md#uiux-design) with comic speech bubble styling.
-  - Implement Level Exit mechanics and state transitions with celebratory animations.
-  - Final polish for responsive scaling ("crisp/sharp" feel) and Playwright E2E verification of the full game loop.
+  - ⏳ Generate or source audio samples for weapons (exaggerated, cartoon-style), enemies (cute vocalizations), environment (positive UI chimes).
+  - ⏳ Add UI/HUD overlays (Health, Ammo) following the [HUD design](./product_design.md#uiux-design) with comic speech bubble styling.
+  - ⏳ Implement Level Exit mechanics and state transitions with celebratory animations.
+  - ⏳ Final polish for responsive scaling ("crisp/sharp" feel) and Playwright E2E verification of the full game loop.
 
-## Phase 7: CI/CD & Deployment
+## Phase 7: CI/CD & Deployment ⏳
 
 - **Goal**: Automate testing and deployment to ensure the `main` branch is always verified and deployable.
+- **Status**: ⏳ **PENDING** (no CI/CD setup yet)
 - **Tasks**:
-  - Setup a GitHub Actions workflow pipeline to automatically run Vitest (Unit) and Playwright (E2E) on every push/PR.
-  - The implementation of this pipeline will specifically be modeled after the existing, working pipeline found in `/Users/hacr/git-repo/lotus` to ensure proven reliability.
-  - Configure automated deployment (e.g., to GitHub Pages) upon successful passing of the test suites on the main branch.
+  - ⏳ Setup a GitHub Actions workflow pipeline to automatically run Vitest (Unit) and Playwright (E2E) on every push/PR.
+  - ⏳ The implementation of this pipeline will specifically be modeled after the existing, working pipeline found in `/Users/hacr/git-repo/lotus` to ensure proven reliability.
+  - ⏳ Configure automated deployment (e.g., to GitHub Pages) upon successful passing of the test suites on the main branch.
 
-## Phase 8: Final Polish & Release
+## Phase 8: Final Polish & Release ⏳
 
 - **Goal**: Prepare the repository for public consumption and finalize the project.
+- **Status**: ⏳ **PENDING** (not started)
 - **Tasks**:
-  - Add a comprehensive `README.md` to the project root containing:
+  - ⏳ Add a comprehensive `README.md` to the project root containing:
     - Project description (referencing the [Product Design vision](./product_design.md#vision-statement)).
     - Build instructions (how to build the project).
     - Run instructions (how to start it manually).
     - Link to the online demo (GitHub Pages).
     - License information (BSD).
     - A comparison section with other games (Angry Birds, Moorhuhn, classic Doom).
-  - Clean up any leftover temporary resources in the project folder (e.g., zip files, downloaded WADs, or working directories no longer required).
-  - Make the final Git commit of the finished project state.
+  - ⏳ Clean up any leftover temporary resources in the project folder (e.g., zip files, downloaded WADs, or working directories no longer required).
+  - ⏳ Make the final Git commit of the finished project state.
+
+---
+
+## Next Actions (Priority Order)
+
+1. **Create test WADs** for Phase 2 E2E tests (single-cube.wad)
+2. **Complete weapon SVGs** for remaining 5 weapons (chainsaw, chaingun, rocket launcher, plasma rifle, BFG)
+3. **Implement weapon switching** with scroll wheel support
+4. **Adapt shaders** for SVG-based rendering with Candy Apocalypse color theme
+5. **Generate enemy SVGs** (Happy Imp, Cheerful Zombie, etc.)

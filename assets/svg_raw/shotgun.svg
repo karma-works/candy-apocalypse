@@ -1,14 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-<g transform="translate(100, 150)">
-            
-            <rect x="5" y="-100" width="30" height="120" fill="#222" rx="5" />
-            <ellipse cx="20" cy="-100" rx="15" ry="5" fill="#000" />
-            
-            <rect x="-35" y="-100" width="30" height="120" fill="#222" rx="5" />
-            <ellipse cx="-20" cy="-100" rx="15" ry="5" fill="#000" />
-            
-            <rect x="-5" y="-95" width="10" height="110" fill="#444" />
-            
-            <path d="M -40 20 Q 0 -10 40 20 L 50 60 L -50 60 Z" fill="#4a2e15" />
-          </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <g transform="translate(128, 240)">
+    <path d="M -50 0 L 50 0 L 35 -40 L -35 -40 Z" fill="#8B4513" stroke="#1A1A2E" stroke-width="4"/>
+    
+    <path d="M -35 -40 L -15 -40 L -10 -120 L -25 -120 Z" fill="#1A1A2E"/>
+    <path d="M 15 -40 L 35 -40 L 25 -120 L 10 -120 Z" fill="#1A1A2E"/>
+    
+    <ellipse cx="-18" cy="-120" rx="6" ry="3" fill="#1A1A2E"/>
+    <ellipse cx="18" cy="-120" rx="6" ry="3" fill="#1A1A2E"/>
+    
+    <path d="M -10 -120 L 10 -120 L 5 -160 L -5 -160 Z" fill="#4a4a4a" stroke="#1A1A2E" stroke-width="3"/>
+    
+    <path d="M -55 0 L -35 0 L -35 -20 L -50 -20 Z" fill="#FF6B35" stroke="#1A1A2E" stroke-width="3"/>
+    
+    <circle cx="0" cy="-20" r="6" fill="#FFE135" stroke="#1A1A2E" stroke-width="2"/>
+    
+    <text x="0" y="-70" text-anchor="middle" font-size="12" font-weight="bold" fill="#FF6B35" font-family="Arial Black">CLICK!</text>
+  </g>
 </svg>
