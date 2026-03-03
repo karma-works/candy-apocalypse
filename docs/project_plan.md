@@ -13,13 +13,13 @@
 
 ## Implementation Status Overview
 
-**Current Phase**: Phase 4 (Weapons & Mouse Input) - In Progress
+**Current Phase**: Phase 3 & 4 (Vectorization & Weapons) - In Progress
 
 **Overall Progress**:
 
 - Phase 1: ✅ Complete (78% test coverage achieved)
 - Phase 2: ✅ Complete (test WADs created, E2E tests written)
-- Phase 3: 🔄 In Progress (18 SVGs in spritemap, all 7 weapons designed)
+- Phase 3: 🔄 In Progress (44 SVGs in spritemap, all 7 weapons + 13 enemies designed)
 - Phase 4: 🔄 In Progress (weapon switching with scroll wheel implemented)
 - Phase 5: ⏳ Pending
 - Phase 6: ⏳ Pending
@@ -63,7 +63,7 @@
 ## Phase 3: Vectorization, Atmosphere & Shaders 🔄
 
 - **Goal**: Use SVGs as textures in Three.js. Keep Three.js for the 3D scene graph and camera perspective, but replace standard texture mapping with our SVG spritemap system. Generate comic-style SVGs following the [Product Design styleguide](./product_design.md#visual-style-guide), and integrate modern visual effects. _Outcome MUST be verifiable visually and via E2E tests._
-- **Status**: 🔄 **IN PROGRESS** (18 SVGs in spritemap, all 7 weapons complete, shaders pending)
+- **Status**: 🔄 **IN PROGRESS** (44 SVGs in spritemap, all 7 weapons + 13 enemies complete, shaders pending)
 - **Performance Requirement**: The game must run at a consistent **30 FPS**. If raw SVG manipulation is too slow, introduce a pre-rendering step to rasterize SVGs to `OffscreenCanvas` contexts during load to guarantee performance (See [Product Design Memory Management](./product_design.md#pre-rasterization-and-memory-management)).
 - **Tasks**:
   - ✅ Reference doom.ts's Three.js renderer implementation for 3D engine structure.
@@ -74,8 +74,13 @@
     - Outlines: Deep Space (#1A1A2E) at 3-5px stroke width
     - Style: Chibi-cute characters, oversized weapons, pop-art environments
   - **Asset Generation Contingency Plan**: To avoid development bottlenecks waiting for final AI-generated SVGs during Phases 2-5, simple colored geometric vector placeholders (e.g., a pink triangle for an Imp, a yellow block for a door) will be used. This ensures all gameplay loops and logic parsing can be verified independently of final art delivery.
-  - ✅ SVGs available in `public/assets/spritemap.svg` (18 symbols: pistol, shotgun, chainsaw, chaingun, rocket_launcher, plasma_rifle, bfg, barrel, door, imp, wall_base, and wrappers)
+  - ✅ SVGs available in `public/assets/spritemap.svg` (44 symbols: all weapons, enemies, props)
   - ✅ **Generate weapon SVGs** with first-person perspective, trapezoid shape (all 7 weapons complete 2026-03-03)
+  - ✅ **Generate enemy SVGs** (13 enemies complete 2026-03-03):
+    - Tier 1: Happy Imp, Cheerful Zombie, Party Demon
+    - Tier 2: Disco Cacodemon, Skateboard Baron, DJ Mancubus
+    - Tier 3 Bosses: Birthday Boy, Disco Inferno, Doom Clown
+    - Satirical: Suicide Sheep, Business Imp, Karen Demon, Pigeon Possessed
   - ✅ Create the SVG CLI pack/unpack script (`scripts/svg-spritemap.mjs`)
   - ⏳ Adapt doom.ts's shader/lighting system to work with our SVG-based rendering and gradient presets from the styleguide.
   - ⏳ Implement modern visual effect systems (Happy Fire, Plasma Beam, Toxic Goo effects per [gradient presets](./product_design.md#gradient-presets-use-for-effects)).

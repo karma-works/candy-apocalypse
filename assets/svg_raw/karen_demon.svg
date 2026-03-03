@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="karenHair" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFE135"/>
+      <stop offset="100%" stop-color="#FF6B35"/>
+    </linearGradient>
+    <linearGradient id="karenFace" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFB7C5"/>
+      <stop offset="100%" stop-color="#FF6B35"/>
+    </linearGradient>
+    <filter id="karenGlow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  
+  <ellipse cx="50" cy="95" rx="30" ry="5" fill="#1A1A2E" opacity="0.2"/>
+  
+  <path d="M 20 25 Q 15 0 30 -5 Q 50 -10 70 -5 Q 85 0 80 25 Q 75 15 50 12 Q 25 15 20 25 Z" fill="url(#karenHair)" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <path d="M 15 20 Q 10 30 15 40 Q 20 35 25 25 Z" fill="url(#karenHair)" stroke="#1A1A2E" stroke-width="2"/>
+  <path d="M 85 20 Q 90 30 85 40 Q 80 35 75 25 Z" fill="url(#karenHair)" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <ellipse cx="50" cy="45" rx="35" ry="40" fill="url(#karenFace)" stroke="#1A1A2E" stroke-width="3" filter="url(#karenGlow)"/>
+  
+  <ellipse cx="35" cy="38" rx="10" ry="12" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+  <ellipse cx="65" cy="38" rx="10" ry="12" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <circle cx="37" cy="40" r="6" fill="#FF0044"/>
+  <circle cx="67" cy="40" r="6" fill="#FF0044"/>
+  <circle cx="39" cy="38" r="2" fill="#FFFFFF"/>
+  <circle cx="69" cy="38" r="2" fill="#FFFFFF"/>
+  
+  <line x1="28" y1="32" x2="42" y2="28" stroke="#1A1A2E" stroke-width="3" stroke-linecap="round"/>
+  <line x1="58" y1="28" x2="72" y2="32" stroke="#1A1A2E" stroke-width="3" stroke-linecap="round"/>
+  
+  <path d="M 38 60 Q 50 55 62 60" stroke="#1A1A2E" stroke-width="3" fill="none"/>
+  
+  <ellipse cx="50" cy="72" rx="8" ry="4" fill="#FF0044" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <circle cx="28" cy="50" r="5" fill="#FFB7C5" opacity="0.6"/>
+  <circle cx="72" cy="50" r="5" fill="#FFB7C5" opacity="0.6"/>
+  
+  <rect x="10" y="60" width="25" height="15" rx="5" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+  <text x="22" y="70" text-anchor="middle" font-size="4" fill="#1A1A2E" font-weight="bold">MANAGER!</text>
+  
+  <path d="M 5 67 Q 0 67 5 67" stroke="#1A1A2E" stroke-width="1"/>
+  
+  <circle cx="25" cy="25" r="2" fill="#FFE135"/>
+  <circle cx="75" cy="25" r="2" fill="#32FF00"/>
+  <circle cx="50" cy="15" r="1.5" fill="#00D4FF"/>
+  
+  <circle cx="42" cy="48" r="1" fill="#9B5DE5"/>
+  <circle cx="58" cy="48" r="1" fill="#9B5DE5"/>
+</svg>

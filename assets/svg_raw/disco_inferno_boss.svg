@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 160">
+  <defs>
+    <linearGradient id="discoBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9B5DE5"/>
+      <stop offset="25%" stop-color="#00D4FF"/>
+      <stop offset="50%" stop-color="#32FF00"/>
+      <stop offset="75%" stop-color="#FFE135"/>
+      <stop offset="100%" stop-color="#FF0044"/>
+    </linearGradient>
+    <radialGradient id="discoBall" cx="30%" cy="30%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="50%" stop-color="#C0C0C0"/>
+      <stop offset="100%" stop-color="#4A4A5C"/>
+    </radialGradient>
+    <filter id="discoInfernoGlow">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  
+  <ellipse cx="90" cy="155" rx="70" ry="5" fill="#1A1A2E" opacity="0.3"/>
+  
+  <rect x="40" y="120" width="30" height="38" rx="10" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="4"/>
+  <rect x="110" y="120" width="30" height="38" rx="10" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="4"/>
+  
+  <ellipse cx="90" cy="85" rx="75" ry="65" fill="url(#discoBody)" stroke="#1A1A2E" stroke-width="5" filter="url(#discoInfernoGlow)"/>
+  
+  <path d="M 15 70 Q -5 60 5 45 Q 20 55 25 65 Z" fill="#FF6B35" stroke="#1A1A2E" stroke-width="3"/>
+  <path d="M 165 70 Q 185 60 175 45 Q 160 55 155 65 Z" fill="#FF6B35" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <ellipse cx="90" cy="45" rx="55" ry="50" fill="url(#discoBody)" stroke="#1A1A2E" stroke-width="4"/>
+  
+  <circle cx="90" cy="10" r="25" fill="url(#discoBall)" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <line x1="75" y1="0" x2="85" y2="20" stroke="#1A1A2E" stroke-width="1"/>
+  <line x1="90" y1="-5" x2="90" y2="20" stroke="#1A1A2E" stroke-width="1"/>
+  <line x1="105" y1="0" x2="95" y2="20" stroke="#1A1A2E" stroke-width="1"/>
+  <line x1="70" y1="15" x2="80" y2="15" stroke="#1A1A2E" stroke-width="1"/>
+  <line x1="100" y1="15" x2="110" y2="15" stroke="#1A1A2E" stroke-width="1"/>
+  
+  <ellipse cx="60" cy="40" rx="14" ry="16" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+  <ellipse cx="120" cy="40" rx="14" ry="16" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <circle cx="63" cy="43" r="8" fill="#FF0044"/>
+  <circle cx="123" cy="43" r="8" fill="#FF0044"/>
+  <circle cx="65" cy="41" r="3" fill="#FFFFFF"/>
+  <circle cx="125" cy="41" r="3" fill="#FFFFFF"/>
+  
+  <path d="M 70 70 Q 90 90 110 70" stroke="#1A1A2E" stroke-width="4" fill="none"/>
+  <path d="M 75 72 L 77 80 L 79 72" fill="#FFFFFF"/>
+  <path d="M 85 76 L 87 84 L 89 76" fill="#FFFFFF"/>
+  <path d="M 95 76 L 97 84 L 99 76" fill="#FFFFFF"/>
+  <path d="M 105 72 L 107 80 L 109 72" fill="#FFFFFF"/>
+  
+  <circle cx="50" cy="60" r="10" fill="#FFB7C5" opacity="0.6"/>
+  <circle cx="130" cy="60" r="10" fill="#FFB7C5" opacity="0.6"/>
+  
+  <circle cx="45" cy="30" r="4" fill="#FFE135"/>
+  <circle cx="135" cy="32" r="4" fill="#32FF00"/>
+  <circle cx="80" cy="22" r="3" fill="#00D4FF"/>
+  <circle cx="100" cy="25" r="3" fill="#9B5DE5"/>
+  
+  <circle cx="20" cy="50" r="5" fill="#FF0044" opacity="0.7"/>
+  <circle cx="160" cy="50" r="5" fill="#FF6B35" opacity="0.7"/>
+  <circle cx="90" cy="110" r="4" fill="#FFE135" opacity="0.7"/>
+  
+  <text x="90" y="105" text-anchor="middle" font-size="10" fill="#FFFFFF" font-weight="bold">DANCE!</text>
+</svg>

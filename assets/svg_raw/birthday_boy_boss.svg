@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 140">
+  <defs>
+    <linearGradient id="bossBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFB7C5"/>
+      <stop offset="50%" stop-color="#FF6B35"/>
+      <stop offset="100%" stop-color="#FF0044"/>
+    </linearGradient>
+    <linearGradient id="hatGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFE135"/>
+      <stop offset="100%" stop-color="#FF6B35"/>
+    </linearGradient>
+    <filter id="bossGlow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  
+  <ellipse cx="80" cy="135" rx="60" ry="5" fill="#1A1A2E" opacity="0.3"/>
+  
+  <rect x="30" y="105" width="25" height="32" rx="8" fill="url(#bossBody)" stroke="#1A1A2E" stroke-width="4"/>
+  <rect x="105" y="105" width="25" height="32" rx="8" fill="url(#bossBody)" stroke="#1A1A2E" stroke-width="4"/>
+  
+  <ellipse cx="80" cy="80" rx="65" ry="55" fill="url(#bossBody)" stroke="#1A1A2E" stroke-width="4" filter="url(#bossGlow)"/>
+  
+  <path d="M 20 60 Q 0 50 10 35 Q 25 45 30 55 Z" fill="#FF0044" stroke="#1A1A2E" stroke-width="3"/>
+  <path d="M 140 60 Q 160 50 150 35 Q 135 45 130 55 Z" fill="#FF0044" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <ellipse cx="80" cy="40" rx="45" ry="40" fill="url(#bossBody)" stroke="#1A1A2E" stroke-width="4"/>
+  
+  <ellipse cx="55" cy="35" rx="12" ry="14" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+  <ellipse cx="105" cy="35" rx="12" ry="14" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <circle cx="58" cy="38" r="7" fill="#FF0044"/>
+  <circle cx="108" cy="38" r="7" fill="#FF0044"/>
+  <circle cx="60" cy="36" r="3" fill="#FFFFFF"/>
+  <circle cx="110" cy="36" r="3" fill="#FFFFFF"/>
+  
+  <path d="M 65 60 Q 80 75 95 60" stroke="#1A1A2E" stroke-width="4" fill="none"/>
+  <path d="M 70 62 L 72 68 L 74 62" fill="#FFFFFF"/>
+  <path d="M 78 64 L 80 70 L 82 64" fill="#FFFFFF"/>
+  <path d="M 86 62 L 88 68 L 90 62" fill="#FFFFFF"/>
+  
+  <path d="M 30 -5 L 80 -40 L 130 -5 L 115 5 L 80 -25 L 45 5 Z" fill="url(#hatGrad)" stroke="#1A1A2E" stroke-width="4" filter="url(#bossGlow)"/>
+  
+  <circle cx="80" cy="-20" r="8" fill="#FF0044" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <ellipse cx="55" cy="-10" rx="6" ry="8" fill="#00D4FF" stroke="#1A1A2E" stroke-width="1"/>
+  <ellipse cx="105" cy="-10" rx="6" ry="8" fill="#32FF00" stroke="#1A1A2E" stroke-width="1"/>
+  <ellipse cx="65" cy="-15" rx="5" ry="7" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="1"/>
+  <ellipse cx="95" cy="-15" rx="5" ry="7" fill="#FFE135" stroke="#1A1A2E" stroke-width="1"/>
+  
+  <circle cx="40" cy="55" r="8" fill="#FFB7C5" opacity="0.6"/>
+  <circle cx="120" cy="55" r="8" fill="#FFB7C5" opacity="0.6"/>
+  
+  <circle cx="45" cy="28" r="3" fill="#FFE135"/>
+  <circle cx="115" cy="30" r="2.5" fill="#32FF00"/>
+  <circle cx="70" cy="18" r="2" fill="#00D4FF"/>
+  <circle cx="90" cy="20" r="2" fill="#9B5DE5"/>
+  
+  <text x="80" y="100" text-anchor="middle" font-size="8" fill="#FFFFFF" font-weight="bold">HBD!</text>
+</svg>

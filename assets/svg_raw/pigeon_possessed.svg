@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="pigeonBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#9B5DE5"/>
+      <stop offset="50%" stop-color="#4A4A5C"/>
+      <stop offset="100%" stop-color="#2D2D44"/>
+    </linearGradient>
+    <linearGradient id="pigeonWing" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#9B5DE5"/>
+      <stop offset="100%" stop-color="#FF6B35"/>
+    </linearGradient>
+    <filter id="pigeonGlow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  
+  <ellipse cx="50" cy="95" rx="30" ry="5" fill="#1A1A2E" opacity="0.2"/>
+  
+  <path d="M 15 45 Q 5 35 0 45 Q 5 55 15 50 Z" fill="url(#pigeonWing)" stroke="#1A1A2E" stroke-width="2"/>
+  <path d="M 85 45 Q 95 35 100 45 Q 95 55 85 50 Z" fill="url(#pigeonWing)" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <ellipse cx="50" cy="55" rx="30" ry="35" fill="url(#pigeonBody)" stroke="#1A1A2E" stroke-width="3" filter="url(#pigeonGlow)"/>
+  
+  <ellipse cx="50" cy="30" rx="22" ry="20" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <circle cx="40" cy="25" r="8" fill="#FF0044" stroke="#1A1A2E" stroke-width="2">
+    <animate attributeName="r" values="8;9;8" dur="0.2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="60" cy="25" r="8" fill="#FF0044" stroke="#1A1A2E" stroke-width="2">
+    <animate attributeName="r" values="8;9;8" dur="0.2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <circle cx="42" cy="24" r="3" fill="#1A1A2E"/>
+  <circle cx="62" cy="24" r="3" fill="#1A1A2E"/>
+  <circle cx="43" cy="23" r="1" fill="#FFFFFF"/>
+  <circle cx="63" cy="23" r="1" fill="#FFFFFF"/>
+  
+  <path d="M 45 18 L 40 10 L 50 15 L 60 10 L 55 18" fill="#FF6B35" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <path d="M 45 40 L 50 48 L 55 40 Z" fill="#FFE135" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <path d="M 25 70 Q 30 80 25 90" stroke="#FF6B35" stroke-width="4" fill="none"/>
+  <path d="M 75 70 Q 70 80 75 90" stroke="#FF6B35" stroke-width="4" fill="none"/>
+  
+  <circle cx="25" cy="92" r="4" fill="#FF6B35" stroke="#1A1A2E" stroke-width="2"/>
+  <circle cx="75" cy="92" r="4" fill="#FF6B35" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <ellipse cx="50" cy="82" rx="15" ry="10" fill="#4A4A5C" stroke="#1A1A2E" stroke-width="2"/>
+  <path d="M 40 80 Q 50 85 60 80" stroke="#1A1A2E" stroke-width="2" fill="none"/>
+  
+  <circle cx="30" cy="45" r="3" fill="#FFB7C5" opacity="0.6"/>
+  <circle cx="70" cy="45" r="3" fill="#FFB7C5" opacity="0.6"/>
+  
+  <circle cx="35" cy="18" r="2" fill="#32FF00"/>
+  <circle cx="65" cy="18" r="2" fill="#FFE135"/>
+  <circle cx="50" cy="10" r="1.5" fill="#00D4FF"/>
+  
+  <circle cx="42" cy="35" r="1.5" fill="#9B5DE5"/>
+  <circle cx="58" cy="35" r="1.5" fill="#9B5DE5"/>
+  
+  <text x="50" y="75" text-anchor="middle" font-size="5" fill="#FF0044" font-weight="bold">PECK!</text>
+</svg>

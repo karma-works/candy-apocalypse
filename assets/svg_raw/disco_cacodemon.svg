@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <radialGradient id="cacoBody" cx="40%" cy="30%">
+      <stop offset="0%" stop-color="#FFB7C5"/>
+      <stop offset="50%" stop-color="#9B5DE5"/>
+      <stop offset="100%" stop-color="#FF0044"/>
+    </radialGradient>
+    <linearGradient id="laserGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00D4FF"/>
+      <stop offset="50%" stop-color="#9B5DE5"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <filter id="discoGlow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  
+  <ellipse cx="50" cy="95" rx="35" ry="5" fill="#1A1A2E" opacity="0.2"/>
+  
+  <circle cx="50" cy="50" r="42" fill="url(#cacoBody)" stroke="#1A1A2E" stroke-width="4" filter="url(#discoGlow)"/>
+  
+  <path d="M 10 50 Q 5 40 15 35" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="2"/>
+  <path d="M 90 50 Q 95 40 85 35" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="2"/>
+  <path d="M 15 70 Q 5 75 10 85" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="2"/>
+  <path d="M 85 70 Q 95 75 90 85" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <rect x="22" y="35" width="56" height="20" rx="10" fill="#1A1A2E" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <ellipse cx="35" cy="45" rx="10" ry="7" fill="#32FF00" stroke="#FFFFFF" stroke-width="2"/>
+  <ellipse cx="65" cy="45" rx="10" ry="7" fill="#32FF00" stroke="#FFFFFF" stroke-width="2"/>
+  
+  <ellipse cx="35" cy="45" rx="5" ry="4" fill="#1A1A2E"/>
+  <ellipse cx="65" cy="45" rx="5" ry="4" fill="#1A1A2E"/>
+  <circle cx="33" cy="43" r="1.5" fill="#FFFFFF"/>
+  <circle cx="63" cy="43" r="1.5" fill="#FFFFFF"/>
+  
+  <path d="M 45 42 L 50 38 L 55 42" stroke="#1A1A2E" stroke-width="3" fill="none"/>
+  
+  <path d="M 35 70 Q 50 85 65 70" stroke="#1A1A2E" stroke-width="4" fill="none"/>
+  <path d="M 40 72 L 42 78 L 44 72" fill="#FFFFFF"/>
+  <path d="M 48 74 L 50 80 L 52 74" fill="#FFFFFF"/>
+  <path d="M 56 72 L 58 78 L 60 72" fill="#FFFFFF"/>
+  
+  <line x1="85" y1="50" x2="100" y2="50" stroke="url(#laserGrad)" stroke-width="6" stroke-linecap="round">
+    <animate attributeName="opacity" values="1;0.5;1" dur="0.5s" repeatCount="indefinite"/>
+  </line>
+  <circle cx="100" cy="50" r="5" fill="#FFFFFF">
+    <animate attributeName="opacity" values="1;0.5;1" dur="0.5s" repeatCount="indefinite"/>
+  </circle>
+  
+  <circle cx="25" cy="30" r="4" fill="#FFE135" opacity="0.8"/>
+  <circle cx="75" cy="30" r="4" fill="#00D4FF" opacity="0.8"/>
+  <circle cx="50" cy="20" r="3" fill="#32FF00" opacity="0.8"/>
+  
+  <circle cx="30" cy="65" r="8" fill="#FFFFFF" opacity="0.2"/>
+  <circle cx="70" cy="65" r="8" fill="#FFFFFF" opacity="0.2"/>
+  
+  <circle cx="15" cy="25" r="2" fill="#FFB7C5"/>
+  <circle cx="85" cy="28" r="2" fill="#FFB7C5"/>
+</svg>

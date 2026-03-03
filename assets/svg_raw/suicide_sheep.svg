@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <radialGradient id="sheepWool" cx="50%" cy="50%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#FFB7C5"/>
+    </radialGradient>
+    <linearGradient id="dynamiteGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FF0044"/>
+      <stop offset="100%" stop-color="#FF6B35"/>
+    </linearGradient>
+    <filter id="fuseGlow">
+      <feGaussianBlur stdDeviation="1" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  
+  <ellipse cx="50" cy="95" rx="35" ry="5" fill="#1A1A2E" opacity="0.3"/>
+  
+  <rect x="30" y="72" width="15" height="24" rx="5" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="3"/>
+  <rect x="55" y="72" width="15" height="24" rx="5" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <ellipse cx="50" cy="50" rx="40" ry="35" fill="url(#sheepWool)" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <circle cx="30" cy="40" r="10" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+  <circle cx="70" cy="40" r="10" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+  <circle cx="40" cy="55" r="12" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+  <circle cx="60" cy="55" r="12" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+  <circle cx="50" cy="65" r="11" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <ellipse cx="50" cy="25" rx="20" ry="18" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <ellipse cx="40" cy="22" rx="6" ry="7" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+  <ellipse cx="60" cy="22" rx="6" ry="7" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <circle cx="42" cy="24" r="3" fill="#1A1A2E"/>
+  <circle cx="62" cy="24" r="3" fill="#1A1A2E"/>
+  <circle cx="43" cy="23" r="1" fill="#FFFFFF"/>
+  <circle cx="63" cy="23" r="1" fill="#FFFFFF"/>
+  
+  <ellipse cx="50" cy="32" rx="4" ry="3" fill="#1A1A2E"/>
+  
+  <rect x="25" y="50" width="50" height="25" rx="5" fill="url(#dynamiteGrad)" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <rect x="32" y="55" width="6" height="15" rx="2" fill="#2D2D44" stroke="#1A1A2E" stroke-width="1"/>
+  <rect x="42" y="55" width="6" height="15" rx="2" fill="#2D2D44" stroke="#1A1A2E" stroke-width="1"/>
+  <rect x="52" y="55" width="6" height="15" rx="2" fill="#2D2D44" stroke="#1A1A2E" stroke-width="1"/>
+  <rect x="62" y="55" width="6" height="15" rx="2" fill="#2D2D44" stroke="#1A1A2E" stroke-width="1"/>
+  
+  <path d="M 70 55 Q 80 40 75 25" stroke="#1A1A2E" stroke-width="2" fill="none"/>
+  <circle cx="75" cy="25" r="4" fill="#FFE135" stroke="#FF6B35" stroke-width="2" filter="url(#fuseGlow)">
+    <animate attributeName="r" values="4;6;4" dur="0.3s" repeatCount="indefinite"/>
+  </circle>
+  
+  <text x="50" y="48" text-anchor="middle" font-size="5" fill="#FFFFFF" font-weight="bold">BOOM!</text>
+  
+  <circle cx="35" cy="15" r="3" fill="#FF6B35"/>
+  <circle cx="65" cy="15" r="3" fill="#FFE135"/>
+  
+  <circle cx="25" cy="45" r="2" fill="#32FF00"/>
+  <circle cx="75" cy="45" r="2" fill="#00D4FF"/>
+</svg>

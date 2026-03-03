@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80">
+  <defs>
+    <radialGradient id="skullGrad" cx="50%" cy="40%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="70%" stop-color="#FFB7C5"/>
+      <stop offset="100%" stop-color="#FF6B35"/>
+    </radialGradient>
+    <linearGradient id="boardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#9B5DE5"/>
+      <stop offset="50%" stop-color="#00D4FF"/>
+      <stop offset="100%" stop-color="#32FF00"/>
+    </linearGradient>
+    <linearGradient id="fireTrail" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF0044"/>
+      <stop offset="30%" stop-color="#FF6B35"/>
+      <stop offset="60%" stop-color="#FFE135"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+  </defs>
+  
+  <path d="M 0 50 Q 10 45 20 48 L 20 58 L 0 60 Z" fill="url(#fireTrail)" opacity="0.8"/>
+  <path d="M 5 52 Q 15 48 25 50 L 25 56 L 5 58 Z" fill="url(#fireTrail)" opacity="0.6"/>
+  
+  <rect x="20" y="50" width="70" height="12" rx="6" fill="url(#boardGrad)" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <circle cx="30" cy="62" r="8" fill="#4A4A5C" stroke="#1A1A2E" stroke-width="2"/>
+  <circle cx="30" cy="62" r="4" fill="#9B5DE5"/>
+  <circle cx="80" cy="62" r="8" fill="#4A4A5C" stroke="#1A1A2E" stroke-width="2"/>
+  <circle cx="80" cy="62" r="4" fill="#9B5DE5"/>
+  
+  <ellipse cx="60" cy="35" rx="30" ry="28" fill="url(#skullGrad)" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <ellipse cx="48" cy="30" rx="10" ry="12" fill="#1A1A2E"/>
+  <ellipse cx="72" cy="30" rx="10" ry="12" fill="#1A1A2E"/>
+  
+  <circle cx="50" cy="28" r="4" fill="#FF0044">
+    <animate attributeName="opacity" values="1;0.3;1" dur="0.3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="74" cy="28" r="4" fill="#FF0044">
+    <animate attributeName="opacity" values="1;0.3;1" dur="0.3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="51" cy="26" r="1.5" fill="#FFFFFF"/>
+  <circle cx="75" cy="26" r="1.5" fill="#FFFFFF"/>
+  
+  <path d="M 55 45 L 60 52 L 65 45" fill="#1A1A2E"/>
+  
+  <path d="M 45 52 Q 50 56 55 52 Q 60 56 65 52 Q 70 56 75 52" stroke="#1A1A2E" stroke-width="2" fill="none"/>
+  
+  <rect x="50" y="18" width="5" height="3" fill="#FF6B35" stroke="#1A1A2E" stroke-width="1" transform="rotate(-15 52 19)"/>
+  <rect x="65" y="18" width="5" height="3" fill="#FF6B35" stroke="#1A1A2E" stroke-width="1" transform="rotate(15 67 19)"/>
+  
+  <path d="M 35 20 Q 30 10 40 15" stroke="#FFB7C5" stroke-width="2" fill="none"/>
+  <path d="M 85 20 Q 90 10 80 15" stroke="#FFB7C5" stroke-width="2" fill="none"/>
+  
+  <circle cx="40" cy="40" r="3" fill="#FFE135" opacity="0.7"/>
+  <circle cx="80" cy="40" r="3" fill="#00D4FF" opacity="0.7"/>
+  
+  <text x="55" y="48" font-size="4" fill="#FF0044" font-weight="bold">RAD!</text>
+  
+  <circle cx="45" cy="22" r="1.5" fill="#32FF00"/>
+  <circle cx="75" cy="25" r="1" fill="#FFE135"/>
+</svg>

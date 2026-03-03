@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 100">
+  <defs>
+    <linearGradient id="mancubusBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#9B5DE5"/>
+      <stop offset="50%" stop-color="#FF6B35"/>
+      <stop offset="100%" stop-color="#FF0044"/>
+    </linearGradient>
+    <linearGradient id="speakerGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2D2D44"/>
+      <stop offset="100%" stop-color="#1A1A2E"/>
+    </linearGradient>
+    <filter id="soundWave">
+      <feGaussianBlur stdDeviation="1" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  
+  <ellipse cx="70" cy="95" rx="50" ry="5" fill="#1A1A2E" opacity="0.3"/>
+  
+  <rect x="25" y="75" width="20" height="22" rx="5" fill="#FF6B35" stroke="#1A1A2E" stroke-width="3"/>
+  <rect x="95" y="75" width="20" height="22" rx="5" fill="#FF6B35" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <ellipse cx="70" cy="55" rx="50" ry="40" fill="url(#mancubusBody)" stroke="#1A1A2E" stroke-width="4"/>
+  
+  <ellipse cx="50" cy="50" rx="18" ry="20" fill="url(#speakerGrad)" stroke="#1A1A2E" stroke-width="3"/>
+  <ellipse cx="90" cy="50" rx="18" ry="20" fill="url(#speakerGrad)" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <circle cx="50" cy="50" r="12" fill="#4A4A5C" stroke="#1A1A2E" stroke-width="2"/>
+  <circle cx="50" cy="50" r="7" fill="#2D2D44"/>
+  <circle cx="50" cy="50" r="3" fill="#FF0044">
+    <animate attributeName="r" values="3;5;3" dur="0.2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <circle cx="90" cy="50" r="12" fill="#4A4A5C" stroke="#1A1A2E" stroke-width="2"/>
+  <circle cx="90" cy="50" r="7" fill="#2D2D44"/>
+  <circle cx="90" cy="50" r="3" fill="#FF0044">
+    <animate attributeName="r" values="3;5;3" dur="0.2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <ellipse cx="70" cy="20" rx="25" ry="22" fill="url(#mancubusBody)" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <ellipse cx="60" cy="18" rx="7" ry="8" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+  <ellipse cx="80" cy="18" rx="7" ry="8" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <circle cx="62" cy="20" r="4" fill="#1A1A2E"/>
+  <circle cx="82" cy="20" r="4" fill="#1A1A2E"/>
+  <circle cx="63" cy="19" r="1.5" fill="#FFFFFF"/>
+  <circle cx="83" cy="19" r="1.5" fill="#FFFFFF"/>
+  
+  <path d="M 60 32 Q 70 38 80 32" stroke="#1A1A2E" stroke-width="3" fill="none"/>
+  
+  <path d="M 52 8 Q 48 0 55 5" fill="#FF6B35" stroke="#1A1A2E" stroke-width="2"/>
+  <path d="M 88 8 Q 92 0 85 5" fill="#FF6B35" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <circle cx="55" cy="25" r="4" fill="#FFB7C5" opacity="0.6"/>
+  <circle cx="85" cy="25" r="4" fill="#FFB7C5" opacity="0.6"/>
+  
+  <path d="M 0 45 Q 10 40 20 45 Q 10 50 0 45" fill="#00D4FF" opacity="0.7" filter="url(#soundWave)">
+    <animate attributeName="opacity" values="0.7;0.2;0.7" dur="0.3s" repeatCount="indefinite"/>
+  </path>
+  <path d="M 120 45 Q 130 40 140 45 Q 130 50 120 45" fill="#00D4FF" opacity="0.7" filter="url(#soundWave)">
+    <animate attributeName="opacity" values="0.7;0.2;0.7" dur="0.3s" repeatCount="indefinite"/>
+  </path>
+  
+  <circle cx="40" cy="70" r="3" fill="#FFE135"/>
+  <circle cx="100" cy="70" r="3" fill="#32FF00"/>
+  <circle cx="70" cy="85" r="2" fill="#00D4FF"/>
+  
+  <text x="50" y="68" font-size="5" fill="#FFFFFF" font-weight="bold">DJ</text>
+  <text x="80" y="68" font-size="5" fill="#FFFFFF" font-weight="bold">DJ</text>
+</svg>
