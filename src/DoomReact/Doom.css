@@ -7,12 +7,83 @@
   position: absolute;
   top: 0;
   left: 0;
-  /* image-rendering: pixelated;
-  outline: none; */
+  image-rendering: crisp-edges;
+  outline: none;
 }
 
 .FocusInfo {
   position: fixed;
   bottom: 0;
   margin: 16px;
+  font-family: 'Inter', sans-serif;
 }
+
+.candy-hud {
+  position: fixed;
+  bottom: 40px;
+  left: 40px;
+  display: flex;
+  gap: 30px;
+  font-family: 'Fredoka', 'Inter', sans-serif;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.hud-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(26, 26, 46, 0.85);
+  padding: 15px 25px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.hud-icon {
+  font-size: 28px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.hud-label {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.hud-value {
+  font-size: 32px;
+  font-weight: 700;
+  min-width: 60px;
+  text-align: right;
+}
+
+.health-container.health-high .hud-icon,
+.health-container.health-high .hud-value {
+  color: #00D4FF;
+}
+
+.health-container.health-medium .hud-icon,
+.health-container.health-medium .hud-value {
+  color: #FFE135;
+}
+
+.health-container.health-low .hud-icon,
+.health-container.health-low .hud-value {
+  color: #FF0044;
+  animation: pulse 0.5s ease-in-out infinite;
+}
+
+.ammo-container .hud-icon,
+.ammo-container .hud-value {
+  color: #FFB7C5;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');

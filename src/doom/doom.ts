@@ -236,8 +236,6 @@ export class Doom {
   wipeGameState = GameState.DemoScreen;
   private viewActiveState = false;
   private menuActiveState = false;
-  private inHelpScreenState = false;
-  private fullScreen = false;
   private oldGameState: GameState = -1;
   private borderDrawCount = 0;
   //
@@ -251,7 +249,6 @@ export class Doom {
     }
 
     let wipe: boolean;
-    let redrawsBar = false;
 
     // change the view size if needed
     if (this.rendering.setSizeNeeded) {
@@ -282,15 +279,7 @@ export class Doom {
         if (this.autoMap.active) {
           this.autoMap.drawer();
         }
-        if (wipe || (!this.rendering.fullScreen && this.fullScreen)) {
-          redrawsBar = true;
-        }
-        // just put away the help screen
-        if (this.inHelpScreenState && !this.menu.inHelpScreens) {
-          redrawsBar = true;
-        }
-        this.statusBar.drawer(this.rendering.fullScreen, redrawsBar);
-        this.fullScreen = this.rendering.fullScreen;
+        this.statusBar.drawer();
         break;
       case GameState.Intermission:
         this.win.drawer();
@@ -358,13 +347,12 @@ export class Doom {
         // erase old menu stuff
         this.rendering.drawViewBorder();
         this.borderDrawCount--;
-        this.statusBar.drawer(this.rendering.fullScreen, true);
+        this.statusBar.drawer();
       }
     }
 
     this.menuActiveState = this.menu.menuActive;
     this.viewActiveState = this.game.viewActive;
-    this.inHelpScreenState = this.menu.inHelpScreens;
     this.oldGameState = this.wipeGameState = this.game.gameState;
 
     // draw pause pic

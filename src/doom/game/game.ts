@@ -146,8 +146,10 @@ export class Game {
   keyLeft = ScanCode.ArrowLeft;
   keyUp = ScanCode.ArrowUp;
   keyDown = ScanCode.ArrowDown;
-  keyStrafeLeft = ScanCode.Comma;
-  keyStrafeRight = ScanCode.Period;
+  keyStrafeLeft = ScanCode.KeyA;
+  keyStrafeRight = ScanCode.KeyD;
+  keyForward = ScanCode.KeyW;
+  keyBackward = ScanCode.KeyS;
   keyFire = ScanCode.ControlLeft;
   keyUse = ScanCode.Space;
   keyStrafe = ScanCode.AltLeft;
@@ -321,10 +323,10 @@ export class Game {
       }
     }
 
-    if (this.gameKeyDown[this.keyUp]) {
+    if (this.gameKeyDown[this.keyUp] || this.gameKeyDown[this.keyForward]) {
       forward += this.forwardMove[speed];
     }
-    if (this.gameKeyDown[this.keyDown]) {
+    if (this.gameKeyDown[this.keyDown] || this.gameKeyDown[this.keyBackward]) {
       forward -= this.forwardMove[speed];
     }
     if (this.joyYMove < 0) {
