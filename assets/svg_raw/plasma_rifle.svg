@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300">
+  <defs>
+    <linearGradient id="plasmaBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#00D4FF"/>
+      <stop offset="100%" stop-color="#9B5DE5"/>
+    </linearGradient>
+    <linearGradient id="plasmaGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#32FF00"/>
+      <stop offset="50%" stop-color="#00D4FF"/>
+      <stop offset="100%" stop-color="#9B5DE5"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Handle grip - bottom, wider -->
+  <rect x="55" y="230" width="90" height="60" rx="8" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="4"/>
+  <rect x="63" y="238" width="74" height="44" rx="6" fill="#7B3CE3" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <!-- Main body - trapezoid shape -->
+  <polygon points="50,230 150,230 135,100 65,100" fill="url(#plasmaBody)" stroke="#1A1A2E" stroke-width="4"/>
+  
+  <!-- Energy core -->
+  <circle cx="100" cy="180" r="25" fill="#FFE135" stroke="#1A1A2E" stroke-width="3" filter="url(#glow)"/>
+  <circle cx="100" cy="180" r="15" fill="#FFB7C5"/>
+  <circle cx="100" cy="180" r="8" fill="#1A1A2E"/>
+  
+  <!-- Barrel assembly - top, narrower -->
+  <rect x="70" y="50" width="60" height="50" rx="8" fill="#1A1A2E" stroke="#1A1A2E" stroke-width="3"/>
+  <rect x="80" y="55" width="40" height="40" rx="5" fill="url(#plasmaGlow)" filter="url(#glow)"/>
+  
+  <!-- Plasma muzzle -->
+  <ellipse cx="100" cy="45" rx="20" ry="12" fill="#32FF00" stroke="#1A1A2E" stroke-width="3" filter="url(#glow)"/>
+  <ellipse cx="100" cy="45" rx="12" ry="7" fill="#00D4FF"/>
+  
+  <!-- Electric arc effects -->
+  <path d="M 85,45 L 80,30 L 90,35 L 85,20" fill="none" stroke="#32FF00" stroke-width="3" stroke-linecap="round"/>
+  <path d="M 115,45 L 120,30 L 110,35 L 115,20" fill="none" stroke="#00D4FF" stroke-width="3" stroke-linecap="round"/>
+  <path d="M 100,38 L 100,15" fill="none" stroke="#9B5DE5" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Sci-fi panel details -->
+  <rect x="60" y="120" width="15" height="40" rx="2" fill="#32FF00" stroke="#1A1A2E" stroke-width="2"/>
+  <rect x="125" y="120" width="15" height="40" rx="2" fill="#32FF00" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <!-- Excited glow dots -->
+  <circle cx="65" cy="140" r="4" fill="#FFB7C5"/>
+  <circle cx="135" cy="140" r="4" fill="#FFB7C5"/>
+  
+  <!-- Nerd text -->
+  <text x="100" y="280" text-anchor="middle" font-family="Courier New, monospace" font-size="14" 
+        fill="#1A1A2E" font-weight="bold">*BZZZT*</text>
+</svg>

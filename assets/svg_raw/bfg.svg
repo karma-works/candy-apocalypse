@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300">
+  <defs>
+    <linearGradient id="bfgBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#32FF00"/>
+      <stop offset="50%" stop-color="#00D4FF"/>
+      <stop offset="100%" stop-color="#9B5DE5"/>
+    </linearGradient>
+    <linearGradient id="bfgCore" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF0044"/>
+      <stop offset="50%" stop-color="#FFE135"/>
+      <stop offset="100%" stop-color="#32FF00"/>
+    </linearGradient>
+    <filter id="megaGlow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Handle grip - bottom, wider -->
+  <rect x="45" y="230" width="110" height="60" rx="10" fill="#FF6B35" stroke="#1A1A2E" stroke-width="5"/>
+  <rect x="53" y="238" width="94" height="44" rx="8" fill="#CC5528" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <!-- Main massive body - trapezoid shape -->
+  <polygon points="40,230 160,230 145,80 55,80" fill="url(#bfgBody)" stroke="#1A1A2E" stroke-width="5"/>
+  
+  <!-- Huge energy core -->
+  <circle cx="100" cy="170" r="40" fill="url(#bfgCore)" stroke="#1A1A2E" stroke-width="4" filter="url(#megaGlow)"/>
+  <circle cx="100" cy="170" r="28" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="3"/>
+  <circle cx="100" cy="170" r="16" fill="#32FF00" filter="url(#megaGlow)"/>
+  <circle cx="100" cy="170" r="8" fill="#FFFFFF"/>
+  
+  <!-- Barrel assembly - top, narrower -->
+  <polygon points="60,80 140,80 130,30 70,30" fill="#1A1A2E" stroke="#1A1A2E" stroke-width="4"/>
+  <polygon points="70,80 130,80 120,40 80,40" fill="#32FF00" stroke="#1A1A2E" stroke-width="3" filter="url(#megaGlow)"/>
+  
+  <!-- Mega muzzle -->
+  <ellipse cx="100" cy="25" rx="30" ry="18" fill="#32FF00" stroke="#1A1A2E" stroke-width="4" filter="url(#megaGlow)"/>
+  <ellipse cx="100" cy="25" rx="20" ry="12" fill="#00D4FF"/>
+  <ellipse cx="100" cy="25" rx="10" ry="6" fill="#FFFFFF"/>
+  
+  <!-- Disco party effects -->
+  <circle cx="60" cy="50" r="5" fill="#FF0044"/>
+  <circle cx="140" cy="50" r="5" fill="#9B5DE5"/>
+  <circle cx="75" cy="35" r="4" fill="#FFB7C5"/>
+  <circle cx="125" cy="35" r="4" fill="#FFE135"/>
+  
+  <!-- Screen flash lines -->
+  <line x1="50" y1="10" x2="150" y2="10" stroke="#FFFFFF" stroke-width="2" opacity="0.5"/>
+  <line x1="45" y1="18" x2="155" y2="18" stroke="#32FF00" stroke-width="2" opacity="0.5"/>
+  
+  <!-- Energy coils -->
+  <path d="M 55,120 Q 100,100 145,120" fill="none" stroke="#FFE135" stroke-width="4"/>
+  <path d="M 55,140 Q 100,120 145,140" fill="none" stroke="#FF6B35" stroke-width="4"/>
+  
+  <!-- Party animal text -->
+  <text x="100" y="280" text-anchor="middle" font-family="Impact, sans-serif" font-size="20" 
+        fill="#1A1A2E" font-weight="bold" letter-spacing="2">PARTY!</text>
+</svg>

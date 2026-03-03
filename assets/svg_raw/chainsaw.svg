@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300">
+  <defs>
+    <linearGradient id="chainsawBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FF6B35"/>
+      <stop offset="100%" stop-color="#FF0044"/>
+    </linearGradient>
+    <linearGradient id="chainTeeth" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFE135"/>
+      <stop offset="100%" stop-color="#FF6B35"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Handle grip - bottom, wider -->
+  <rect x="40" y="220" width="120" height="70" rx="10" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="4"/>
+  <rect x="50" y="230" width="100" height="50" rx="8" fill="#7B3CE3" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <!-- Main body - trapezoid shape -->
+  <polygon points="50,220 150,220 140,140 60,140" fill="url(#chainsawBody)" stroke="#1A1A2E" stroke-width="4"/>
+  
+  <!-- Engine housing -->
+  <rect x="55" y="150" width="90" height="60" rx="5" fill="#32FF00" stroke="#1A1A2E" stroke-width="3"/>
+  <circle cx="100" cy="180" r="20" fill="#1A1A2E"/>
+  <circle cx="100" cy="180" r="12" fill="#FFE135"/>
+  
+  <!-- Guide bar - top, narrower -->
+  <rect x="70" y="40" width="60" height="100" rx="5" fill="#00D4FF" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <!-- Chain teeth -->
+  <polygon points="75,140 75,45 65,45 65,135" fill="url(#chainTeeth)" stroke="#1A1A2E" stroke-width="2"/>
+  <polygon points="125,140 125,45 135,45 135,135" fill="url(#chainTeeth)" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <!-- Cartoon teeth on chain -->
+  <path d="M 80,50 L 85,40 L 90,50 L 95,40 L 100,50 L 105,40 L 110,50 L 115,40 L 120,50" 
+        fill="none" stroke="#1A1A2E" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Confetti spray effect -->
+  <circle cx="90" cy="30" r="3" fill="#FFB7C5"/>
+  <circle cx="110" cy="25" r="4" fill="#FFE135"/>
+  <circle cx="100" cy="20" r="3" fill="#32FF00"/>
+  <rect x="95" y="15" width="5" height="5" fill="#00D4FF" transform="rotate(30 97.5 17.5)"/>
+  
+  <!-- Enthusiastic text -->
+  <text x="100" y="270" text-anchor="middle" font-family="Comic Sans MS, cursive" font-size="18" 
+        fill="#1A1A2E" font-weight="bold" transform="rotate(-5 100 270)">ZZZZ!</text>
+</svg>

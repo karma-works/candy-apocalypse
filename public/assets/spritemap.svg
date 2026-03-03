@@ -7,8 +7,28 @@
       Outline:  #1A1A2E (Deep Space) at 3-5px stroke
   -->
 
+  <symbol id="bfuga0" viewBox="0 0 256 256">
+    <use href="#bfg" />
+  </symbol>
+
+  <symbol id="csawa0" viewBox="0 0 256 256">
+    <use href="#chainsaw" />
+  </symbol>
+
+  <symbol id="launa0" viewBox="0 0 256 256">
+    <use href="#rocket_launcher" />
+  </symbol>
+
+  <symbol id="mguna0" viewBox="0 0 256 256">
+    <use href="#chaingun" />
+  </symbol>
+
   <symbol id="pisga0" viewBox="0 0 256 256">
     <use href="#pistol" />
+  </symbol>
+
+  <symbol id="plasa0" viewBox="0 0 256 256">
+    <use href="#plasma_rifle" />
   </symbol>
 
   <symbol id="shtga0" viewBox="0 0 256 256">
@@ -30,6 +50,170 @@
               
               <circle cx="5" cy="12" r="2" fill="#3a8a3a" />
               <circle cx="45" cy="12" r="2" fill="#3a8a3a" />
+  </symbol>
+
+  <!-- Huge energy core -->
+  <symbol id="bfg" viewBox="0 0 200 300">
+    <defs>
+        <linearGradient id="bfgBody" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#32FF00"/>
+          <stop offset="50%" stop-color="#00D4FF"/>
+          <stop offset="100%" stop-color="#9B5DE5"/>
+        </linearGradient>
+        <linearGradient id="bfgCore" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FF0044"/>
+          <stop offset="50%" stop-color="#FFE135"/>
+          <stop offset="100%" stop-color="#32FF00"/>
+        </linearGradient>
+        <filter id="megaGlow">
+          <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      
+      
+      <rect x="45" y="230" width="110" height="60" rx="10" fill="#FF6B35" stroke="#1A1A2E" stroke-width="5"/>
+      <rect x="53" y="238" width="94" height="44" rx="8" fill="#CC5528" stroke="#1A1A2E" stroke-width="3"/>
+      
+      
+      <polygon points="40,230 160,230 145,80 55,80" fill="url(#bfgBody)" stroke="#1A1A2E" stroke-width="5"/>
+      
+      
+      <circle cx="100" cy="170" r="40" fill="url(#bfgCore)" stroke="#1A1A2E" stroke-width="4" filter="url(#megaGlow)"/>
+      <circle cx="100" cy="170" r="28" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="3"/>
+      <circle cx="100" cy="170" r="16" fill="#32FF00" filter="url(#megaGlow)"/>
+      <circle cx="100" cy="170" r="8" fill="#FFFFFF"/>
+      
+      
+      <polygon points="60,80 140,80 130,30 70,30" fill="#1A1A2E" stroke="#1A1A2E" stroke-width="4"/>
+      <polygon points="70,80 130,80 120,40 80,40" fill="#32FF00" stroke="#1A1A2E" stroke-width="3" filter="url(#megaGlow)"/>
+      
+      
+      <ellipse cx="100" cy="25" rx="30" ry="18" fill="#32FF00" stroke="#1A1A2E" stroke-width="4" filter="url(#megaGlow)"/>
+      <ellipse cx="100" cy="25" rx="20" ry="12" fill="#00D4FF"/>
+      <ellipse cx="100" cy="25" rx="10" ry="6" fill="#FFFFFF"/>
+      
+      
+      <circle cx="60" cy="50" r="5" fill="#FF0044"/>
+      <circle cx="140" cy="50" r="5" fill="#9B5DE5"/>
+      <circle cx="75" cy="35" r="4" fill="#FFB7C5"/>
+      <circle cx="125" cy="35" r="4" fill="#FFE135"/>
+      
+      
+      <line x1="50" y1="10" x2="150" y2="10" stroke="#FFFFFF" stroke-width="2" opacity="0.5"/>
+      <line x1="45" y1="18" x2="155" y2="18" stroke="#32FF00" stroke-width="2" opacity="0.5"/>
+      
+      
+      <path d="M 55,120 Q 100,100 145,120" fill="none" stroke="#FFE135" stroke-width="4"/>
+      <path d="M 55,140 Q 100,120 145,140" fill="none" stroke="#FF6B35" stroke-width="4"/>
+      
+      
+      <text x="100" y="280" text-anchor="middle" font-family="Impact, sans-serif" font-size="20" 
+            fill="#1A1A2E" font-weight="bold" letter-spacing="2">PARTY!</text>
+  </symbol>
+
+  <!-- Ammo drum -->
+  <symbol id="chaingun" viewBox="0 0 200 300">
+    <defs>
+        <linearGradient id="chaingunBody" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#00D4FF"/>
+          <stop offset="100%" stop-color="#9B5DE5"/>
+        </linearGradient>
+        <linearGradient id="barrels" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#C0C0C0"/>
+          <stop offset="50%" stop-color="#E8E8E8"/>
+          <stop offset="100%" stop-color="#A0A0A0"/>
+        </linearGradient>
+      </defs>
+      
+      
+      <rect x="60" y="230" width="80" height="60" rx="8" fill="#FF6B35" stroke="#1A1A2E" stroke-width="4"/>
+      <rect x="68" y="238" width="64" height="44" rx="6" fill="#CC5528" stroke="#1A1A2E" stroke-width="3"/>
+      
+      
+      <polygon points="50,230 150,230 135,130 65,130" fill="url(#chaingunBody)" stroke="#1A1A2E" stroke-width="4"/>
+      
+      
+      <ellipse cx="100" cy="200" rx="35" ry="25" fill="#32FF00" stroke="#1A1A2E" stroke-width="3"/>
+      <ellipse cx="100" cy="200" rx="25" ry="18" fill="#1A1A2E"/>
+      <ellipse cx="100" cy="200" rx="15" ry="10" fill="#FFE135"/>
+      
+      
+      <rect x="70" y="50" width="60" height="80" rx="10" fill="#1A1A2E" stroke="#1A1A2E" stroke-width="3"/>
+      
+      
+      <circle cx="85" cy="70" r="8" fill="url(#barrels)" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="115" cy="70" r="8" fill="url(#barrels)" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="85" cy="100" r="8" fill="url(#barrels)" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="115" cy="100" r="8" fill="url(#barrels)" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="100" cy="85" r="8" fill="url(#barrels)" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="100" cy="65" r="5" fill="#FF0044" stroke="#1A1A2E" stroke-width="2"/>
+      
+      
+      <polygon points="95,50 105,50 100,35" fill="#FFE135" stroke="#1A1A2E" stroke-width="2"/>
+      
+      
+      <line x1="85" y1="55" x2="75" y2="25" stroke="#FF0044" stroke-width="3" stroke-linecap="round"/>
+      <line x1="100" y1="50" x2="100" y2="15" stroke="#FFB7C5" stroke-width="3" stroke-linecap="round"/>
+      <line x1="115" y1="55" x2="125" y2="25" stroke="#32FF00" stroke-width="3" stroke-linecap="round"/>
+      
+      
+      <path d="M 90,60 A 10,10 0 0 1 110,60" fill="none" stroke="#FFB7C5" stroke-width="2" stroke-dasharray="3,2"/>
+      
+      
+      <text x="100" y="280" text-anchor="middle" font-family="Comic Sans MS, cursive" font-size="16" 
+            fill="#1A1A2E" font-weight="bold" transform="rotate(3 100 280)">RA-TA-TA!</text>
+  </symbol>
+
+  <!-- Engine housing -->
+  <symbol id="chainsaw" viewBox="0 0 200 300">
+    <defs>
+        <linearGradient id="chainsawBody" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FF6B35"/>
+          <stop offset="100%" stop-color="#FF0044"/>
+        </linearGradient>
+        <linearGradient id="chainTeeth" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#FFE135"/>
+          <stop offset="100%" stop-color="#FF6B35"/>
+        </linearGradient>
+      </defs>
+      
+      
+      <rect x="40" y="220" width="120" height="70" rx="10" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="4"/>
+      <rect x="50" y="230" width="100" height="50" rx="8" fill="#7B3CE3" stroke="#1A1A2E" stroke-width="3"/>
+      
+      
+      <polygon points="50,220 150,220 140,140 60,140" fill="url(#chainsawBody)" stroke="#1A1A2E" stroke-width="4"/>
+      
+      
+      <rect x="55" y="150" width="90" height="60" rx="5" fill="#32FF00" stroke="#1A1A2E" stroke-width="3"/>
+      <circle cx="100" cy="180" r="20" fill="#1A1A2E"/>
+      <circle cx="100" cy="180" r="12" fill="#FFE135"/>
+      
+      
+      <rect x="70" y="40" width="60" height="100" rx="5" fill="#00D4FF" stroke="#1A1A2E" stroke-width="3"/>
+      
+      
+      <polygon points="75,140 75,45 65,45 65,135" fill="url(#chainTeeth)" stroke="#1A1A2E" stroke-width="2"/>
+      <polygon points="125,140 125,45 135,45 135,135" fill="url(#chainTeeth)" stroke="#1A1A2E" stroke-width="2"/>
+      
+      
+      <path d="M 80,50 L 85,40 L 90,50 L 95,40 L 100,50 L 105,40 L 110,50 L 115,40 L 120,50" 
+            fill="none" stroke="#1A1A2E" stroke-width="4" stroke-linecap="round"/>
+      
+      
+      <circle cx="90" cy="30" r="3" fill="#FFB7C5"/>
+      <circle cx="110" cy="25" r="4" fill="#FFE135"/>
+      <circle cx="100" cy="20" r="3" fill="#32FF00"/>
+      <rect x="95" y="15" width="5" height="5" fill="#00D4FF" transform="rotate(30 97.5 17.5)"/>
+      
+      
+      <text x="100" y="270" text-anchor="middle" font-family="Comic Sans MS, cursive" font-size="18" 
+            fill="#1A1A2E" font-weight="bold" transform="rotate(-5 100 270)">ZZZZ!</text>
   </symbol>
 
   <symbol id="door" viewBox="0 0 100 100">
@@ -85,6 +269,115 @@
         
         <text x="0" y="-80" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A1A2E" font-family="Arial Black">PEW!</text>
       </g>
+  </symbol>
+
+  <!-- Energy core -->
+  <symbol id="plasma_rifle" viewBox="0 0 200 300">
+    <defs>
+        <linearGradient id="plasmaBody" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#00D4FF"/>
+          <stop offset="100%" stop-color="#9B5DE5"/>
+        </linearGradient>
+        <linearGradient id="plasmaGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#32FF00"/>
+          <stop offset="50%" stop-color="#00D4FF"/>
+          <stop offset="100%" stop-color="#9B5DE5"/>
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      
+      
+      <rect x="55" y="230" width="90" height="60" rx="8" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="4"/>
+      <rect x="63" y="238" width="74" height="44" rx="6" fill="#7B3CE3" stroke="#1A1A2E" stroke-width="3"/>
+      
+      
+      <polygon points="50,230 150,230 135,100 65,100" fill="url(#plasmaBody)" stroke="#1A1A2E" stroke-width="4"/>
+      
+      
+      <circle cx="100" cy="180" r="25" fill="#FFE135" stroke="#1A1A2E" stroke-width="3" filter="url(#glow)"/>
+      <circle cx="100" cy="180" r="15" fill="#FFB7C5"/>
+      <circle cx="100" cy="180" r="8" fill="#1A1A2E"/>
+      
+      
+      <rect x="70" y="50" width="60" height="50" rx="8" fill="#1A1A2E" stroke="#1A1A2E" stroke-width="3"/>
+      <rect x="80" y="55" width="40" height="40" rx="5" fill="url(#plasmaGlow)" filter="url(#glow)"/>
+      
+      
+      <ellipse cx="100" cy="45" rx="20" ry="12" fill="#32FF00" stroke="#1A1A2E" stroke-width="3" filter="url(#glow)"/>
+      <ellipse cx="100" cy="45" rx="12" ry="7" fill="#00D4FF"/>
+      
+      
+      <path d="M 85,45 L 80,30 L 90,35 L 85,20" fill="none" stroke="#32FF00" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 115,45 L 120,30 L 110,35 L 115,20" fill="none" stroke="#00D4FF" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 100,38 L 100,15" fill="none" stroke="#9B5DE5" stroke-width="3" stroke-linecap="round"/>
+      
+      
+      <rect x="60" y="120" width="15" height="40" rx="2" fill="#32FF00" stroke="#1A1A2E" stroke-width="2"/>
+      <rect x="125" y="120" width="15" height="40" rx="2" fill="#32FF00" stroke="#1A1A2E" stroke-width="2"/>
+      
+      
+      <circle cx="65" cy="140" r="4" fill="#FFB7C5"/>
+      <circle cx="135" cy="140" r="4" fill="#FFB7C5"/>
+      
+      
+      <text x="100" y="280" text-anchor="middle" font-family="Courier New, monospace" font-size="14" 
+            fill="#1A1A2E" font-weight="bold">*BZZZT*</text>
+  </symbol>
+
+  <!-- Front sight -->
+  <symbol id="rocket_launcher" viewBox="0 0 200 300">
+    <defs>
+        <linearGradient id="rocketBody" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#9B5DE5"/>
+          <stop offset="100%" stop-color="#FF6B35"/>
+        </linearGradient>
+        <linearGradient id="rocketTube" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#32FF00"/>
+          <stop offset="50%" stop-color="#00D4FF"/>
+          <stop offset="100%" stop-color="#32FF00"/>
+        </linearGradient>
+      </defs>
+      
+      
+      <rect x="50" y="230" width="100" height="60" rx="8" fill="#FF0044" stroke="#1A1A2E" stroke-width="4"/>
+      <rect x="58" y="238" width="84" height="44" rx="6" fill="#CC0036" stroke="#1A1A2E" stroke-width="3"/>
+      
+      
+      <polygon points="55,230 145,230 130,80 70,80" fill="url(#rocketTube)" stroke="#1A1A2E" stroke-width="4"/>
+      
+      
+      <polygon points="80,80 120,80 110,60 90,60" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="3"/>
+      
+      
+      <ellipse cx="100" cy="65" rx="25" ry="15" fill="#1A1A2E" stroke="#1A1A2E" stroke-width="3"/>
+      <ellipse cx="100" cy="65" rx="18" ry="10" fill="#2A2A4E"/>
+      
+      
+      <polygon points="90,85 110,85 105,75 95,75" fill="#FFE135" stroke="#1A1A2E" stroke-width="2"/>
+      
+      
+      <circle cx="75" cy="180" r="12" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="125" cy="180" r="12" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="2"/>
+      <path d="M 75,180 Q 100,200 125,180" fill="none" stroke="#1A1A2E" stroke-width="2"/>
+      
+      
+      <circle cx="100" cy="40" r="6" fill="#FFE135"/>
+      <line x1="100" y1="40" x2="85" y2="25" stroke="#FF6B35" stroke-width="2"/>
+      <line x1="100" y1="40" x2="115" y2="25" stroke="#FF6B35" stroke-width="2"/>
+      <line x1="100" y1="40" x2="100" y2="20" stroke="#FF0044" stroke-width="2"/>
+      <circle cx="85" cy="25" r="3" fill="#FFB7C5"/>
+      <circle cx="115" cy="25" r="3" fill="#00D4FF"/>
+      <circle cx="100" cy="20" r="3" fill="#32FF00"/>
+      
+      
+      <text x="100" y="280" text-anchor="middle" font-family="Georgia, serif" font-size="14" 
+            fill="#1A1A2E" font-weight="bold" font-style="italic">~LAUNCH~</text>
   </symbol>
 
   <symbol id="shotgun" viewBox="0 0 256 256">

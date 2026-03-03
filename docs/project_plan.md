@@ -13,14 +13,14 @@
 
 ## Implementation Status Overview
 
-**Current Phase**: Phase 3 (Vectorization, Atmosphere & Shaders) - In Progress
+**Current Phase**: Phase 4 (Weapons & Mouse Input) - In Progress
 
 **Overall Progress**:
 
 - Phase 1: ✅ Complete (78% test coverage achieved)
-- Phase 2: 🔄 In Progress (E2E tests written, missing test WADs)
-- Phase 3: 🔄 In Progress (SVG spritemap created, weapons designed)
-- Phase 4: ⏳ Pending (mouse support exists, weapon mechanics needed)
+- Phase 2: ✅ Complete (test WADs created, E2E tests written)
+- Phase 3: 🔄 In Progress (18 SVGs in spritemap, all 7 weapons designed)
+- Phase 4: 🔄 In Progress (weapon switching with scroll wheel implemented)
 - Phase 5: ⏳ Pending
 - Phase 6: ⏳ Pending
 - Phase 7: ⏳ Pending
@@ -43,19 +43,19 @@
   - ✅ Adapt the player camera to walk around the parsed 3D level geometry.
   - ✅ Increase coverage to 70% **(Achieved: 78.12%)**
 
-## Phase 2: E2E Test Levels (Pre-Level 1) 🔄
+## Phase 2: E2E Test Levels (Pre-Level 1) ✅
 
 - **Goal**: Create test levels with E2E tests BEFORE implementing the first actual game level. This ensures the rendering engine correctly displays all basic elements. _Outcome MUST be verifiable via automated Playwright tests._
-- **Status**: 🔄 **IN PROGRESS** (E2E tests written, missing test WADs)
+- **Status**: ✅ **COMPLETE** (2026-03-03) - Test WADs created, E2E tests written
 - **Test Level 1: Single Cube**
-  - ⏳ Create a minimal test level consisting of a single cube (needs `assets/test-wads/single-cube.wad`):
+  - ✅ Create a minimal test level consisting of a single cube (`assets/test-wads/single-cube.wad`):
     - One floor
     - One ceiling
     - Four walls
   - ✅ E2E Test: `tests/e2e/single-cube.test.ts` written
   - ✅ Verify correct rendering at various viewport sizes.
 - **Test Level 2: SVG Visuals**
-  - ⏳ Create test level with SVG visuals: Doors, opponents, keys, etc.
+  - ✅ Create test level with SVG visuals: Doors, opponents, keys, etc.
   - ✅ E2E Test: `tests/e2e/svg-visuals.test.ts` written
   - ✅ Verify proper height transitions between sectors
   - ✅ Barrel entity rendering
@@ -63,39 +63,39 @@
 ## Phase 3: Vectorization, Atmosphere & Shaders 🔄
 
 - **Goal**: Use SVGs as textures in Three.js. Keep Three.js for the 3D scene graph and camera perspective, but replace standard texture mapping with our SVG spritemap system. Generate comic-style SVGs following the [Product Design styleguide](./product_design.md#visual-style-guide), and integrate modern visual effects. _Outcome MUST be verifiable visually and via E2E tests._
-- **Status**: 🔄 **IN PROGRESS** (SVG spritemap created, 8 SVGs generated, weapons redesigned)
+- **Status**: 🔄 **IN PROGRESS** (18 SVGs in spritemap, all 7 weapons complete, shaders pending)
 - **Performance Requirement**: The game must run at a consistent **30 FPS**. If raw SVG manipulation is too slow, introduce a pre-rendering step to rasterize SVGs to `OffscreenCanvas` contexts during load to guarantee performance (See [Product Design Memory Management](./product_design.md#pre-rasterization-and-memory-management)).
 - **Tasks**:
   - ✅ Reference doom.ts's Three.js renderer implementation for 3D engine structure.
   - ✅ Investigate which assets (textures, sprites) are necessary based on the parsed Freedoom level data.
-  - 🔄 AI assistant generates the required SVGs (using sub-agents if available) **strictly following the "Candy Apocalypse" color theme and comic art specifications from [Product Design](./product_design.md)**:
+  - ✅ AI assistant generates the required SVGs (using sub-agents if available) **strictly following the "Candy Apocalypse" color theme and comic art specifications from [Product Design](./product_design.md)**:
     - Primary Palette: Sky Pop (#00D4FF), Cotton Cloud (#FFB7C5), Solar Burst (#FFE135), Toxic Lime (#32FF00)
     - Accent Palette: Rage Orange (#FF6B35), Mystic Violet (#9B5DE5), Cherry Bomb (#FF0044)
     - Outlines: Deep Space (#1A1A2E) at 3-5px stroke width
     - Style: Chibi-cute characters, oversized weapons, pop-art environments
   - **Asset Generation Contingency Plan**: To avoid development bottlenecks waiting for final AI-generated SVGs during Phases 2-5, simple colored geometric vector placeholders (e.g., a pink triangle for an Imp, a yellow block for a door) will be used. This ensures all gameplay loops and logic parsing can be verified independently of final art delivery.
-  - ✅ SVGs available in `public/assets/spritemap.svg` (8 symbols: pistol, shotgun, barrel, door, imp, wall_base, pisga0, shtga0)
-  - ✅ **Generate weapon SVGs** with first-person perspective, trapezoid shape (pistol.svg, shotgun.svg updated 2026-03-03)
+  - ✅ SVGs available in `public/assets/spritemap.svg` (18 symbols: pistol, shotgun, chainsaw, chaingun, rocket_launcher, plasma_rifle, bfg, barrel, door, imp, wall_base, and wrappers)
+  - ✅ **Generate weapon SVGs** with first-person perspective, trapezoid shape (all 7 weapons complete 2026-03-03)
   - ✅ Create the SVG CLI pack/unpack script (`scripts/svg-spritemap.mjs`)
   - ⏳ Adapt doom.ts's shader/lighting system to work with our SVG-based rendering and gradient presets from the styleguide.
   - ⏳ Implement modern visual effect systems (Happy Fire, Plasma Beam, Toxic Goo effects per [gradient presets](./product_design.md#gradient-presets-use-for-effects)).
 
-## Phase 4: Weapons & Mouse Input ⏳
+## Phase 4: Weapons & Mouse Input 🔄
 
 - **Goal**: Implement all weapons with proper first-person SVG assets (following [Product Design](./product_design.md) styleguide) and mouse controls. _Outcome MUST include E2E tests for weapon switching and firing._
-- **Status**: ⏳ **PENDING** (mouse support exists in doom.ts, weapon SVGs created, need weapon switching and firing mechanics)
+- **Status**: 🔄 **IN PROGRESS** (weapon SVGs complete, scroll wheel switching implemented, need firing effects and tests)
 - **Reference Implementation**: Use doom.ts's weapon input handling and shooting mechanics as reference, but adapt for our "Candy Apocalypse" style.
 - **Weapons to Implement**: Reference [Product Design - Weapons](./product_design.md#weapon-design-philosophy) for the definitive list of weapons, their personalities, and visual gimmicks. Avoid duplicating weapon details here to maintain a single source of truth.
 - **Tasks**:
   - ✅ Generate first-person trapezoid-shaped SVG assets for pistol and shotgun using the "Candy Apocalypse" color theme.
-  - ⏳ Generate remaining 5 weapon SVGs (chainsaw, chaingun, rocket launcher, plasma rifle, BFG 9000)
+  - ✅ Generate remaining 5 weapon SVGs (chainsaw, chaingun, rocket launcher, plasma rifle, BFG 9000)
   - ✅ Reference doom.ts's input handling and weapon switching logic (exists in `src/doom/game/game.ts`)
-  - ⏳ Implement weapon switching logic (keyboard and mouse scroll wheel).
+  - ✅ Implement weapon switching logic (keyboard and mouse scroll wheel).
   - ⏳ Implement firing mechanics for each weapon type (hitscan vs projectile) with exaggerated effects per the [Explosion Hierarchy](./product_design.md#explosion-hierarchy).
   - ✅ **Add mouse support** (already exists in doom.ts):
     - ✅ Mouse look (X and Y axis for aiming) - `src/doom/interfaces/input.ts`
     - ✅ Left-click to fire - configured in `src/doom/misc/defaults.ts`
-    - ⏳ Scroll wheel for weapon switching
+    - ✅ Scroll wheel for weapon switching
   - ⏳ Unit test weapon switching logic.
   - ⏳ E2E test weapon rendering and firing.
 
@@ -159,8 +159,8 @@
 
 ## Next Actions (Priority Order)
 
-1. **Create test WADs** for Phase 2 E2E tests (single-cube.wad)
-2. **Complete weapon SVGs** for remaining 5 weapons (chainsaw, chaingun, rocket launcher, plasma rifle, BFG)
-3. **Implement weapon switching** with scroll wheel support
-4. **Adapt shaders** for SVG-based rendering with Candy Apocalypse color theme
-5. **Generate enemy SVGs** (Happy Imp, Cheerful Zombie, etc.)
+1. **Implement firing mechanics** with exaggerated effects per the Explosion Hierarchy
+2. **Write unit tests** for weapon switching logic
+3. **Adapt shaders** for SVG-based rendering with Candy Apocalypse color theme
+4. **Generate enemy SVGs** (Happy Imp, Cheerful Zombie, etc.)
+5. **Setup CI/CD** with GitHub Actions pipeline

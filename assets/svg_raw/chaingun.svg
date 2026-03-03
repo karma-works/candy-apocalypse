@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300">
+  <defs>
+    <linearGradient id="chaingunBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#00D4FF"/>
+      <stop offset="100%" stop-color="#9B5DE5"/>
+    </linearGradient>
+    <linearGradient id="barrels" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#C0C0C0"/>
+      <stop offset="50%" stop-color="#E8E8E8"/>
+      <stop offset="100%" stop-color="#A0A0A0"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Handle grip - bottom, wider -->
+  <rect x="60" y="230" width="80" height="60" rx="8" fill="#FF6B35" stroke="#1A1A2E" stroke-width="4"/>
+  <rect x="68" y="238" width="64" height="44" rx="6" fill="#CC5528" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <!-- Main body - trapezoid shape -->
+  <polygon points="50,230 150,230 135,130 65,130" fill="url(#chaingunBody)" stroke="#1A1A2E" stroke-width="4"/>
+  
+  <!-- Ammo drum -->
+  <ellipse cx="100" cy="200" rx="35" ry="25" fill="#32FF00" stroke="#1A1A2E" stroke-width="3"/>
+  <ellipse cx="100" cy="200" rx="25" ry="18" fill="#1A1A2E"/>
+  <ellipse cx="100" cy="200" rx="15" ry="10" fill="#FFE135"/>
+  
+  <!-- Rotating barrel assembly - top, narrower -->
+  <rect x="70" y="50" width="60" height="80" rx="10" fill="#1A1A2E" stroke="#1A1A2E" stroke-width="3"/>
+  
+  <!-- Six barrels -->
+  <circle cx="85" cy="70" r="8" fill="url(#barrels)" stroke="#1A1A2E" stroke-width="2"/>
+  <circle cx="115" cy="70" r="8" fill="url(#barrels)" stroke="#1A1A2E" stroke-width="2"/>
+  <circle cx="85" cy="100" r="8" fill="url(#barrels)" stroke="#1A1A2E" stroke-width="2"/>
+  <circle cx="115" cy="100" r="8" fill="url(#barrels)" stroke="#1A1A2E" stroke-width="2"/>
+  <circle cx="100" cy="85" r="8" fill="url(#barrels)" stroke="#1A1A2E" stroke-width="2"/>
+  <circle cx="100" cy="65" r="5" fill="#FF0044" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <!-- Muzzle flash hint -->
+  <polygon points="95,50 105,50 100,35" fill="#FFE135" stroke="#1A1A2E" stroke-width="2"/>
+  
+  <!-- Rainbow bullet trail -->
+  <line x1="85" y1="55" x2="75" y2="25" stroke="#FF0044" stroke-width="3" stroke-linecap="round"/>
+  <line x1="100" y1="50" x2="100" y2="15" stroke="#FFB7C5" stroke-width="3" stroke-linecap="round"/>
+  <line x1="115" y1="55" x2="125" y2="25" stroke="#32FF00" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Spinning indicator -->
+  <path d="M 90,60 A 10,10 0 0 1 110,60" fill="none" stroke="#FFB7C5" stroke-width="2" stroke-dasharray="3,2"/>
+  
+  <!-- Hyperactive text -->
+  <text x="100" y="280" text-anchor="middle" font-family="Comic Sans MS, cursive" font-size="16" 
+        fill="#1A1A2E" font-weight="bold" transform="rotate(3 100 280)">RA-TA-TA!</text>
+</svg>
