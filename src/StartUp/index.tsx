@@ -1,74 +1,20 @@
-import { Button, Card, CardActions, CardContent, Divider, Grid, Typography } from '@mui/joy';
-import { Form, useSubmit } from 'react-router-dom';
-import AutoStartOptions from './AutoStartOptions';
-import ConfigOptions from './ControlOptions';
-import MiscOptions from './MiscOptions';
-import RenderOptions from './RenderOptions';
-import WadOptions from './WadOptions';
-import { useAudio } from '../AudioContext';
-import { useRef } from 'react';
+import { useNavigate } from "react-router-dom";
+import CandyMenu from "../CandyMenu";
+import { useAudio } from "../AudioContext";
 
 export default function StartUp() {
-  const submit = useSubmit()
-  const form = useRef<HTMLFormElement>(null)
+  const navigate = useNavigate();
+  const audioCtx = useAudio();
 
-  const audioCtx = useAudio()
+  const handleStartGame = () => {
+    audioCtx.resume();
+    navigate("/play?iwad=doom1.wad&episode=1&map=1");
+  };
 
-  return (
-    <Grid
-      container
-      direction='column'
-      alignItems='center'
-    >
-      <Grid sm={12} md={6}>
-        <Card>
-          <Form action="play" ref={form}>
-            <Typography level="title-lg">
-              Doom.ts
-            </Typography>
+  const handleExplore = () => {
+    audioCtx.resume();
+    navigate("/explorer?iwad=doom1.wad");
+  };
 
-            <Divider inset="none" />
-
-            <CardContent>
-              <Grid
-                container
-                alignItems="flex-end"
-                justifyContent="center"
-                spacing={2}
-              >
-                <WadOptions />
-                <RenderOptions />
-                <ConfigOptions />
-                <AutoStartOptions />
-                <MiscOptions />
-              </Grid>
-            </CardContent>
-
-            <CardActions buttonFlex="1">
-              <Button
-                type="button"
-                variant="outlined"
-                onClick={_ => {
-                  audioCtx.resume()
-                  submit(form.current, { action: 'explorer' })
-                }}
-              >
-                Explore
-              </Button>
-              <Button
-                type="submit"
-                variant="solid"
-                color="primary"
-                onClick={_ => audioCtx.resume()}
-              >
-                Play
-              </Button>
-            </CardActions>
-          </Form>
-        </Card>
-      </Grid>
-    </Grid>
-  )
+  return <CandyMenu onStartGame={handleStartGame} onExplore={handleExplore} />;
 }
-
-

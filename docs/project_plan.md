@@ -19,8 +19,8 @@
 
 - Phase 1: ✅ Complete (78% test coverage achieved)
 - Phase 2: ✅ Complete (test WADs created, E2E tests written)
-- Phase 3: 🔄 In Progress (44 SVGs in spritemap, all 7 weapons + 13 enemies designed)
-- Phase 4: 🔄 In Progress (weapon switching with scroll wheel implemented)
+- Phase 3: 🔄 In Progress (44 SVGs in spritemap, all 7 weapons + 13 enemies designed, Candy Apocalypse branded menu, texture fallback system)
+- Phase 4: 🔄 In Progress (weapon switching with scroll wheel implemented, doom1.wad integration complete)
 - Phase 5: ⏳ Pending
 - Phase 6: ⏳ Pending
 - Phase 7: ⏳ Pending
@@ -96,6 +96,17 @@
   - ✅ Generate remaining 5 weapon SVGs (chainsaw, chaingun, rocket launcher, plasma rifle, BFG 9000)
   - ✅ Reference doom.ts's input handling and weapon switching logic (exists in `src/doom/game/game.ts`)
   - ✅ Implement weapon switching logic (keyboard and mouse scroll wheel).
+  - ✅ **Candy Apocalypse Branded Menu**: Replaced MUI Joy start screen with custom branded menu featuring:
+    - Vibrant Candy Apocalypse color scheme
+    - Animated title with comic-style effects
+    - Simplified startup flow using doom1.wad
+    - Removed Freedoom level selector
+    - Direct navigation to game with episode=1&map=1
+  - ✅ **Texture Fallback System**: Implemented `CandyTextureMapper` class for:
+    - Mapping WAD texture names to Candy Apocalypse color types
+    - Generating procedural fallback textures when SVG assets unavailable
+    - Supporting walls, floors, doors, switches, and hazards
+    - Using Candy Apocalypse color palette with comic-style outlines
   - ⏳ Implement firing mechanics for each weapon type (hitscan vs projectile) with exaggerated effects per the [Explosion Hierarchy](./product_design.md#explosion-hierarchy).
   - ✅ **Add mouse support** (already exists in doom.ts):
     - ✅ Mouse look (X and Y axis for aiming) - `src/doom/interfaces/input.ts`
@@ -167,5 +178,5 @@
 1. **Implement firing mechanics** with exaggerated effects per the Explosion Hierarchy
 2. **Write unit tests** for weapon switching logic
 3. **Adapt shaders** for SVG-based rendering with Candy Apocalypse color theme
-4. **Generate enemy SVGs** (Happy Imp, Cheerful Zombie, etc.)
-5. **Setup CI/CD** with GitHub Actions pipeline
+4. **Setup CI/CD** with GitHub Actions pipeline
+5. **Implement enemy AI** state machines for combat interactions
