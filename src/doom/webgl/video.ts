@@ -177,6 +177,18 @@ export class Video implements VideoInterface {
       return;
     }
 
+    this.overlayScreenMap?.dispose();
+    this.overlayAlphaMap?.dispose();
+    this.overlayMaterial?.dispose();
+
+    this.scene.clear();
+    this.overlayScene.clear();
+    this.pSpritesGroup.clear();
+
     this.renderer.dispose();
+    this.renderer.forceContextLoss();
+
+    this.renderer = null;
+    this.screen = null;
   }
 }

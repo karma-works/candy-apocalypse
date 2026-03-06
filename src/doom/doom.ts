@@ -71,6 +71,7 @@ export class Doom {
   // debug flag to cancel adaptiveness
   singleTics = false;
 
+  private animationFrameId: number | null = null;
   private stats: Stats | null = null;
   public gui: GUI | null = null;
 
@@ -395,7 +396,7 @@ export class Doom {
 
         if (this.wipeActive) {
           this.displayWipe();
-          requestAnimationFrame(w.bind(this));
+          this.animationFrameId = requestAnimationFrame(w.bind(this));
           return;
         }
 
@@ -429,7 +430,7 @@ export class Doom {
       } catch (e) {
         this.onError(e);
       }
-      requestAnimationFrame(w.bind(this));
+      this.animationFrameId = requestAnimationFrame(w.bind(this));
       this.stats?.end();
     };
     w();
@@ -731,7 +732,21 @@ export class Doom {
 
     this.quitted = true;
 
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+
     this.iSound.quit();
+
+    // Dispose rendering resources
+    if (
+      this.rendering &&
+      "dispose" in this.rendering &&
+      typeof this.rendering.dispose === "function"
+    ) {
+      this.rendering.dispose();
+    }
 
     const { width, height } = this.iVideo;
     this.iVideo.quit();

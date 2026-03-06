@@ -35,7 +35,12 @@ export class Things extends LegacyThings {
     super.clearSprites();
 
     for (let i = this.pSpriteGroup.children.length - 1; i >= 0; --i) {
-      this.pSpriteGroup.children[i].visible = false;
+      const child = this.pSpriteGroup.children[i];
+      child.visible = false;
+      this.pSpriteGroup.remove(child);
+      if ("dispose" in child && typeof child.dispose === "function") {
+        (child as any).dispose();
+      }
     }
   }
 

@@ -1,31 +1,31 @@
-import { LumpCtor, LumpType, guessLumpType } from './lump'
-import { LumpInfo } from './types'
-import { Wad } from './wad'
-import { fs } from '../system/fs'
+import { LumpCtor, LumpType, guessLumpType } from "./lump";
+import { LumpInfo } from "./types";
+import { Wad } from "./wad";
+import { fs } from "../system/fs";
 
 function extractFileBase(path: string): string {
-  const idx = path.lastIndexOf('/')
-  const dest = path.substr(idx + 1).toUpperCase()
+  const idx = path.lastIndexOf("/");
+  const dest = path.substr(idx + 1).toUpperCase();
 
   // if (dest.length > 8) {
   //   throw `Filename base of ${path} >8 chars`
   // }
 
-  const dot = dest.lastIndexOf('.')
+  const dot = dest.lastIndexOf(".");
   if (dot > 0) {
-    return dest.substr(0, dot)
+    return dest.substr(0, dot);
   }
 
-  return dest
+  return dest;
 }
 
 export class LumpReader {
-  fileNames: string[] = []
+  fileNames: string[] = [];
   // Location of each lump on disk.
-  lumpInfo: LumpInfo[] = []
-  numLumps = 0
+  lumpInfo: LumpInfo[] = [];
+  numLumps = 0;
 
-  private lumpCache: unknown[] = []
+  private lumpCache: unknown[] = [];
 
   //
   // W_AddFile
@@ -40,40 +40,40 @@ export class LumpReader {
   //  specially to allow map reloads.
   // But: the reload feature is a fragile hack...
   private async addFile(fileName: string): Promise<void> {
-    let lumps: LumpInfo[] = []
+    let lumps: LumpInfo[] = [];
 
     // open the file and add to directory
-    const handle = await fs.open(fileName)
+    const handle = await fs.open(fileName);
     if (handle === undefined) {
-      console.log(` couldn't open ${fileName}`)
-      return
+      console.log(` couldn't open ${fileName}`);
+      return;
     }
-    console.log(` adding ${fileName}`)
-    this.fileNames.push(fileName)
+    console.log(` adding ${fileName}`);
+    this.fileNames.push(fileName);
 
-    const startLump = this.numLumps
+    const startLump = this.numLumps;
 
-    if (fileName.substr(fileName.length - 3).toLowerCase() !== 'wad') {
+    if (fileName.substr(fileName.length - 3).toLowerCase() !== "wad") {
       lumps[0] = {
         buffer: handle,
         size: handle.byteLength,
         name: extractFileBase(fileName),
-      }
+      };
     } else {
-      const wad = new Wad(handle)
-      lumps = wad.lumps
+      const wad = new Wad(handle);
+      lumps = wad.lumps;
     }
 
-    this.numLumps += lumps.length
-    this.lumpInfo.length = this.numLumps
+    this.numLumps += lumps.length;
+    this.lumpInfo.length = this.numLumps;
 
     for (let i = startLump, fi = 0; i < this.numLumps; ++i, ++fi) {
       if (!this.lumpInfo[i]) {
-        this.lumpInfo[i] = { name: '', size: 0, buffer: new ArrayBuffer(0) }
+        this.lumpInfo[i] = { name: "", size: 0, buffer: new ArrayBuffer(0) };
       }
-      this.lumpInfo[i].buffer = lumps[fi].buffer
-      this.lumpInfo[i].size = lumps[fi].size
-      this.lumpInfo[i].name = lumps[fi].name
+      this.lumpInfo[i].buffer = lumps[fi].buffer;
+      this.lumpInfo[i].size = lumps[fi].size;
+      this.lumpInfo[i].name = lumps[fi].name;
     }
   }
 
@@ -92,19 +92,20 @@ export class LumpReader {
   //
   async initMultipleFiles(fileNames: readonly string[]): Promise<void> {
     // open all the files, load headers, and count lumps
-    this.numLumps = 0
-    this.lumpInfo = []
+    this.numLumps = 0;
+    this.lumpInfo = [];
+    this.lumpCache = [];
 
     // file order may be important !
     for (const f of fileNames) {
-      await this.addFile(f)
+      await this.addFile(f);
     }
 
     if (!this.numLumps) {
-      throw 'W_InitFiles: no files found'
+      throw "W_InitFiles: no files found";
     }
 
-    this.lumpCache = new Array(this.numLumps)
+    this.lumpCache = new Array(this.numLumps);
   }
 
   //
@@ -113,17 +114,17 @@ export class LumpReader {
   //
   checkNumForName(name: string): number {
     // case insensitive
-    name = name.toUpperCase()
+    name = name.toUpperCase();
 
     // scan backwards so patch lump files take precedence
     for (let i = this.numLumps - 1; i >= 0; --i) {
       if (this.lumpInfo[i].name === name) {
-        return i
+        return i;
       }
     }
 
     // TFB. Not found.
-    return -1
+    return -1;
   }
 
   //
@@ -131,12 +132,12 @@ export class LumpReader {
   // Calls W_CheckNumForName, but bombs out if not found.
   //
   getNumForName(name: string): number {
-    const i = this.checkNumForName(name)
+    const i = this.checkNumForName(name);
 
     if (i === -1) {
-      throw `W_GetNumForName: ${name} not found!`
+      throw `W_GetNumForName: ${name} not found!`;
     }
-    return i
+    return i;
   }
 
   //
@@ -145,10 +146,10 @@ export class LumpReader {
   //
   lumpLength(lump: number): number {
     if (lump >= this.numLumps) {
-      throw `W_LumpLength: ${lump} >= numlumps`
+      throw `W_LumpLength: ${lump} >= numlumps`;
     }
 
-    return this.lumpInfo[lump].size
+    return this.lumpInfo[lump].size;
   }
 
   //
@@ -158,47 +159,58 @@ export class LumpReader {
   //
   readLump(lump: number): ArrayBuffer {
     if (lump >= this.numLumps) {
-      throw `W_ReadLump: ${lump} >= numlumps`
+      throw `W_ReadLump: ${lump} >= numlumps`;
     }
 
-    const l = this.lumpInfo[lump]
+    const l = this.lumpInfo[lump];
 
-    return l.buffer
+    return l.buffer;
   }
 
   //
   // W_CacheLumpNum
   //
-  cacheLumpNum(lump: number): ArrayBuffer
-  cacheLumpNum<T>(lump: number, klass?: LumpCtor<T>, cache?: boolean): T
-  cacheLumpNum<T>(lump: number, klass?: LumpCtor<T>, cache: boolean = true): T | ArrayBuffer {
+  cacheLumpNum(lump: number): ArrayBuffer;
+  cacheLumpNum<T>(lump: number, klass?: LumpCtor<T>, cache?: boolean): T;
+  cacheLumpNum<T>(
+    lump: number,
+    klass?: LumpCtor<T>,
+    cache: boolean = true,
+  ): T | ArrayBuffer {
     if (lump >= this.numLumps) {
-      throw `W_CacheLumpNum: ${lump} >= numlumps`
+      throw `W_CacheLumpNum: ${lump} >= numlumps`;
     }
 
-    const { buffer, name } = this.lumpInfo[lump]
+    const { buffer, name } = this.lumpInfo[lump];
 
     if (klass) {
       if (!this.lumpCache[lump] || !cache) {
-        this.lumpCache[lump] = new klass(buffer, name, lump)
+        this.lumpCache[lump] = new klass(buffer, name, lump);
       }
-      return this.lumpCache[lump] as T
+      return this.lumpCache[lump] as T;
     } else {
-      return buffer
+      return buffer;
     }
   }
 
   //
   // W_CacheLumpName
   //
-  cacheLumpName(name: string): ArrayBuffer
-  cacheLumpName<T>(name: string, klass?: LumpCtor<T>, cache?: boolean): T
-  cacheLumpName<T>(name: string, klass?: LumpCtor<T>, cache: boolean = true): T | ArrayBuffer {
-    return this.cacheLumpNum(this.getNumForName(name), klass, cache)
+  cacheLumpName(name: string): ArrayBuffer;
+  cacheLumpName<T>(name: string, klass?: LumpCtor<T>, cache?: boolean): T;
+  cacheLumpName<T>(
+    name: string,
+    klass?: LumpCtor<T>,
+    cache: boolean = true,
+  ): T | ArrayBuffer {
+    return this.cacheLumpNum(this.getNumForName(name), klass, cache);
+  }
+
+  clearCache(): void {
+    this.lumpCache = [];
   }
 
   listByType(t: LumpType) {
-    return this.lumpInfo
-      .filter(i => guessLumpType(i.buffer, i.name) === t)
+    return this.lumpInfo.filter((i) => guessLumpType(i.buffer, i.name) === t);
   }
 }

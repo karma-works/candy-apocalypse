@@ -20,6 +20,7 @@ import { TextureArray } from "../textures/texture-array";
 import { svgRasterizer } from "./svg-rasterizer";
 
 const SPRITE_TO_SVG_MAP: Record<string, string> = {
+  // weapons → SVG weapon icons
   fatt: "manc",
   skul: "pige",
   cpos: "karn",
@@ -29,6 +30,19 @@ const SPRITE_TO_SVG_MAP: Record<string, string> = {
   plsg: "plas",
   bfgg: "bfug",
   sawg: "csaw",
+  // ammo pickups → flower
+  clip: "flower",
+  ammo: "flower", // clip box
+  rock: "flower", // rocket
+  brok: "flower", // rocket box
+  cell: "flower",
+  celp: "flower", // cell pack
+  shel: "flower",
+  sbox: "flower", // shell box
+  bpak: "flower", // backpack
+  // impact puff → PAM!
+  puff: "pam",
+  blud: "pam",
 };
 
 export type PatchTextures = {
@@ -85,6 +99,15 @@ export class TextureLoader {
     });
     this.skyTextureCache.forEach((t) => t.dispose());
     this.flatTextureCache.forEach((t) => t.dispose());
+    this.spriteCache.forEach((t) => {
+      if (t && "dispose" in t && typeof t.dispose === "function") {
+        t.dispose();
+      }
+    });
+    this.patchTextureCache = [];
+    this.skyTextureCache = [];
+    this.flatTextureCache = [];
+    this.spriteCache = [];
   }
 
   getPatchTexture(num: number): PatchTextures {
@@ -106,7 +129,7 @@ export class TextureLoader {
       const patchTex: PatchTextures = {
         map: tex as any,
         alphaMap: tex as any,
-        transparent: true,
+        transparent: false,
         patch,
       };
 
@@ -148,15 +171,11 @@ export class TextureLoader {
 
       const width = spriteLump ? spriteLump.patch.width || 64 : 64;
       const height = spriteLump ? spriteLump.patch.height || 64 : 64;
-      const bottomOffset = spriteLump
+      const topOffset = spriteLump
         ? spriteLump.patch.topOffset || height
         : height;
 
       const svgPrefix = SPRITE_TO_SVG_MAP[spriteName4] || spriteName4;
-
-      console.log(
-        `Loading sprite: ${fullSpriteName} -> ${svgPrefix}${frameChar}`,
-      );
 
       let tex = svgRasterizer.getTexture(svgPrefix + frameChar, width, height);
       if (!tex)
@@ -166,9 +185,6 @@ export class TextureLoader {
         tex = svgRasterizer.getTexture(spriteName4 + "a0", width, height);
       if (!tex) tex = svgRasterizer.getTexture(spriteName4, width, height);
       if (!tex) {
-        console.warn(
-          `No SVG found for sprite ${fullSpriteName}, using fallback`,
-        );
         tex = svgRasterizer.getFallbackTexture(
           "sprite",
           fullSpriteName,
@@ -180,10 +196,10 @@ export class TextureLoader {
 
       const fakeSpriteTexture: any = tex;
       fakeSpriteTexture.rotations = 1;
-      fakeSpriteTexture.frames = sprDef.frames.length;
+      fakeSpriteTexture.frames = 1;
       fakeSpriteTexture.width = width;
       fakeSpriteTexture.height = height;
-      fakeSpriteTexture.bottomOffset = bottomOffset;
+      fakeSpriteTexture.topOffset = topOffset;
 
       this.spriteCache[num] = fakeSpriteTexture;
     }
