@@ -1,1 +1,0 @@
-vLightDepth = -mvPosition.z;

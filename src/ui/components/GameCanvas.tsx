@@ -1,0 +1,300 @@
+import { useEffect, useRef, useState } from "react";
+import {
+  Engine,
+  Scene,
+  HemisphericLight,
+  Vector3,
+  Color3,
+  FreeCamera,
+} from "@babylonjs/core";
+import { InputManager } from "../../engine/input/InputManager";
+import { AssetLoader } from "../../engine/assets/AssetLoader";
+import { createTestLevel } from "../../engine/assets/ProceduralLevel";
+import { initializeGameAudio } from "../../engine/audio/GameAudio";
+import { EntityManager } from "../../game/EntityManager";
+import { Player } from "../../game/entities/Player";
+import { Enemy } from "../../game/entities/Enemy";
+import { useGameStore } from "../../game/state/gameStore";
+import {
+  loadManifest,
+  getLevelConfig,
+  getDefaultLevel,
+} from "../../game/levels/levelManifest";
+
+export function GameCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const engineRef = useRef<Engine | null>(null);
+  const sceneRef = useRef<Scene | null>(null);
+  const cameraRef = useRef<FreeCamera | null>(null);
+  const inputRef = useRef<InputManager | null>(null);
+  const loaderRef = useRef<AssetLoader | null>(null);
+  const entityManagerRef = useRef<EntityManager | null>(null);
+  const playerRef = useRef<Player | null>(null);
+
+  const [isReady, setIsReady] = useState(false);
+  const { currentLevel, setLoading, setCurrentLevel, startGame, setPlaying } =
+    useGameStore();
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const engine = new Engine(canvas, true, {
+      preserveDrawingBuffer: true,
+      stencil: true,
+    });
+    engineRef.current = engine;
+
+    const scene = new Scene(engine);
+    sceneRef.current = scene;
+    scene.gravity = new Vector3(0, -9.81, 0);
+    scene.collisionsEnabled = true;
+
+    const inputManager = new InputManager();
+    inputManager.initialize(canvas);
+    inputRef.current = inputManager;
+
+    const assetLoader = new AssetLoader();
+    assetLoader.setScene(scene);
+    loaderRef.current = assetLoader;
+
+    const entityManager = new EntityManager(scene);
+    entityManagerRef.current = entityManager;
+
+    const camera = new FreeCamera("fpsCamera", new Vector3(0, 1.7, 0), scene);
+    camera.minZ = 0.1;
+    camera.maxZ = 1000;
+    camera.fov = 1.2;
+    camera.inertia = 0;
+    camera.applyGravity = true;
+    camera.checkCollisions = true;
+    camera.ellipsoid = new Vector3(0.5, 1.7, 0.5);
+    camera.inputs.clear();
+    scene.activeCamera = camera;
+    cameraRef.current = camera;
+
+    const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
+    light.intensity = 0.7;
+
+    initializeGameAudio(scene).catch((err) => {
+      console.warn(
+        "Audio initialization failed (expected if audio files missing):",
+        err,
+      );
+    });
+
+    let lastTime = performance.now();
+
+    engine.runRenderLoop(() => {
+      const now = performance.now();
+      const deltaTime = (now - lastTime) / 1000;
+      lastTime = now;
+
+      inputManager.update();
+
+      if (playerRef.current) {
+        playerRef.current.update(deltaTime);
+
+        // Check pickup collection
+        if (entityManagerRef.current && cameraRef.current) {
+          const playerPos = cameraRef.current.position;
+          const pickups = entityManagerRef.current.getPickups();
+
+          pickups.forEach((pickup) => {
+            if (!pickup.isActive) return;
+
+            const pickupPos = pickup.getPosition();
+            const distance = Vector3.Distance(playerPos, pickupPos);
+
+            if (distance < 1.5) {
+              pickup.collect();
+            }
+          });
+        }
+      }
+
+      entityManager.update(deltaTime);
+      scene.render();
+    });
+
+    setIsReady(true);
+
+    return () => {
+      entityManager.dispose();
+      engine.dispose();
+      inputManager.dispose();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (
+      !isReady ||
+      !loaderRef.current ||
+      !sceneRef.current ||
+      !entityManagerRef.current
+    )
+      return;
+
+    const loadLevel = async () => {
+      setLoading(true);
+
+      try {
+        const manifest = await loadManifest();
+        const levelId = currentLevel || getDefaultLevel(manifest);
+        const config = getLevelConfig(levelId, manifest);
+
+        if (!config) {
+          console.error(`Level ${levelId} not found`);
+          return;
+        }
+
+        const scene = sceneRef.current!;
+        const entityManager = entityManagerRef.current!;
+
+        scene.meshes.forEach((mesh) => {
+          if (mesh.name !== "fpsCamera") {
+            mesh.dispose();
+          }
+        });
+        entityManager.clear();
+
+        try {
+          const meshes = await loaderRef.current!.loadLevel(config.model);
+          meshes.forEach((mesh) => {
+            mesh.checkCollisions = true;
+          });
+        } catch (loadError) {
+          console.warn("GLB load failed, using procedural level:", loadError);
+          createTestLevel(scene);
+        }
+
+        if (config.ambient?.fog) {
+          const fog = config.ambient.fog;
+          scene.fogMode =
+            fog.mode === "linear"
+              ? Scene.FOGMODE_LINEAR
+              : fog.mode === "exp"
+                ? Scene.FOGMODE_EXP
+                : Scene.FOGMODE_NONE;
+
+          if (fog.start !== undefined) scene.fogStart = fog.start;
+          if (fog.end !== undefined) scene.fogEnd = fog.end;
+          if (fog.density !== undefined) scene.fogDensity = fog.density;
+          if (fog.color) {
+            scene.fogColor = new Color3(
+              fog.color[0],
+              fog.color[1],
+              fog.color[2],
+            );
+          }
+        }
+
+        config.spawns.forEach((spawn, index) => {
+          const entity = entityManager.spawnEntity(spawn, index);
+
+          if (entity instanceof Player) {
+            playerRef.current = entity;
+            if (cameraRef.current && inputRef.current) {
+              entity.attachToCamera(cameraRef.current, inputRef.current, scene);
+            }
+          }
+        });
+
+        setCurrentLevel(levelId);
+        startGame();
+        setPlaying(true);
+      } catch (error) {
+        console.error("Failed to load level:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadLevel();
+  }, [
+    isReady,
+    currentLevel,
+    setLoading,
+    setCurrentLevel,
+    startGame,
+    setPlaying,
+  ]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      engineRef.current?.resize();
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === "Escape") {
+        const { isPaused, setPaused, isPlaying } = useGameStore.getState();
+        if (isPlaying) {
+          setPaused(!isPaused);
+        }
+      }
+
+      if (e.code === "Digit1") {
+        playerRef.current?.switchWeapon("pistol");
+      } else if (e.code === "Digit2") {
+        playerRef.current?.switchWeapon("shotgun");
+      } else if (e.code === "Space") {
+        const { isPlaying, health } = useGameStore.getState();
+        if (!isPlaying && health <= 0) {
+          window.location.reload();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    const handleMouseDown = (e: MouseEvent) => {
+      if (e.button === 0 && inputRef.current?.isPointerLocked()) {
+        const { isPaused, isPlaying } = useGameStore.getState();
+        if (!isPaused && isPlaying) {
+          playerRef.current?.fire();
+        }
+      }
+    };
+
+    window.addEventListener("mousedown", handleMouseDown);
+    return () => window.removeEventListener("mousedown", handleMouseDown);
+  }, []);
+
+  useEffect(() => {
+    const handleEntityHit = (e: CustomEvent) => {
+      const { entityId, damage } = e.detail;
+      const entity = entityManagerRef.current?.getEntity(entityId);
+      if (entity && "takeDamage" in entity) {
+        (entity as any).takeDamage(damage);
+
+        // Check if enemy died and add score
+        if ("health" in entity && (entity as any).health.isDead) {
+          useGameStore.getState().addScore(100);
+        }
+      }
+    };
+
+    window.addEventListener("entityHit", handleEntityHit as EventListener);
+    return () =>
+      window.removeEventListener("entityHit", handleEntityHit as EventListener);
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        width: "100%",
+        height: "100vh",
+        display: "block",
+        outline: "none",
+      }}
+    />
+  );
+}

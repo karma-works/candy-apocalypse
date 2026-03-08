@@ -1,0 +1,134 @@
+.main-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a001a 0%, #0d0d1a 100%);
+  z-index: 1000;
+  font-family: 'Courier New', monospace;
+}
+
+.menu-content {
+  text-align: center;
+  padding: 60px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid #ff0044;
+  box-shadow: 0 0 60px rgba(255, 0, 68, 0.3);
+  max-width: 600px;
+}
+
+.game-title {
+  font-size: 4rem;
+  color: #ff0044;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  text-shadow: 
+    0 0 10px #ff0044,
+    0 0 20px #ff0044,
+    0 0 40px #ff0044;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.game-subtitle {
+  font-size: 1.2rem;
+  color: #888;
+  margin: 0 0 40px 0;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.menu-buttons {
+  margin-bottom: 40px;
+}
+
+.menu-button {
+  padding: 20px 60px;
+  font-size: 1.5rem;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  border: 2px solid #00d4ff;
+  background: transparent;
+  color: #00d4ff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 10px;
+}
+
+.menu-button:hover {
+  background: #00d4ff;
+  color: #000;
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+  transform: scale(1.05);
+}
+
+.menu-button:active {
+  transform: scale(0.95);
+}
+
+.controls-info {
+  text-align: left;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
+}
+
+.controls-info h3 {
+  color: #ffb7c5;
+  margin: 0 0 15px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.control-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #222;
+}
+
+.control-item:last-child {
+  border-bottom: none;
+}
+
+.key {
+  color: #00d4ff;
+  font-weight: bold;
+  min-width: 120px;
+}
+
+.action {
+  color: #ccc;
+  text-align: right;
+}
+
+.game-info {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  line-height: 1.8;
+}
+
+.game-info p {
+  margin: 5px 0;
+}
+
+.tech-info {
+  color: #444;
+  font-size: 0.8rem;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #222;
+}

@@ -1,0 +1,30 @@
+{
+  "levels": {
+    "test-level": {
+      "name": "Test Level",
+      "model": "/assets/levels/test-level.glb",
+      "spawns": [
+        { "type": "player", "position": [0, 1.7, 0], "rotation": [0, 0, 0] },
+        { "type": "enemy-demon", "position": [5, 0, 5] },
+        { "type": "enemy-demon", "position": [-5, 0, 5] },
+        { "type": "enemy-imp", "position": [7, 0, -3] },
+        { "type": "prop-barrel", "position": [3, 0, 2] },
+        { "type": "prop-barrel", "position": [-4, 0, 4] },
+        { "type": "prop-crate", "position": [6, 0, 6] },
+        { "type": "prop-pillar", "position": [-6, 0, -6] },
+        { "type": "pickup-health", "position": [-3, 0.5, -3] },
+        { "type": "pickup-ammo-pistol", "position": [4, 0.5, -4] },
+        { "type": "pickup-ammo-shotgun", "position": [-5, 0.5, 5] }
+      ],
+      "ambient": {
+        "fog": {
+          "mode": "linear",
+          "start": 10,
+          "end": 50,
+          "color": [0.1, 0.1, 0.15]
+        }
+      }
+    }
+  },
+  "defaultLevel": "test-level"
+}
