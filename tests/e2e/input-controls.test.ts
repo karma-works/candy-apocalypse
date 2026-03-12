@@ -3,6 +3,8 @@ import { test, expect } from "@playwright/test";
 test.describe("Input Controls Tests", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
+    await page.waitForSelector(".candy-button-primary");
+    await page.click(".candy-button-primary");
     await page.waitForSelector("#game-canvas");
     await page.waitForTimeout(1000);
   });
@@ -75,6 +77,8 @@ test.describe("Input Controls Tests", () => {
 test.describe("Game State Tests", () => {
   test("should initialize game state correctly", async ({ page }) => {
     await page.goto("/");
+    await page.waitForSelector(".candy-button-primary");
+    await page.click(".candy-button-primary");
     await page.waitForSelector("#game-canvas");
     await page.waitForTimeout(1000);
 
@@ -89,6 +93,8 @@ test.describe("Game State Tests", () => {
 
   test("should handle pause/resume", async ({ page }) => {
     await page.goto("/");
+    await page.waitForSelector(".candy-button-primary");
+    await page.click(".candy-button-primary");
     await page.waitForSelector("#game-canvas");
     await page.waitForTimeout(1000);
 

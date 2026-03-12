@@ -72,10 +72,14 @@ export class LevelGenerator {
    */
   generateLevel(config: LevelConfig): void {
     const floorMat = new StandardMaterial("floorMat", this.scene);
-    floorMat.diffuseColor = new Color3(0.3, 0.3, 0.35);
+    // Toxic Slime floor
+    floorMat.diffuseColor = new Color3(0.2, 1.0, 0.0);
+    floorMat.emissiveColor = new Color3(0.05, 0.2, 0.0);
 
     const wallMat = new StandardMaterial("wallMat", this.scene);
-    wallMat.diffuseColor = new Color3(0.5, 0.4, 0.3);
+    // Mystic Violet walls
+    wallMat.diffuseColor = new Color3(0.6, 0.36, 0.9);
+    wallMat.emissiveColor = new Color3(0.1, 0.05, 0.2);
 
     const floor = MeshBuilder.CreateGround(
       "floor",
@@ -114,7 +118,9 @@ export class LevelGenerator {
     });
 
     const pillarMat = new StandardMaterial("pillarMat", this.scene);
-    pillarMat.diffuseColor = new Color3(0.6, 0.2, 0.2);
+    // Hot Pink pillars
+    pillarMat.diffuseColor = new Color3(1.0, 0.0, 0.5);
+    pillarMat.emissiveColor = new Color3(0.3, 0.0, 0.1);
 
     const pillar1 = MeshBuilder.CreateCylinder(
       "pillar_1",

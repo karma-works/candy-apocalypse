@@ -88,7 +88,7 @@
 ## Phase 4: Weapons & Mouse Input 🔄
 
 - **Goal**: Implement all weapons with proper first-person SVG assets (following [Product Design](./product_design.md) styleguide) and mouse controls. _Outcome MUST include E2E tests for weapon switching and firing._
-- **Status**: 🔄 **IN PROGRESS** (weapon SVGs complete, scroll wheel switching implemented, need firing effects and tests)
+- **Status**: 🔄 **IN PROGRESS** (weapon SVGs complete, scroll wheel switching implemented, hitscan/projectile mechanics and effects added, tests updated)
 - **Reference Implementation**: Use doom.ts's weapon input handling and shooting mechanics as reference, but adapt for our "Candy Apocalypse" style.
 - **Weapons to Implement**: Reference [Product Design - Weapons](./product_design.md#weapon-design-philosophy) for the definitive list of weapons, their personalities, and visual gimmicks. Avoid duplicating weapon details here to maintain a single source of truth.
 - **Tasks**:
@@ -107,13 +107,13 @@
     - Generating procedural fallback textures when SVG assets unavailable
     - Supporting walls, floors, doors, switches, and hazards
     - Using Candy Apocalypse color palette with comic-style outlines
-  - ⏳ Implement firing mechanics for each weapon type (hitscan vs projectile) with exaggerated effects per the [Explosion Hierarchy](./product_design.md#explosion-hierarchy).
+  - ✅ Implement firing mechanics for each weapon type (hitscan vs projectile) with exaggerated effects per the [Explosion Hierarchy](./product_design.md#explosion-hierarchy).
   - ✅ **Add mouse support** (already exists in doom.ts):
     - ✅ Mouse look (X and Y axis for aiming) - `src/doom/interfaces/input.ts`
     - ✅ Left-click to fire - configured in `src/doom/misc/defaults.ts`
     - ✅ Scroll wheel for weapon switching
-  - ⏳ Unit test weapon switching logic.
-  - ⏳ E2E test weapon rendering and firing.
+  - ✅ Unit test weapon switching logic.
+  - ✅ E2E test weapon rendering and firing.
 
 ## Phase 5: Gameplay, Entities & Full Game Logic ⏳
 
@@ -175,8 +175,5 @@
 
 ## Next Actions (Priority Order)
 
-1. **Implement firing mechanics** with exaggerated effects per the Explosion Hierarchy
-2. **Write unit tests** for weapon switching logic
-3. **Adapt shaders** for SVG-based rendering with Candy Apocalypse color theme
-4. **Setup CI/CD** with GitHub Actions pipeline
-5. **Implement enemy AI** state machines for combat interactions
+1. **Setup CI/CD** with GitHub Actions pipeline
+2. **Implement enemy AI** state machines for combat interactions

@@ -5,8 +5,12 @@ test.describe("Enemy Visibility Test", () => {
         // Navigate to the game with our custom single cube WAD
         await page.goto("/play?iwad=doom1.wad&pwads=assets/test-wads/single-cube.wad");
 
+        // Wait for CandyMenu and click Start
+        await page.waitForSelector(".candy-button-primary");
+        await page.click(".candy-button-primary");
+
         // Wait for game to initialize
-        await page.waitForSelector(".screen-wrapper canvas", { timeout: 15000 });
+        await page.waitForSelector("#game-canvas", { timeout: 15000 });
 
         // Wait for initial render to complete
         await page.waitForTimeout(2000);
@@ -14,7 +18,7 @@ test.describe("Enemy Visibility Test", () => {
 
     test("should render enemy in front of a wall", async ({ page }) => {
         // focus the canvas to accept input
-        await page.locator(".screen-wrapper canvas").first().click({ force: true });
+        await page.locator("#game-canvas").first().click({ force: true });
 
         // Player is at (64,64) facing North (90). Enemy is at (32,32) SW.
         // Let's turn left to face the enemy.

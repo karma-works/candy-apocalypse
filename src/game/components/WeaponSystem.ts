@@ -3,6 +3,10 @@ import { Scene, Ray, AbstractMesh } from "@babylonjs/core";
 import { useGameStore } from "../state/gameStore";
 import { Inventory } from "./Inventory";
 import { playSound } from "../../engine/audio/GameAudio";
+import { EffectManager } from "./EffectManager";
+
+export type FireType = "hitscan" | "projectile" | "melee";
+export type EffectLevel = "pop" | "bang" | "kaboom" | "megablast";
 
 export interface WeaponConfig {
   type: string;
@@ -12,9 +16,23 @@ export interface WeaponConfig {
   ammoPerShot: number;
   spread: number;
   soundName: string;
+  fireType: FireType;
+  effectLevel: EffectLevel;
+  projectileSpeed?: number;
 }
 
 const WEAPON_CONFIGS: Record<string, WeaponConfig> = {
+  chainsaw: {
+    type: "chainsaw",
+    damage: 20,
+    fireRate: 0.1,
+    range: 3,
+    ammoPerShot: 0,
+    spread: 0,
+    soundName: "shoot_chainsaw",
+    fireType: "melee",
+    effectLevel: "pop",
+  },
   pistol: {
     type: "pistol",
     damage: 15,
@@ -23,6 +41,8 @@ const WEAPON_CONFIGS: Record<string, WeaponConfig> = {
     ammoPerShot: 1,
     spread: 0.01,
     soundName: "shoot_pistol",
+    fireType: "hitscan",
+    effectLevel: "pop",
   },
   shotgun: {
     type: "shotgun",
@@ -32,6 +52,8 @@ const WEAPON_CONFIGS: Record<string, WeaponConfig> = {
     ammoPerShot: 2,
     spread: 0.1,
     soundName: "shoot_shotgun",
+    fireType: "hitscan",
+    effectLevel: "bang",
   },
   chaingun: {
     type: "chaingun",
@@ -41,6 +63,44 @@ const WEAPON_CONFIGS: Record<string, WeaponConfig> = {
     ammoPerShot: 1,
     spread: 0.05,
     soundName: "shoot_pistol",
+    fireType: "hitscan",
+    effectLevel: "pop",
+  },
+  rocket_launcher: {
+    type: "rocket_launcher",
+    damage: 100,
+    fireRate: 1.0,
+    range: 200,
+    ammoPerShot: 1,
+    spread: 0,
+    soundName: "shoot_rocket",
+    fireType: "projectile",
+    effectLevel: "kaboom",
+    projectileSpeed: 30,
+  },
+  plasma_rifle: {
+    type: "plasma_rifle",
+    damage: 20,
+    fireRate: 0.1,
+    range: 150,
+    ammoPerShot: 1,
+    spread: 0.02,
+    soundName: "shoot_plasma",
+    fireType: "projectile",
+    effectLevel: "pop",
+    projectileSpeed: 50,
+  },
+  bfg9000: {
+    type: "bfg9000",
+    damage: 500,
+    fireRate: 2.5,
+    range: 300,
+    ammoPerShot: 40,
+    spread: 0,
+    soundName: "shoot_bfg",
+    fireType: "projectile",
+    effectLevel: "megablast",
+    projectileSpeed: 15,
   },
 };
 
@@ -49,10 +109,12 @@ export class WeaponSystem extends Component {
   private currentWeapon: WeaponConfig | null = null;
   private lastFireTime = 0;
   private camera: any = null;
+  private effects: EffectManager;
 
   constructor(scene: Scene) {
     super();
     this.scene = scene;
+    this.effects = new EffectManager(scene);
   }
 
   attachToCamera(camera: any): void {
@@ -64,8 +126,13 @@ export class WeaponSystem extends Component {
     if (!config) return false;
 
     const inventory = this.entity?.getComponent(Inventory);
-    if (inventory && inventory.hasWeapon(type)) {
+    if (!inventory) {
+      console.warn("WeaponSystem: No inventory found on entity, cannot switch weapon");
+      return false;
+    }
+    if (inventory.hasWeapon(type)) {
       this.currentWeapon = config;
+      useGameStore.getState().setCurrentWeapon(type);
       playSound("weapon_switch");
       return true;
     }
@@ -73,22 +140,37 @@ export class WeaponSystem extends Component {
   }
 
   canFire(): boolean {
-    if (!this.currentWeapon) return false;
+    if (!this.currentWeapon) {
+      console.log("WeaponSystem.canFire: no current weapon");
+      return false;
+    }
 
     const now = performance.now() / 1000;
-    if (now - this.lastFireTime < this.currentWeapon.fireRate) return false;
+    if (now - this.lastFireTime < this.currentWeapon.fireRate) {
+      console.log("WeaponSystem.canFire: rate limited");
+      return false;
+    }
 
     const inventory = this.entity?.getComponent(Inventory);
-    if (!inventory) return false;
+    if (!inventory) {
+      console.log("WeaponSystem.canFire: missing inventory");
+      return false;
+    }
 
-    return inventory.hasAmmo(
+    const hasAmmo = inventory.hasAmmo(
       this.currentWeapon.type,
       this.currentWeapon.ammoPerShot,
     );
+    if (!hasAmmo) console.log("WeaponSystem.canFire: no ammo");
+    return hasAmmo;
   }
 
   fire(): boolean {
-    if (!this.canFire() || !this.camera) return false;
+    if (!this.canFire()) return false;
+    if (!this.camera) {
+      console.log("WeaponSystem.fire: missing camera");
+      return false;
+    }
 
     const inventory = this.entity?.getComponent(Inventory);
     if (!inventory) return false;
@@ -122,23 +204,70 @@ export class WeaponSystem extends Component {
     forward.y += spreadY;
     forward.normalize();
 
+    if (this.currentWeapon!.fireType === "projectile") {
+      this.fireProjectile(forward);
+    } else {
+      // Hitscan: pick ANY pickable enabled mesh. Do NOT require checkCollisions —
+      // enemy billboard planes are extremely thin and only register via isPickable.
+      const ray = new Ray(
+        this.camera.position,
+        forward,
+        this.currentWeapon!.range,
+      );
+      const hit = this.scene.pickWithRay(ray, (mesh) => {
+        return mesh.isPickable && mesh.isEnabled();
+      });
+
+      if (hit?.hit && hit.pickedMesh && hit.pickedPoint) {
+        this.onHit(hit.pickedMesh, hit.pickedPoint, hit.distance ?? 0);
+      } else {
+        // Always give visual feedback — show impact at max range
+        const impactPos = this.camera.position.add(
+          forward.scale(Math.min(this.currentWeapon!.range, 20)),
+        );
+        this.effects.playPop(impactPos);
+      }
+    }
+
+    // Signal muzzle flash to the HUD
+    window.dispatchEvent(
+      new CustomEvent("weaponFired", { detail: { weapon: this.currentWeapon!.type } }),
+    );
+
+    return true;
+  }
+
+  private fireProjectile(direction: any) {
+    // Basic projectile implementation: check hit immediately, but visually we could spawn a mesh.
+    // For now, we will raycast to find the ultimate collision point and simulate the explosion there
+    // TODO: Create an actual moving mesh
     const ray = new Ray(
       this.camera.position,
-      forward,
+      direction,
       this.currentWeapon!.range,
     );
     const hit = this.scene.pickWithRay(ray, (mesh) => {
       return mesh.isPickable && mesh.checkCollisions;
     });
 
-    if (hit?.hit && hit.pickedMesh) {
-      this.onHit(hit.pickedMesh, hit.distance ?? 0);
+    if (hit?.hit && hit.pickedMesh && hit.pickedPoint) {
+      setTimeout(() => {
+        this.onHit(hit.pickedMesh!, hit.pickedPoint!, hit.distance ?? 0);
+      }, (hit.distance ?? 0) / (this.currentWeapon!.projectileSpeed || 30) * 1000);
     }
-
-    return true;
   }
 
-  private onHit(mesh: AbstractMesh, distance: number): void {
+  private playEffect(position: any) {
+    const level = this.currentWeapon!.effectLevel;
+    if (level === "megablast") this.effects.playMegaBlast(position);
+    else if (level === "kaboom") this.effects.playKaBoom(position);
+    else if (level === "bang") this.effects.playBang(position);
+    else this.effects.playPop(position);
+  }
+
+  private onHit(mesh: AbstractMesh, position: any, distance: number): void {
+    this.playEffect(position);
+
     const entityId = mesh.metadata?.entityId;
     if (entityId) {
       console.log(`Hit entity ${entityId} at distance ${distance.toFixed(2)}`);

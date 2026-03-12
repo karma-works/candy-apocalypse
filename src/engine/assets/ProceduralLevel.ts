@@ -8,10 +8,14 @@ import {
 
 export function createTestLevel(scene: Scene): void {
   const floorMat = new StandardMaterial("floorMat", scene);
-  floorMat.diffuseColor = new Color3(0.3, 0.3, 0.35);
+  // Toxic Slime floor
+  floorMat.diffuseColor = new Color3(0.2, 1.0, 0.0);
+  floorMat.emissiveColor = new Color3(0.05, 0.2, 0.0);
 
   const wallMat = new StandardMaterial("wallMat", scene);
-  wallMat.diffuseColor = new Color3(0.5, 0.4, 0.3);
+  // Mystic Violet walls
+  wallMat.diffuseColor = new Color3(0.6, 0.36, 0.9);
+  wallMat.emissiveColor = new Color3(0.1, 0.05, 0.2);
 
   const floor = MeshBuilder.CreateGround(
     "floor",
@@ -49,7 +53,9 @@ export function createTestLevel(scene: Scene): void {
   createWall("obstacle_3", 5, -5, 1.5, 2, 3, 0.4);
 
   const pillarMat = new StandardMaterial("pillarMat", scene);
-  pillarMat.diffuseColor = new Color3(0.6, 0.2, 0.2);
+  // Hot Pink pillars
+  pillarMat.diffuseColor = new Color3(1.0, 0.0, 0.5);
+  pillarMat.emissiveColor = new Color3(0.3, 0.0, 0.1);
 
   const pillar1 = MeshBuilder.CreateCylinder(
     "pillar_1",

@@ -1,7 +1,8 @@
 import { GameCanvas } from "./components/GameCanvas";
 import { HUD } from "./components/HUD";
-import { MainMenu } from "./components/MainMenu";
+import CandyMenu from "../CandyMenu/CandyMenu";
 import { useGameStore } from "../game/state/gameStore";
+import { WeaponHUD } from "./components/WeaponHUD";
 import "./App.css";
 
 export function App() {
@@ -10,8 +11,26 @@ export function App() {
   return (
     <div className="app">
       <GameCanvas />
-      {!isPlaying && <MainMenu />}
-      {isPlaying && <HUD />}
+      {!isPlaying && (
+        <CandyMenu
+          onStartGame={() => {
+            const { startGame, setPlaying, reset } = useGameStore.getState();
+            reset();
+            startGame();
+            setPlaying(true);
+          }}
+          onExplore={() => {
+            // Not implemented yet
+            console.log("Explore WAD clicked");
+          }}
+        />
+      )}
+      {isPlaying && (
+        <>
+          <WeaponHUD />
+          <HUD />
+        </>
+      )}
     </div>
   );
 }

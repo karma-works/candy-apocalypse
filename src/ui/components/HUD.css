@@ -1,3 +1,12 @@
+/* ===========================
+   Candy Apocalypse – HUD Styles
+   Palette: Sky Pop #00D4FF | Cotton Cloud #FFB7C5
+            Solar Burst #FFE135 | Toxic Lime #32FF00
+            Cherry Bomb #FF0044 | Deep Space #1A1A2E
+   =========================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+
 .hud {
   position: fixed;
   top: 0;
@@ -5,119 +14,91 @@
   right: 0;
   bottom: 0;
   pointer-events: none;
-  color: white;
-  font-family: 'Courier New', monospace;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  font-family: 'Fredoka One', 'Courier New', monospace;
 }
 
+/* ─── Loading ─── */
 .hud-loading {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.8);
+  background: linear-gradient(135deg, #1A1A2E 0%, #2d0a3f 100%);
 }
 
 .loading-text {
-  font-size: 2rem;
-  animation: pulse 1s ease-in-out infinite;
+  font-size: 2.5rem;
+  color: #FFE135;
+  text-shadow: 3px 3px 0 #1A1A2E;
+  animation: loadingBob 0.8s ease-in-out infinite;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+@keyframes loadingBob {
+  0%, 100% { transform: scale(1) rotate(-1deg); }
+  50%       { transform: scale(1.06) rotate(1deg); }
 }
 
+/* ─── Death overlay (game over, not auto-respawn) ─── */
 .hud-death {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(26, 26, 46, 0.92);
 }
 
 .death-overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   text-align: center;
-  background: rgba(139, 0, 0, 0.85);
-  padding: 40px 60px;
-  border: 2px solid #ff0044;
-  min-width: 300px;
-}
-
-.death-text {
-  font-size: 3rem;
-  color: #ff0044;
-  margin-bottom: 20px;
-  text-transform: uppercase;
-  letter-spacing: 4px;
-}
-
-.death-score {
-  font-size: 1.5rem;
-  color: white;
-  margin-bottom: 15px;
-}
-
-.death-hint {
-  font-size: 1rem;
-  color: #ccc;
-}
-
-.hud-death {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 50px 70px;
+  background: linear-gradient(135deg, #FF0044 0%, #9B5DE5 100%);
+  border: 5px solid #1A1A2E;
+  border-radius: 20px;
+  box-shadow: 8px 8px 0 #1A1A2E;
 }
 
 .death-text {
   font-size: 4rem;
-  color: #ff0000;
-  font-weight: bold;
-  margin-bottom: 20px;
-  text-shadow: 0 0 20px #ff0000;
+  color: #FFE135;
+  text-shadow: 3px 3px 0 #1A1A2E;
   animation: deathPulse 0.5s ease-in-out infinite;
+  margin-bottom: 16px;
 }
 
 @keyframes deathPulse {
-  0%, 100% { 
-    transform: scale(1);
-    text-shadow: 0 0 20px #ff0000;
-  }
-  50% { 
-    transform: scale(1.1);
-    text-shadow: 0 0 30px #ff0000;
-  }
+  0%, 100% { transform: scale(1);    text-shadow: 3px 3px 0 #1A1A2E; }
+  50%       { transform: scale(1.08); text-shadow: 4px 4px 0 #1A1A2E; }
 }
 
 .death-score {
-  font-size: 2rem;
+  font-size: 1.8rem;
   color: #fff;
-  margin-bottom: 15px;
+  text-shadow: 2px 2px 0 #1A1A2E;
+  margin-bottom: 14px;
 }
 
 .death-hint {
-  font-size: 1rem;
-  color: #ccc;
+  font-size: 1.1rem;
+  color: #FFB7C5;
   animation: blink 1s ease-in-out infinite;
 }
 
 @keyframes blink {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+  50%       { opacity: 0.35; }
 }
 
+/* ─── HUD Top Bar ─── */
 .hud-top {
   position: absolute;
-  top: 20px;
+  top: 16px;
   left: 20px;
-  right: 20px;
 }
 
 .score {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
+  color: #FFE135;
+  text-shadow: 2px 2px 0 #1A1A2E;
 }
 
+/* ─── HUD Bottom Bar ─── */
 .hud-bottom {
   position: absolute;
   bottom: 20px;
@@ -126,119 +107,116 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+  gap: 20px;
 }
 
+/* ─── Health Bar ─── */
 .health-bar {
   position: relative;
-  width: 200px;
-  height: 30px;
-  background: rgba(0, 0, 0, 0.5);
-  border: 2px solid #ff0044;
+  width: 220px;
+  height: 34px;
+  background: rgba(26, 26, 46, 0.8);
+  border: 3px solid #1A1A2E;
+  border-radius: 10px;
   overflow: hidden;
+  box-shadow: 3px 3px 0 #1A1A2E;
 }
 
 .health-fill {
   height: 100%;
-  background: linear-gradient(to right, #ff0044, #ff6b35);
-  transition: width 0.3s ease;
+  background: linear-gradient(to right, #FF0044, #FF6B35, #32FF00);
+  background-size: 300% 100%;
+  background-position: right center;
+  transition: width 0.25s ease, background-position 0.25s ease;
 }
+
+/* shift gradient left (greener) when health is high */
+.health-fill[style*="100"]  { background-position: right center; }
+.health-fill[style*="50"]   { background-position: center center; }
 
 .health-text {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 1.2rem;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
   font-weight: bold;
+  color: #fff;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
 }
 
+/* ─── Ammo Display ─── */
 .ammo-display {
   display: flex;
-  gap: 20px;
+  gap: 12px;
+  align-items: flex-end;
 }
 
 .ammo-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px 15px;
-  background: rgba(0, 0, 0, 0.5);
-  border: 2px solid #00d4ff;
+  padding: 8px 14px;
+  background: rgba(26, 26, 46, 0.85);
+  border: 3px solid #00D4FF;
+  border-radius: 10px;
+  box-shadow: 3px 3px 0 #1A1A2E;
 }
 
 .ammo-type {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
-  color: #00d4ff;
+  color: #00D4FF;
+  letter-spacing: 0.1em;
 }
 
 .ammo-count {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: bold;
+  color: #FFE135;
+  text-shadow: 1px 1px 0 #1A1A2E;
 }
 
+/* ─── Pause Overlay ─── */
 .pause-overlay {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 40px 60px;
-  border: 2px solid #9b5de5;
+  background: linear-gradient(135deg, rgba(26,26,46,0.95), rgba(45,10,63,0.95));
+  padding: 40px 64px;
+  border: 5px solid #9B5DE5;
+  border-radius: 20px;
+  box-shadow: 8px 8px 0 #1A1A2E;
 }
 
 .pause-text {
-  font-size: 3rem;
-  color: #9b5de5;
-  margin-bottom: 10px;
+  font-size: 3.5rem;
+  color: #FFE135;
+  text-shadow: 3px 3px 0 #1A1A2E;
+  margin-bottom: 12px;
+  letter-spacing: 0.1em;
 }
 
 .pause-hint {
   font-size: 1rem;
-  color: #ccc;
+  color: #FFB7C5;
 }
 
+/* ─── Crosshair ─── */
 .crosshair {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 2rem;
-  color: white;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  font-size: 1.6rem;
+  color: #FFE135;
+  text-shadow:
+    -1px -1px 0 #1A1A2E,
+     1px -1px 0 #1A1A2E,
+    -1px  1px 0 #1A1A2E,
+     1px  1px 0 #1A1A2E;
   user-select: none;
-}
-
-.hud-death {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.9);
-}
-
-.death-overlay {
-  text-align: center;
-  padding: 60px 80px;
-  border: 3px solid #ff0044;
-  background: rgba(0, 0, 0, 0.8);
-}
-
-.death-text {
-  font-size: 4rem;
-  color: #ff0044;
-  margin-bottom: 20px;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-}
-
-.death-score {
-  font-size: 1.5rem;
-  color: #ccc;
-  margin-bottom: 15px;
-}
-
-.death-hint {
-  font-size: 1rem;
-  color: #888;
 }

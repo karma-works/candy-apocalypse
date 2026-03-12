@@ -22,20 +22,35 @@ export interface LevelConfig {
   };
 }
 
+const COMBO_LABELS: Array<{ minCombo: number; label: string }> = [
+  { minCombo: 50, label: "DOOM ETERNAL...LY HAPPY! 🌈" },
+  { minCombo: 20, label: "CHAOS EMPEROR! 👑" },
+  { minCombo: 10, label: "DEMOLITION DERBY! 🚧" },
+  { minCombo: 5, label: "MURDER PARTY! 🎉" },
+  { minCombo: 3, label: "Triple Threat! ⚡" },
+  { minCombo: 2, label: "Double Trouble! 💥" },
+];
+
 export interface GameState {
   currentLevel: string | null;
   isLoading: boolean;
   isPaused: boolean;
   isPlaying: boolean;
+  currentWeapon: string | null;
   health: number;
   maxHealth: number;
   ammo: Record<string, number>;
   score: number;
+  kills: number;
+  killCombo: number;
+  comboLabel: string;
+  lastKillTime: number;
 
   setCurrentLevel: (level: string | null) => void;
   setLoading: (loading: boolean) => void;
   setPaused: (paused: boolean) => void;
   setPlaying: (playing: boolean) => void;
+  setCurrentWeapon: (weapon: string | null) => void;
   setHealth: (health: number) => void;
   takeDamage: (amount: number) => void;
   heal: (amount: number) => void;
@@ -43,6 +58,8 @@ export interface GameState {
   addAmmo: (type: string, count: number) => void;
   useAmmo: (type: string, count: number) => boolean;
   addScore: (points: number) => void;
+  addKill: (points?: number) => void;
+  clearComboLabel: () => void;
   reset: () => void;
   startGame: () => void;
   endGame: () => void;
@@ -53,6 +70,7 @@ const initialState = {
   isLoading: false,
   isPaused: false,
   isPlaying: false,
+  currentWeapon: null as string | null,
   health: 100,
   maxHealth: 100,
   ammo: {
@@ -61,6 +79,10 @@ const initialState = {
     chaingun: 100,
   },
   score: 0,
+  kills: 0,
+  killCombo: 0,
+  comboLabel: "",
+  lastKillTime: 0,
 };
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -70,6 +92,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   setLoading: (loading) => set({ isLoading: loading }),
   setPaused: (paused) => set({ isPaused: paused }),
   setPlaying: (playing) => set({ isPlaying: playing }),
+  setCurrentWeapon: (weapon) => set({ currentWeapon: weapon }),
 
   setHealth: (health) =>
     set({ health: Math.max(0, Math.min(get().maxHealth, health)) }),
@@ -104,6 +127,25 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   addScore: (points) => set((state) => ({ score: state.score + points })),
+
+  addKill: (points = 100) => {
+    const state = get();
+    const now = performance.now();
+    const timeSinceLast = now - state.lastKillTime;
+    const comboReset = timeSinceLast > 3000;
+    const newCombo = comboReset ? 1 : state.killCombo + 1;
+    const comboEntry = COMBO_LABELS.find((c) => newCombo >= c.minCombo);
+    const comboLabel = comboEntry ? comboEntry.label : "";
+    set({
+      kills: state.kills + 1,
+      score: state.score + points * newCombo,
+      killCombo: newCombo,
+      comboLabel,
+      lastKillTime: now,
+    });
+  },
+
+  clearComboLabel: () => set({ comboLabel: "" }),
 
   reset: () => set(initialState),
 

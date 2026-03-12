@@ -9,6 +9,7 @@ import {
 } from "@babylonjs/core";
 import { InputManager } from "../../engine/input/InputManager";
 import { AssetLoader } from "../../engine/assets/AssetLoader";
+import { TextureManager } from "../../engine/assets/TextureManager";
 import { createTestLevel } from "../../engine/assets/ProceduralLevel";
 import { initializeGameAudio } from "../../engine/audio/GameAudio";
 import { EntityManager } from "../../game/EntityManager";
@@ -28,6 +29,7 @@ export function GameCanvas() {
   const cameraRef = useRef<FreeCamera | null>(null);
   const inputRef = useRef<InputManager | null>(null);
   const loaderRef = useRef<AssetLoader | null>(null);
+  const textureManagerRef = useRef<TextureManager | null>(null);
   const entityManagerRef = useRef<EntityManager | null>(null);
   const playerRef = useRef<Player | null>(null);
 
@@ -58,7 +60,10 @@ export function GameCanvas() {
     assetLoader.setScene(scene);
     loaderRef.current = assetLoader;
 
-    const entityManager = new EntityManager(scene);
+    const textureManager = new TextureManager(scene);
+    textureManagerRef.current = textureManager;
+
+    const entityManager = new EntityManager(scene, textureManager);
     entityManagerRef.current = entityManager;
 
     const camera = new FreeCamera("fpsCamera", new Vector3(0, 1.7, 0), scene);
@@ -68,7 +73,7 @@ export function GameCanvas() {
     camera.inertia = 0;
     camera.applyGravity = true;
     camera.checkCollisions = true;
-    camera.ellipsoid = new Vector3(0.5, 1.7, 0.5);
+    camera.ellipsoid = new Vector3(0.5, 0.8, 0.5); // Lowered from 1.7 to align eye level with enemies
     camera.inputs.clear();
     scene.activeCamera = camera;
     cameraRef.current = camera;
@@ -76,12 +81,8 @@ export function GameCanvas() {
     const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
     light.intensity = 0.7;
 
-    initializeGameAudio(scene).catch((err) => {
-      console.warn(
-        "Audio initialization failed (expected if audio files missing):",
-        err,
-      );
-    });
+    initializeGameAudio();
+
 
     let lastTime = performance.now();
 
@@ -139,6 +140,11 @@ export function GameCanvas() {
       setLoading(true);
 
       try {
+        // Load SVG spritemaps first
+        if (textureManagerRef.current) {
+          await textureManagerRef.current.loadSpritemap("/assets/spritemap.svg");
+        }
+
         const manifest = await loadManifest();
         const levelId = currentLevel || getDefaultLevel(manifest);
         const config = getLevelConfig(levelId, manifest);
@@ -253,48 +259,70 @@ export function GameCanvas() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  useEffect(() => {
-    const handleMouseDown = (e: MouseEvent) => {
-      if (e.button === 0 && inputRef.current?.isPointerLocked()) {
-        const { isPaused, isPlaying } = useGameStore.getState();
-        if (!isPaused && isPlaying) {
-          playerRef.current?.fire();
-        }
+  window.addEventListener("mousedown", handleMouseDown);
+  return () => window.removeEventListener("mousedown", handleMouseDown);
+}, []);
+
+useEffect(() => {
+  const handleEntityHit = (e: CustomEvent) => {
+    const { entityId, damage } = e.detail;
+    const entity = entityManagerRef.current?.getEntity(entityId);
+    if (entity && "takeDamage" in entity) {
+      (entity as any).takeDamage(damage);
+
+      // When enemy dies, register the kill (handles score + combo escalation)
+      if ("health" in entity && (entity as any).health.isDead) {
+        useGameStore.getState().addKill();
       }
-    };
+    }
+  };
 
-    window.addEventListener("mousedown", handleMouseDown);
-    return () => window.removeEventListener("mousedown", handleMouseDown);
-  }, []);
+  window.addEventListener("entityHit", handleEntityHit as EventListener);
+  return () =>
+    window.removeEventListener("entityHit", handleEntityHit as EventListener);
+}, []);
 
-  useEffect(() => {
-    const handleEntityHit = (e: CustomEvent) => {
-      const { entityId, damage } = e.detail;
-      const entity = entityManagerRef.current?.getEntity(entityId);
-      if (entity && "takeDamage" in entity) {
-        (entity as any).takeDamage(damage);
-
-        // Check if enemy died and add score
-        if ("health" in entity && (entity as any).health.isDead) {
-          useGameStore.getState().addScore(100);
+// Screen shake: watch health changes and apply camera jitter on damage
+useEffect(() => {
+  let prevHealth = useGameStore.getState().health;
+  const unsub = useGameStore.subscribe((state) => {
+    if (state.health < prevHealth && cameraRef.current) {
+      prevHealth = state.health;
+      // Dispatch event for HUD vignette
+      window.dispatchEvent(new CustomEvent("playerDamaged"));
+      // Camera shake: jitter then spring back
+      const cam = cameraRef.current;
+      const originPos = cam.position.clone();
+      const intensity = 0.06;
+      let elapsed = 0;
+      const interval = setInterval(() => {
+        elapsed += 16;
+        if (elapsed >= 200) {
+          cam.position.copyFrom(originPos);
+          clearInterval(interval);
+          return;
         }
-      }
-    };
+        const fade = 1 - elapsed / 200;
+        cam.position.x = originPos.x + (Math.random() - 0.5) * intensity * fade;
+        cam.position.z = originPos.z + (Math.random() - 0.5) * intensity * fade;
+      }, 16);
+    } else {
+      prevHealth = state.health;
+    }
+  });
+  return unsub;
+}, []);
 
-    window.addEventListener("entityHit", handleEntityHit as EventListener);
-    return () =>
-      window.removeEventListener("entityHit", handleEntityHit as EventListener);
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        width: "100%",
-        height: "100vh",
-        display: "block",
-        outline: "none",
-      }}
-    />
-  );
+return (
+  <canvas
+    id="game-canvas"
+    ref={canvasRef}
+    style={{
+      width: "100%",
+      height: "100vh",
+      display: "block",
+      outline: "none",
+    }}
+  />
+);
 }

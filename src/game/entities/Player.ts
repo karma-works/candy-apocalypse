@@ -6,6 +6,7 @@ import { Inventory } from "../components/Inventory";
 import { WeaponSystem } from "../components/WeaponSystem";
 import { FreeCamera, Scene } from "@babylonjs/core";
 import type { InputManager } from "../../engine/input/InputManager";
+import { useGameStore } from "../state/gameStore";
 
 export class Player extends Entity {
   transform: Transform;
@@ -38,6 +39,7 @@ export class Player extends Entity {
 
     this.weapons = this.addComponent(new WeaponSystem(scene));
     this.weapons.attachToCamera(camera);
+    // switchWeapon now syncs to store automatically
     this.weapons.switchWeapon("pistol");
   }
 

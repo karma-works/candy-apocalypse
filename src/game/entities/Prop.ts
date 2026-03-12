@@ -8,6 +8,7 @@ import {
   Color3,
   Mesh,
 } from "@babylonjs/core";
+import { TextureManager } from "../../engine/assets/TextureManager";
 
 export type PropType = "barrel" | "pillar" | "crate";
 
@@ -22,8 +23,19 @@ export class Prop extends Entity {
     this.transform = this.addComponent(new Transform());
   }
 
-  createMesh(scene: Scene): void {
-    const configMap: Record<PropType, { create: () => Mesh; color: Color3 }> = {
+  createMesh(scene: Scene, textureManager: TextureManager | null = null): void {
+    // If we have a texture, we'll make it a 2D billboard plane
+    let useBillboard = false;
+    let texture = null;
+
+    if (textureManager) {
+      texture = textureManager.getTexture(`prop-${this.propType}`);
+      if (texture) {
+        useBillboard = true;
+      }
+    }
+
+    const configMap: Record<PropType, { create: () => Mesh; color: Color3, size: { width: number; height: number } }> = {
       barrel: {
         create: () =>
           MeshBuilder.CreateCylinder(
@@ -32,6 +44,7 @@ export class Prop extends Entity {
             scene,
           ),
         color: new Color3(0.4, 0.3, 0.2),
+        size: { width: 1, height: 1.2 }
       },
       pillar: {
         create: () =>
@@ -41,18 +54,41 @@ export class Prop extends Entity {
             scene,
           ),
         color: new Color3(0.5, 0.5, 0.5),
+        size: { width: 1, height: 3 }
       },
       crate: {
         create: () => MeshBuilder.CreateBox(this.id, { size: 1 }, scene),
         color: new Color3(0.6, 0.5, 0.3),
+        size: { width: 1, height: 1 }
       },
     };
 
     const config = configMap[this.propType];
-    const mesh = config.create();
+    let mesh: Mesh;
+
+    if (useBillboard) {
+      mesh = MeshBuilder.CreatePlane(
+        this.id,
+        { width: config.size.width, height: config.size.height },
+        scene
+      );
+      mesh.billboardMode = Mesh.BILLBOARDMODE_Y;
+    } else {
+      mesh = config.create();
+    }
 
     const material = new StandardMaterial(`${this.id}_mat`, scene);
-    material.diffuseColor = config.color;
+
+    if (useBillboard && texture) {
+      texture.hasAlpha = true;
+      material.diffuseTexture = texture;
+      material.useAlphaFromDiffuseTexture = true;
+      material.emissiveColor = new Color3(0.8, 0.8, 0.8);
+      material.backFaceCulling = false;
+    } else {
+      material.diffuseColor = config.color;
+    }
+
     mesh.material = material;
     mesh.checkCollisions = true;
 

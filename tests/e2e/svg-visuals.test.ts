@@ -4,13 +4,15 @@ test.describe("SVG Visuals Test Level", () => {
     test.beforeEach(async ({ page }) => {
         // Navigate to E1M1 of doom1.wad
         await page.goto("/play?iwad=doom1.wad");
-        await page.waitForSelector(".screen-wrapper canvas", { timeout: 15000 });
+        await page.waitForSelector(".candy-button-primary");
+        await page.click(".candy-button-primary");
+        await page.waitForSelector("#game-canvas", { timeout: 15000 });
         await page.waitForTimeout(2000); // initial render
     });
 
     test("should render barrel and height transitions", async ({ page }) => {
         // focus the canvas to accept input
-        await page.locator(".screen-wrapper canvas").first().click({ force: true });
+        await page.locator("#game-canvas").first().click({ force: true });
 
         // Walk forward to reach the zigzag room with the barrel and height changes
         await page.keyboard.down('ArrowUp');

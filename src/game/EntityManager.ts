@@ -5,14 +5,17 @@ import { Enemy, EnemyType } from "./entities/Enemy";
 import { Prop, PropType } from "./entities/Prop";
 import { Pickup, PickupType } from "./entities/Pickup";
 import type { SpawnPoint } from "./state/gameStore";
+import { TextureManager } from "../engine/assets/TextureManager";
 
 export class EntityManager {
   private entities: Map<string, Entity> = new Map();
   private scene: Scene;
+  private textureManager: TextureManager | null;
   private player: Player | null = null;
 
-  constructor(scene: Scene) {
+  constructor(scene: Scene, textureManager: TextureManager | null = null) {
     this.scene = scene;
+    this.textureManager = textureManager;
   }
 
   spawnEntity(spawn: SpawnPoint, index: number): Entity | null {
@@ -97,7 +100,7 @@ export class EntityManager {
 
   spawnEnemy(id: string, enemyType: EnemyType): Enemy {
     const enemy = new Enemy(id, enemyType);
-    enemy.createMesh(this.scene);
+    enemy.createMesh(this.scene, this.textureManager);
 
     if (this.player) {
       enemy.setTarget(this.player);
@@ -108,13 +111,13 @@ export class EntityManager {
 
   spawnProp(id: string, propType: PropType): Prop {
     const prop = new Prop(id, propType);
-    prop.createMesh(this.scene);
+    prop.createMesh(this.scene, this.textureManager);
     return prop;
   }
 
   spawnPickup(id: string, pickupType: PickupType): Pickup {
     const pickup = new Pickup(id, pickupType);
-    pickup.createMesh(this.scene);
+    pickup.createMesh(this.scene, this.textureManager);
     return pickup;
   }
 

@@ -8,8 +8,10 @@ import {
   MeshBuilder,
   StandardMaterial,
   Color3,
+  Mesh,
 } from "@babylonjs/core";
 import type { Player } from "./Player";
+import { TextureManager } from "../../engine/assets/TextureManager";
 
 export type EnemyType = "demon" | "imp" | "cacodemon";
 
@@ -51,12 +53,12 @@ export class Enemy extends Entity {
     this.ai.attackDamage = damageMap[enemyType];
   }
 
-  createMesh(scene: Scene): void {
+  createMesh(scene: Scene, textureManager: TextureManager | null = null): void {
     this.scene = scene;
 
     const sizeMap: Record<EnemyType, { height: number; width: number }> = {
-      demon: { height: 1.5, width: 1 },
-      imp: { height: 1.8, width: 0.8 },
+      demon: { height: 1.5, width: 1.5 },
+      imp: { height: 1.8, width: 1.8 },
       cacodemon: { height: 2, width: 2 },
     };
 
@@ -67,14 +69,48 @@ export class Enemy extends Entity {
     };
 
     const { height, width } = sizeMap[this.enemyType];
-    const mesh = MeshBuilder.CreateCapsule(
+    const mesh = MeshBuilder.CreatePlane(
       this.id,
-      { height, radius: width / 2 },
+      { height, width },
       scene,
     );
 
+    // Make enemies face the camera
+    mesh.billboardMode = Mesh.BILLBOARDMODE_Y;
+
+    // Lift the plane so its bottom is on the ground
+    // But since transformations in Babylon use center origin by default,
+    // we just offset the position's Y in EntityManager, or bake it here:
+    mesh.position.y = height / 2;
+
     const material = new StandardMaterial(`${this.id}_mat`, scene);
-    material.diffuseColor = colorMap[this.enemyType];
+
+    let appliedTexture = false;
+    if (textureManager) {
+      // e.g "demon" -> "enemy-demon" or whatever the SVG symbol ID is.
+      // Need to map the proper name if it differs, but let's try direct mapping.
+      // The product design says "happy_imp", "cheerful_zombie", "party_demon"
+      // or similar. Let's map our generic IDs to the actual SVG names if applicable.
+      let texName = `enemy-${this.enemyType}`;
+      if (this.enemyType === "demon") texName = "party_demon";
+      if (this.enemyType === "imp") texName = "happy_imp";
+      if (this.enemyType === "cacodemon") texName = "disco_cacodemon";
+
+      const texture = textureManager.getTexture(texName);
+      if (texture) {
+        texture.hasAlpha = true;
+        material.diffuseTexture = texture;
+        material.useAlphaFromDiffuseTexture = true;
+        material.emissiveColor = new Color3(0.8, 0.8, 0.8); // Make it bright and lively
+        material.backFaceCulling = false; // Fix visibility inversion with BILLBOARDMODE_Y
+        appliedTexture = true;
+      }
+    }
+
+    if (!appliedTexture) {
+      material.diffuseColor = colorMap[this.enemyType];
+    }
+
     mesh.material = material;
     mesh.checkCollisions = true;
     mesh.isPickable = true;

@@ -1,9 +1,45 @@
+import { useEffect, useState } from "react";
 import { useGameStore } from "../../game/state/gameStore";
+import { ComboHUD } from "./ComboHUD";
 import "./HUD.css";
 
+const DEATH_MESSAGES = [
+  "WRONG WAY! 😅",
+  "OOPS! 🙈",
+  "TRY AGAIN! 💪",
+  "SO CLOSE! 🎯",
+  "NOT TODAY! 😈",
+  "YIKES! 🌟",
+];
+
 export function HUD() {
-  const { health, ammo, score, isLoading, isPaused, isPlaying } =
+  const { health, ammo, score, isLoading, isPaused, isPlaying, setHealth, setPlaying } =
     useGameStore();
+  const [respawnCounter, setRespawnCounter] = useState(0);
+  const [deathMessage] = useState(
+    () => DEATH_MESSAGES[Math.floor(Math.random() * DEATH_MESSAGES.length)],
+  );
+
+  const isDead = isPlaying && health <= 0;
+
+  // Auto-respawn countdown when health hits 0 while playing
+  useEffect(() => {
+    if (!isDead) return;
+
+    setRespawnCounter(3);
+    let count = 3;
+    const interval = setInterval(() => {
+      count -= 1;
+      setRespawnCounter(count);
+      if (count <= 0) {
+        clearInterval(interval);
+        // Respawn: restore health and keep playing
+        setHealth(100);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isDead, setHealth, setPlaying]);
 
   if (isLoading) {
     return (
@@ -13,7 +49,7 @@ export function HUD() {
     );
   }
 
-  // Only show death screen if not playing AND health is 0 or less
+  // Game over (player exited game, not just death)
   if (!isPlaying && health <= 0) {
     return (
       <div className="hud hud-death">
@@ -26,13 +62,40 @@ export function HUD() {
     );
   }
 
-  // Don't show HUD if game hasn't started
   if (!isPlaying) {
     return null;
   }
 
   return (
     <div className="hud">
+      {/* Death + auto-respawn overlay */}
+      {isDead && (
+        <div
+          className="hud-death"
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "column",
+            gap: "16px",
+            zIndex: 80,
+          }}
+        >
+          <div
+            className="death-text"
+            style={{ fontSize: "3rem", animation: "deathPulse 0.4s ease-in-out infinite" }}
+          >
+            {deathMessage}
+          </div>
+          <div style={{ fontSize: "1.4rem", color: "#ccc" }}>
+            Respawning in {respawnCounter}...
+          </div>
+        </div>
+      )}
+
       <div className="hud-top">
         <div className="score">Score: {score}</div>
       </div>
@@ -61,6 +124,9 @@ export function HUD() {
       )}
 
       <div className="crosshair">+</div>
+
+      {/* Combo popups and score/kills counter */}
+      <ComboHUD />
     </div>
   );
 }
