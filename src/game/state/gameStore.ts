@@ -36,6 +36,7 @@ export interface GameState {
   isLoading: boolean;
   isPaused: boolean;
   isPlaying: boolean;
+  isVictory: boolean;
   currentWeapon: string | null;
   health: number;
   maxHealth: number;
@@ -50,6 +51,7 @@ export interface GameState {
   setLoading: (loading: boolean) => void;
   setPaused: (paused: boolean) => void;
   setPlaying: (playing: boolean) => void;
+  setVictory: (victory: boolean) => void;
   setCurrentWeapon: (weapon: string | null) => void;
   setHealth: (health: number) => void;
   takeDamage: (amount: number) => void;
@@ -70,6 +72,7 @@ const initialState = {
   isLoading: false,
   isPaused: false,
   isPlaying: false,
+  isVictory: false,
   currentWeapon: null as string | null,
   health: 100,
   maxHealth: 100,
@@ -149,7 +152,14 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   reset: () => set(initialState),
 
-  startGame: () => set({ isPlaying: true, isPaused: false }),
+  startGame: () => set({ isPlaying: true, isPaused: false, isVictory: false }),
+
+  setVictory: (victory) => {
+    set({ isVictory: victory, isPlaying: !victory });
+    if (victory) {
+      document.exitPointerLock?.();
+    }
+  },
 
   endGame: () => set({ isPlaying: false }),
 }));

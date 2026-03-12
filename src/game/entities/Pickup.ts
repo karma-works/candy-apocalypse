@@ -12,7 +12,7 @@ import { useGameStore } from "../state/gameStore";
 import { playSound } from "../../engine/audio/GameAudio";
 import { TextureManager } from "../../engine/assets/TextureManager";
 
-export type PickupType = "health" | "ammo_pistol" | "ammo_shotgun";
+export type PickupType = "health" | "ammo_pistol" | "ammo_shotgun" | "level_exit";
 
 export interface PickupConfig {
   type: PickupType;
@@ -31,6 +31,11 @@ const PICKUP_CONFIGS: Record<PickupType, PickupConfig> = {
     type: "ammo_shotgun",
     amount: 5,
     color: new Color3(1, 0.6, 0.2),
+  },
+  level_exit: {
+    type: "level_exit",
+    amount: 0,
+    color: new Color3(1, 1, 1),
   },
 };
 
@@ -135,6 +140,9 @@ export class Pickup extends Entity {
         break;
       case "ammo_shotgun":
         store.addAmmo("shotgun", this.config.amount);
+        break;
+      case "level_exit":
+        store.setVictory(true);
         break;
     }
 

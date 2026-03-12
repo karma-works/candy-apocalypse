@@ -53,6 +53,9 @@ export class EntityManager {
       case "pickup-ammo-shotgun":
         entity = this.spawnPickup(id, "ammo_shotgun");
         break;
+      case "pickup-exit":
+        entity = this.spawnPickup(id, "level_exit");
+        break;
       default:
         console.warn(`Unknown entity type: ${spawn.type}`);
         return null;

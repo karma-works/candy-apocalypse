@@ -258,71 +258,80 @@ export function GameCanvas() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
-
-  window.addEventListener("mousedown", handleMouseDown);
-  return () => window.removeEventListener("mousedown", handleMouseDown);
-}, []);
-
-useEffect(() => {
-  const handleEntityHit = (e: CustomEvent) => {
-    const { entityId, damage } = e.detail;
-    const entity = entityManagerRef.current?.getEntity(entityId);
-    if (entity && "takeDamage" in entity) {
-      (entity as any).takeDamage(damage);
-
-      // When enemy dies, register the kill (handles score + combo escalation)
-      if ("health" in entity && (entity as any).health.isDead) {
-        useGameStore.getState().addKill();
-      }
-    }
-  };
-
-  window.addEventListener("entityHit", handleEntityHit as EventListener);
-  return () =>
-    window.removeEventListener("entityHit", handleEntityHit as EventListener);
-}, []);
-
-// Screen shake: watch health changes and apply camera jitter on damage
-useEffect(() => {
-  let prevHealth = useGameStore.getState().health;
-  const unsub = useGameStore.subscribe((state) => {
-    if (state.health < prevHealth && cameraRef.current) {
-      prevHealth = state.health;
-      // Dispatch event for HUD vignette
-      window.dispatchEvent(new CustomEvent("playerDamaged"));
-      // Camera shake: jitter then spring back
-      const cam = cameraRef.current;
-      const originPos = cam.position.clone();
-      const intensity = 0.06;
-      let elapsed = 0;
-      const interval = setInterval(() => {
-        elapsed += 16;
-        if (elapsed >= 200) {
-          cam.position.copyFrom(originPos);
-          clearInterval(interval);
-          return;
+  useEffect(() => {
+    const handleMouseDown = (e: MouseEvent) => {
+      if (e.button === 0) {
+        const { isPaused, isPlaying } = useGameStore.getState();
+        if (!isPaused && isPlaying) {
+          playerRef.current?.fire();
         }
-        const fade = 1 - elapsed / 200;
-        cam.position.x = originPos.x + (Math.random() - 0.5) * intensity * fade;
-        cam.position.z = originPos.z + (Math.random() - 0.5) * intensity * fade;
-      }, 16);
-    } else {
-      prevHealth = state.health;
-    }
-  });
-  return unsub;
-}, []);
+      }
+    };
 
-return (
-  <canvas
-    id="game-canvas"
-    ref={canvasRef}
-    style={{
-      width: "100%",
-      height: "100vh",
-      display: "block",
-      outline: "none",
-    }}
-  />
-);
+    window.addEventListener("mousedown", handleMouseDown);
+    return () => window.removeEventListener("mousedown", handleMouseDown);
+  }, []);
+
+  useEffect(() => {
+    const handleEntityHit = (e: CustomEvent) => {
+      const { entityId, damage } = e.detail;
+      const entity = entityManagerRef.current?.getEntity(entityId);
+      if (entity && "takeDamage" in entity) {
+        (entity as any).takeDamage(damage);
+
+        // When enemy dies, register the kill (handles score + combo escalation)
+        if ("health" in entity && (entity as any).health.isDead) {
+          useGameStore.getState().addKill();
+        }
+      }
+    };
+
+    window.addEventListener("entityHit", handleEntityHit as EventListener);
+    return () =>
+      window.removeEventListener("entityHit", handleEntityHit as EventListener);
+  }, []);
+
+  // Screen shake: watch health changes and apply camera jitter on damage
+  useEffect(() => {
+    let prevHealth = useGameStore.getState().health;
+    const unsub = useGameStore.subscribe((state) => {
+      if (state.health < prevHealth && cameraRef.current) {
+        prevHealth = state.health;
+        // Dispatch event for HUD vignette
+        window.dispatchEvent(new CustomEvent("playerDamaged"));
+        // Camera shake: jitter then spring back
+        const cam = cameraRef.current;
+        const originPos = cam.position.clone();
+        const intensity = 0.06;
+        let elapsed = 0;
+        const interval = setInterval(() => {
+          elapsed += 16;
+          if (elapsed >= 200) {
+            cam.position.copyFrom(originPos);
+            clearInterval(interval);
+            return;
+          }
+          const fade = 1 - elapsed / 200;
+          cam.position.x = originPos.x + (Math.random() - 0.5) * intensity * fade;
+          cam.position.z = originPos.z + (Math.random() - 0.5) * intensity * fade;
+        }, 16);
+      } else {
+        prevHealth = state.health;
+      }
+    });
+    return unsub;
+  }, []);
+
+  return (
+    <canvas
+      id="game-canvas"
+      ref={canvasRef}
+      style={{
+        width: "100%",
+        height: "100vh",
+        display: "block",
+        outline: "none",
+      }}
+    />
+  );
 }

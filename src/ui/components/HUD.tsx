@@ -13,8 +13,9 @@ const DEATH_MESSAGES = [
 ];
 
 export function HUD() {
-  const { health, ammo, score, isLoading, isPaused, isPlaying, setHealth, setPlaying } =
+  const { health, ammo, score, isLoading, isPaused, isPlaying, isVictory, setHealth, setPlaying, reset } =
     useGameStore();
+  const [showVignette, setShowVignette] = useState(false);
   const [respawnCounter, setRespawnCounter] = useState(0);
   const [deathMessage] = useState(
     () => DEATH_MESSAGES[Math.floor(Math.random() * DEATH_MESSAGES.length)],
@@ -41,10 +42,33 @@ export function HUD() {
     return () => clearInterval(interval);
   }, [isDead, setHealth, setPlaying]);
 
+  // Damage vignette flash
+  useEffect(() => {
+    const onDamaged = () => {
+      setShowVignette(true);
+      setTimeout(() => setShowVignette(false), 200);
+    };
+    window.addEventListener("playerDamaged", onDamaged);
+    return () => window.removeEventListener("playerDamaged", onDamaged);
+  }, []);
+
   if (isLoading) {
     return (
       <div className="hud hud-loading">
         <div className="loading-text">Loading...</div>
+      </div>
+    );
+  }
+
+  // Victory screen
+  if (isVictory) {
+    return (
+      <div className="hud hud-victory">
+        <div className="victory-overlay">
+          <div className="victory-title">LEVEL COMPLETE! 🍭</div>
+          <div className="victory-score">Final Score: {score}</div>
+          <div className="victory-hint">Press SPACE to play again</div>
+        </div>
       </div>
     );
   }
@@ -124,6 +148,9 @@ export function HUD() {
       )}
 
       <div className="crosshair">+</div>
+
+      {/* Damage Vignette */}
+      {showVignette && <div className="damage-vignette" />}
 
       {/* Combo popups and score/kills counter */}
       <ComboHUD />
