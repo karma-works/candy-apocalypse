@@ -1,6 +1,20 @@
-# Candy Apocalypse
+<p align="center">
+  <img src="assets/logo.svg" alt="Candy Apocalypse Logo" width="400">
+</p>
 
-**"What if DOOM was a Saturday Morning Cartoon?"**
+<h1 align="center">Candy Apocalypse</h1>
+
+<p align="center">
+  <em>"Sugar, spice, and everything dies."</em>
+</p>
+
+<p align="center">
+  🎮 <strong>Play it now:</strong> <a href="https://karma-works.github.io/candy-apocalypse/">https://karma-works.github.io/candy-apocalypse/</a>
+</p>
+
+<p align="center">
+  <img src="docs/candy-apocalypse.png" alt="Candy Apocalypse Screenshot" width="600">
+</p>
 
 A delightfully chaotic browser game built with Babylon.js, featuring first-person gameplay with cartoon-style visuals.
 
