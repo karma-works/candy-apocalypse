@@ -66,6 +66,7 @@ export interface GameState {
   addKill: (points?: number) => void;
   clearComboLabel: () => void;
   nextLevel: () => void;
+  startLevel: (index: number) => void;
   reset: () => void;
   startGame: () => void;
   endGame: () => void;

@@ -1,4 +1,4 @@
-import type { LevelConfig } from "../state/gameStore";
+import type { LevelConfig } from '../state/gameStore';
 
 export interface LevelManifest {
   levels: Record<string, LevelConfig>;
