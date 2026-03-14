@@ -1,19 +1,15 @@
-/**
- * Debug flags parsed from URL search params.
- * Usage: ?god=1  (or ?god=true)
- *
- * These are read once at import time so they're always synchronous.
- */
-const params = new URLSearchParams(
-  typeof window !== 'undefined' ? window.location.search : '',
-);
-
-function flag(name: string): boolean {
+function getFlag(name: string): boolean {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  const params = new URLSearchParams(window.location.search);
   const val = params.get(name);
   return val !== null && val !== '0' && val !== 'false';
 }
 
 export const DebugFlags = {
-  /** God mode — player cannot die or take damage. Enable with ?god=1 */
-  godMode: flag('god'),
+  /** God mode — player cannot die or take damage. Enable with ?god=1 or ?god=true */
+  get godMode() {
+    return getFlag('god');
+  },
 } as const;

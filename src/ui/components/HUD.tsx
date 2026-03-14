@@ -1,26 +1,38 @@
-import { useEffect, useRef, useState } from 'react';
-import { useGameStore } from '../../game/state/gameStore';
-import { ComboHUD } from './ComboHUD';
-import { DebugFlags } from '../../game/debug/DebugFlags';
-import './HUD.css';
+import { useEffect, useRef, useState } from "react";
+import { useGameStore } from "../../game/state/gameStore";
+import { ComboHUD } from "./ComboHUD";
+import { DebugFlags } from "../../game/debug/DebugFlags";
+import "./HUD.css";
 
 const DEATH_MESSAGES = [
-  'WRONG WAY! 😅',
-  'OOPS! 🙈',
-  'TRY AGAIN! 💪',
-  'SO CLOSE! 🎯',
-  'NOT TODAY! 😈',
-  'YIKES! 🌟',
+  "WRONG WAY! 😅",
+  "OOPS! 🙈",
+  "TRY AGAIN! 💪",
+  "SO CLOSE! 🎯",
+  "NOT TODAY! 😈",
+  "YIKES! 🌟",
 ];
 
 export function HUD() {
-  const { health, ammo, score, isLoading, isPaused, isPlaying, isVictory, setHealth, setPlaying, reset } =
-    useGameStore();
-  const [ showVignette, setShowVignette ] = useState(false);
-  const [ crosshairFired, setCrosshairFired ] = useState(false);
+  const {
+    health,
+    ammo,
+    score,
+    isLoading,
+    isPaused,
+    isPlaying,
+    isVictory,
+    respawn,
+    setPlaying,
+    reset,
+    musicEnabled,
+    toggleMusic,
+  } = useGameStore();
+  const [showVignette, setShowVignette] = useState(false);
+  const [crosshairFired, setCrosshairFired] = useState(false);
   const crosshairFiredRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [ respawnCounter, setRespawnCounter ] = useState(0);
-  const [ deathMessage ] = useState(
+  const [respawnCounter, setRespawnCounter] = useState(0);
+  const [deathMessage] = useState(
     () => DEATH_MESSAGES[Math.floor(Math.random() * DEATH_MESSAGES.length)],
   );
 
@@ -39,13 +51,12 @@ export function HUD() {
       setRespawnCounter(count);
       if (count <= 0) {
         clearInterval(interval);
-        // Respawn: restore health and keep playing
-        setHealth(100);
+        respawn();
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [ isDead, setHealth, setPlaying ]);
+  }, [isDead, respawn, setPlaying]);
 
   // Damage vignette flash
   useEffect(() => {
@@ -53,8 +64,8 @@ export function HUD() {
       setShowVignette(true);
       setTimeout(() => setShowVignette(false), 200);
     };
-    window.addEventListener('playerDamaged', onDamaged);
-    return () => window.removeEventListener('playerDamaged', onDamaged);
+    window.addEventListener("playerDamaged", onDamaged);
+    return () => window.removeEventListener("playerDamaged", onDamaged);
   }, []);
 
   // Crosshair recoil on fire
@@ -64,11 +75,14 @@ export function HUD() {
         clearTimeout(crosshairFiredRef.current);
       }
       setCrosshairFired(true);
-      crosshairFiredRef.current = setTimeout(() => setCrosshairFired(false), 180);
+      crosshairFiredRef.current = setTimeout(
+        () => setCrosshairFired(false),
+        180,
+      );
     };
-    window.addEventListener('weaponFired', onFired);
+    window.addEventListener("weaponFired", onFired);
     return () => {
-      window.removeEventListener('weaponFired', onFired);
+      window.removeEventListener("weaponFired", onFired);
       if (crosshairFiredRef.current) {
         clearTimeout(crosshairFiredRef.current);
       }
@@ -116,32 +130,35 @@ export function HUD() {
   return (
     <div className="hud">
       {/* Death + auto-respawn overlay */}
-      {isDead &&
+      {isDead && (
         <div
           className="hud-death"
           style={{
-            position: 'absolute',
+            position: "absolute",
             inset: 0,
-            background: 'rgba(0,0,0,0.6)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexDirection: 'column',
-            gap: '16px',
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "column",
+            gap: "16px",
             zIndex: 80,
           }}
         >
           <div
             className="death-text"
-            style={{ fontSize: '3rem', animation: 'deathPulse 0.4s ease-in-out infinite' }}
+            style={{
+              fontSize: "3rem",
+              animation: "deathPulse 0.4s ease-in-out infinite",
+            }}
           >
             {deathMessage}
           </div>
-          <div style={{ fontSize: '1.4rem', color: '#ccc' }}>
+          <div style={{ fontSize: "1.4rem", color: "#ccc" }}>
             Respawning in {respawnCounter}...
           </div>
         </div>
-      }
+      )}
 
       <div className="hud-top">
         <div className="score">Score: {score}</div>
@@ -154,23 +171,25 @@ export function HUD() {
         </div>
 
         <div className="ammo-display">
-          {Object.entries(ammo).map(([ type, count ]) =>
+          {Object.entries(ammo).map(([type, count]) => (
             <div key={type} className="ammo-item">
               <span className="ammo-type">{type}</span>
               <span className="ammo-count">{count}</span>
-            </div>,
-          )}
+            </div>
+          ))}
         </div>
       </div>
 
-      {isPaused &&
+      {isPaused && (
         <div className="pause-overlay">
           <div className="pause-text">PAUSED</div>
-          <div className="pause-hint">Press ESC to resume</div>
+          <div className="pause-hint">Press SPACE to resume</div>
         </div>
-      }
+      )}
 
-      <div className={`crosshair${crosshairFired ? ' crosshair--fired' : ''}`}>+</div>
+      <div className={`crosshair${crosshairFired ? " crosshair--fired" : ""}`}>
+        +
+      </div>
 
       {/* Damage Vignette */}
       {showVignette && <div className="damage-vignette" />}
@@ -179,27 +198,29 @@ export function HUD() {
       <ComboHUD />
 
       {/* God mode indicator */}
-      {DebugFlags.godMode &&
-        <div style={{
-          position: 'absolute',
-          top: 16,
-          right: 20,
-          background: 'linear-gradient(135deg, #FFE135, #FF8C00)',
-          color: '#1A1A2E',
-          fontFamily: '\'Fredoka One\', monospace',
-          fontSize: '0.85rem',
-          fontWeight: 'bold',
-          padding: '4px 12px',
-          borderRadius: 8,
-          border: '2px solid #1A1A2E',
-          boxShadow: '2px 2px 0 #1A1A2E',
-          letterSpacing: '0.08em',
-          userSelect: 'none',
-          pointerEvents: 'none',
-        }}>
+      {DebugFlags.godMode && (
+        <div
+          style={{
+            position: "absolute",
+            top: 16,
+            right: 20,
+            background: "linear-gradient(135deg, #FFE135, #FF8C00)",
+            color: "#1A1A2E",
+            fontFamily: "'Fredoka One', monospace",
+            fontSize: "0.85rem",
+            fontWeight: "bold",
+            padding: "4px 12px",
+            borderRadius: 8,
+            border: "2px solid #1A1A2E",
+            boxShadow: "2px 2px 0 #1A1A2E",
+            letterSpacing: "0.08em",
+            userSelect: "none",
+            pointerEvents: "none",
+          }}
+        >
           ✨ GOD MODE
         </div>
-      }
+      )}
     </div>
   );
 }

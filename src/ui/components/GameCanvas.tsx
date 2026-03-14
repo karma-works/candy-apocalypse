@@ -44,6 +44,7 @@ export function GameCanvas() {
     setCurrentLevel,
     startGame,
     setPlaying,
+    setSpawnPosition,
   } = useGameStore();
 
   useEffect(() => {
@@ -263,6 +264,7 @@ export function GameCanvas() {
                   spawnPos[1],
                   spawnPos[2],
                 );
+                setSpawnPosition(spawnPos);
               }
             }
           }
@@ -286,6 +288,7 @@ export function GameCanvas() {
     setCurrentLevel,
     startGame,
     setPlaying,
+    setSpawnPosition,
   ]);
 
   useEffect(() => {
@@ -298,10 +301,14 @@ export function GameCanvas() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === 'Escape') {
-        const { isPaused, setPaused, isPlaying } = useGameStore.getState();
-        if (isPlaying) {
-          setPaused(!isPaused);
+      if (e.code === 'Space') {
+        const { isPaused, setPaused, isPlaying, health } =
+          useGameStore.getState();
+        if (isPaused && isPlaying) {
+          setPaused(false);
+          canvasRef.current?.requestPointerLock();
+        } else if (!isPlaying && health <= 0) {
+          window.location.reload();
         }
       }
 
@@ -309,16 +316,48 @@ export function GameCanvas() {
         playerRef.current?.switchWeapon('pistol');
       } else if (e.code === 'Digit2') {
         playerRef.current?.switchWeapon('shotgun');
-      } else if (e.code === 'Space') {
-        const { isPlaying, health } = useGameStore.getState();
-        if (!isPlaying && health <= 0) {
-          window.location.reload();
-        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    const handlePointerLockChange = () => {
+      const { isPlaying, setPaused, isPaused } = useGameStore.getState();
+      if (
+        isPlaying &&
+        !isPaused &&
+        document.pointerLockElement !== canvasRef.current
+      ) {
+        setPaused(true);
+      }
+    };
+
+    document.addEventListener('pointerlockchange', handlePointerLockChange);
+    return () =>
+      document.removeEventListener(
+        'pointerlockchange',
+        handlePointerLockChange,
+      );
+  }, []);
+
+  useEffect(() => {
+    const handleRespawn = () => {
+      const { spawnPosition } = useGameStore.getState();
+      if (spawnPosition && playerRef.current) {
+        playerRef.current.movement.setPosition(
+          spawnPosition[0],
+          spawnPosition[1],
+          spawnPosition[2],
+        );
+        playerRef.current.health.reset();
+      }
+    };
+
+    window.addEventListener('playerRespawn', handleRespawn);
+    return () => window.removeEventListener('playerRespawn', handleRespawn);
   }, []);
 
   useEffect(() => {

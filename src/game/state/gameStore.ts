@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 export interface SpawnPoint {
   type: string;
@@ -13,7 +13,7 @@ export interface LevelConfig {
   ambient?: {
     music?: string;
     fog?: {
-      mode: 'none' | 'linear' | 'exp';
+      mode: "none" | "linear" | "exp";
       start?: number;
       end?: number;
       density?: number;
@@ -23,13 +23,32 @@ export interface LevelConfig {
 }
 
 const COMBO_LABELS: Array<{ minCombo: number; label: string }> = [
-  { minCombo: 50, label: 'DOOM ETERNAL...LY HAPPY! 🌈' },
-  { minCombo: 20, label: 'CHAOS EMPEROR! 👑' },
-  { minCombo: 10, label: 'DEMOLITION DERBY! 🚧' },
-  { minCombo: 5, label: 'MURDER PARTY! 🎉' },
-  { minCombo: 3, label: 'Triple Threat! ⚡' },
-  { minCombo: 2, label: 'Double Trouble! 💥' },
+  { minCombo: 50, label: "DOOM ETERNAL...LY HAPPY! 🌈" },
+  { minCombo: 20, label: "CHAOS EMPEROR! 👑" },
+  { minCombo: 10, label: "DEMOLITION DERBY! 🚧" },
+  { minCombo: 5, label: "MURDER PARTY! 🎉" },
+  { minCombo: 3, label: "Triple Threat! ⚡" },
+  { minCombo: 2, label: "Double Trouble! 💥" },
 ];
+
+const STORAGE_KEY_MUSIC = "candy-apocalypse-music-enabled";
+
+function loadMusicEnabled(): boolean {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY_MUSIC);
+    return stored === null ? true : stored === "true";
+  } catch {
+    return true;
+  }
+}
+
+function saveMusicEnabled(enabled: boolean): void {
+  try {
+    localStorage.setItem(STORAGE_KEY_MUSIC, String(enabled));
+  } catch {
+    // ignore
+  }
+}
 
 export interface GameState {
   currentLevel: string | null;
@@ -48,6 +67,8 @@ export interface GameState {
   killCombo: number;
   comboLabel: string;
   lastKillTime: number;
+  spawnPosition: [number, number, number] | null;
+  musicEnabled: boolean;
 
   setCurrentLevel: (level: string | null) => void;
   setProceduralLevelIndex: (index: number) => void;
@@ -57,6 +78,8 @@ export interface GameState {
   setVictory: (victory: boolean) => void;
   setCurrentWeapon: (weapon: string | null) => void;
   setHealth: (health: number) => void;
+  setSpawnPosition: (pos: [number, number, number]) => void;
+  respawn: () => void;
   takeDamage: (amount: number) => void;
   heal: (amount: number) => void;
   setAmmo: (type: string, count: number) => void;
@@ -70,6 +93,8 @@ export interface GameState {
   reset: () => void;
   startGame: () => void;
   endGame: () => void;
+  toggleMusic: () => void;
+  setMusicEnabled: (enabled: boolean) => void;
 }
 
 const initialState = {
@@ -90,8 +115,10 @@ const initialState = {
   score: 0,
   kills: 0,
   killCombo: 0,
-  comboLabel: '',
+  comboLabel: "",
   lastKillTime: 0,
+  spawnPosition: null as [number, number, number] | null,
+  musicEnabled: loadMusicEnabled(),
 };
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -106,6 +133,13 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   setHealth: (health) =>
     set({ health: Math.max(0, Math.min(get().maxHealth, health)) }),
+
+  setSpawnPosition: (pos) => set({ spawnPosition: pos }),
+
+  respawn: () => {
+    set({ health: 100 });
+    window.dispatchEvent(new CustomEvent("playerRespawn"));
+  },
 
   takeDamage: (amount) =>
     set((state) => ({
@@ -145,7 +179,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     const comboReset = timeSinceLast > 3000;
     const newCombo = comboReset ? 1 : state.killCombo + 1;
     const comboEntry = COMBO_LABELS.find((c) => newCombo >= c.minCombo);
-    const comboLabel = comboEntry ? comboEntry.label : '';
+    const comboLabel = comboEntry ? comboEntry.label : "";
     set({
       kills: state.kills + 1,
       score: state.score + points * newCombo,
@@ -155,7 +189,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     });
   },
 
-  clearComboLabel: () => set({ comboLabel: '' }),
+  clearComboLabel: () => set({ comboLabel: "" }),
 
   reset: () => set(initialState),
 
@@ -169,13 +203,14 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   nextLevel: () => {
-    const { proceduralLevelIndex } = get();
+    const { proceduralLevelIndex, musicEnabled } = get();
     if (proceduralLevelIndex >= 9) {
       set({ isVictory: true, isPlaying: false });
       document.exitPointerLock?.();
     } else {
       set({
         ...initialState,
+        musicEnabled,
         proceduralLevelIndex: proceduralLevelIndex + 1,
         isPlaying: true,
       });
@@ -183,12 +218,25 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   startLevel: (index) => {
+    const { musicEnabled } = get();
     set({
       ...initialState,
+      musicEnabled,
       proceduralLevelIndex: index,
       isPlaying: true,
     });
   },
 
   endGame: () => set({ isPlaying: false }),
+
+  toggleMusic: () => {
+    const newEnabled = !get().musicEnabled;
+    saveMusicEnabled(newEnabled);
+    set({ musicEnabled: newEnabled });
+  },
+
+  setMusicEnabled: (enabled) => {
+    saveMusicEnabled(enabled);
+    set({ musicEnabled: enabled });
+  },
 }));
