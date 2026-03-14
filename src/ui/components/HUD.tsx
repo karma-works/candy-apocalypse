@@ -184,6 +184,27 @@ export function HUD() {
         <div className="pause-overlay">
           <div className="pause-text">PAUSED</div>
           <div className="pause-hint">Press SPACE to resume</div>
+          <div
+            className="pause-music-toggle"
+            onClick={toggleMusic}
+            style={{
+              marginTop: "20px",
+              cursor: "pointer",
+              padding: "10px 20px",
+              background: musicEnabled ? "#32FF00" : "#FF0044",
+              borderRadius: "8px",
+              border: "3px solid #1A1A2E",
+              boxShadow: "3px 3px 0 #1A1A2E",
+              color: "#fff",
+              fontFamily: "'Fredoka One', monospace",
+              fontSize: "0.9rem",
+              fontWeight: "bold",
+              userSelect: "none",
+              transition: "transform 0.1s",
+            }}
+          >
+            Music: {musicEnabled ? "ON" : "OFF"} (M)
+          </div>
         </div>
       )}
 
