@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGameStore } from "../../game/state/gameStore";
 import { ComboHUD } from "./ComboHUD";
+import { DebugFlags } from "../../game/debug/DebugFlags";
 import "./HUD.css";
 
 const DEATH_MESSAGES = [
@@ -16,6 +17,8 @@ export function HUD() {
   const { health, ammo, score, isLoading, isPaused, isPlaying, isVictory, setHealth, setPlaying, reset } =
     useGameStore();
   const [showVignette, setShowVignette] = useState(false);
+  const [crosshairFired, setCrosshairFired] = useState(false);
+  const crosshairFiredRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [respawnCounter, setRespawnCounter] = useState(0);
   const [deathMessage] = useState(
     () => DEATH_MESSAGES[Math.floor(Math.random() * DEATH_MESSAGES.length)],
@@ -50,6 +53,20 @@ export function HUD() {
     };
     window.addEventListener("playerDamaged", onDamaged);
     return () => window.removeEventListener("playerDamaged", onDamaged);
+  }, []);
+
+  // Crosshair recoil on fire
+  useEffect(() => {
+    const onFired = () => {
+      if (crosshairFiredRef.current) clearTimeout(crosshairFiredRef.current);
+      setCrosshairFired(true);
+      crosshairFiredRef.current = setTimeout(() => setCrosshairFired(false), 180);
+    };
+    window.addEventListener("weaponFired", onFired);
+    return () => {
+      window.removeEventListener("weaponFired", onFired);
+      if (crosshairFiredRef.current) clearTimeout(crosshairFiredRef.current);
+    };
   }, []);
 
   if (isLoading) {
@@ -147,13 +164,36 @@ export function HUD() {
         </div>
       )}
 
-      <div className="crosshair">+</div>
+      <div className={`crosshair${crosshairFired ? " crosshair--fired" : ""}`}>+</div>
 
       {/* Damage Vignette */}
       {showVignette && <div className="damage-vignette" />}
 
       {/* Combo popups and score/kills counter */}
       <ComboHUD />
+
+      {/* God mode indicator */}
+      {DebugFlags.godMode && (
+        <div style={{
+          position: "absolute",
+          top: 16,
+          right: 20,
+          background: "linear-gradient(135deg, #FFE135, #FF8C00)",
+          color: "#1A1A2E",
+          fontFamily: "'Fredoka One', monospace",
+          fontSize: "0.85rem",
+          fontWeight: "bold",
+          padding: "4px 12px",
+          borderRadius: 8,
+          border: "2px solid #1A1A2E",
+          boxShadow: "2px 2px 0 #1A1A2E",
+          letterSpacing: "0.08em",
+          userSelect: "none",
+          pointerEvents: "none",
+        }}>
+          ✨ GOD MODE
+        </div>
+      )}
     </div>
   );
 }

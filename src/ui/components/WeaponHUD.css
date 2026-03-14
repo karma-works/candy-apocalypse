@@ -1,0 +1,163 @@
+/* ============================================================
+   WeaponHUD – Fire Animations
+   Candy Apocalypse palette matches HUD.css
+   ============================================================ */
+
+/* ── Root container ── */
+.weapon-hud-root {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 420px;
+    height: 420px;
+    pointer-events: none;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+/* ── Weapon sprite wrapper ── */
+.weapon-sprite {
+    width: 100%;
+    height: 100%;
+    transform-origin: bottom center;
+    will-change: transform;
+}
+
+.weapon-sprite--firing {
+    animation: weaponKick 0.18s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes weaponKick {
+    0%   { transform: translateY(0px)  rotate(0deg)    scale(1);    }
+    15%  { transform: translateY(32px) rotate(-2.5deg) scale(1.06); }
+    50%  { transform: translateY(10px) rotate(1deg)    scale(0.98); }
+    80%  { transform: translateY(-4px) rotate(0.5deg)  scale(1.01); }
+    100% { transform: translateY(0px)  rotate(0deg)    scale(1);    }
+}
+
+/* ── Weapon SVG ── */
+.weapon-svg {
+    filter: drop-shadow(0 12px 14px rgba(0, 0, 0, 0.55));
+    display: block;
+}
+
+/* ── Muzzle Flash ── */
+.muzzle-flash {
+    position: absolute;
+    top: 22%;                      /* near barrel tip in the 420px column */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--flash-size, 100px);
+    height: var(--flash-size, 100px);
+    pointer-events: none;
+    opacity: 0;
+    z-index: 20;
+}
+
+.muzzle-flash--active {
+    animation: muzzleAppear 0.12s ease-out forwards;
+}
+
+@keyframes muzzleAppear {
+    0%   { opacity: 1; transform: translate(-50%, -50%) scale(0.3); }
+    30%  { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+    70%  { opacity: 0.7; transform: translate(-50%, -50%) scale(1.0); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+}
+
+/* Core bright blob */
+.muzzle-flash__core {
+    position: absolute;
+    inset: 20%;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle,
+        #fff 0%,
+        var(--flash-color, #FFE870) 40%,
+        transparent 80%
+    );
+    filter: blur(2px);
+}
+
+/* Star-burst rays using conic-gradient */
+.muzzle-flash__rays {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        var(--flash-color, #FFE870) 12deg,
+        transparent 25deg,
+        transparent 45deg,
+        var(--flash-color, #FFE870) 57deg,
+        transparent 70deg,
+        transparent 90deg,
+        var(--flash-color, #FFE870) 102deg,
+        transparent 115deg,
+        transparent 135deg,
+        var(--flash-color, #FFE870) 147deg,
+        transparent 160deg,
+        transparent 180deg,
+        var(--flash-color, #FFE870) 192deg,
+        transparent 205deg,
+        transparent 225deg,
+        var(--flash-color, #FFE870) 237deg,
+        transparent 250deg,
+        transparent 270deg,
+        var(--flash-color, #FFE870) 282deg,
+        transparent 295deg,
+        transparent 315deg,
+        var(--flash-color, #FFE870) 327deg,
+        transparent 340deg,
+        transparent 360deg
+    );
+    filter: blur(1px);
+    animation: muzzleRaysSpin 0.12s linear forwards;
+    opacity: 0.9;
+}
+
+@keyframes muzzleRaysSpin {
+    from { transform: rotate(0deg);   }
+    to   { transform: rotate(45deg);  }
+}
+
+/* ── Screen flash overlay ── */
+.weapon-screen-flash {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(
+        ellipse at 50% 80%,
+        var(--flash-color, #FFE870) 0%,
+        transparent 70%
+    );
+    pointer-events: none;
+    z-index: 50;
+    opacity: 0;
+    mix-blend-mode: screen;
+}
+
+.weapon-screen-flash--active {
+    animation: screenFlashBurst 0.12s ease-out forwards;
+}
+
+@keyframes screenFlashBurst {
+    0%   { opacity: 0.55; }
+    40%  { opacity: 0.30; }
+    100% { opacity: 0;    }
+}
+
+/* ── Crosshair recoil (added to HUD via global class toggle) ── */
+.crosshair--fired {
+    animation: crosshairRecoil 0.18s ease-out forwards;
+}
+
+@keyframes crosshairRecoil {
+    0%   { transform: translate(-50%, -50%) scale(1);   opacity: 1;   }
+    20%  { transform: translate(-50%, -50%) scale(2.0); opacity: 0.6; }
+    100% { transform: translate(-50%, -50%) scale(1);   opacity: 1;   }
+}

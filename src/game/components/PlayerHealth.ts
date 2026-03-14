@@ -1,5 +1,6 @@
 import { Component } from "../entities/Entity";
 import { useGameStore } from "../state/gameStore";
+import { DebugFlags } from "../debug/DebugFlags";
 
 export class PlayerHealth extends Component {
   current: number;
@@ -14,6 +15,7 @@ export class PlayerHealth extends Component {
 
   takeDamage(amount: number): void {
     if (this.isDead) return;
+    if (DebugFlags.godMode) return;  // ← god mode: ignore all damage
 
     this.current = Math.max(0, this.current - amount);
 
@@ -24,6 +26,7 @@ export class PlayerHealth extends Component {
       this.onDeath();
     }
   }
+
 
   heal(amount: number): void {
     if (this.isDead) return;

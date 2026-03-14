@@ -21,6 +21,8 @@ export class Enemy extends Entity {
   ai: EnemyAI;
   enemyType: EnemyType;
   private scene: Scene | null = null;
+  /** Height of the billboard plane — used to offset Y so bottom sits on ground */
+  private meshHeight = 1.5;
 
   constructor(id: string, enemyType: EnemyType = "demon") {
     super(id, `Enemy_${enemyType}`);
@@ -29,9 +31,9 @@ export class Enemy extends Entity {
     this.transform = this.addComponent(new Transform());
 
     const healthMap: Record<EnemyType, number> = {
-      demon: 60,
-      imp: 40,
-      cacodemon: 100,
+      demon: 30,
+      imp: 25,
+      cacodemon: 50,
     };
 
     this.health = this.addComponent(new Health(healthMap[enemyType]));
@@ -44,13 +46,35 @@ export class Enemy extends Entity {
     };
 
     const damageMap: Record<EnemyType, number> = {
-      demon: 15,
-      imp: 10,
-      cacodemon: 25,
+      demon: 15,   // melee — only matters when right on top of player
+      imp: 8,      // ranged — fires repeatedly from a distance
+      cacodemon: 20, // ranged — slow heavy shots
     };
 
     this.ai.speed = speedMap[enemyType];
     this.ai.attackDamage = damageMap[enemyType];
+
+    // ── Attack type configuration ──────────────────────────────
+    if (enemyType === "demon") {
+      // Demon: pure melee charger — must be right on top of you to deal damage
+      this.ai.attackType = "melee";
+      this.ai.attackRange = 1.8;
+      this.ai.attackCooldown = 0.8;
+    } else if (enemyType === "imp") {
+      // Imp: ranged shooter — fires fireball-like shots from up to 10 units
+      this.ai.attackType = "ranged";
+      this.ai.attackRange = 1.5;     // won't advance closer than this
+      this.ai.rangedAttackRange = 10;
+      this.ai.rangedAccuracy = 0.70;
+      this.ai.attackCooldown = 1.2;
+    } else if (enemyType === "cacodemon") {
+      // Cacodemon: slow heavy ranged — long range, lower accuracy, big hits
+      this.ai.attackType = "ranged";
+      this.ai.attackRange = 2.0;
+      this.ai.rangedAttackRange = 14;
+      this.ai.rangedAccuracy = 0.55;
+      this.ai.attackCooldown = 2.0;
+    }
   }
 
   createMesh(scene: Scene, textureManager: TextureManager | null = null): void {
@@ -78,10 +102,11 @@ export class Enemy extends Entity {
     // Make enemies face the camera
     mesh.billboardMode = Mesh.BILLBOARDMODE_Y;
 
-    // Lift the plane so its bottom is on the ground
-    // But since transformations in Babylon use center origin by default,
-    // we just offset the position's Y in EntityManager, or bake it here:
-    mesh.position.y = height / 2;
+    // Store height so setPosition can offset correctly
+    this.meshHeight = height;
+
+    // Do NOT bake y offset here — setPosition will apply it correctly
+    // (previously mesh.position.y = height / 2 was overwritten by EntityManager.setPosition)
 
     const material = new StandardMaterial(`${this.id}_mat`, scene);
 
@@ -131,6 +156,13 @@ export class Enemy extends Entity {
         this.mesh.setEnabled(false);
       }
       return;
+    }
+  }
+
+  /** Override to add height/2 so the bottom of the sprite sits on the floor. */
+  setPosition(x: number, y: number, z: number): void {
+    if (this.mesh) {
+      this.mesh.position.set(x, y + this.meshHeight / 2, z);
     }
   }
 

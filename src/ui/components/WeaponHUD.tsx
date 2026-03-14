@@ -1,92 +1,98 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGameStore } from "../../game/state/gameStore";
+import "./WeaponHUD.css";
+
+// Per-weapon customisation
+const WEAPON_META: Record<
+    string,
+    { sprite: string; flashColor: string; flashSize: number; hasLongFlash: boolean }
+> = {
+    pistol:          { sprite: "pistol",          flashColor: "#FFE870", flashSize: 80,  hasLongFlash: false },
+    shotgun:         { sprite: "shotgun",          flashColor: "#FFD040", flashSize: 140, hasLongFlash: false },
+    chaingun:        { sprite: "chaingun",         flashColor: "#FFF080", flashSize: 80,  hasLongFlash: false },
+    chainsaw:        { sprite: "chainsaw",         flashColor: "#FF8040", flashSize: 60,  hasLongFlash: true  },
+    rocket_launcher: { sprite: "rocket_launcher",  flashColor: "#FF6020", flashSize: 180, hasLongFlash: true  },
+    plasma_rifle:    { sprite: "plasma_rifle",     flashColor: "#40FFFF", flashSize: 120, hasLongFlash: true  },
+    bfg9000:         { sprite: "bfg",              flashColor: "#40FF80", flashSize: 220, hasLongFlash: true  },
+};
 
 export function WeaponHUD() {
     const currentWeapon = useGameStore((state) => state.currentWeapon);
-    const [isFiring, setIsFiring] = useState(false);
-    const [flashVisible, setFlashVisible] = useState(false);
+
+    // Animation state
+    const [firing, setFiring] = useState(false);
+    const [muzzleFlash, setMuzzleFlash] = useState(false);
+    const [screenFlash, setScreenFlash] = useState(false);
+    const kickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const flashTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const weaponId = currentWeapon || "pistol";
-
-    const spriteMap: Record<string, string> = {
-        "pistol": "pistol",
-        "shotgun": "shotgun",
-        "chaingun": "chaingun",
-        "chainsaw": "chainsaw",
-        "rocket_launcher": "rocket_launcher",
-        "plasma_rifle": "plasma_rifle",
-        "bfg9000": "bfg",
-    };
-
-    const spriteId = spriteMap[weaponId] || "pistol";
+    const meta = WEAPON_META[weaponId] ?? WEAPON_META.pistol;
 
     useEffect(() => {
-        // Listen to weaponFired event dispatched by WeaponSystem on every shot
-        const handleFired = () => {
-            setIsFiring(true);
-            setFlashVisible(true);
-            setTimeout(() => setIsFiring(false), 120);
-            setTimeout(() => setFlashVisible(false), 80);
+        const handleFired = (e: Event) => {
+            const weapon = (e as CustomEvent).detail?.weapon ?? weaponId;
+            const m = WEAPON_META[weapon] ?? WEAPON_META.pistol;
+            const kickDuration = m.hasLongFlash ? 200 : 140;
+            const flashDuration = m.hasLongFlash ? 160 : 90;
+
+            // Cancel any running timers so rapid fire keeps feeling snappy
+            if (kickTimeoutRef.current)  clearTimeout(kickTimeoutRef.current);
+            if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
+
+            setFiring(true);
+            setMuzzleFlash(true);
+            setScreenFlash(true);
+
+            kickTimeoutRef.current  = setTimeout(() => setFiring(false),      kickDuration);
+            flashTimeoutRef.current = setTimeout(() => {
+                setMuzzleFlash(false);
+                setScreenFlash(false);
+            }, flashDuration);
         };
 
         window.addEventListener("weaponFired", handleFired);
-        return () => window.removeEventListener("weaponFired", handleFired);
-    }, []);
+        return () => {
+            window.removeEventListener("weaponFired", handleFired);
+            if (kickTimeoutRef.current)  clearTimeout(kickTimeoutRef.current);
+            if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
+        };
+    }, [weaponId]);
 
     return (
         <>
-            {/* Muzzle flash screen flare — brief bright overlay on every shot */}
-            {flashVisible && (
-                <div
-                    style={{
-                        position: "fixed",
-                        inset: 0,
-                        backgroundColor: "rgba(255, 220, 100, 0.18)",
-                        pointerEvents: "none",
-                        zIndex: 50,
-                    }}
-                />
-            )}
-
-            {/* Weapon sprite */}
+            {/* ── Screen flash overlay ── */}
             <div
-                style={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    pointerEvents: "none",
-                    width: "400px",
-                    height: "400px",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "flex-end",
-                    zIndex: 10,
-                }}
-            >
+                className={`weapon-screen-flash ${screenFlash ? "weapon-screen-flash--active" : ""}`}
+                style={{ "--flash-color": meta.flashColor } as React.CSSProperties}
+            />
+
+            {/* ── Weapon sprite + muzzle flash container ── */}
+            <div className="weapon-hud-root">
+
+                {/* Muzzle flash: sits at the top of the weapon container (near barrel) */}
                 <div
+                    className={`muzzle-flash ${muzzleFlash ? "muzzle-flash--active" : ""}`}
                     style={{
-                        width: "100%",
-                        height: "100%",
-                        transformOrigin: "bottom center",
-                        transform: isFiring
-                            ? "translateY(20px) scale(1.05)"
-                            : "translateY(0px) scale(1)",
-                        transition: isFiring
-                            ? "transform 0.05s ease-out"
-                            : "transform 0.1s ease-in",
-                    }}
+                        "--flash-color": meta.flashColor,
+                        "--flash-size": `${meta.flashSize}px`,
+                    } as React.CSSProperties}
                 >
+                    {/* Star rays — pure CSS, no image needed */}
+                    <div className="muzzle-flash__rays" />
+                    <div className="muzzle-flash__core" />
+                </div>
+
+                {/* Weapon sprite */}
+                <div className={`weapon-sprite ${firing ? "weapon-sprite--firing" : ""}`}>
                     <svg
                         width="100%"
                         height="100%"
                         viewBox="0 0 64 64"
                         preserveAspectRatio="xMidYMax meet"
-                        style={{
-                            filter: "drop-shadow(0 10px 10px rgba(0,0,0,0.5))",
-                        }}
+                        className="weapon-svg"
                     >
-                        <use href={`/assets/spritemap.svg#${spriteId}`} />
+                        <use href={`/assets/spritemap.svg#${meta.sprite}`} />
                     </svg>
                 </div>
             </div>
