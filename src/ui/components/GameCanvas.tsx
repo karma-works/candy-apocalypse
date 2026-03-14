@@ -19,12 +19,14 @@ import { musicManager } from "../../engine/audio/MusicManager";
 import { EntityManager } from "../../game/EntityManager";
 import { Player } from "../../game/entities/Player";
 import { Enemy } from "../../game/entities/Enemy";
+import { Pickup } from "../../game/entities/Pickup";
 import { useGameStore } from "../../game/state/gameStore";
 import {
   getDefaultLevel,
   getLevelConfig,
   loadManifest,
 } from "../../game/levels/levelManifest";
+import { RainbowFogEffect } from "../../engine/effects/RainbowFogEffect";
 
 export function GameCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -36,6 +38,8 @@ export function GameCanvas() {
   const textureManagerRef = useRef<TextureManager | null>(null);
   const entityManagerRef = useRef<EntityManager | null>(null);
   const playerRef = useRef<Player | null>(null);
+  const bonusExitSpawnedRef = useRef(false);
+  const rainbowFogRef = useRef<RainbowFogEffect | null>(null);
 
   const [isReady, setIsReady] = useState(false);
   const {
@@ -98,7 +102,12 @@ export function GameCanvas() {
 
     canvas.addEventListener("click", () => {
       const { isPaused, isPlaying } = useGameStore.getState();
-      if (!isPaused && isPlaying && playerRef.current) {
+      if (
+        !isPaused &&
+        isPlaying &&
+        playerRef.current &&
+        document.pointerLockElement === canvas
+      ) {
         playerRef.current.fire();
       }
     });
@@ -133,6 +142,22 @@ export function GameCanvas() {
             }
           });
         }
+
+        if (!bonusExitSpawnedRef.current && entityManagerRef.current) {
+          const enemies = entityManagerRef.current.getEnemies();
+          const allDead =
+            enemies.length > 0 &&
+            enemies.every((e) => !e.isActive || e.health.isDead);
+          if (allDead && cameraRef.current) {
+            const playerPos = cameraRef.current.position;
+            const exitId = `bonus_exit_${Date.now()}`;
+            const exit = new Pickup(exitId, "level_exit");
+            exit.createMesh(sceneRef.current!, textureManagerRef.current);
+            exit.setPosition(playerPos.x + 2, 1, playerPos.z + 2);
+            entityManagerRef.current["entities"].set(exitId, exit);
+            bonusExitSpawnedRef.current = true;
+          }
+        }
       }
 
       entityManager.update(deltaTime);
@@ -142,6 +167,7 @@ export function GameCanvas() {
     setIsReady(true);
 
     return () => {
+      rainbowFogRef.current?.dispose();
       entityManager.dispose();
       engine.dispose();
       inputManager.dispose();
@@ -177,6 +203,7 @@ export function GameCanvas() {
           }
         });
         entityManager.clear();
+        bonusExitSpawnedRef.current = false;
 
         if (cameraRef.current) {
           cameraRef.current.position.set(0, 100, 0);
@@ -185,16 +212,24 @@ export function GameCanvas() {
         let spawns: import("../../game/state/gameStore").SpawnPoint[];
 
         if (proceduralLevelIndex >= 0) {
-          // ── Procedural path ────────────────────────────────────────────
           const meta = PROCEDURAL_LEVELS[proceduralLevelIndex];
           const generated = generateLevel(meta.params);
           buildLevel(generated, scene);
 
-          // Fog scaled by level length
-          scene.fogMode = Scene.FOGMODE_LINEAR;
-          scene.fogStart = 10 + meta.params.length * 3;
-          scene.fogEnd = 30 + meta.params.length * 8;
-          scene.fogColor = new Color3(0.1, 0.1, 0.15);
+          const fogStart = 10 + meta.params.length * 3;
+          const fogEnd = 30 + meta.params.length * 8;
+
+          if (rainbowFogRef.current) {
+            rainbowFogRef.current.dispose();
+          }
+          if (cameraRef.current) {
+            rainbowFogRef.current = new RainbowFogEffect(cameraRef.current, {
+              fogStart,
+              fogEnd,
+              colorSpeed: 1.0,
+              rainbowIntensity: 0.7,
+            });
+          }
 
           spawns = generated.spawns;
         } else {

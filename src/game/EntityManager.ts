@@ -1,11 +1,11 @@
-import { Scene } from '@babylonjs/core';
-import { Entity } from './entities/Entity';
-import { Player } from './entities/Player';
-import { Enemy, EnemyType } from './entities/Enemy';
-import { Prop, PropType } from './entities/Prop';
-import { Pickup, PickupType } from './entities/Pickup';
-import type { SpawnPoint } from './state/gameStore';
-import { TextureManager } from '../engine/assets/TextureManager';
+import { Scene } from "@babylonjs/core";
+import { Entity } from "./entities/Entity";
+import { Player } from "./entities/Player";
+import { Enemy, EnemyType } from "./entities/Enemy";
+import { Prop, PropType } from "./entities/Prop";
+import { Pickup, PickupType } from "./entities/Pickup";
+import type { SpawnPoint } from "./state/gameStore";
+import { TextureManager } from "../engine/assets/TextureManager";
 
 export class EntityManager {
   private entities: Map<string, Entity> = new Map();
@@ -23,42 +23,42 @@ export class EntityManager {
     let entity: Entity | null = null;
 
     switch (spawn.type) {
-    case 'player':
-      entity = this.spawnPlayer(id);
-      break;
-    case 'enemy-demon':
-      entity = this.spawnEnemy(id, 'demon');
-      break;
-    case 'enemy-imp':
-      entity = this.spawnEnemy(id, 'imp');
-      break;
-    case 'enemy-cacodemon':
-      entity = this.spawnEnemy(id, 'cacodemon');
-      break;
-    case 'prop-barrel':
-      entity = this.spawnProp(id, 'barrel');
-      break;
-    case 'prop-pillar':
-      entity = this.spawnProp(id, 'pillar');
-      break;
-    case 'prop-crate':
-      entity = this.spawnProp(id, 'crate');
-      break;
-    case 'pickup-health':
-      entity = this.spawnPickup(id, 'health');
-      break;
-    case 'pickup-ammo-pistol':
-      entity = this.spawnPickup(id, 'ammo_pistol');
-      break;
-    case 'pickup-ammo-shotgun':
-      entity = this.spawnPickup(id, 'ammo_shotgun');
-      break;
-    case 'pickup-exit':
-      entity = this.spawnPickup(id, 'level_exit');
-      break;
-    default:
-      console.warn(`Unknown entity type: ${spawn.type}`);
-      return null;
+      case "player":
+        entity = this.spawnPlayer(id);
+        break;
+      case "enemy-demon":
+        entity = this.spawnEnemy(id, "demon");
+        break;
+      case "enemy-imp":
+        entity = this.spawnEnemy(id, "imp");
+        break;
+      case "enemy-cacodemon":
+        entity = this.spawnEnemy(id, "cacodemon");
+        break;
+      case "prop-barrel":
+        entity = this.spawnProp(id, "barrel");
+        break;
+      case "prop-pillar":
+        entity = this.spawnProp(id, "pillar");
+        break;
+      case "prop-crate":
+        entity = this.spawnProp(id, "crate");
+        break;
+      case "pickup-health":
+        entity = this.spawnPickup(id, "health");
+        break;
+      case "pickup-ammo-pistol":
+        entity = this.spawnPickup(id, "ammo_pistol");
+        break;
+      case "pickup-ammo-shotgun":
+        entity = this.spawnPickup(id, "ammo_shotgun");
+        break;
+      case "pickup-exit":
+        entity = this.spawnPickup(id, "level_exit");
+        break;
+      default:
+        console.warn(`Unknown entity type: ${spawn.type}`);
+        return null;
     }
 
     if (entity) {
@@ -87,7 +87,7 @@ export class EntityManager {
 
   spawnPlayer(id: string): Player {
     if (this.player) {
-      console.warn('Player already exists');
+      console.warn("Player already exists");
       return this.player;
     }
 
@@ -141,6 +141,10 @@ export class EntityManager {
 
   getPickups(): Pickup[] {
     return this.getEntitiesByType(Pickup);
+  }
+
+  getEnemies(): Enemy[] {
+    return this.getEntitiesByType(Enemy);
   }
 
   update(deltaTime: number): void {

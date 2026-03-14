@@ -181,12 +181,20 @@ export function HUD() {
       </div>
 
       {isPaused && (
-        <div className="pause-overlay">
+        <div
+          className="pause-overlay"
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
           <div className="pause-text">PAUSED</div>
           <div className="pause-hint">Press SPACE to resume</div>
           <div
             className="pause-music-toggle"
-            onClick={toggleMusic}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleMusic();
+            }}
+            onMouseDown={(e) => e.stopPropagation()}
             style={{
               marginTop: "20px",
               cursor: "pointer",
