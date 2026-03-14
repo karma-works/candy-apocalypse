@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 export interface SpawnPoint {
   type: string;
@@ -13,7 +13,7 @@ export interface LevelConfig {
   ambient?: {
     music?: string;
     fog?: {
-      mode: 'none' | 'linear' | 'exp';
+      mode: "none" | "linear" | "exp";
       start?: number;
       end?: number;
       density?: number;
@@ -23,12 +23,12 @@ export interface LevelConfig {
 }
 
 const COMBO_LABELS: Array<{ minCombo: number; label: string }> = [
-  { minCombo: 50, label: 'DOOM ETERNAL...LY HAPPY! 🌈' },
-  { minCombo: 20, label: 'CHAOS EMPEROR! 👑' },
-  { minCombo: 10, label: 'DEMOLITION DERBY! 🚧' },
-  { minCombo: 5, label: 'MURDER PARTY! 🎉' },
-  { minCombo: 3, label: 'Triple Threat! ⚡' },
-  { minCombo: 2, label: 'Double Trouble! 💥' },
+  { minCombo: 50, label: "DOOM ETERNAL...LY HAPPY! 🌈" },
+  { minCombo: 20, label: "CHAOS EMPEROR! 👑" },
+  { minCombo: 10, label: "DEMOLITION DERBY! 🚧" },
+  { minCombo: 5, label: "MURDER PARTY! 🎉" },
+  { minCombo: 3, label: "Triple Threat! ⚡" },
+  { minCombo: 2, label: "Double Trouble! 💥" },
 ];
 
 export interface GameState {
@@ -90,7 +90,7 @@ const initialState = {
   score: 0,
   kills: 0,
   killCombo: 0,
-  comboLabel: '',
+  comboLabel: "",
   lastKillTime: 0,
 };
 
@@ -145,7 +145,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     const comboReset = timeSinceLast > 3000;
     const newCombo = comboReset ? 1 : state.killCombo + 1;
     const comboEntry = COMBO_LABELS.find((c) => newCombo >= c.minCombo);
-    const comboLabel = comboEntry ? comboEntry.label : '';
+    const comboLabel = comboEntry ? comboEntry.label : "";
     set({
       kills: state.kills + 1,
       score: state.score + points * newCombo,
@@ -155,7 +155,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     });
   },
 
-  clearComboLabel: () => set({ comboLabel: '' }),
+  clearComboLabel: () => set({ comboLabel: "" }),
 
   reset: () => set(initialState),
 
@@ -171,17 +171,23 @@ export const useGameStore = create<GameState>((set, get) => ({
   nextLevel: () => {
     const { proceduralLevelIndex } = get();
     if (proceduralLevelIndex >= 9) {
-      // Last level — show victory screen
       set({ isVictory: true, isPlaying: false });
       document.exitPointerLock?.();
     } else {
-      // Advance to next level: reset all gameplay state, keep going
       set({
         ...initialState,
         proceduralLevelIndex: proceduralLevelIndex + 1,
         isPlaying: true,
       });
     }
+  },
+
+  startLevel: (index) => {
+    set({
+      ...initialState,
+      proceduralLevelIndex: index,
+      isPlaying: true,
+    });
   },
 
   endGame: () => set({ isPlaying: false }),
