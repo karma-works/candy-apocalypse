@@ -112,23 +112,14 @@ export class Enemy extends Entity {
     const { height, width } = sizeMap[this.enemyType];
     const mesh = MeshBuilder.CreatePlane(this.id, { height, width }, scene);
 
-    // Make enemies face the camera
     mesh.billboardMode = Mesh.BILLBOARDMODE_Y;
 
-    // Store height so setPosition can offset correctly
     this.meshHeight = height;
-
-    // Do NOT bake y offset here — setPosition will apply it correctly
-    // (previously mesh.position.y = height / 2 was overwritten by EntityManager.setPosition)
 
     const material = new StandardMaterial(`${this.id}_mat`, scene);
 
     let appliedTexture = false;
     if (textureManager) {
-      // e.g "demon" -> "enemy-demon" or whatever the SVG symbol ID is.
-      // Need to map the proper name if it differs, but let's try direct mapping.
-      // The product design says "happy_imp", "cheerful_zombie", "party_demon"
-      // or similar. Let's map our generic IDs to the actual SVG names if applicable.
       let texName = `enemy-${this.enemyType}`;
       if (this.enemyType === "demon") {
         texName = "party_demon";
@@ -151,8 +142,8 @@ export class Enemy extends Entity {
         texture.hasAlpha = true;
         material.diffuseTexture = texture;
         material.useAlphaFromDiffuseTexture = true;
-        material.emissiveColor = new Color3(0.8, 0.8, 0.8); // Make it bright and lively
-        material.backFaceCulling = false; // Fix visibility inversion with BILLBOARDMODE_Y
+        material.emissiveColor = new Color3(0.8, 0.8, 0.8);
+        material.backFaceCulling = false;
         appliedTexture = true;
       }
     }
@@ -166,6 +157,8 @@ export class Enemy extends Entity {
     mesh.isPickable = true;
 
     this.setMesh(mesh);
+
+    this.ai.setScene(scene);
   }
 
   setTarget(target: Player): void {

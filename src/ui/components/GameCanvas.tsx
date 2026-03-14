@@ -28,6 +28,7 @@ import {
 } from "../../game/levels/levelManifest";
 import { RainbowFogEffect } from "../../engine/effects/RainbowFogEffect";
 import { EffectManager } from "../../game/components/EffectManager";
+import type { CloudCeiling } from "../../engine/effects/CloudCeiling";
 
 export function GameCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -42,8 +43,12 @@ export function GameCanvas() {
   const bonusExitSpawnedRef = useRef(false);
   const rainbowFogRef = useRef<RainbowFogEffect | null>(null);
   const effectManagerRef = useRef<EffectManager | null>(null);
+  const cloudCeilingRef = useRef<CloudCeiling | null>(null);
 
   const [isReady, setIsReady] = useState(false);
+  const noclipRef = useRef(
+    new URLSearchParams(window.location.search).get("noclip") === "true",
+  );
   const {
     currentLevel,
     proceduralLevelIndex,
@@ -90,9 +95,9 @@ export function GameCanvas() {
     camera.maxZ = 1000;
     camera.fov = 1.2;
     camera.inertia = 0;
-    camera.applyGravity = true;
-    camera.checkCollisions = true;
-    camera.ellipsoid = new Vector3(0.5, 0.8, 0.5); // Lowered from 1.7 to align eye level with enemies
+    camera.applyGravity = !noclipRef.current;
+    camera.checkCollisions = !noclipRef.current;
+    camera.ellipsoid = new Vector3(0.5, 0.8, 0.5);
     camera.inputs.clear();
     scene.activeCamera = camera;
     cameraRef.current = camera;
@@ -166,6 +171,7 @@ export function GameCanvas() {
       }
 
       entityManager.update(deltaTime);
+      cloudCeilingRef.current?.update(deltaTime);
       scene.render();
     });
 
@@ -173,6 +179,7 @@ export function GameCanvas() {
 
     return () => {
       rainbowFogRef.current?.dispose();
+      cloudCeilingRef.current?.dispose();
       entityManager.dispose();
       engine.dispose();
       inputManager.dispose();
@@ -219,7 +226,12 @@ export function GameCanvas() {
         if (proceduralLevelIndex >= 0) {
           const meta = PROCEDURAL_LEVELS[proceduralLevelIndex];
           const generated = generateLevel(meta.params);
-          buildLevel(generated, scene);
+          const built = buildLevel(generated, scene);
+
+          if (cloudCeilingRef.current) {
+            cloudCeilingRef.current.dispose();
+          }
+          cloudCeilingRef.current = built.cloudCeiling;
 
           const fogStart = 10 + meta.params.length * 3;
           const fogEnd = 30 + meta.params.length * 8;
@@ -294,6 +306,7 @@ export function GameCanvas() {
             playerRef.current = entity;
             if (cameraRef.current && inputRef.current) {
               entity.attachToCamera(cameraRef.current, inputRef.current, scene);
+              entity.movement.setNoclip(noclipRef.current);
               const spawnPos = entity.metadata.spawnPosition as [
                 number,
                 number,
@@ -357,6 +370,8 @@ export function GameCanvas() {
         playerRef.current?.switchWeapon("pistol");
       } else if (e.code === "Digit2") {
         playerRef.current?.switchWeapon("shotgun");
+      } else if (e.code === "Digit3") {
+        playerRef.current?.switchWeapon("chaingun");
       } else if (e.code === "KeyM") {
         const { toggleMusic } = useGameStore.getState();
         toggleMusic();
@@ -452,6 +467,34 @@ export function GameCanvas() {
       window.removeEventListener(
         "enemyDeath",
         handleEnemyDeath as EventListener,
+      );
+  }, []);
+
+  useEffect(() => {
+    const handleWeaponFired = (e: CustomEvent) => {
+      if (!cameraRef.current || !entityManagerRef.current) return;
+      const playerPos = cameraRef.current.position;
+      const enemies = entityManagerRef.current.getEnemies();
+      const activationRange = 25;
+
+      enemies.forEach((enemy) => {
+        if (!enemy.ai) return;
+        const enemyPos = enemy.getPosition();
+        const dist = Vector3.Distance(
+          playerPos,
+          new Vector3(enemyPos.x, playerPos.y, enemyPos.z),
+        );
+        if (dist <= activationRange) {
+          enemy.ai.activate();
+        }
+      });
+    };
+
+    window.addEventListener("weaponFired", handleWeaponFired as EventListener);
+    return () =>
+      window.removeEventListener(
+        "weaponFired",
+        handleWeaponFired as EventListener,
       );
   }, []);
 

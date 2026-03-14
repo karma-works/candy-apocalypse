@@ -3,15 +3,20 @@
  * Keep this as the only file that imports from @babylonjs/core in the procedural pipeline.
  */
 
-import { Color3, MeshBuilder, Scene, StandardMaterial } from "@babylonjs/core";
-import type { GeneratedLevel } from "./LevelLayout";
-import { WALL_H } from "./LevelLayout";
+import { Color3, MeshBuilder, Scene, StandardMaterial } from '@babylonjs/core';
+import type { GeneratedLevel } from './LevelLayout';
+import { WALL_H } from './LevelLayout';
+import { CloudCeiling } from '../effects/CloudCeiling';
 
-const WALL_T = 0.4; // wall thickness
+const WALL_T = 0.4;
+
+export interface BuiltLevel {
+  cloudCeiling: CloudCeiling;
+}
 
 function hslToRgb(h: number, s: number, l: number): Color3 {
   const c = (1 - Math.abs(2 * l - 1)) * s;
-  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const x = c * (1 - Math.abs(h / 60 % 2 - 1));
   const m = l - c / 2;
   let r = 0,
     g = 0,
@@ -38,13 +43,13 @@ function hslToRgb(h: number, s: number, l: number): Color3 {
   return new Color3(r + m, g + m, b + m);
 }
 
-export function buildLevel(level: GeneratedLevel, scene: Scene): void {
-  const wallMat = new StandardMaterial("proc_wall", scene);
+export function buildLevel(level: GeneratedLevel, scene: Scene): BuiltLevel {
+  const wallMat = new StandardMaterial('proc_wall', scene);
   wallMat.diffuseColor = new Color3(0.6, 0.36, 0.9);
   wallMat.emissiveColor = new Color3(0.1, 0.05, 0.2);
 
   level.floors.forEach((f, i) => {
-    const hue = ((i * 360) / level.floors.length) % 360;
+    const hue = i * 360 / level.floors.length % 360;
     const floorMat = new StandardMaterial(`proc_floor_${i}`, scene);
     floorMat.diffuseColor = hslToRgb(hue, 1.0, 0.5);
     floorMat.emissiveColor = hslToRgb(hue, 1.0, 0.15);
@@ -60,8 +65,8 @@ export function buildLevel(level: GeneratedLevel, scene: Scene): void {
   });
 
   level.walls.forEach((w, i) => {
-    const width = w.axis === "x" ? w.len : WALL_T;
-    const depth = w.axis === "z" ? w.len : WALL_T;
+    const width = w.axis === 'x' ? w.len : WALL_T;
+    const depth = w.axis === 'z' ? w.len : WALL_T;
     const mesh = MeshBuilder.CreateBox(
       `proc_wall_${i}`,
       { width, height: WALL_H, depth },
@@ -71,4 +76,12 @@ export function buildLevel(level: GeneratedLevel, scene: Scene): void {
     mesh.material = wallMat;
     mesh.checkCollisions = true;
   });
+
+  const levelSize = Math.max(
+    ...level.floors.map((f) => Math.max(f.w, f.d)),
+    50,
+  );
+  const cloudCeiling = new CloudCeiling(scene, 15, levelSize);
+
+  return { cloudCeiling };
 }
