@@ -234,6 +234,18 @@ export function GameCanvas() {
             playerRef.current = entity;
             if (cameraRef.current && inputRef.current) {
               entity.attachToCamera(cameraRef.current, inputRef.current, scene);
+              const spawnPos = entity.metadata.spawnPosition as [
+                number,
+                number,
+                number,
+              ];
+              if (spawnPos) {
+                entity.movement.setPosition(
+                  spawnPos[0],
+                  spawnPos[1],
+                  spawnPos[2],
+                );
+              }
             }
           }
         });

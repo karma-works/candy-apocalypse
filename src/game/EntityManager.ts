@@ -68,13 +68,8 @@ export class EntityManager {
           spawn.position[1],
           spawn.position[2],
         );
-      } else if (entity instanceof Player) {
-        entity.movement.setPosition(
-          spawn.position[0],
-          spawn.position[1],
-          spawn.position[2],
-        );
       }
+      entity.metadata = { spawnPosition: spawn.position };
 
       if (spawn.rotation && entity.mesh) {
         entity.mesh.rotation.set(

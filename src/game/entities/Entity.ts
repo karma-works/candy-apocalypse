@@ -20,6 +20,7 @@ export class Entity {
   mesh: AbstractMesh | null = null;
   components: Map<string, Component> = new Map();
   isActive = true;
+  metadata: Record<string, unknown> = {};
 
   constructor(id: string, name: string) {
     this.id = id;

@@ -12,7 +12,11 @@ import { useGameStore } from "../state/gameStore";
 import { playSound } from "../../engine/audio/GameAudio";
 import { TextureManager } from "../../engine/assets/TextureManager";
 
-export type PickupType = "health" | "ammo_pistol" | "ammo_shotgun" | "level_exit";
+export type PickupType =
+  | "health"
+  | "ammo_pistol"
+  | "ammo_shotgun"
+  | "level_exit";
 
 export interface PickupConfig {
   type: PickupType;
@@ -60,7 +64,8 @@ export class Pickup extends Entity {
 
   createMesh(scene: Scene, textureManager: TextureManager | null = null): void {
     let texture = null;
-    let size = 0.6; // slightly larger for 2D readability
+    const isLevelExit = this.pickupType === "level_exit";
+    let size = isLevelExit ? 1.2 : 0.6;
 
     if (textureManager) {
       let texName = `item-${this.pickupType}`;
@@ -78,7 +83,7 @@ export class Pickup extends Entity {
       mesh = MeshBuilder.CreatePlane(
         this.id,
         { width: size, height: size },
-        scene
+        scene,
       );
       mesh.billboardMode = Mesh.BILLBOARDMODE_Y;
     } else {
@@ -142,7 +147,7 @@ export class Pickup extends Entity {
         store.addAmmo("shotgun", this.config.amount);
         break;
       case "level_exit":
-        store.setVictory(true);
+        useGameStore.getState().nextLevel();
         break;
     }
 

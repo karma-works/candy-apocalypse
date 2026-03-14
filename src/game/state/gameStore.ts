@@ -65,6 +65,7 @@ export interface GameState {
   addScore: (points: number) => void;
   addKill: (points?: number) => void;
   clearComboLabel: () => void;
+  nextLevel: () => void;
   reset: () => void;
   startGame: () => void;
   endGame: () => void;
@@ -174,7 +175,11 @@ export const useGameStore = create<GameState>((set, get) => ({
       document.exitPointerLock?.();
     } else {
       // Advance to next level: reset all gameplay state, keep going
-      set({ ...initialState, proceduralLevelIndex: proceduralLevelIndex + 1, isPlaying: true });
+      set({
+        ...initialState,
+        proceduralLevelIndex: proceduralLevelIndex + 1,
+        isPlaying: true,
+      });
     }
   },
 
