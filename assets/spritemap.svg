@@ -1,0 +1,1269 @@
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <!--
+    Candy Apocalypse Spritemap
+    All symbols follow the "Candy Apocalypse" color theme:
+      Primary:  #00D4FF (Sky Pop), #FFB7C5 (Cotton Cloud), #FFE135 (Solar Burst), #32FF00 (Toxic Lime)
+      Accent:   #FF6B35 (Rage Orange), #9B5DE5 (Mystic Violet), #FF0044 (Cherry Bomb)
+      Outline:  #1A1A2E (Deep Space) at 3-5px stroke
+  -->
+
+  <symbol id="bfuga0" viewBox="0 0 256 256">
+    <use href="#bfg" />
+  </symbol>
+
+  <symbol id="bossa0" viewBox="0 0 160 140">
+    <use href="#birthday_boy_boss" x="0" y="0" width="160" height="140"/>
+  </symbol>
+
+  <symbol id="busia0" viewBox="0 0 80 100">
+    <use href="#business_imp" x="0" y="0" width="80" height="100"/>
+  </symbol>
+
+  <symbol id="csawa0" viewBox="0 0 256 256">
+    <use href="#chainsaw" />
+  </symbol>
+
+  <symbol id="cybra0" viewBox="0 0 140 160">
+    <use href="#doom_clown_boss" x="0" y="0" width="140" height="160"/>
+  </symbol>
+
+  <symbol id="heada0" viewBox="0 0 100 100">
+    <use href="#disco_cacodemon" x="0" y="0" width="100" height="100"/>
+  </symbol>
+
+  <symbol id="karna0" viewBox="0 0 100 100">
+    <use href="#karen_demon" x="0" y="0" width="100" height="100"/>
+  </symbol>
+
+  <symbol id="launa0" viewBox="0 0 256 256">
+    <use href="#rocket_launcher" />
+  </symbol>
+
+  <symbol id="manca0" viewBox="0 0 140 100">
+    <use href="#dj_mancubus" x="0" y="0" width="140" height="100"/>
+  </symbol>
+
+  <symbol id="mguna0" viewBox="0 0 256 256">
+    <use href="#chaingun" />
+  </symbol>
+
+  <symbol id="pigea0" viewBox="0 0 100 100">
+    <use href="#pigeon_possessed" x="0" y="0" width="100" height="100"/>
+  </symbol>
+
+  <symbol id="pigya0" viewBox="0 0 100 100">
+    <use href="#suicide_sheep" x="0" y="0" width="100" height="100"/>
+  </symbol>
+
+  <symbol id="pisga0" viewBox="0 0 256 256">
+    <use href="#pistol" />
+  </symbol>
+
+  <symbol id="plasa0" viewBox="0 0 256 256">
+    <use href="#plasma_rifle" />
+  </symbol>
+
+  <symbol id="possa0" viewBox="0 0 80 100">
+    <use href="#cheerful_zombie" x="0" y="0" width="80" height="100"/>
+  </symbol>
+
+  <symbol id="sarga0" viewBox="0 0 100 100">
+    <use href="#party_demon" x="0" y="0" width="100" height="100"/>
+  </symbol>
+
+  <symbol id="shtga0" viewBox="0 0 256 256">
+    <use href="#shotgun" />
+  </symbol>
+
+  <symbol id="skula0" viewBox="0 0 120 80">
+    <use href="#skateboard_baron" x="0" y="0" width="120" height="80"/>
+  </symbol>
+
+  <symbol id="spida0" viewBox="0 0 180 160">
+    <use href="#disco_inferno_boss" x="0" y="0" width="180" height="160"/>
+  </symbol>
+
+  <symbol id="trooa0" viewBox="0 0 80 100">
+    <use href="#happy_imp" x="0" y="0" width="80" height="100"/>
+  </symbol>
+
+  <symbol id="barrel" viewBox="0 0 50 70">
+    <rect x="2" y="2" width="46" height="62" fill="#2d6f2d" rx="4" />
+              
+              <rect x="2" y="14" width="46" height="9" fill="#1d4f1d" />
+              <rect x="2" y="48" width="46" height="9" fill="#1d4f1d" />
+              
+              <rect x="2" y="2" width="46" height="6" fill="#1a401a" rx="2" />
+              
+              <rect x="2" y="62" width="46" height="6" fill="#1a401a" rx="2" />
+              
+              <circle cx="25" cy="34" r="10" fill="#ffff00" />
+              <circle cx="25" cy="34" r="4" fill="#2d6f2d" />
+              
+              <circle cx="5" cy="12" r="2" fill="#3a8a3a" />
+              <circle cx="45" cy="12" r="2" fill="#3a8a3a" />
+  </symbol>
+
+  <!-- Huge energy core -->
+  <symbol id="bfg" viewBox="0 0 200 300">
+    <defs>
+        <linearGradient id="bfgBody" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#32FF00"/>
+          <stop offset="50%" stop-color="#00D4FF"/>
+          <stop offset="100%" stop-color="#9B5DE5"/>
+        </linearGradient>
+        <linearGradient id="bfgCore" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FF0044"/>
+          <stop offset="50%" stop-color="#FFE135"/>
+          <stop offset="100%" stop-color="#32FF00"/>
+        </linearGradient>
+        <filter id="megaGlow">
+          <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      
+      
+      <rect x="45" y="230" width="110" height="60" rx="10" fill="#FF6B35" stroke="#1A1A2E" stroke-width="5"/>
+      <rect x="53" y="238" width="94" height="44" rx="8" fill="#CC5528" stroke="#1A1A2E" stroke-width="3"/>
+      
+      
+      <polygon points="40,230 160,230 145,80 55,80" fill="url(#bfgBody)" stroke="#1A1A2E" stroke-width="5"/>
+      
+      
+      <circle cx="100" cy="170" r="40" fill="url(#bfgCore)" stroke="#1A1A2E" stroke-width="4" filter="url(#megaGlow)"/>
+      <circle cx="100" cy="170" r="28" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="3"/>
+      <circle cx="100" cy="170" r="16" fill="#32FF00" filter="url(#megaGlow)"/>
+      <circle cx="100" cy="170" r="8" fill="#FFFFFF"/>
+      
+      
+      <polygon points="60,80 140,80 130,30 70,30" fill="#1A1A2E" stroke="#1A1A2E" stroke-width="4"/>
+      <polygon points="70,80 130,80 120,40 80,40" fill="#32FF00" stroke="#1A1A2E" stroke-width="3" filter="url(#megaGlow)"/>
+      
+      
+      <ellipse cx="100" cy="25" rx="30" ry="18" fill="#32FF00" stroke="#1A1A2E" stroke-width="4" filter="url(#megaGlow)"/>
+      <ellipse cx="100" cy="25" rx="20" ry="12" fill="#00D4FF"/>
+      <ellipse cx="100" cy="25" rx="10" ry="6" fill="#FFFFFF"/>
+      
+      
+      <circle cx="60" cy="50" r="5" fill="#FF0044"/>
+      <circle cx="140" cy="50" r="5" fill="#9B5DE5"/>
+      <circle cx="75" cy="35" r="4" fill="#FFB7C5"/>
+      <circle cx="125" cy="35" r="4" fill="#FFE135"/>
+      
+      
+      <line x1="50" y1="10" x2="150" y2="10" stroke="#FFFFFF" stroke-width="2" opacity="0.5"/>
+      <line x1="45" y1="18" x2="155" y2="18" stroke="#32FF00" stroke-width="2" opacity="0.5"/>
+      
+      
+      <path d="M 55,120 Q 100,100 145,120" fill="none" stroke="#FFE135" stroke-width="4"/>
+      <path d="M 55,140 Q 100,120 145,140" fill="none" stroke="#FF6B35" stroke-width="4"/>
+      
+      
+      <text x="100" y="280" text-anchor="middle" font-family="Impact, sans-serif" font-size="20" 
+            fill="#1A1A2E" font-weight="bold" letter-spacing="2">PARTY!</text>
+  </symbol>
+
+  <symbol id="birthday_boy_boss" viewBox="0 0 160 140">
+    <defs>
+        <linearGradient id="bossBody" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFB7C5"/>
+          <stop offset="50%" stop-color="#FF6B35"/>
+          <stop offset="100%" stop-color="#FF0044"/>
+        </linearGradient>
+        <linearGradient id="hatGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFE135"/>
+          <stop offset="100%" stop-color="#FF6B35"/>
+        </linearGradient>
+        <filter id="bossGlow">
+          <feGaussianBlur stdDeviation="4" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      
+      <ellipse cx="80" cy="135" rx="60" ry="5" fill="#1A1A2E" opacity="0.3"/>
+      
+      <rect x="30" y="105" width="25" height="32" rx="8" fill="url(#bossBody)" stroke="#1A1A2E" stroke-width="4"/>
+      <rect x="105" y="105" width="25" height="32" rx="8" fill="url(#bossBody)" stroke="#1A1A2E" stroke-width="4"/>
+      
+      <ellipse cx="80" cy="80" rx="65" ry="55" fill="url(#bossBody)" stroke="#1A1A2E" stroke-width="4" filter="url(#bossGlow)"/>
+      
+      <path d="M 20 60 Q 0 50 10 35 Q 25 45 30 55 Z" fill="#FF0044" stroke="#1A1A2E" stroke-width="3"/>
+      <path d="M 140 60 Q 160 50 150 35 Q 135 45 130 55 Z" fill="#FF0044" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <ellipse cx="80" cy="40" rx="45" ry="40" fill="url(#bossBody)" stroke="#1A1A2E" stroke-width="4"/>
+      
+      <ellipse cx="55" cy="35" rx="12" ry="14" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      <ellipse cx="105" cy="35" rx="12" ry="14" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <circle cx="58" cy="38" r="7" fill="#FF0044"/>
+      <circle cx="108" cy="38" r="7" fill="#FF0044"/>
+      <circle cx="60" cy="36" r="3" fill="#FFFFFF"/>
+      <circle cx="110" cy="36" r="3" fill="#FFFFFF"/>
+      
+      <path d="M 65 60 Q 80 75 95 60" stroke="#1A1A2E" stroke-width="4" fill="none"/>
+      <path d="M 70 62 L 72 68 L 74 62" fill="#FFFFFF"/>
+      <path d="M 78 64 L 80 70 L 82 64" fill="#FFFFFF"/>
+      <path d="M 86 62 L 88 68 L 90 62" fill="#FFFFFF"/>
+      
+      <path d="M 30 -5 L 80 -40 L 130 -5 L 115 5 L 80 -25 L 45 5 Z" fill="url(#hatGrad)" stroke="#1A1A2E" stroke-width="4" filter="url(#bossGlow)"/>
+      
+      <circle cx="80" cy="-20" r="8" fill="#FF0044" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <ellipse cx="55" cy="-10" rx="6" ry="8" fill="#00D4FF" stroke="#1A1A2E" stroke-width="1"/>
+      <ellipse cx="105" cy="-10" rx="6" ry="8" fill="#32FF00" stroke="#1A1A2E" stroke-width="1"/>
+      <ellipse cx="65" cy="-15" rx="5" ry="7" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="1"/>
+      <ellipse cx="95" cy="-15" rx="5" ry="7" fill="#FFE135" stroke="#1A1A2E" stroke-width="1"/>
+      
+      <circle cx="40" cy="55" r="8" fill="#FFB7C5" opacity="0.6"/>
+      <circle cx="120" cy="55" r="8" fill="#FFB7C5" opacity="0.6"/>
+      
+      <circle cx="45" cy="28" r="3" fill="#FFE135"/>
+      <circle cx="115" cy="30" r="2.5" fill="#32FF00"/>
+      <circle cx="70" cy="18" r="2" fill="#00D4FF"/>
+      <circle cx="90" cy="20" r="2" fill="#9B5DE5"/>
+      
+      <text x="80" y="100" text-anchor="middle" font-size="8" fill="#FFFFFF" font-weight="bold">HBD!</text>
+  </symbol>
+
+  <symbol id="business_imp" viewBox="0 0 80 100">
+    <defs>
+        <linearGradient id="impSkin2" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFB7C5"/>
+          <stop offset="100%" stop-color="#FF6B35"/>
+        </linearGradient>
+        <linearGradient id="suitGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#2D2D44"/>
+          <stop offset="100%" stop-color="#1A1A2E"/>
+        </linearGradient>
+      </defs>
+      
+      <ellipse cx="40" cy="95" rx="25" ry="5" fill="#1A1A2E" opacity="0.3"/>
+      
+      <rect x="22" y="70" width="14" height="26" rx="5" fill="url(#impSkin2)" stroke="#1A1A2E" stroke-width="3"/>
+      <rect x="44" y="70" width="14" height="26" rx="5" fill="url(#impSkin2)" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <rect x="22" y="42" width="36" height="32" rx="5" fill="url(#suitGrad)" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <polygon points="40,42 35,58 45,58" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <line x1="40" y1="50" x2="40" y2="74" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="40" cy="52" r="2" fill="#FF0044"/>
+      
+      <path d="M 35 45 L 30 58 L 40 55 L 50 58 L 45 45 Z" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="1"/>
+      
+      <ellipse cx="40" cy="30" rx="22" ry="20" fill="url(#impSkin2)" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <path d="M 22 22 L 15 8 L 28 18 Z" fill="#FF0044" stroke="#1A1A2E" stroke-width="2"/>
+      <path d="M 58 22 L 65 8 L 52 18 Z" fill="#FF0044" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <ellipse cx="30" cy="28" rx="7" ry="8" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      <ellipse cx="50" cy="28" rx="7" ry="8" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <circle cx="32" cy="30" r="4" fill="#1A1A2E"/>
+      <circle cx="52" cy="30" r="4" fill="#1A1A2E"/>
+      <circle cx="33" cy="29" r="1.5" fill="#FFFFFF"/>
+      <circle cx="53" cy="29" r="1.5" fill="#FFFFFF"/>
+      
+      <path d="M 28 42 Q 40 48 52 42" stroke="#1A1A2E" stroke-width="2" fill="none"/>
+      
+      <circle cx="25" cy="35" r="3" fill="#FFB7C5" opacity="0.6"/>
+      <circle cx="55" cy="35" r="3" fill="#FFB7C5" opacity="0.6"/>
+      
+      <rect x="28" y="15" width="24" height="12" rx="2" fill="#2D2D44" stroke="#1A1A2E" stroke-width="2"/>
+      <rect x="32" y="17" width="16" height="8" fill="#1A1A2E"/>
+      <line x1="36" y1="17" x2="36" y2="25" stroke="#2D2D44" stroke-width="1"/>
+      <line x1="40" y1="17" x2="40" y2="25" stroke="#2D2D44" stroke-width="1"/>
+      <line x1="44" y1="17" x2="44" y2="25" stroke="#2D2D44" stroke-width="1"/>
+      
+      <circle cx="35" cy="22" r="2" fill="#FFE135"/>
+      <circle cx="50" cy="18" r="1.5" fill="#32FF00"/>
+      
+      <text x="40" y="90" text-anchor="middle" font-size="4" fill="#FF0044" font-weight="bold">Q4 DUE!</text>
+  </symbol>
+
+  <!-- Ammo drum -->
+  <symbol id="chaingun" viewBox="0 0 200 300">
+    <defs>
+        <linearGradient id="chaingunBody" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#00D4FF"/>
+          <stop offset="100%" stop-color="#9B5DE5"/>
+        </linearGradient>
+        <linearGradient id="barrels" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#C0C0C0"/>
+          <stop offset="50%" stop-color="#E8E8E8"/>
+          <stop offset="100%" stop-color="#A0A0A0"/>
+        </linearGradient>
+      </defs>
+      
+      
+      <rect x="60" y="230" width="80" height="60" rx="8" fill="#FF6B35" stroke="#1A1A2E" stroke-width="4"/>
+      <rect x="68" y="238" width="64" height="44" rx="6" fill="#CC5528" stroke="#1A1A2E" stroke-width="3"/>
+      
+      
+      <polygon points="50,230 150,230 135,130 65,130" fill="url(#chaingunBody)" stroke="#1A1A2E" stroke-width="4"/>
+      
+      
+      <ellipse cx="100" cy="200" rx="35" ry="25" fill="#32FF00" stroke="#1A1A2E" stroke-width="3"/>
+      <ellipse cx="100" cy="200" rx="25" ry="18" fill="#1A1A2E"/>
+      <ellipse cx="100" cy="200" rx="15" ry="10" fill="#FFE135"/>
+      
+      
+      <rect x="70" y="50" width="60" height="80" rx="10" fill="#1A1A2E" stroke="#1A1A2E" stroke-width="3"/>
+      
+      
+      <circle cx="85" cy="70" r="8" fill="url(#barrels)" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="115" cy="70" r="8" fill="url(#barrels)" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="85" cy="100" r="8" fill="url(#barrels)" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="115" cy="100" r="8" fill="url(#barrels)" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="100" cy="85" r="8" fill="url(#barrels)" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="100" cy="65" r="5" fill="#FF0044" stroke="#1A1A2E" stroke-width="2"/>
+      
+      
+      <polygon points="95,50 105,50 100,35" fill="#FFE135" stroke="#1A1A2E" stroke-width="2"/>
+      
+      
+      <line x1="85" y1="55" x2="75" y2="25" stroke="#FF0044" stroke-width="3" stroke-linecap="round"/>
+      <line x1="100" y1="50" x2="100" y2="15" stroke="#FFB7C5" stroke-width="3" stroke-linecap="round"/>
+      <line x1="115" y1="55" x2="125" y2="25" stroke="#32FF00" stroke-width="3" stroke-linecap="round"/>
+      
+      
+      <path d="M 90,60 A 10,10 0 0 1 110,60" fill="none" stroke="#FFB7C5" stroke-width="2" stroke-dasharray="3,2"/>
+      
+      
+      <text x="100" y="280" text-anchor="middle" font-family="Comic Sans MS, cursive" font-size="16" 
+            fill="#1A1A2E" font-weight="bold" transform="rotate(3 100 280)">RA-TA-TA!</text>
+  </symbol>
+
+  <!-- Engine housing -->
+  <symbol id="chainsaw" viewBox="0 0 200 300">
+    <defs>
+        <linearGradient id="chainsawBody" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FF6B35"/>
+          <stop offset="100%" stop-color="#FF0044"/>
+        </linearGradient>
+        <linearGradient id="chainTeeth" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#FFE135"/>
+          <stop offset="100%" stop-color="#FF6B35"/>
+        </linearGradient>
+      </defs>
+      
+      
+      <rect x="40" y="220" width="120" height="70" rx="10" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="4"/>
+      <rect x="50" y="230" width="100" height="50" rx="8" fill="#7B3CE3" stroke="#1A1A2E" stroke-width="3"/>
+      
+      
+      <polygon points="50,220 150,220 140,140 60,140" fill="url(#chainsawBody)" stroke="#1A1A2E" stroke-width="4"/>
+      
+      
+      <rect x="55" y="150" width="90" height="60" rx="5" fill="#32FF00" stroke="#1A1A2E" stroke-width="3"/>
+      <circle cx="100" cy="180" r="20" fill="#1A1A2E"/>
+      <circle cx="100" cy="180" r="12" fill="#FFE135"/>
+      
+      
+      <rect x="70" y="40" width="60" height="100" rx="5" fill="#00D4FF" stroke="#1A1A2E" stroke-width="3"/>
+      
+      
+      <polygon points="75,140 75,45 65,45 65,135" fill="url(#chainTeeth)" stroke="#1A1A2E" stroke-width="2"/>
+      <polygon points="125,140 125,45 135,45 135,135" fill="url(#chainTeeth)" stroke="#1A1A2E" stroke-width="2"/>
+      
+      
+      <path d="M 80,50 L 85,40 L 90,50 L 95,40 L 100,50 L 105,40 L 110,50 L 115,40 L 120,50" 
+            fill="none" stroke="#1A1A2E" stroke-width="4" stroke-linecap="round"/>
+      
+      
+      <circle cx="90" cy="30" r="3" fill="#FFB7C5"/>
+      <circle cx="110" cy="25" r="4" fill="#FFE135"/>
+      <circle cx="100" cy="20" r="3" fill="#32FF00"/>
+      <rect x="95" y="15" width="5" height="5" fill="#00D4FF" transform="rotate(30 97.5 17.5)"/>
+      
+      
+      <text x="100" y="270" text-anchor="middle" font-family="Comic Sans MS, cursive" font-size="18" 
+            fill="#1A1A2E" font-weight="bold" transform="rotate(-5 100 270)">ZZZZ!</text>
+  </symbol>
+
+  <symbol id="cheerful_zombie" viewBox="0 0 80 100">
+    <defs>
+        <linearGradient id="zombieSkin" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#32FF00"/>
+          <stop offset="100%" stop-color="#00D4FF"/>
+        </linearGradient>
+        <linearGradient id="shirtGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#9B5DE5"/>
+          <stop offset="100%" stop-color="#FF0044"/>
+        </linearGradient>
+      </defs>
+      
+      <ellipse cx="40" cy="95" rx="28" ry="5" fill="#1A1A2E" opacity="0.3"/>
+      
+      <rect x="18" y="70" width="16" height="28" rx="4" fill="#2D2D44" stroke="#1A1A2E" stroke-width="3"/>
+      <rect x="46" y="70" width="16" height="28" rx="4" fill="#2D2D44" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <rect x="20" y="40" width="40" height="35" rx="8" fill="url(#shirtGrad)" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <text x="40" y="58" text-anchor="middle" font-size="6" fill="#FFFFFF" font-weight="bold">I ❤ BRAINS</text>
+      <path d="M 28 62 Q 32 66 36 62 Q 40 66 44 62 Q 48 66 52 62" stroke="#FFFFFF" stroke-width="1.5" fill="none"/>
+      
+      <ellipse cx="40" cy="28" rx="22" ry="24" fill="url(#zombieSkin)" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <ellipse cx="30" cy="22" rx="7" ry="8" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      <ellipse cx="50" cy="22" rx="7" ry="8" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <circle cx="32" cy="24" r="4" fill="#1A1A2E"/>
+      <circle cx="52" cy="24" r="4" fill="#1A1A2E"/>
+      <circle cx="33" cy="23" r="1.5" fill="#FFFFFF"/>
+      <circle cx="53" cy="23" r="1.5" fill="#FFFFFF"/>
+      
+      <line x1="26" y1="18" x2="34" y2="16" stroke="#1A1A2E" stroke-width="2" stroke-linecap="round"/>
+      <line x1="46" y1="16" x2="54" y2="18" stroke="#1A1A2E" stroke-width="2" stroke-linecap="round"/>
+      
+      <path d="M 30 40 Q 35 44 40 42 Q 45 44 50 40" stroke="#1A1A2E" stroke-width="2" fill="none"/>
+      
+      <rect x="24" y="36" width="8" height="4" rx="2" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="1"/>
+      <rect x="48" y="36" width="8" height="4" rx="2" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="1"/>
+      
+      <circle cx="22" cy="30" r="4" fill="#FFB7C5" opacity="0.5"/>
+      <circle cx="58" cy="30" r="4" fill="#FFB7C5" opacity="0.5"/>
+      
+      <circle cx="36" cy="18" r="2" fill="#32FF00" opacity="0.7"/>
+      <circle cx="52" cy="28" r="1.5" fill="#FFE135" opacity="0.7"/>
+  </symbol>
+
+  <symbol id="disco_cacodemon" viewBox="0 0 100 100">
+    <defs>
+        <radialGradient id="cacoBody" cx="40%" cy="30%">
+          <stop offset="0%" stop-color="#FFB7C5"/>
+          <stop offset="50%" stop-color="#9B5DE5"/>
+          <stop offset="100%" stop-color="#FF0044"/>
+        </radialGradient>
+        <linearGradient id="laserGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#00D4FF"/>
+          <stop offset="50%" stop-color="#9B5DE5"/>
+          <stop offset="100%" stop-color="#FFFFFF"/>
+        </linearGradient>
+        <filter id="discoGlow">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      
+      <ellipse cx="50" cy="95" rx="35" ry="5" fill="#1A1A2E" opacity="0.2"/>
+      
+      <circle cx="50" cy="50" r="42" fill="url(#cacoBody)" stroke="#1A1A2E" stroke-width="4" filter="url(#discoGlow)"/>
+      
+      <path d="M 10 50 Q 5 40 15 35" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="2"/>
+      <path d="M 90 50 Q 95 40 85 35" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="2"/>
+      <path d="M 15 70 Q 5 75 10 85" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="2"/>
+      <path d="M 85 70 Q 95 75 90 85" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <rect x="22" y="35" width="56" height="20" rx="10" fill="#1A1A2E" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <ellipse cx="35" cy="45" rx="10" ry="7" fill="#32FF00" stroke="#FFFFFF" stroke-width="2"/>
+      <ellipse cx="65" cy="45" rx="10" ry="7" fill="#32FF00" stroke="#FFFFFF" stroke-width="2"/>
+      
+      <ellipse cx="35" cy="45" rx="5" ry="4" fill="#1A1A2E"/>
+      <ellipse cx="65" cy="45" rx="5" ry="4" fill="#1A1A2E"/>
+      <circle cx="33" cy="43" r="1.5" fill="#FFFFFF"/>
+      <circle cx="63" cy="43" r="1.5" fill="#FFFFFF"/>
+      
+      <path d="M 45 42 L 50 38 L 55 42" stroke="#1A1A2E" stroke-width="3" fill="none"/>
+      
+      <path d="M 35 70 Q 50 85 65 70" stroke="#1A1A2E" stroke-width="4" fill="none"/>
+      <path d="M 40 72 L 42 78 L 44 72" fill="#FFFFFF"/>
+      <path d="M 48 74 L 50 80 L 52 74" fill="#FFFFFF"/>
+      <path d="M 56 72 L 58 78 L 60 72" fill="#FFFFFF"/>
+      
+      <line x1="85" y1="50" x2="100" y2="50" stroke="url(#laserGrad)" stroke-width="6" stroke-linecap="round">
+        <animate attributeName="opacity" values="1;0.5;1" dur="0.5s" repeatCount="indefinite"/>
+      </line>
+      <circle cx="100" cy="50" r="5" fill="#FFFFFF">
+        <animate attributeName="opacity" values="1;0.5;1" dur="0.5s" repeatCount="indefinite"/>
+      </circle>
+      
+      <circle cx="25" cy="30" r="4" fill="#FFE135" opacity="0.8"/>
+      <circle cx="75" cy="30" r="4" fill="#00D4FF" opacity="0.8"/>
+      <circle cx="50" cy="20" r="3" fill="#32FF00" opacity="0.8"/>
+      
+      <circle cx="30" cy="65" r="8" fill="#FFFFFF" opacity="0.2"/>
+      <circle cx="70" cy="65" r="8" fill="#FFFFFF" opacity="0.2"/>
+      
+      <circle cx="15" cy="25" r="2" fill="#FFB7C5"/>
+      <circle cx="85" cy="28" r="2" fill="#FFB7C5"/>
+  </symbol>
+
+  <symbol id="disco_inferno_boss" viewBox="0 0 180 160">
+    <defs>
+        <linearGradient id="discoBody" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#9B5DE5"/>
+          <stop offset="25%" stop-color="#00D4FF"/>
+          <stop offset="50%" stop-color="#32FF00"/>
+          <stop offset="75%" stop-color="#FFE135"/>
+          <stop offset="100%" stop-color="#FF0044"/>
+        </linearGradient>
+        <radialGradient id="discoBall" cx="30%" cy="30%">
+          <stop offset="0%" stop-color="#FFFFFF"/>
+          <stop offset="50%" stop-color="#C0C0C0"/>
+          <stop offset="100%" stop-color="#4A4A5C"/>
+        </radialGradient>
+        <filter id="discoInfernoGlow">
+          <feGaussianBlur stdDeviation="5" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      
+      <ellipse cx="90" cy="155" rx="70" ry="5" fill="#1A1A2E" opacity="0.3"/>
+      
+      <rect x="40" y="120" width="30" height="38" rx="10" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="4"/>
+      <rect x="110" y="120" width="30" height="38" rx="10" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="4"/>
+      
+      <ellipse cx="90" cy="85" rx="75" ry="65" fill="url(#discoBody)" stroke="#1A1A2E" stroke-width="5" filter="url(#discoInfernoGlow)"/>
+      
+      <path d="M 15 70 Q -5 60 5 45 Q 20 55 25 65 Z" fill="#FF6B35" stroke="#1A1A2E" stroke-width="3"/>
+      <path d="M 165 70 Q 185 60 175 45 Q 160 55 155 65 Z" fill="#FF6B35" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <ellipse cx="90" cy="45" rx="55" ry="50" fill="url(#discoBody)" stroke="#1A1A2E" stroke-width="4"/>
+      
+      <circle cx="90" cy="10" r="25" fill="url(#discoBall)" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <line x1="75" y1="0" x2="85" y2="20" stroke="#1A1A2E" stroke-width="1"/>
+      <line x1="90" y1="-5" x2="90" y2="20" stroke="#1A1A2E" stroke-width="1"/>
+      <line x1="105" y1="0" x2="95" y2="20" stroke="#1A1A2E" stroke-width="1"/>
+      <line x1="70" y1="15" x2="80" y2="15" stroke="#1A1A2E" stroke-width="1"/>
+      <line x1="100" y1="15" x2="110" y2="15" stroke="#1A1A2E" stroke-width="1"/>
+      
+      <ellipse cx="60" cy="40" rx="14" ry="16" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      <ellipse cx="120" cy="40" rx="14" ry="16" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <circle cx="63" cy="43" r="8" fill="#FF0044"/>
+      <circle cx="123" cy="43" r="8" fill="#FF0044"/>
+      <circle cx="65" cy="41" r="3" fill="#FFFFFF"/>
+      <circle cx="125" cy="41" r="3" fill="#FFFFFF"/>
+      
+      <path d="M 70 70 Q 90 90 110 70" stroke="#1A1A2E" stroke-width="4" fill="none"/>
+      <path d="M 75 72 L 77 80 L 79 72" fill="#FFFFFF"/>
+      <path d="M 85 76 L 87 84 L 89 76" fill="#FFFFFF"/>
+      <path d="M 95 76 L 97 84 L 99 76" fill="#FFFFFF"/>
+      <path d="M 105 72 L 107 80 L 109 72" fill="#FFFFFF"/>
+      
+      <circle cx="50" cy="60" r="10" fill="#FFB7C5" opacity="0.6"/>
+      <circle cx="130" cy="60" r="10" fill="#FFB7C5" opacity="0.6"/>
+      
+      <circle cx="45" cy="30" r="4" fill="#FFE135"/>
+      <circle cx="135" cy="32" r="4" fill="#32FF00"/>
+      <circle cx="80" cy="22" r="3" fill="#00D4FF"/>
+      <circle cx="100" cy="25" r="3" fill="#9B5DE5"/>
+      
+      <circle cx="20" cy="50" r="5" fill="#FF0044" opacity="0.7"/>
+      <circle cx="160" cy="50" r="5" fill="#FF6B35" opacity="0.7"/>
+      <circle cx="90" cy="110" r="4" fill="#FFE135" opacity="0.7"/>
+      
+      <text x="90" y="105" text-anchor="middle" font-size="10" fill="#FFFFFF" font-weight="bold">DANCE!</text>
+  </symbol>
+
+  <symbol id="dj_mancubus" viewBox="0 0 140 100">
+    <defs>
+        <linearGradient id="mancubusBody" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#9B5DE5"/>
+          <stop offset="50%" stop-color="#FF6B35"/>
+          <stop offset="100%" stop-color="#FF0044"/>
+        </linearGradient>
+        <linearGradient id="speakerGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#2D2D44"/>
+          <stop offset="100%" stop-color="#1A1A2E"/>
+        </linearGradient>
+        <filter id="soundWave">
+          <feGaussianBlur stdDeviation="1" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      
+      <ellipse cx="70" cy="95" rx="50" ry="5" fill="#1A1A2E" opacity="0.3"/>
+      
+      <rect x="25" y="75" width="20" height="22" rx="5" fill="#FF6B35" stroke="#1A1A2E" stroke-width="3"/>
+      <rect x="95" y="75" width="20" height="22" rx="5" fill="#FF6B35" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <ellipse cx="70" cy="55" rx="50" ry="40" fill="url(#mancubusBody)" stroke="#1A1A2E" stroke-width="4"/>
+      
+      <ellipse cx="50" cy="50" rx="18" ry="20" fill="url(#speakerGrad)" stroke="#1A1A2E" stroke-width="3"/>
+      <ellipse cx="90" cy="50" rx="18" ry="20" fill="url(#speakerGrad)" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <circle cx="50" cy="50" r="12" fill="#4A4A5C" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="50" cy="50" r="7" fill="#2D2D44"/>
+      <circle cx="50" cy="50" r="3" fill="#FF0044">
+        <animate attributeName="r" values="3;5;3" dur="0.2s" repeatCount="indefinite"/>
+      </circle>
+      
+      <circle cx="90" cy="50" r="12" fill="#4A4A5C" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="90" cy="50" r="7" fill="#2D2D44"/>
+      <circle cx="90" cy="50" r="3" fill="#FF0044">
+        <animate attributeName="r" values="3;5;3" dur="0.2s" repeatCount="indefinite"/>
+      </circle>
+      
+      <ellipse cx="70" cy="20" rx="25" ry="22" fill="url(#mancubusBody)" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <ellipse cx="60" cy="18" rx="7" ry="8" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      <ellipse cx="80" cy="18" rx="7" ry="8" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <circle cx="62" cy="20" r="4" fill="#1A1A2E"/>
+      <circle cx="82" cy="20" r="4" fill="#1A1A2E"/>
+      <circle cx="63" cy="19" r="1.5" fill="#FFFFFF"/>
+      <circle cx="83" cy="19" r="1.5" fill="#FFFFFF"/>
+      
+      <path d="M 60 32 Q 70 38 80 32" stroke="#1A1A2E" stroke-width="3" fill="none"/>
+      
+      <path d="M 52 8 Q 48 0 55 5" fill="#FF6B35" stroke="#1A1A2E" stroke-width="2"/>
+      <path d="M 88 8 Q 92 0 85 5" fill="#FF6B35" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <circle cx="55" cy="25" r="4" fill="#FFB7C5" opacity="0.6"/>
+      <circle cx="85" cy="25" r="4" fill="#FFB7C5" opacity="0.6"/>
+      
+      <path d="M 0 45 Q 10 40 20 45 Q 10 50 0 45" fill="#00D4FF" opacity="0.7" filter="url(#soundWave)">
+        <animate attributeName="opacity" values="0.7;0.2;0.7" dur="0.3s" repeatCount="indefinite"/>
+      </path>
+      <path d="M 120 45 Q 130 40 140 45 Q 130 50 120 45" fill="#00D4FF" opacity="0.7" filter="url(#soundWave)">
+        <animate attributeName="opacity" values="0.7;0.2;0.7" dur="0.3s" repeatCount="indefinite"/>
+      </path>
+      
+      <circle cx="40" cy="70" r="3" fill="#FFE135"/>
+      <circle cx="100" cy="70" r="3" fill="#32FF00"/>
+      <circle cx="70" cy="85" r="2" fill="#00D4FF"/>
+      
+      <text x="50" y="68" font-size="5" fill="#FFFFFF" font-weight="bold">DJ</text>
+      <text x="80" y="68" font-size="5" fill="#FFFFFF" font-weight="bold">DJ</text>
+  </symbol>
+
+  <symbol id="doom_clown_boss" viewBox="0 0 140 160">
+    <defs>
+        <linearGradient id="clownBody" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFFFFF"/>
+          <stop offset="50%" stop-color="#FFB7C5"/>
+          <stop offset="100%" stop-color="#FF0044"/>
+        </linearGradient>
+        <linearGradient id="clownSuit" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FF0044"/>
+          <stop offset="50%" stop-color="#FFE135"/>
+          <stop offset="100%" stop-color="#32FF00"/>
+        </linearGradient>
+        <filter id="clownGlow">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      
+      <ellipse cx="70" cy="155" rx="55" ry="5" fill="#1A1A2E" opacity="0.3"/>
+      
+      <rect x="25" y="120" width="25" height="38" rx="8" fill="#FF0044" stroke="#1A1A2E" stroke-width="3"/>
+      <rect x="90" y="120" width="25" height="38" rx="8" fill="#32FF00" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <ellipse cx="70" cy="100" rx="55" ry="45" fill="url(#clownSuit)" stroke="#1A1A2E" stroke-width="4"/>
+      
+      <circle cx="20" cy="85" r="10" fill="#00D4FF" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="120" cy="85" r="10" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <ellipse cx="70" cy="50" rx="45" ry="42" fill="url(#clownBody)" stroke="#1A1A2E" stroke-width="4" filter="url(#clownGlow)"/>
+      
+      <ellipse cx="45" cy="40" rx="4" ry="6" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="1"/>
+      <ellipse cx="95" cy="40" rx="4" ry="6" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="1"/>
+      
+      <ellipse cx="50" cy="42" rx="10" ry="12" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      <ellipse cx="90" cy="42" rx="10" ry="12" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <circle cx="52" cy="45" r="6" fill="#1A1A2E"/>
+      <circle cx="92" cy="45" r="6" fill="#1A1A2E"/>
+      <circle cx="54" cy="43" r="2" fill="#FFFFFF"/>
+      <circle cx="94" cy="43" r="2" fill="#FFFFFF"/>
+      
+      <circle cx="45" cy="35" r="8" fill="#FF0044" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="95" cy="35" r="8" fill="#FF0044" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <circle cx="70" cy="62" r="10" fill="#FF0044" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <path d="M 55 80 Q 70 95 85 80" stroke="#1A1A2E" stroke-width="4" fill="none"/>
+      <path d="M 60 82 L 62 90 L 64 82" fill="#FFFFFF"/>
+      <path d="M 76 82 L 78 90 L 80 82" fill="#FFFFFF"/>
+      
+      <ellipse cx="25" cy="8" rx="20" ry="12" fill="#FFE135" stroke="#1A1A2E" stroke-width="3"/>
+      <ellipse cx="115" cy="8" rx="20" ry="12" fill="#00D4FF" stroke="#1A1A2E" stroke-width="3"/>
+      <ellipse cx="70" cy="-5" rx="22" ry="10" fill="#32FF00" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <circle cx="70" cy="30" r="5" fill="#FF6B35"/>
+      
+      <circle cx="40" cy="60" r="6" fill="#FFB7C5" opacity="0.6"/>
+      <circle cx="100" cy="60" r="6" fill="#FFB7C5" opacity="0.6"/>
+      
+      <circle cx="35" cy="32" r="3" fill="#FFE135"/>
+      <circle cx="105" cy="34" r="3" fill="#32FF00"/>
+      <circle cx="60" cy="18" r="2" fill="#00D4FF"/>
+      <circle cx="80" cy="20" r="2" fill="#9B5DE5"/>
+      
+      <text x="70" y="115" text-anchor="middle" font-size="8" fill="#FFFFFF" font-weight="bold">HONK!</text>
+  </symbol>
+
+  <symbol id="door" viewBox="0 0 100 100">
+    <rect width="100" height="100" fill="#3a2f2a" />
+              <rect x="10" y="10" width="80" height="90" fill="#5a4f4a" stroke="#222" stroke-width="3" />
+              <path d="M 50 10 L 50 100" stroke="#222" stroke-width="2" />
+              <rect x="25" y="40" width="10" height="20" fill="#8a7f7a" rx="2" />
+              <rect x="65" y="40" width="10" height="20" fill="#8a7f7a" rx="2" />
+  </symbol>
+
+  <symbol id="happy_imp" viewBox="0 0 80 100">
+    <defs>
+        <linearGradient id="impSkin" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFB7C5"/>
+          <stop offset="100%" stop-color="#FF6B35"/>
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="1" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      
+      <ellipse cx="40" cy="95" rx="25" ry="5" fill="#1A1A2E" opacity="0.3"/>
+      
+      <rect x="22" y="70" width="14" height="26" rx="5" fill="url(#impSkin)" stroke="#1A1A2E" stroke-width="3"/>
+      <rect x="44" y="70" width="14" height="26" rx="5" fill="url(#impSkin)" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <ellipse cx="40" cy="68" rx="28" ry="35" fill="url(#impSkin)" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <path d="M 12 55 L 2 45 L 8 60 Z" fill="#FF0044" stroke="#1A1A2E" stroke-width="2"/>
+      <path d="M 68 55 L 78 45 L 72 60 Z" fill="#FF0044" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <ellipse cx="40" cy="35" rx="25" ry="22" fill="url(#impSkin)" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <polygon points="25,18 15,0 35,15" fill="#00D4FF" stroke="#1A1A2E" stroke-width="2"/>
+      <polygon points="55,18 65,0 45,15" fill="#00D4FF" stroke="#1A1A2E" stroke-width="2"/>
+      <polygon points="40,5 30,-10 40,-5 50,-10" fill="#FFE135" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <ellipse cx="30" cy="32" rx="8" ry="10" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      <ellipse cx="50" cy="32" rx="8" ry="10" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <circle cx="32" cy="34" r="5" fill="#FF0044" filter="url(#glow)"/>
+      <circle cx="52" cy="34" r="5" fill="#FF0044" filter="url(#glow)"/>
+      <circle cx="33" cy="32" r="2" fill="#FFFFFF"/>
+      <circle cx="53" cy="32" r="2" fill="#FFFFFF"/>
+      
+      <path d="M 28 48 Q 40 56 52 48" stroke="#1A1A2E" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M 32 50 L 34 54 L 36 50" fill="#FF0044"/>
+      <path d="M 44 50 L 46 54 L 48 50" fill="#FF0044"/>
+      
+      <circle cx="25" cy="38" r="3" fill="#FFB7C5" opacity="0.6"/>
+      <circle cx="55" cy="38" r="3" fill="#FFB7C5" opacity="0.6"/>
+      
+      <circle cx="35" cy="25" r="2" fill="#FFE135"/>
+      <circle cx="50" cy="20" r="1.5" fill="#32FF00"/>
+      <circle cx="28" cy="22" r="1" fill="#00D4FF"/>
+  </symbol>
+
+  <symbol id="imp" viewBox="0 0 80 100">
+    <rect x="22" y="78" width="12" height="22" fill="#4a2a10" rx="3"/>
+              <rect x="46" y="78" width="12" height="22" fill="#4a2a10" rx="3"/>
+              
+              <ellipse cx="28" cy="100" rx="10" ry="4" fill="#3a1a08"/>
+              <ellipse cx="52" cy="100" rx="10" ry="4" fill="#3a1a08"/>
+              
+              <path d="M 15 78 Q 10 50 20 30 Q 30 10 40 8 Q 50 10 60 30 Q 70 50 65 78 Z" fill="#6b3a20"/>
+              
+              <path d="M 15 60 L 2 70 L 8 50 Z" fill="#7a4a28"/>
+              <path d="M 65 60 L 78 70 L 72 50 Z" fill="#7a4a28"/>
+              
+              <ellipse cx="40" cy="22" rx="22" ry="20" fill="#6b3a20"/>
+              
+              <path d="M 22 14 L 12 0 L 28 10 Z" fill="#888"/>
+              <path d="M 58 14 L 68 0 L 52 10 Z" fill="#888"/>
+              
+              <circle cx="30" cy="20" r="5" fill="#ff2200"/>
+              <circle cx="50" cy="20" r="5" fill="#ff2200"/>
+              <circle cx="30" cy="20" r="2" fill="#ffaa00"/>
+              <circle cx="50" cy="20" r="2" fill="#ffaa00"/>
+              
+              <path d="M 28 34 Q 40 44 52 34" stroke="#fff" stroke-width="2" fill="none"/>
+  </symbol>
+
+  <symbol id="karen_demon" viewBox="0 0 100 100">
+    <defs>
+        <linearGradient id="karenHair" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFE135"/>
+          <stop offset="100%" stop-color="#FF6B35"/>
+        </linearGradient>
+        <linearGradient id="karenFace" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFB7C5"/>
+          <stop offset="100%" stop-color="#FF6B35"/>
+        </linearGradient>
+        <filter id="karenGlow">
+          <feGaussianBlur stdDeviation="2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      
+      <ellipse cx="50" cy="95" rx="30" ry="5" fill="#1A1A2E" opacity="0.2"/>
+      
+      <path d="M 20 25 Q 15 0 30 -5 Q 50 -10 70 -5 Q 85 0 80 25 Q 75 15 50 12 Q 25 15 20 25 Z" fill="url(#karenHair)" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <path d="M 15 20 Q 10 30 15 40 Q 20 35 25 25 Z" fill="url(#karenHair)" stroke="#1A1A2E" stroke-width="2"/>
+      <path d="M 85 20 Q 90 30 85 40 Q 80 35 75 25 Z" fill="url(#karenHair)" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <ellipse cx="50" cy="45" rx="35" ry="40" fill="url(#karenFace)" stroke="#1A1A2E" stroke-width="3" filter="url(#karenGlow)"/>
+      
+      <ellipse cx="35" cy="38" rx="10" ry="12" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      <ellipse cx="65" cy="38" rx="10" ry="12" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <circle cx="37" cy="40" r="6" fill="#FF0044"/>
+      <circle cx="67" cy="40" r="6" fill="#FF0044"/>
+      <circle cx="39" cy="38" r="2" fill="#FFFFFF"/>
+      <circle cx="69" cy="38" r="2" fill="#FFFFFF"/>
+      
+      <line x1="28" y1="32" x2="42" y2="28" stroke="#1A1A2E" stroke-width="3" stroke-linecap="round"/>
+      <line x1="58" y1="28" x2="72" y2="32" stroke="#1A1A2E" stroke-width="3" stroke-linecap="round"/>
+      
+      <path d="M 38 60 Q 50 55 62 60" stroke="#1A1A2E" stroke-width="3" fill="none"/>
+      
+      <ellipse cx="50" cy="72" rx="8" ry="4" fill="#FF0044" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <circle cx="28" cy="50" r="5" fill="#FFB7C5" opacity="0.6"/>
+      <circle cx="72" cy="50" r="5" fill="#FFB7C5" opacity="0.6"/>
+      
+      <rect x="10" y="60" width="25" height="15" rx="5" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      <text x="22" y="70" text-anchor="middle" font-size="4" fill="#1A1A2E" font-weight="bold">MANAGER!</text>
+      
+      <path d="M 5 67 Q 0 67 5 67" stroke="#1A1A2E" stroke-width="1"/>
+      
+      <circle cx="25" cy="25" r="2" fill="#FFE135"/>
+      <circle cx="75" cy="25" r="2" fill="#32FF00"/>
+      <circle cx="50" cy="15" r="1.5" fill="#00D4FF"/>
+      
+      <circle cx="42" cy="48" r="1" fill="#9B5DE5"/>
+      <circle cx="58" cy="48" r="1" fill="#9B5DE5"/>
+  </symbol>
+
+  <symbol id="party_demon" viewBox="0 0 100 100">
+    <defs>
+        <linearGradient id="demonBody" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFB7C5"/>
+          <stop offset="50%" stop-color="#9B5DE5"/>
+          <stop offset="100%" stop-color="#FF6B35"/>
+        </linearGradient>
+        <filter id="balloonGlow">
+          <feGaussianBlur stdDeviation="2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      
+      <ellipse cx="50" cy="95" rx="30" ry="5" fill="#1A1A2E" opacity="0.2"/>
+      
+      <ellipse cx="50" cy="50" rx="35" ry="40" fill="url(#demonBody)" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <path d="M 25 25 Q 15 10 20 0 Q 30 5 28 20 Z" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="2"/>
+      <path d="M 75 25 Q 85 10 80 0 Q 70 5 72 20 Z" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <circle cx="25" cy="15" r="8" fill="#00D4FF" stroke="#1A1A2E" stroke-width="2" filter="url(#balloonGlow)"/>
+      <circle cx="25" cy="15" r="3" fill="#FFFFFF" opacity="0.7"/>
+      <path d="M 25 23 Q 25 35 30 45" stroke="#FF6B35" stroke-width="1.5" fill="none"/>
+      
+      <circle cx="75" cy="12" r="10" fill="#FFE135" stroke="#1A1A2E" stroke-width="2" filter="url(#balloonGlow)"/>
+      <circle cx="75" cy="12" r="4" fill="#FFFFFF" opacity="0.7"/>
+      <path d="M 75 22 Q 75 35 70 45" stroke="#FF6B35" stroke-width="1.5" fill="none"/>
+      
+      <circle cx="15" cy="40" r="7" fill="#32FF00" stroke="#1A1A2E" stroke-width="2" filter="url(#balloonGlow)"/>
+      <circle cx="15" cy="40" r="2.5" fill="#FFFFFF" opacity="0.7"/>
+      <path d="M 15 47 Q 20 55 25 60" stroke="#FF6B35" stroke-width="1.5" fill="none"/>
+      
+      <ellipse cx="38" cy="42" rx="10" ry="12" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      <ellipse cx="62" cy="42" rx="10" ry="12" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <circle cx="40" cy="45" r="6" fill="#FF0044"/>
+      <circle cx="64" cy="45" r="6" fill="#FF0044"/>
+      <circle cx="42" cy="43" r="2" fill="#FFFFFF"/>
+      <circle cx="66" cy="43" r="2" fill="#FFFFFF"/>
+      
+      <path d="M 35 68 Q 50 80 65 68" stroke="#1A1A2E" stroke-width="3" fill="none" stroke-linecap="round"/>
+      
+      <path d="M 40 70 L 42 75 L 44 70" fill="#FFFFFF"/>
+      <path d="M 48 72 L 50 77 L 52 72" fill="#FFFFFF"/>
+      <path d="M 56 70 L 58 75 L 60 70" fill="#FFFFFF"/>
+      
+      <circle cx="30" cy="55" r="5" fill="#FFB7C5" opacity="0.6"/>
+      <circle cx="70" cy="55" r="5" fill="#FFB7C5" opacity="0.6"/>
+      
+      <circle cx="45" cy="32" r="2" fill="#FFE135"/>
+      <circle cx="55" cy="35" r="1.5" fill="#00D4FF"/>
+      <circle cx="35" cy="50" r="1" fill="#32FF00"/>
+  </symbol>
+
+  <symbol id="pigeon_possessed" viewBox="0 0 100 100">
+    <defs>
+        <linearGradient id="pigeonBody" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#9B5DE5"/>
+          <stop offset="50%" stop-color="#4A4A5C"/>
+          <stop offset="100%" stop-color="#2D2D44"/>
+        </linearGradient>
+        <linearGradient id="pigeonWing" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#9B5DE5"/>
+          <stop offset="100%" stop-color="#FF6B35"/>
+        </linearGradient>
+        <filter id="pigeonGlow">
+          <feGaussianBlur stdDeviation="2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      
+      <ellipse cx="50" cy="95" rx="30" ry="5" fill="#1A1A2E" opacity="0.2"/>
+      
+      <path d="M 15 45 Q 5 35 0 45 Q 5 55 15 50 Z" fill="url(#pigeonWing)" stroke="#1A1A2E" stroke-width="2"/>
+      <path d="M 85 45 Q 95 35 100 45 Q 95 55 85 50 Z" fill="url(#pigeonWing)" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <ellipse cx="50" cy="55" rx="30" ry="35" fill="url(#pigeonBody)" stroke="#1A1A2E" stroke-width="3" filter="url(#pigeonGlow)"/>
+      
+      <ellipse cx="50" cy="30" rx="22" ry="20" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <circle cx="40" cy="25" r="8" fill="#FF0044" stroke="#1A1A2E" stroke-width="2">
+        <animate attributeName="r" values="8;9;8" dur="0.2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="60" cy="25" r="8" fill="#FF0044" stroke="#1A1A2E" stroke-width="2">
+        <animate attributeName="r" values="8;9;8" dur="0.2s" repeatCount="indefinite"/>
+      </circle>
+      
+      <circle cx="42" cy="24" r="3" fill="#1A1A2E"/>
+      <circle cx="62" cy="24" r="3" fill="#1A1A2E"/>
+      <circle cx="43" cy="23" r="1" fill="#FFFFFF"/>
+      <circle cx="63" cy="23" r="1" fill="#FFFFFF"/>
+      
+      <path d="M 45 18 L 40 10 L 50 15 L 60 10 L 55 18" fill="#FF6B35" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <path d="M 45 40 L 50 48 L 55 40 Z" fill="#FFE135" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <path d="M 25 70 Q 30 80 25 90" stroke="#FF6B35" stroke-width="4" fill="none"/>
+      <path d="M 75 70 Q 70 80 75 90" stroke="#FF6B35" stroke-width="4" fill="none"/>
+      
+      <circle cx="25" cy="92" r="4" fill="#FF6B35" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="75" cy="92" r="4" fill="#FF6B35" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <ellipse cx="50" cy="82" rx="15" ry="10" fill="#4A4A5C" stroke="#1A1A2E" stroke-width="2"/>
+      <path d="M 40 80 Q 50 85 60 80" stroke="#1A1A2E" stroke-width="2" fill="none"/>
+      
+      <circle cx="30" cy="45" r="3" fill="#FFB7C5" opacity="0.6"/>
+      <circle cx="70" cy="45" r="3" fill="#FFB7C5" opacity="0.6"/>
+      
+      <circle cx="35" cy="18" r="2" fill="#32FF00"/>
+      <circle cx="65" cy="18" r="2" fill="#FFE135"/>
+      <circle cx="50" cy="10" r="1.5" fill="#00D4FF"/>
+      
+      <circle cx="42" cy="35" r="1.5" fill="#9B5DE5"/>
+      <circle cx="58" cy="35" r="1.5" fill="#9B5DE5"/>
+      
+      <text x="50" y="75" text-anchor="middle" font-size="5" fill="#FF0044" font-weight="bold">PECK!</text>
+  </symbol>
+
+  <symbol id="pistol" viewBox="0 0 256 256">
+    <g transform="translate(128, 240)">
+        <path d="M -40 0 L 40 0 L 30 -60 L -30 -60 Z" fill="#00D4FF" stroke="#1A1A2E" stroke-width="4"/>
+        
+        <path d="M -30 -60 L 30 -60 L 20 -100 L -20 -100 Z" fill="#00D4FF" stroke="#1A1A2E" stroke-width="4"/>
+        
+        <path d="M -25 -100 L 25 -100 L 15 -140 L -15 -140 Z" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="4"/>
+        
+        <rect x="-20" y="-140" width="40" height="10" fill="#1A1A2E"/>
+        
+        <ellipse cx="0" cy="-145" rx="12" ry="4" fill="#1A1A2E"/>
+        
+        <path d="M -35 0 L -20 -20 L -20 0 Z" fill="#00D4FF" stroke="#1A1A2E" stroke-width="3"/>
+        
+        <circle cx="25" cy="-50" r="8" fill="#FF0044" stroke="#1A1A2E" stroke-width="3"/>
+        
+        <path d="M -15 -40 L 15 -40 L 10 -50 L -10 -50 Z" fill="#FFE135" stroke="#1A1A2E" stroke-width="2"/>
+        
+        <text x="0" y="-80" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A1A2E" font-family="Arial Black">PEW!</text>
+      </g>
+  </symbol>
+
+  <!-- Energy core -->
+  <symbol id="plasma_rifle" viewBox="0 0 200 300">
+    <defs>
+        <linearGradient id="plasmaBody" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#00D4FF"/>
+          <stop offset="100%" stop-color="#9B5DE5"/>
+        </linearGradient>
+        <linearGradient id="plasmaGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#32FF00"/>
+          <stop offset="50%" stop-color="#00D4FF"/>
+          <stop offset="100%" stop-color="#9B5DE5"/>
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      
+      
+      <rect x="55" y="230" width="90" height="60" rx="8" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="4"/>
+      <rect x="63" y="238" width="74" height="44" rx="6" fill="#7B3CE3" stroke="#1A1A2E" stroke-width="3"/>
+      
+      
+      <polygon points="50,230 150,230 135,100 65,100" fill="url(#plasmaBody)" stroke="#1A1A2E" stroke-width="4"/>
+      
+      
+      <circle cx="100" cy="180" r="25" fill="#FFE135" stroke="#1A1A2E" stroke-width="3" filter="url(#glow)"/>
+      <circle cx="100" cy="180" r="15" fill="#FFB7C5"/>
+      <circle cx="100" cy="180" r="8" fill="#1A1A2E"/>
+      
+      
+      <rect x="70" y="50" width="60" height="50" rx="8" fill="#1A1A2E" stroke="#1A1A2E" stroke-width="3"/>
+      <rect x="80" y="55" width="40" height="40" rx="5" fill="url(#plasmaGlow)" filter="url(#glow)"/>
+      
+      
+      <ellipse cx="100" cy="45" rx="20" ry="12" fill="#32FF00" stroke="#1A1A2E" stroke-width="3" filter="url(#glow)"/>
+      <ellipse cx="100" cy="45" rx="12" ry="7" fill="#00D4FF"/>
+      
+      
+      <path d="M 85,45 L 80,30 L 90,35 L 85,20" fill="none" stroke="#32FF00" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 115,45 L 120,30 L 110,35 L 115,20" fill="none" stroke="#00D4FF" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 100,38 L 100,15" fill="none" stroke="#9B5DE5" stroke-width="3" stroke-linecap="round"/>
+      
+      
+      <rect x="60" y="120" width="15" height="40" rx="2" fill="#32FF00" stroke="#1A1A2E" stroke-width="2"/>
+      <rect x="125" y="120" width="15" height="40" rx="2" fill="#32FF00" stroke="#1A1A2E" stroke-width="2"/>
+      
+      
+      <circle cx="65" cy="140" r="4" fill="#FFB7C5"/>
+      <circle cx="135" cy="140" r="4" fill="#FFB7C5"/>
+      
+      
+      <text x="100" y="280" text-anchor="middle" font-family="Courier New, monospace" font-size="14" 
+            fill="#1A1A2E" font-weight="bold">*BZZZT*</text>
+  </symbol>
+
+  <!-- Front sight -->
+  <symbol id="rocket_launcher" viewBox="0 0 200 300">
+    <defs>
+        <linearGradient id="rocketBody" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#9B5DE5"/>
+          <stop offset="100%" stop-color="#FF6B35"/>
+        </linearGradient>
+        <linearGradient id="rocketTube" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#32FF00"/>
+          <stop offset="50%" stop-color="#00D4FF"/>
+          <stop offset="100%" stop-color="#32FF00"/>
+        </linearGradient>
+      </defs>
+      
+      
+      <rect x="50" y="230" width="100" height="60" rx="8" fill="#FF0044" stroke="#1A1A2E" stroke-width="4"/>
+      <rect x="58" y="238" width="84" height="44" rx="6" fill="#CC0036" stroke="#1A1A2E" stroke-width="3"/>
+      
+      
+      <polygon points="55,230 145,230 130,80 70,80" fill="url(#rocketTube)" stroke="#1A1A2E" stroke-width="4"/>
+      
+      
+      <polygon points="80,80 120,80 110,60 90,60" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="3"/>
+      
+      
+      <ellipse cx="100" cy="65" rx="25" ry="15" fill="#1A1A2E" stroke="#1A1A2E" stroke-width="3"/>
+      <ellipse cx="100" cy="65" rx="18" ry="10" fill="#2A2A4E"/>
+      
+      
+      <polygon points="90,85 110,85 105,75 95,75" fill="#FFE135" stroke="#1A1A2E" stroke-width="2"/>
+      
+      
+      <circle cx="75" cy="180" r="12" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="125" cy="180" r="12" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="2"/>
+      <path d="M 75,180 Q 100,200 125,180" fill="none" stroke="#1A1A2E" stroke-width="2"/>
+      
+      
+      <circle cx="100" cy="40" r="6" fill="#FFE135"/>
+      <line x1="100" y1="40" x2="85" y2="25" stroke="#FF6B35" stroke-width="2"/>
+      <line x1="100" y1="40" x2="115" y2="25" stroke="#FF6B35" stroke-width="2"/>
+      <line x1="100" y1="40" x2="100" y2="20" stroke="#FF0044" stroke-width="2"/>
+      <circle cx="85" cy="25" r="3" fill="#FFB7C5"/>
+      <circle cx="115" cy="25" r="3" fill="#00D4FF"/>
+      <circle cx="100" cy="20" r="3" fill="#32FF00"/>
+      
+      
+      <text x="100" y="280" text-anchor="middle" font-family="Georgia, serif" font-size="14" 
+            fill="#1A1A2E" font-weight="bold" font-style="italic">~LAUNCH~</text>
+  </symbol>
+
+  <symbol id="shotgun" viewBox="0 0 256 256">
+    <g transform="translate(128, 240)">
+        <path d="M -50 0 L 50 0 L 35 -40 L -35 -40 Z" fill="#8B4513" stroke="#1A1A2E" stroke-width="4"/>
+        
+        <path d="M -35 -40 L -15 -40 L -10 -120 L -25 -120 Z" fill="#1A1A2E"/>
+        <path d="M 15 -40 L 35 -40 L 25 -120 L 10 -120 Z" fill="#1A1A2E"/>
+        
+        <ellipse cx="-18" cy="-120" rx="6" ry="3" fill="#1A1A2E"/>
+        <ellipse cx="18" cy="-120" rx="6" ry="3" fill="#1A1A2E"/>
+        
+        <path d="M -10 -120 L 10 -120 L 5 -160 L -5 -160 Z" fill="#4a4a4a" stroke="#1A1A2E" stroke-width="3"/>
+        
+        <path d="M -55 0 L -35 0 L -35 -20 L -50 -20 Z" fill="#FF6B35" stroke="#1A1A2E" stroke-width="3"/>
+        
+        <circle cx="0" cy="-20" r="6" fill="#FFE135" stroke="#1A1A2E" stroke-width="2"/>
+        
+        <text x="0" y="-70" text-anchor="middle" font-size="12" font-weight="bold" fill="#FF6B35" font-family="Arial Black">CLICK!</text>
+      </g>
+  </symbol>
+
+  <symbol id="skateboard_baron" viewBox="0 0 120 80">
+    <defs>
+        <radialGradient id="skullGrad" cx="50%" cy="40%">
+          <stop offset="0%" stop-color="#FFFFFF"/>
+          <stop offset="70%" stop-color="#FFB7C5"/>
+          <stop offset="100%" stop-color="#FF6B35"/>
+        </radialGradient>
+        <linearGradient id="boardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#9B5DE5"/>
+          <stop offset="50%" stop-color="#00D4FF"/>
+          <stop offset="100%" stop-color="#32FF00"/>
+        </linearGradient>
+        <linearGradient id="fireTrail" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#FF0044"/>
+          <stop offset="30%" stop-color="#FF6B35"/>
+          <stop offset="60%" stop-color="#FFE135"/>
+          <stop offset="100%" stop-color="#FFFFFF"/>
+        </linearGradient>
+      </defs>
+      
+      <path d="M 0 50 Q 10 45 20 48 L 20 58 L 0 60 Z" fill="url(#fireTrail)" opacity="0.8"/>
+      <path d="M 5 52 Q 15 48 25 50 L 25 56 L 5 58 Z" fill="url(#fireTrail)" opacity="0.6"/>
+      
+      <rect x="20" y="50" width="70" height="12" rx="6" fill="url(#boardGrad)" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <circle cx="30" cy="62" r="8" fill="#4A4A5C" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="30" cy="62" r="4" fill="#9B5DE5"/>
+      <circle cx="80" cy="62" r="8" fill="#4A4A5C" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="80" cy="62" r="4" fill="#9B5DE5"/>
+      
+      <ellipse cx="60" cy="35" rx="30" ry="28" fill="url(#skullGrad)" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <ellipse cx="48" cy="30" rx="10" ry="12" fill="#1A1A2E"/>
+      <ellipse cx="72" cy="30" rx="10" ry="12" fill="#1A1A2E"/>
+      
+      <circle cx="50" cy="28" r="4" fill="#FF0044">
+        <animate attributeName="opacity" values="1;0.3;1" dur="0.3s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="74" cy="28" r="4" fill="#FF0044">
+        <animate attributeName="opacity" values="1;0.3;1" dur="0.3s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="51" cy="26" r="1.5" fill="#FFFFFF"/>
+      <circle cx="75" cy="26" r="1.5" fill="#FFFFFF"/>
+      
+      <path d="M 55 45 L 60 52 L 65 45" fill="#1A1A2E"/>
+      
+      <path d="M 45 52 Q 50 56 55 52 Q 60 56 65 52 Q 70 56 75 52" stroke="#1A1A2E" stroke-width="2" fill="none"/>
+      
+      <rect x="50" y="18" width="5" height="3" fill="#FF6B35" stroke="#1A1A2E" stroke-width="1" transform="rotate(-15 52 19)"/>
+      <rect x="65" y="18" width="5" height="3" fill="#FF6B35" stroke="#1A1A2E" stroke-width="1" transform="rotate(15 67 19)"/>
+      
+      <path d="M 35 20 Q 30 10 40 15" stroke="#FFB7C5" stroke-width="2" fill="none"/>
+      <path d="M 85 20 Q 90 10 80 15" stroke="#FFB7C5" stroke-width="2" fill="none"/>
+      
+      <circle cx="40" cy="40" r="3" fill="#FFE135" opacity="0.7"/>
+      <circle cx="80" cy="40" r="3" fill="#00D4FF" opacity="0.7"/>
+      
+      <text x="55" y="48" font-size="4" fill="#FF0044" font-weight="bold">RAD!</text>
+      
+      <circle cx="45" cy="22" r="1.5" fill="#32FF00"/>
+      <circle cx="75" cy="25" r="1" fill="#FFE135"/>
+  </symbol>
+
+  <symbol id="suicide_sheep" viewBox="0 0 100 100">
+    <defs>
+        <radialGradient id="sheepWool" cx="50%" cy="50%">
+          <stop offset="0%" stop-color="#FFFFFF"/>
+          <stop offset="100%" stop-color="#FFB7C5"/>
+        </radialGradient>
+        <linearGradient id="dynamiteGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FF0044"/>
+          <stop offset="100%" stop-color="#FF6B35"/>
+        </linearGradient>
+        <filter id="fuseGlow">
+          <feGaussianBlur stdDeviation="1" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      
+      <ellipse cx="50" cy="95" rx="35" ry="5" fill="#1A1A2E" opacity="0.3"/>
+      
+      <rect x="30" y="72" width="15" height="24" rx="5" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="3"/>
+      <rect x="55" y="72" width="15" height="24" rx="5" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <ellipse cx="50" cy="50" rx="40" ry="35" fill="url(#sheepWool)" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <circle cx="30" cy="40" r="10" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="70" cy="40" r="10" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="40" cy="55" r="12" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="60" cy="55" r="12" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      <circle cx="50" cy="65" r="11" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <ellipse cx="50" cy="25" rx="20" ry="18" fill="#FFB7C5" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <ellipse cx="40" cy="22" rx="6" ry="7" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      <ellipse cx="60" cy="22" rx="6" ry="7" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="2"/>
+      
+      <circle cx="42" cy="24" r="3" fill="#1A1A2E"/>
+      <circle cx="62" cy="24" r="3" fill="#1A1A2E"/>
+      <circle cx="43" cy="23" r="1" fill="#FFFFFF"/>
+      <circle cx="63" cy="23" r="1" fill="#FFFFFF"/>
+      
+      <ellipse cx="50" cy="32" rx="4" ry="3" fill="#1A1A2E"/>
+      
+      <rect x="25" y="50" width="50" height="25" rx="5" fill="url(#dynamiteGrad)" stroke="#1A1A2E" stroke-width="3"/>
+      
+      <rect x="32" y="55" width="6" height="15" rx="2" fill="#2D2D44" stroke="#1A1A2E" stroke-width="1"/>
+      <rect x="42" y="55" width="6" height="15" rx="2" fill="#2D2D44" stroke="#1A1A2E" stroke-width="1"/>
+      <rect x="52" y="55" width="6" height="15" rx="2" fill="#2D2D44" stroke="#1A1A2E" stroke-width="1"/>
+      <rect x="62" y="55" width="6" height="15" rx="2" fill="#2D2D44" stroke="#1A1A2E" stroke-width="1"/>
+      
+      <path d="M 70 55 Q 80 40 75 25" stroke="#1A1A2E" stroke-width="2" fill="none"/>
+      <circle cx="75" cy="25" r="4" fill="#FFE135" stroke="#FF6B35" stroke-width="2" filter="url(#fuseGlow)">
+        <animate attributeName="r" values="4;6;4" dur="0.3s" repeatCount="indefinite"/>
+      </circle>
+      
+      <text x="50" y="48" text-anchor="middle" font-size="5" fill="#FFFFFF" font-weight="bold">BOOM!</text>
+      
+      <circle cx="35" cy="15" r="3" fill="#FF6B35"/>
+      <circle cx="65" cy="15" r="3" fill="#FFE135"/>
+      
+      <circle cx="25" cy="45" r="2" fill="#32FF00"/>
+      <circle cx="75" cy="45" r="2" fill="#00D4FF"/>
+  </symbol>
+
+  <symbol id="wall_base" viewBox="0 0 100 100">
+    <rect width="100" height="100" fill="#2a2a2a" />
+              <path d="M 0 0 L 100 100 M 100 0 L 0 100" stroke="#4a4a4a" stroke-width="4" />
+              <rect x="20" y="20" width="60" height="60" fill="none" stroke="#6a6a6a" stroke-width="2" />
+              <circle cx="20" cy="20" r="3" fill="#888" />
+              <circle cx="80" cy="20" r="3" fill="#888" />
+              <circle cx="20" cy="80" r="3" fill="#888" />
+              <circle cx="80" cy="80" r="3" fill="#888" />
+  </symbol>
+
+  <!-- Level exit portal — Candy Apocalypse style -->
+  <symbol id="item-level_exit" viewBox="0 0 64 64">
+    <!-- Outer door frame -->
+    <rect x="11" y="3" width="42" height="58" rx="5" fill="#1A1A2E" stroke="#FFE135" stroke-width="3"/>
+    <!-- Portal background -->
+    <rect x="15" y="7" width="34" height="50" rx="3" fill="#0F3460"/>
+    <!-- Portal swirl layers -->
+    <ellipse cx="32" cy="32" rx="14" ry="22" fill="#00D4FF" opacity="0.5"/>
+    <ellipse cx="32" cy="32" rx="9"  ry="16" fill="#9B5DE5" opacity="0.7"/>
+    <ellipse cx="32" cy="32" rx="5"  ry="10" fill="#FFB7C5" opacity="0.8"/>
+    <ellipse cx="32" cy="32" rx="2"  ry="5"  fill="#ffffff" opacity="0.95"/>
+    <!-- Upward exit arrows -->
+    <polygon points="32,9  26,17 38,17" fill="#FFE135"/>
+    <polygon points="32,19 26,27 38,27" fill="#FFE135" opacity="0.6"/>
+    <!-- Corner sparkles -->
+    <circle cx="9"  cy="14" r="2.5" fill="#FFE135" opacity="0.9"/>
+    <circle cx="55" cy="14" r="2.5" fill="#FFE135" opacity="0.9"/>
+    <circle cx="9"  cy="50" r="2.5" fill="#FFE135" opacity="0.9"/>
+    <circle cx="55" cy="50" r="2.5" fill="#FFE135" opacity="0.9"/>
+    <!-- Frame inner accent line -->
+    <rect x="13" y="5" width="38" height="54" rx="4" fill="none" stroke="#FFE135" stroke-width="1" opacity="0.4"/>
+  </symbol>
+</svg>
