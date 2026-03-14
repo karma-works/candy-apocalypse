@@ -27,6 +27,7 @@ import {
   loadManifest,
 } from "../../game/levels/levelManifest";
 import { RainbowFogEffect } from "../../engine/effects/RainbowFogEffect";
+import { EffectManager } from "../../game/components/EffectManager";
 
 export function GameCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -40,6 +41,7 @@ export function GameCanvas() {
   const playerRef = useRef<Player | null>(null);
   const bonusExitSpawnedRef = useRef(false);
   const rainbowFogRef = useRef<RainbowFogEffect | null>(null);
+  const effectManagerRef = useRef<EffectManager | null>(null);
 
   const [isReady, setIsReady] = useState(false);
   const {
@@ -94,6 +96,9 @@ export function GameCanvas() {
     camera.inputs.clear();
     scene.activeCamera = camera;
     cameraRef.current = camera;
+
+    const effectManager = new EffectManager(scene);
+    effectManagerRef.current = effectManager;
 
     const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
     light.intensity = 0.7;
@@ -416,6 +421,38 @@ export function GameCanvas() {
     window.addEventListener("entityHit", handleEntityHit as EventListener);
     return () =>
       window.removeEventListener("entityHit", handleEntityHit as EventListener);
+  }, []);
+
+  useEffect(() => {
+    const handleEnemyDeath = (e: CustomEvent) => {
+      const { position, enemyType } = e.detail;
+      if (effectManagerRef.current) {
+        const effectPos = new Vector3(position.x, position.y, position.z);
+        switch (enemyType) {
+          case "pigeon":
+            effectManagerRef.current.playFeatherExplosion(effectPos);
+            break;
+          case "sheep":
+            effectManagerRef.current.playWoolConfetti(effectPos);
+            break;
+          default:
+            if (Math.random() > 0.7) {
+              effectManagerRef.current.playConfettiBurst(effectPos);
+            } else if (Math.random() > 0.5) {
+              effectManagerRef.current.playLegoScatter(effectPos);
+            } else {
+              effectManagerRef.current.playKaBoom(effectPos);
+            }
+        }
+      }
+    };
+
+    window.addEventListener("enemyDeath", handleEnemyDeath as EventListener);
+    return () =>
+      window.removeEventListener(
+        "enemyDeath",
+        handleEnemyDeath as EventListener,
+      );
   }, []);
 
   // Screen shake: watch health changes and apply camera jitter on damage

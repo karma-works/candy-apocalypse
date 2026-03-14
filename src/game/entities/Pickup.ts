@@ -65,17 +65,10 @@ export class Pickup extends Entity {
   createMesh(scene: Scene, textureManager: TextureManager | null = null): void {
     let texture = null;
     const isLevelExit = this.pickupType === "level_exit";
-    const size = isLevelExit ? 3.6 : 0.6;
+    const size = isLevelExit ? 3.6 : 1.2;
 
     if (textureManager) {
-      let texName = `item-${this.pickupType}`;
-      if (this.pickupType === "ammo_pistol") {
-        texName = "weapon-pistol";
-      } // fallbacks
-      if (this.pickupType === "ammo_shotgun") {
-        texName = "weapon-shotgun";
-      }
-
+      const texName = `item-${this.pickupType}`;
       texture = textureManager.getTexture(texName);
       if (texture) {
         this.isBillboard = true;

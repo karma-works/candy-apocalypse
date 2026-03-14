@@ -13,7 +13,7 @@ import {
 import type { Player } from "./Player";
 import { TextureManager } from "../../engine/assets/TextureManager";
 
-export type EnemyType = "demon" | "imp" | "cacodemon";
+export type EnemyType = "demon" | "imp" | "cacodemon" | "pigeon" | "sheep";
 
 export class Enemy extends Entity {
   transform: Transform;
@@ -34,6 +34,8 @@ export class Enemy extends Entity {
       demon: 30,
       imp: 25,
       cacodemon: 50,
+      pigeon: 15,
+      sheep: 40,
     };
 
     this.health = this.addComponent(new Health(healthMap[enemyType]));
@@ -43,12 +45,16 @@ export class Enemy extends Entity {
       demon: 3,
       imp: 4,
       cacodemon: 2,
+      pigeon: 6,
+      sheep: 2.5,
     };
 
     const damageMap: Record<EnemyType, number> = {
-      demon: 15, // melee — only matters when right on top of player
-      imp: 8, // ranged — fires repeatedly from a distance
-      cacodemon: 20, // ranged — slow heavy shots
+      demon: 15,
+      imp: 8,
+      cacodemon: 20,
+      pigeon: 5,
+      sheep: 50,
     };
 
     this.ai.speed = speedMap[enemyType];
@@ -68,12 +74,19 @@ export class Enemy extends Entity {
       this.ai.rangedAccuracy = 0.7;
       this.ai.attackCooldown = 1.2;
     } else if (enemyType === "cacodemon") {
-      // Cacodemon: slow heavy ranged — long range, lower accuracy, big hits
       this.ai.attackType = "ranged";
       this.ai.attackRange = 2.0;
       this.ai.rangedAttackRange = 14;
       this.ai.rangedAccuracy = 0.55;
       this.ai.attackCooldown = 2.0;
+    } else if (enemyType === "pigeon") {
+      this.ai.attackType = "melee";
+      this.ai.attackRange = 1.2;
+      this.ai.attackCooldown = 0.4;
+    } else if (enemyType === "sheep") {
+      this.ai.attackType = "melee";
+      this.ai.attackRange = 1.5;
+      this.ai.attackCooldown = 3.0;
     }
   }
 
@@ -84,12 +97,16 @@ export class Enemy extends Entity {
       demon: { height: 1.95, width: 1.95 },
       imp: { height: 2.34, width: 2.34 },
       cacodemon: { height: 2.6, width: 2.6 },
+      pigeon: { height: 1.5, width: 1.5 },
+      sheep: { height: 2.0, width: 2.0 },
     };
 
     const colorMap: Record<EnemyType, Color3> = {
       demon: new Color3(0.8, 0.2, 0.2),
       imp: new Color3(0.6, 0.4, 0.2),
       cacodemon: new Color3(0.4, 0.6, 0.4),
+      pigeon: new Color3(0.6, 0.36, 0.9),
+      sheep: new Color3(1, 0.7, 0.8),
     };
 
     const { height, width } = sizeMap[this.enemyType];
@@ -122,6 +139,12 @@ export class Enemy extends Entity {
       if (this.enemyType === "cacodemon") {
         texName = "disco_cacodemon";
       }
+      if (this.enemyType === "pigeon") {
+        texName = "pigeon_possessed";
+      }
+      if (this.enemyType === "sheep") {
+        texName = "suicide_sheep";
+      }
 
       const texture = textureManager.getTexture(texName);
       if (texture) {
@@ -153,6 +176,16 @@ export class Enemy extends Entity {
     super.update(deltaTime);
 
     if (this.health.isDead) {
+      if (this.isActive) {
+        window.dispatchEvent(
+          new CustomEvent("enemyDeath", {
+            detail: {
+              position: this.getPosition(),
+              enemyType: this.enemyType,
+            },
+          }),
+        );
+      }
       this.isActive = false;
       if (this.mesh) {
         this.mesh.setEnabled(false);

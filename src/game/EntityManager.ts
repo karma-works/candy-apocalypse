@@ -35,6 +35,12 @@ export class EntityManager {
       case "enemy-cacodemon":
         entity = this.spawnEnemy(id, "cacodemon");
         break;
+      case "enemy-pigeon":
+        entity = this.spawnEnemy(id, "pigeon");
+        break;
+      case "enemy-sheep":
+        entity = this.spawnEnemy(id, "sheep");
+        break;
       case "prop-barrel":
         entity = this.spawnProp(id, "barrel");
         break;

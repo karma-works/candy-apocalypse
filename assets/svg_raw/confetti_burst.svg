@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="confettiShimmer" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8"/>
+      <stop offset="50%" stop-color="#FFE135" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#FF6B35" stop-opacity="0.8"/>
+    </linearGradient>
+  </defs>
+  
+  <rect x="8" y="4" width="4" height="8" rx="1" fill="#FF0044" transform="rotate(15 10 8)"/>
+  <rect x="20" y="6" width="3" height="6" rx="1" fill="#00D4FF" transform="rotate(-20 21 9)"/>
+  <rect x="12" y="18" width="4" height="7" rx="1" fill="#FFE135" transform="rotate(45 14 21)"/>
+  <rect x="22" y="20" width="3" height="5" rx="1" fill="#32FF00" transform="rotate(-30 23 22)"/>
+  <rect x="6" y="14" width="3" height="6" rx="1" fill="#9B5DE5" transform="rotate(60 7 17)"/>
+  
+  <circle cx="16" cy="10" r="3" fill="#FFB7C5"/>
+  <circle cx="26" cy="14" r="2" fill="#FFE135"/>
+  <circle cx="6" cy="24" r="2.5" fill="#00D4FF"/>
+  
+  <polygon points="16,24 18,28 14,28" fill="#FF6B35"/>
+  <polygon points="4,8 6,12 2,12" fill="#9B5DE5"/>
+  <polygon points="26,26 28,30 24,30" fill="#32FF00"/>
+  
+  <path d="M 18 2 Q 20 4 18 6" stroke="url(#confettiShimmer)" stroke-width="2" fill="none"/>
+  <path d="M 28 18 Q 30 20 28 22" stroke="url(#confettiShimmer)" stroke-width="2" fill="none"/>
+  <path d="M 2 16 Q 4 18 2 20" stroke="url(#confettiShimmer)" stroke-width="2" fill="none"/>
+</svg>

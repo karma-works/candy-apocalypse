@@ -1266,4 +1266,172 @@
     <!-- Frame inner accent line -->
     <rect x="13" y="5" width="38" height="54" rx="4" fill="none" stroke="#FFE135" stroke-width="1" opacity="0.4"/>
   </symbol>
+
+  <!-- Particle Effects -->
+  <symbol id="effect-star" viewBox="0 0 32 32">
+    <defs>
+      <radialGradient id="starGlow" cx="50%" cy="50%">
+        <stop offset="0%" stop-color="#FFFFFF"/>
+        <stop offset="50%" stop-color="#FFE135"/>
+        <stop offset="100%" stop-color="#FF6B35" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <polygon points="16,2 19,12 30,12 21,18 24,28 16,22 8,28 11,18 2,12 13,12" fill="url(#starGlow)" stroke="#FFE135" stroke-width="1"/>
+    <polygon points="16,6 18,11 24,11 19,15 21,21 16,17 11,21 13,15 8,11 14,11" fill="#FFFFFF" opacity="0.6"/>
+    <circle cx="16" cy="14" r="2" fill="#FFFFFF"/>
+  </symbol>
+
+  <symbol id="effect-confetti" viewBox="0 0 32 32">
+    <defs>
+      <linearGradient id="confettiShimmer" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8"/>
+        <stop offset="50%" stop-color="#FFE135" stop-opacity="1"/>
+        <stop offset="100%" stop-color="#FF6B35" stop-opacity="0.8"/>
+      </linearGradient>
+    </defs>
+    <rect x="8" y="4" width="4" height="8" rx="1" fill="#FF0044" transform="rotate(15 10 8)"/>
+    <rect x="20" y="6" width="3" height="6" rx="1" fill="#00D4FF" transform="rotate(-20 21 9)"/>
+    <rect x="12" y="18" width="4" height="7" rx="1" fill="#FFE135" transform="rotate(45 14 21)"/>
+    <rect x="22" y="20" width="3" height="5" rx="1" fill="#32FF00" transform="rotate(-30 23 22)"/>
+    <rect x="6" y="14" width="3" height="6" rx="1" fill="#9B5DE5" transform="rotate(60 7 17)"/>
+    <circle cx="16" cy="10" r="3" fill="#FFB7C5"/>
+    <circle cx="26" cy="14" r="2" fill="#FFE135"/>
+    <circle cx="6" cy="24" r="2.5" fill="#00D4FF"/>
+    <polygon points="16,24 18,28 14,28" fill="#FF6B35"/>
+    <polygon points="4,8 6,12 2,12" fill="#9B5DE5"/>
+    <polygon points="26,26 28,30 24,30" fill="#32FF00"/>
+    <path d="M 18 2 Q 20 4 18 6" stroke="url(#confettiShimmer)" stroke-width="2" fill="none"/>
+    <path d="M 28 18 Q 30 20 28 22" stroke="url(#confettiShimmer)" stroke-width="2" fill="none"/>
+    <path d="M 2 16 Q 4 18 2 20" stroke="url(#confettiShimmer)" stroke-width="2" fill="none"/>
+  </symbol>
+
+  <symbol id="effect-lego" viewBox="0 0 32 32">
+    <defs>
+      <linearGradient id="legoRed" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#FF6B6B"/>
+        <stop offset="100%" stop-color="#CC0000"/>
+      </linearGradient>
+      <linearGradient id="legoBlue" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#6BB3FF"/>
+        <stop offset="100%" stop-color="#0066CC"/>
+      </linearGradient>
+      <linearGradient id="legoYellow" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#FFE135"/>
+        <stop offset="100%" stop-color="#CC9900"/>
+      </linearGradient>
+      <linearGradient id="legoGreen" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#6BFF6B"/>
+        <stop offset="100%" stop-color="#00CC00"/>
+      </linearGradient>
+    </defs>
+    <g transform="translate(2, 4) rotate(-15)">
+      <rect x="0" y="0" width="8" height="6" rx="1" fill="url(#legoRed)" stroke="#1A1A2E" stroke-width="1"/>
+      <circle cx="2" cy="-1" r="1.5" fill="url(#legoRed)" stroke="#1A1A2E" stroke-width="0.5"/>
+      <circle cx="6" cy="-1" r="1.5" fill="url(#legoRed)" stroke="#1A1A2E" stroke-width="0.5"/>
+    </g>
+    <g transform="translate(18, 2) rotate(20)">
+      <rect x="0" y="0" width="10" height="5" rx="1" fill="url(#legoBlue)" stroke="#1A1A2E" stroke-width="1"/>
+      <circle cx="2.5" cy="-1" r="1.5" fill="url(#legoBlue)" stroke="#1A1A2E" stroke-width="0.5"/>
+      <circle cx="7.5" cy="-1" r="1.5" fill="url(#legoBlue)" stroke="#1A1A2E" stroke-width="0.5"/>
+    </g>
+    <g transform="translate(4, 16) rotate(30)">
+      <rect x="0" y="0" width="6" height="8" rx="1" fill="url(#legoYellow)" stroke="#1A1A2E" stroke-width="1"/>
+      <circle cx="3" cy="-1" r="1.5" fill="url(#legoYellow)" stroke="#1A1A2E" stroke-width="0.5"/>
+    </g>
+    <g transform="translate(20, 18) rotate(-25)">
+      <rect x="0" y="0" width="8" height="6" rx="1" fill="url(#legoGreen)" stroke="#1A1A2E" stroke-width="1"/>
+      <circle cx="2" cy="-1" r="1.5" fill="url(#legoGreen)" stroke="#1A1A2E" stroke-width="0.5"/>
+      <circle cx="6" cy="-1" r="1.5" fill="url(#legoGreen)" stroke="#1A1A2E" stroke-width="0.5"/>
+    </g>
+    <g transform="translate(12, 10) rotate(10)">
+      <rect x="0" y="0" width="5" height="5" rx="1" fill="url(#legoRed)" stroke="#1A1A2E" stroke-width="1"/>
+      <circle cx="2.5" cy="-1" r="1.2" fill="url(#legoRed)" stroke="#1A1A2E" stroke-width="0.5"/>
+    </g>
+    <circle cx="28" cy="28" r="2" fill="#FF6B35" opacity="0.7"/>
+    <circle cx="4" cy="28" r="1.5" fill="#00D4FF" opacity="0.7"/>
+    <circle cx="16" cy="26" r="1" fill="#9B5DE5" opacity="0.7"/>
+  </symbol>
+
+  <symbol id="effect-feather" viewBox="0 0 32 32">
+    <defs>
+      <linearGradient id="featherGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#FFFFFF"/>
+        <stop offset="50%" stop-color="#9B5DE5"/>
+        <stop offset="100%" stop-color="#FF0044"/>
+      </linearGradient>
+    </defs>
+    <path d="M 16 2 Q 20 8 18 16 Q 16 24 16 30" stroke="url(#featherGrad)" stroke-width="2" fill="none"/>
+    <path d="M 16 6 Q 22 10 20 14" stroke="#FFFFFF" stroke-width="1" fill="none" opacity="0.8"/>
+    <path d="M 16 10 Q 24 14 22 18" stroke="#9B5DE5" stroke-width="1" fill="none" opacity="0.6"/>
+    <path d="M 16 14 Q 10 18 12 22" stroke="#FFB7C5" stroke-width="1" fill="none" opacity="0.7"/>
+    <ellipse cx="16" cy="16" rx="4" ry="8" fill="url(#featherGrad)" opacity="0.3"/>
+    <circle cx="16" cy="4" r="1" fill="#FFE135"/>
+    <circle cx="14" cy="28" r="0.5" fill="#FF6B35"/>
+  </symbol>
+
+  <!-- Health pickup: Avocado Toast - "Millennial power-up" -->
+  <symbol id="item-health" viewBox="0 0 64 64">
+    <rect x="8" y="22" width="48" height="36" rx="4" fill="#D4A574" stroke="#1A1A2E" stroke-width="3"/>
+    <rect x="12" y="26" width="40" height="28" rx="2" fill="#F5DEB3"/>
+    <ellipse cx="32" cy="38" rx="18" ry="14" fill="#32CD32" stroke="#1A1A2E" stroke-width="2"/>
+    <ellipse cx="32" cy="38" rx="14" ry="10" fill="#90EE90"/>
+    <ellipse cx="32" cy="40" rx="6" ry="8" fill="#8B4513" stroke="#1A1A2E" stroke-width="2"/>
+    <circle cx="29" cy="38" r="1.5" fill="#1A1A2E"/>
+    <circle cx="35" cy="38" r="1.5" fill="#1A1A2E"/>
+    <path d="M 29 43 Q 32 46 35 43" stroke="#1A1A2E" stroke-width="1.5" fill="none"/>
+    <circle cx="20" cy="32" r="2" fill="#FF0044"/>
+    <circle cx="44" cy="34" r="2" fill="#00D4FF"/>
+    <circle cx="24" cy="46" r="1.5" fill="#FFE135"/>
+    <circle cx="40" cy="44" r="1.5" fill="#9B5DE5"/>
+    <path d="M 50 12 C 50 8 54 6 56 10 C 58 6 62 8 62 12 C 62 16 56 22 56 22 C 56 22 50 16 50 12" fill="#FF6B35" stroke="#1A1A2E" stroke-width="1.5"/>
+    <path d="M 20 18 Q 22 14 20 10" stroke="#FFB7C5" stroke-width="2" fill="none" opacity="0.7"/>
+    <path d="M 32 16 Q 34 12 32 8" stroke="#FFB7C5" stroke-width="2" fill="none" opacity="0.7"/>
+    <path d="M 44 18 Q 46 14 44 10" stroke="#FFB7C5" stroke-width="2" fill="none" opacity="0.7"/>
+  </symbol>
+
+  <!-- Pistol Ammo: Energy Drink - "Now with MORE caffeine!" -->
+  <symbol id="item-ammo_pistol" viewBox="0 0 64 64">
+    <rect x="16" y="8" width="32" height="48" rx="4" fill="#FF0044" stroke="#1A1A2E" stroke-width="3"/>
+    <ellipse cx="32" cy="10" rx="14" ry="4" fill="#CC0036" stroke="#1A1A2E" stroke-width="2"/>
+    <ellipse cx="32" cy="10" rx="10" ry="2" fill="#1A1A2E"/>
+    <ellipse cx="32" cy="54" rx="14" ry="4" fill="#CC0036" stroke="#1A1A2E" stroke-width="2"/>
+    <rect x="18" y="20" width="28" height="24" rx="2" fill="#FFE135" stroke="#1A1A2E" stroke-width="2"/>
+    <polygon points="32,22 28,32 32,32 28,42 38,30 32,30 36,22" fill="#FF0044" stroke="#1A1A2E" stroke-width="1.5"/>
+    <text x="32" y="50" text-anchor="middle" font-size="6" font-weight="bold" fill="#FFFFFF" font-family="Arial Black">ZOOM!</text>
+    <circle cx="10" cy="20" r="3" fill="#FFE135" stroke="#1A1A2E" stroke-width="1">
+      <animate attributeName="opacity" values="1;0.3;1" dur="0.3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="54" cy="28" r="2.5" fill="#00D4FF" stroke="#1A1A2E" stroke-width="1">
+      <animate attributeName="opacity" values="1;0.3;1" dur="0.4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="12" cy="40" r="2" fill="#32FF00" stroke="#1A1A2E" stroke-width="1">
+      <animate attributeName="opacity" values="1;0.3;1" dur="0.35s" repeatCount="indefinite"/>
+    </circle>
+    <text x="8" y="14" font-size="4" fill="#FFB7C5">++</text>
+    <text x="50" y="16" font-size="4" fill="#FFB7C5">++</text>
+  </symbol>
+
+  <!-- Shotgun Ammo: Candy Shells - "Problem Solvers" -->
+  <symbol id="item-ammo_shotgun" viewBox="0 0 64 64">
+    <rect x="8" y="24" width="48" height="32" rx="3" fill="#9B5DE5" stroke="#1A1A2E" stroke-width="3"/>
+    <rect x="12" y="28" width="40" height="24" rx="2" fill="#7B3CE3"/>
+    <text x="32" y="44" text-anchor="middle" font-size="5" font-weight="bold" fill="#FFE135" font-family="Arial Black">BLAM!</text>
+    <rect x="16" y="10" width="8" height="20" rx="2" fill="#FF6B35" stroke="#1A1A2E" stroke-width="2"/>
+    <ellipse cx="20" cy="10" rx="4" ry="2" fill="#CC5528" stroke="#1A1A2E" stroke-width="1"/>
+    <rect x="17" y="22" width="6" height="8" fill="#FFE135" stroke="#1A1A2E" stroke-width="1"/>
+    <rect x="28" y="6" width="8" height="22" rx="2" fill="#00D4FF" stroke="#1A1A2E" stroke-width="2"/>
+    <ellipse cx="32" cy="6" rx="4" ry="2" fill="#00A4CF" stroke="#1A1A2E" stroke-width="1"/>
+    <rect x="29" y="20" width="6" height="8" fill="#FFE135" stroke="#1A1A2E" stroke-width="1"/>
+    <rect x="40" y="12" width="8" height="18" rx="2" fill="#32FF00" stroke="#1A1A2E" stroke-width="2"/>
+    <ellipse cx="44" cy="12" rx="4" ry="2" fill="#28CC00" stroke="#1A1A2E" stroke-width="1"/>
+    <rect x="41" y="22" width="6" height="8" fill="#FFE135" stroke="#1A1A2E" stroke-width="1"/>
+    <circle cx="20" cy="4" r="3" fill="#FF0044" opacity="0.8"/>
+    <circle cx="32" cy="2" r="2" fill="#FFE135" opacity="0.8"/>
+    <circle cx="44" cy="6" r="2.5" fill="#FF6B35" opacity="0.8"/>
+    <circle cx="10" cy="18" r="2" fill="#FFB7C5"/>
+    <circle cx="54" cy="20" r="2" fill="#FFB7C5"/>
+    <circle cx="32" cy="38" r="4" fill="none" stroke="#FFFFFF" stroke-width="1"/>
+    <line x1="28" y1="38" x2="36" y2="38" stroke="#FFFFFF" stroke-width="1"/>
+    <line x1="32" y1="34" x2="32" y2="42" stroke="#FFFFFF" stroke-width="1"/>
+  </symbol>
 </svg>
