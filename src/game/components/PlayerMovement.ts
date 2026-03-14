@@ -1,6 +1,6 @@
-import { Component } from "../entities/Entity";
-import { FreeCamera, Vector3 } from "@babylonjs/core";
-import type { InputManager } from "../../engine/input/InputManager";
+import { Component } from '../entities/Entity';
+import { FreeCamera, Vector3 } from '@babylonjs/core';
+import type { InputManager } from '../../engine/input/InputManager';
 
 export class PlayerMovement extends Component {
   speed = 5;
@@ -57,26 +57,26 @@ export class PlayerMovement extends Component {
 
     const velocity = Vector3.Zero();
 
-    if (this.inputManager.isKeyHeld("KeyW")) {
+    if (this.inputManager.isKeyHeld('KeyW')) {
       velocity.addInPlace(forward);
     }
-    if (this.inputManager.isKeyHeld("KeyS")) {
+    if (this.inputManager.isKeyHeld('KeyS')) {
       velocity.subtractInPlace(forward);
     }
-    if (this.inputManager.isKeyHeld("KeyA")) {
+    if (this.inputManager.isKeyHeld('KeyA')) {
       velocity.subtractInPlace(right);
     }
-    if (this.inputManager.isKeyHeld("KeyD")) {
+    if (this.inputManager.isKeyHeld('KeyD')) {
       velocity.addInPlace(right);
     }
 
     if (this.noclip) {
-      if (this.inputManager.isKeyHeld("Space")) {
+      if (this.inputManager.isKeyHeld('Space')) {
         velocity.y += 1;
       }
       if (
-        this.inputManager.isKeyHeld("ShiftLeft") ||
-        this.inputManager.isKeyHeld("ShiftRight")
+        this.inputManager.isKeyHeld('ShiftLeft') ||
+        this.inputManager.isKeyHeld('ShiftRight')
       ) {
         velocity.y -= 1;
       }
