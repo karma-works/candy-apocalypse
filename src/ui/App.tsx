@@ -1,25 +1,27 @@
-import { useEffect } from "react";
-import { GameCanvas } from "./components/GameCanvas";
-import { HUD } from "./components/HUD";
-import CandyMenu from "../CandyMenu/CandyMenu";
-import { useGameStore } from "../game/state/gameStore";
-import { WeaponHUD } from "./components/WeaponHUD";
-import "./App.css";
+import { useEffect } from 'react';
+import { GameCanvas } from './components/GameCanvas';
+import { HUD } from './components/HUD';
+import CandyMenu from '../CandyMenu/CandyMenu';
+import { useGameStore } from '../game/state/gameStore';
+import { WeaponHUD } from './components/WeaponHUD';
+import './App.css';
 
 export function App() {
   const { isPlaying } = useGameStore();
 
   // Handle ?level= URL param: auto-start the specified level on page load
   useEffect(() => {
-    const param = new URLSearchParams(window.location.search).get("level");
-    if (!param) return;
+    const param = new URLSearchParams(window.location.search).get('level');
+    if (!param) {
+      return;
+    }
 
     const { reset, setProceduralLevelIndex, startGame, setPlaying } =
       useGameStore.getState();
 
     reset();
 
-    if (param === "test") {
+    if (param === 'test') {
       setProceduralLevelIndex(-1);
     } else {
       const n = parseInt(param, 10);
@@ -35,7 +37,7 @@ export function App() {
   return (
     <div className="app">
       <GameCanvas />
-      {!isPlaying && (
+      {!isPlaying &&
         <CandyMenu
           onSelectLevel={(index) => {
             const { reset, setProceduralLevelIndex, startGame, setPlaying } =
@@ -46,16 +48,16 @@ export function App() {
             setPlaying(true);
           }}
           onExplore={() => {
-            console.log("Explore WAD clicked");
+            console.log('Explore WAD clicked');
           }}
         />
-      )}
-      {isPlaying && (
+      }
+      {isPlaying &&
         <>
           <WeaponHUD />
           <HUD />
         </>
-      )}
+      }
     </div>
   );
 }

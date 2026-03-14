@@ -1,12 +1,12 @@
-import { Component } from "../entities/Entity";
-import { Scene, Ray, AbstractMesh } from "@babylonjs/core";
-import { useGameStore } from "../state/gameStore";
-import { Inventory } from "./Inventory";
-import { playSound } from "../../engine/audio/GameAudio";
-import { EffectManager } from "./EffectManager";
+import { Component } from '../entities/Entity';
+import { AbstractMesh, Ray, Scene } from '@babylonjs/core';
+import { useGameStore } from '../state/gameStore';
+import { Inventory } from './Inventory';
+import { playSound } from '../../engine/audio/GameAudio';
+import { EffectManager } from './EffectManager';
 
-export type FireType = "hitscan" | "projectile" | "melee";
-export type EffectLevel = "pop" | "bang" | "kaboom" | "megablast";
+export type FireType = 'hitscan' | 'projectile' | 'melee';
+export type EffectLevel = 'pop' | 'bang' | 'kaboom' | 'megablast';
 
 export interface WeaponConfig {
   type: string;
@@ -23,83 +23,83 @@ export interface WeaponConfig {
 
 const WEAPON_CONFIGS: Record<string, WeaponConfig> = {
   chainsaw: {
-    type: "chainsaw",
+    type: 'chainsaw',
     damage: 20,
     fireRate: 0.1,
     range: 3,
     ammoPerShot: 0,
     spread: 0,
-    soundName: "shoot_chainsaw",
-    fireType: "melee",
-    effectLevel: "pop",
+    soundName: 'shoot_chainsaw',
+    fireType: 'melee',
+    effectLevel: 'pop',
   },
   pistol: {
-    type: "pistol",
+    type: 'pistol',
     damage: 15,
     fireRate: 0.3,
     range: 100,
     ammoPerShot: 1,
     spread: 0.01,
-    soundName: "shoot_pistol",
-    fireType: "hitscan",
-    effectLevel: "pop",
+    soundName: 'shoot_pistol',
+    fireType: 'hitscan',
+    effectLevel: 'pop',
   },
   shotgun: {
-    type: "shotgun",
+    type: 'shotgun',
     damage: 60,
     fireRate: 0.8,
     range: 30,
     ammoPerShot: 2,
     spread: 0.1,
-    soundName: "shoot_shotgun",
-    fireType: "hitscan",
-    effectLevel: "bang",
+    soundName: 'shoot_shotgun',
+    fireType: 'hitscan',
+    effectLevel: 'bang',
   },
   chaingun: {
-    type: "chaingun",
+    type: 'chaingun',
     damage: 10,
     fireRate: 0.1,
     range: 80,
     ammoPerShot: 1,
     spread: 0.05,
-    soundName: "shoot_pistol",
-    fireType: "hitscan",
-    effectLevel: "pop",
+    soundName: 'shoot_pistol',
+    fireType: 'hitscan',
+    effectLevel: 'pop',
   },
   rocket_launcher: {
-    type: "rocket_launcher",
+    type: 'rocket_launcher',
     damage: 100,
     fireRate: 1.0,
     range: 200,
     ammoPerShot: 1,
     spread: 0,
-    soundName: "shoot_rocket",
-    fireType: "projectile",
-    effectLevel: "kaboom",
+    soundName: 'shoot_rocket',
+    fireType: 'projectile',
+    effectLevel: 'kaboom',
     projectileSpeed: 30,
   },
   plasma_rifle: {
-    type: "plasma_rifle",
+    type: 'plasma_rifle',
     damage: 20,
     fireRate: 0.1,
     range: 150,
     ammoPerShot: 1,
     spread: 0.02,
-    soundName: "shoot_plasma",
-    fireType: "projectile",
-    effectLevel: "pop",
+    soundName: 'shoot_plasma',
+    fireType: 'projectile',
+    effectLevel: 'pop',
     projectileSpeed: 50,
   },
   bfg9000: {
-    type: "bfg9000",
+    type: 'bfg9000',
     damage: 500,
     fireRate: 2.5,
     range: 300,
     ammoPerShot: 40,
     spread: 0,
-    soundName: "shoot_bfg",
-    fireType: "projectile",
-    effectLevel: "megablast",
+    soundName: 'shoot_bfg',
+    fireType: 'projectile',
+    effectLevel: 'megablast',
     projectileSpeed: 15,
   },
 };
@@ -123,17 +123,19 @@ export class WeaponSystem extends Component {
 
   switchWeapon(type: string): boolean {
     const config = WEAPON_CONFIGS[type];
-    if (!config) return false;
+    if (!config) {
+      return false;
+    }
 
     const inventory = this.entity?.getComponent(Inventory);
     if (!inventory) {
-      console.warn("WeaponSystem: No inventory found on entity, cannot switch weapon");
+      console.warn('WeaponSystem: No inventory found on entity, cannot switch weapon');
       return false;
     }
     if (inventory.hasWeapon(type)) {
       this.currentWeapon = config;
       useGameStore.getState().setCurrentWeapon(type);
-      playSound("weapon_switch");
+      playSound('weapon_switch');
       return true;
     }
     return false;
@@ -141,19 +143,19 @@ export class WeaponSystem extends Component {
 
   canFire(): boolean {
     if (!this.currentWeapon) {
-      console.log("WeaponSystem.canFire: no current weapon");
+      console.log('WeaponSystem.canFire: no current weapon');
       return false;
     }
 
     const now = performance.now() / 1000;
     if (now - this.lastFireTime < this.currentWeapon.fireRate) {
-      console.log("WeaponSystem.canFire: rate limited");
+      console.log('WeaponSystem.canFire: rate limited');
       return false;
     }
 
     const inventory = this.entity?.getComponent(Inventory);
     if (!inventory) {
-      console.log("WeaponSystem.canFire: missing inventory");
+      console.log('WeaponSystem.canFire: missing inventory');
       return false;
     }
 
@@ -161,19 +163,25 @@ export class WeaponSystem extends Component {
       this.currentWeapon.type,
       this.currentWeapon.ammoPerShot,
     );
-    if (!hasAmmo) console.log("WeaponSystem.canFire: no ammo");
+    if (!hasAmmo) {
+      console.log('WeaponSystem.canFire: no ammo');
+    }
     return hasAmmo;
   }
 
   fire(): boolean {
-    if (!this.canFire()) return false;
+    if (!this.canFire()) {
+      return false;
+    }
     if (!this.camera) {
-      console.log("WeaponSystem.fire: missing camera");
+      console.log('WeaponSystem.fire: missing camera');
       return false;
     }
 
     const inventory = this.entity?.getComponent(Inventory);
-    if (!inventory) return false;
+    if (!inventory) {
+      return false;
+    }
 
     if (
       !inventory.useAmmo(
@@ -206,11 +214,11 @@ export class WeaponSystem extends Component {
 
     // Signal muzzle flash to the HUD — dispatch before effects so it always fires
     window.dispatchEvent(
-      new CustomEvent("weaponFired", { detail: { weapon: this.currentWeapon!.type } }),
+      new CustomEvent('weaponFired', { detail: { weapon: this.currentWeapon!.type } }),
     );
 
     try {
-      if (this.currentWeapon!.fireType === "projectile") {
+      if (this.currentWeapon!.fireType === 'projectile') {
         this.fireProjectile(forward);
       } else {
         // Hitscan: pick ANY pickable enabled mesh. Do NOT require checkCollisions —
@@ -235,7 +243,7 @@ export class WeaponSystem extends Component {
         }
       }
     } catch (e) {
-      console.warn("WeaponSystem: fire effect error", e);
+      console.warn('WeaponSystem: fire effect error', e);
     }
 
     return true;
@@ -263,10 +271,15 @@ export class WeaponSystem extends Component {
 
   private playEffect(position: any) {
     const level = this.currentWeapon!.effectLevel;
-    if (level === "megablast") this.effects.playMegaBlast(position);
-    else if (level === "kaboom") this.effects.playKaBoom(position);
-    else if (level === "bang") this.effects.playBang(position);
-    else this.effects.playPop(position);
+    if (level === 'megablast') {
+      this.effects.playMegaBlast(position);
+    } else if (level === 'kaboom') {
+      this.effects.playKaBoom(position);
+    } else if (level === 'bang') {
+      this.effects.playBang(position);
+    } else {
+      this.effects.playPop(position);
+    }
   }
 
   private onHit(mesh: AbstractMesh, position: any, distance: number): void {
@@ -276,7 +289,7 @@ export class WeaponSystem extends Component {
     if (entityId) {
       console.log(`Hit entity ${entityId} at distance ${distance.toFixed(2)}`);
 
-      const event = new CustomEvent("entityHit", {
+      const event = new CustomEvent('entityHit', {
         detail: {
           entityId,
           damage: this.currentWeapon!.damage,

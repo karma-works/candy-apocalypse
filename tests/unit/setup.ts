@@ -1,5 +1,5 @@
-import { beforeAll, afterAll, afterEach } from "vitest";
-import { cleanup } from "@testing-library/react";
+import { afterAll, afterEach, beforeAll } from 'vitest';
+import { cleanup } from '@testing-library/react';
 
 // Mock Web Audio API for unit tests
 class MockAudioContext {
@@ -64,25 +64,25 @@ beforeAll(() => {
   global.webkitAudioContext = MockAudioContext as any;
 
   // Mock canvas
-  HTMLCanvasElement.prototype.getContext = function (contextId: string) {
-    if (contextId === "2d") {
+  HTMLCanvasElement.prototype.getContext = function(contextId: string) {
+    if (contextId === '2d') {
       return new MockCanvasRenderingContext2D() as any;
     }
     return null;
   };
 
   // Mock pointer lock
-  Object.defineProperty(document, "pointerLockElement", {
+  Object.defineProperty(document, 'pointerLockElement', {
     writable: true,
     value: null,
   });
 
-  Object.defineProperty(document, "exitPointerLock", {
+  Object.defineProperty(document, 'exitPointerLock', {
     writable: true,
     value: () => {},
   });
 
-  Object.defineProperty(Element.prototype, "requestPointerLock", {
+  Object.defineProperty(Element.prototype, 'requestPointerLock', {
     writable: true,
     value: () => {},
   });

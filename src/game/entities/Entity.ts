@@ -1,4 +1,4 @@
-import { AbstractMesh, Scene, Vector3 } from "@babylonjs/core";
+import { AbstractMesh, Scene, Vector3 } from '@babylonjs/core';
 
 export abstract class Component {
   entity: Entity | null = null;
@@ -57,7 +57,9 @@ export class Entity {
   }
 
   update(deltaTime: number): void {
-    if (!this.isActive) return;
+    if (!this.isActive) {
+      return;
+    }
     this.components.forEach((component) => component.update(deltaTime));
   }
 

@@ -1,30 +1,30 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from '@playwright/test';
 
-test.describe("Baseline Rendering Tests", () => {
-  test.beforeEach(async ({ page }) => {
-    page.on("console", msg => console.log("PAGE LOG:", msg.text()));
-    page.on("pageerror", err => console.log("PAGE ERROR:", err));
+test.describe('Baseline Rendering Tests', () => {
+  test.beforeEach(async({ page }) => {
+    page.on('console', msg => console.log('PAGE LOG:', msg.text()));
+    page.on('pageerror', err => console.log('PAGE ERROR:', err));
 
     // Navigate to the game
-    await page.goto("/");
+    await page.goto('/');
 
     try {
-      await page.waitForSelector(".candy-button-primary", { timeout: 5000 });
-      await page.click(".candy-button-primary");
+      await page.waitForSelector('.candy-button-primary', { timeout: 5000 });
+      await page.click('.candy-button-primary');
     } catch (e) {
-      console.log("Failed to find button. Page content:", await page.content());
+      console.log('Failed to find button. Page content:', await page.content());
       throw e;
     }
 
     // Wait for game to initialize
-    await page.waitForSelector("#game-canvas", { timeout: 10000 });
+    await page.waitForSelector('#game-canvas', { timeout: 10000 });
 
     // Wait for initial render to complete
     await page.waitForTimeout(2000);
   });
 
-  test("should render game canvas", async ({ page }) => {
-    const canvas = page.locator("#game-canvas");
+  test('should render game canvas', async({ page }) => {
+    const canvas = page.locator('#game-canvas');
 
     // Check canvas exists
     await expect(canvas).toBeVisible();
@@ -37,20 +37,20 @@ test.describe("Baseline Rendering Tests", () => {
     expect(height).toBeGreaterThan(0);
   });
 
-  test("should capture baseline screenshot of initial game state", async ({
+  test('should capture baseline screenshot of initial game state', async({
     page,
   }) => {
     // Take screenshot of initial game state
     const screenshot = await page.screenshot({ fullPage: false });
 
     // Compare with baseline (will create baseline on first run)
-    expect(screenshot).toMatchSnapshot("game-initial-baseline.png", {
+    expect(screenshot).toMatchSnapshot('game-initial-baseline.png', {
       maxDiffPixels: 100,
       maxDiffPixelRatio: 0.01,
     });
   });
 
-  test("should maintain 30+ FPS during gameplay", async ({ page }) => {
+  test('should maintain 30+ FPS during gameplay', async({ page }) => {
     // Inject FPS counter
     const avgFps = await page.evaluate(() => {
       return new Promise<number>((resolve) => {
@@ -85,11 +85,11 @@ test.describe("Baseline Rendering Tests", () => {
     expect(avgFps).toBeGreaterThanOrEqual(30);
   });
 
-  test("should render game at different viewport sizes", async ({ page }) => {
+  test('should render game at different viewport sizes', async({ page }) => {
     const viewports = [
-      { width: 1920, height: 1080, name: "hd" },
-      { width: 1280, height: 720, name: "hd-ready" },
-      { width: 800, height: 600, name: "svga" },
+      { width: 1920, height: 1080, name: 'hd' },
+      { width: 1280, height: 720, name: 'hd-ready' },
+      { width: 800, height: 600, name: 'svga' },
     ];
 
     for (const viewport of viewports) {
@@ -108,14 +108,14 @@ test.describe("Baseline Rendering Tests", () => {
   });
 });
 
-test.describe("Game Loading Tests", () => {
-  test("should load game within acceptable time", async ({ page }) => {
+test.describe('Game Loading Tests', () => {
+  test('should load game within acceptable time', async({ page }) => {
     const startTime = Date.now();
 
-    await page.goto("/");
-    await page.waitForSelector(".candy-button-primary");
-    await page.click(".candy-button-primary");
-    await page.waitForSelector("#game-canvas");
+    await page.goto('/');
+    await page.waitForSelector('.candy-button-primary');
+    await page.click('.candy-button-primary');
+    await page.waitForSelector('#game-canvas');
     await page.waitForTimeout(1000); // Wait for initial render
 
     const loadTime = Date.now() - startTime;
@@ -124,15 +124,15 @@ test.describe("Game Loading Tests", () => {
     expect(loadTime).toBeLessThan(15000); // Should load in under 15 seconds
   });
 
-  test("should display loading indicator", async ({ page }) => {
+  test('should display loading indicator', async({ page }) => {
     // Check if there's any loading UI
-    await page.goto("/");
+    await page.goto('/');
 
     // Look for common loading indicators
     const loadingElement = page.locator(
       '[data-testid="loading"], .loading, #loading',
     );
-    const hasLoadingIndicator = (await loadingElement.count()) > 0;
+    const hasLoadingIndicator = await loadingElement.count() > 0;
 
     if (hasLoadingIndicator) {
       await expect(loadingElement.first()).toBeVisible();
@@ -140,34 +140,34 @@ test.describe("Game Loading Tests", () => {
   });
 });
 
-test.describe("Canvas Rendering Tests", () => {
-  test("should use WebGL context", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForSelector(".candy-button-primary");
-    await page.click(".candy-button-primary");
-    await page.waitForSelector("#game-canvas");
+test.describe('Canvas Rendering Tests', () => {
+  test('should use WebGL context', async({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('.candy-button-primary');
+    await page.click('.candy-button-primary');
+    await page.waitForSelector('#game-canvas');
 
     const contextType = await page
-      .locator("#game-canvas")
+      .locator('#game-canvas')
       .evaluate((canvas: HTMLCanvasElement) => {
         // Check if WebGL context exists
-        const gl = canvas.getContext("webgl") || canvas.getContext("webgl2");
-        return gl ? "webgl" : "2d";
+        const gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
+        return gl ? 'webgl' : '2d';
       });
 
     console.log(`Canvas context type: ${contextType}`);
-    expect(contextType).toBe("webgl");
+    expect(contextType).toBe('webgl');
   });
 
-  test("should handle canvas resize", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForSelector(".candy-button-primary");
-    await page.click(".candy-button-primary");
-    await page.waitForSelector("#game-canvas");
+  test('should handle canvas resize', async({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('.candy-button-primary');
+    await page.click('.candy-button-primary');
+    await page.waitForSelector('#game-canvas');
 
     // Get initial dimensions
     const initialWidth = await page
-      .locator("#game-canvas")
+      .locator('#game-canvas')
       .evaluate((el: HTMLCanvasElement) => el.width);
 
     // Resize viewport
@@ -176,19 +176,19 @@ test.describe("Canvas Rendering Tests", () => {
 
     // Check canvas updated
     const newWidth = await page
-      .locator("#game-canvas")
+      .locator('#game-canvas')
       .evaluate((el: HTMLCanvasElement) => el.width);
 
     expect(newWidth).not.toBe(initialWidth);
   });
 });
 
-test.describe("Performance Monitoring", () => {
-  test("should measure frame times", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForSelector(".candy-button-primary");
-    await page.click(".candy-button-primary");
-    await page.waitForSelector("#game-canvas");
+test.describe('Performance Monitoring', () => {
+  test('should measure frame times', async({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('.candy-button-primary');
+    await page.click('.candy-button-primary');
+    await page.waitForSelector('#game-canvas');
 
     const frameTimes = await page.evaluate(() => {
       return new Promise<number[]>((resolve) => {

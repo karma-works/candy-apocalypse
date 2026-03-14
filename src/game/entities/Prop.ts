@@ -1,22 +1,22 @@
-import { Entity } from "./Entity";
-import { Transform } from "../components/Transform";
+import { Entity } from './Entity';
+import { Transform } from '../components/Transform';
 import {
-  Vector3,
-  Scene,
-  MeshBuilder,
-  StandardMaterial,
   Color3,
   Mesh,
-} from "@babylonjs/core";
-import { TextureManager } from "../../engine/assets/TextureManager";
+  MeshBuilder,
+  Scene,
+  StandardMaterial,
+  Vector3,
+} from '@babylonjs/core';
+import { TextureManager } from '../../engine/assets/TextureManager';
 
-export type PropType = "barrel" | "pillar" | "crate";
+export type PropType = 'barrel' | 'pillar' | 'crate';
 
 export class Prop extends Entity {
   transform: Transform;
   propType: PropType;
 
-  constructor(id: string, propType: PropType = "barrel") {
+  constructor(id: string, propType: PropType = 'barrel') {
     super(id, `Prop_${propType}`);
 
     this.propType = propType;
@@ -44,7 +44,7 @@ export class Prop extends Entity {
             scene,
           ),
         color: new Color3(0.4, 0.3, 0.2),
-        size: { width: 1, height: 1.2 }
+        size: { width: 1, height: 1.2 },
       },
       pillar: {
         create: () =>
@@ -54,12 +54,12 @@ export class Prop extends Entity {
             scene,
           ),
         color: new Color3(0.5, 0.5, 0.5),
-        size: { width: 1, height: 3 }
+        size: { width: 1, height: 3 },
       },
       crate: {
         create: () => MeshBuilder.CreateBox(this.id, { size: 1 }, scene),
         color: new Color3(0.6, 0.5, 0.3),
-        size: { width: 1, height: 1 }
+        size: { width: 1, height: 1 },
       },
     };
 
@@ -70,7 +70,7 @@ export class Prop extends Entity {
       mesh = MeshBuilder.CreatePlane(
         this.id,
         { width: config.size.width, height: config.size.height },
-        scene
+        scene,
       );
       mesh.billboardMode = Mesh.BILLBOARDMODE_Y;
     } else {
@@ -98,9 +98,9 @@ export class Prop extends Entity {
   setPosition(x: number, y: number, z: number): void {
     if (this.mesh) {
       const offsetY =
-        this.propType === "barrel"
+        this.propType === 'barrel'
           ? 0.6
-          : this.propType === "pillar"
+          : this.propType === 'pillar'
             ? 1.5
             : 0.5;
       this.mesh.position.set(x, y + offsetY, z);

@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from 'vitest';
 
-describe("Game Logic - Player", () => {
-  describe("Health System", () => {
-    it("should initialize with 100 health", () => {
+describe('Game Logic - Player', () => {
+  describe('Health System', () => {
+    it('should initialize with 100 health', () => {
       // Mock player state
       const player = {
         health: 100,
@@ -12,7 +12,7 @@ describe("Game Logic - Player", () => {
       expect(player.health).toBe(100);
     });
 
-    it("should take damage correctly", () => {
+    it('should take damage correctly', () => {
       const player = {
         health: 100,
         armor: 0,
@@ -25,7 +25,7 @@ describe("Game Logic - Player", () => {
       expect(player.health).toBe(90);
     });
 
-    it("should not go below 0 health", () => {
+    it('should not go below 0 health', () => {
       const player = {
         health: 100,
         armor: 0,
@@ -38,7 +38,7 @@ describe("Game Logic - Player", () => {
       expect(player.health).toBe(0);
     });
 
-    it("should die when health reaches 0", () => {
+    it('should die when health reaches 0', () => {
       const player = {
         health: 0,
         isDead() {
@@ -50,8 +50,8 @@ describe("Game Logic - Player", () => {
     });
   });
 
-  describe("Armor System", () => {
-    it("should absorb damage before health", () => {
+  describe('Armor System', () => {
+    it('should absorb damage before health', () => {
       const player = {
         health: 100,
         armor: 50,
@@ -74,11 +74,11 @@ describe("Game Logic - Player", () => {
   });
 });
 
-describe("Game Logic - Weapons", () => {
-  describe("Weapon Switching", () => {
-    it("should cycle through weapons", () => {
+describe('Game Logic - Weapons', () => {
+  describe('Weapon Switching', () => {
+    it('should cycle through weapons', () => {
       const inventory = {
-        weapons: ["fist", "pistol", "shotgun", "chaingun"],
+        weapons: [ 'fist', 'pistol', 'shotgun', 'chaingun' ],
         currentIndex: 0,
         switchToNext() {
           this.currentIndex = (this.currentIndex + 1) % this.weapons.length;
@@ -88,18 +88,18 @@ describe("Game Logic - Weapons", () => {
         },
       };
 
-      expect(inventory.current).toBe("fist");
+      expect(inventory.current).toBe('fist');
 
       inventory.switchToNext();
-      expect(inventory.current).toBe("pistol");
+      expect(inventory.current).toBe('pistol');
 
       inventory.switchToNext();
-      expect(inventory.current).toBe("shotgun");
+      expect(inventory.current).toBe('shotgun');
     });
 
-    it("should switch to specific weapon by number", () => {
+    it('should switch to specific weapon by number', () => {
       const inventory = {
-        weapons: ["fist", "pistol", "shotgun", "chaingun"],
+        weapons: [ 'fist', 'pistol', 'shotgun', 'chaingun' ],
         currentIndex: 0,
         switchTo(index: number) {
           if (index >= 0 && index < this.weapons.length) {
@@ -114,15 +114,15 @@ describe("Game Logic - Weapons", () => {
       };
 
       inventory.switchTo(2);
-      expect(inventory.current).toBe("shotgun");
+      expect(inventory.current).toBe('shotgun');
 
       inventory.switchTo(0);
-      expect(inventory.current).toBe("fist");
+      expect(inventory.current).toBe('fist');
     });
 
-    it("should reject invalid weapon numbers", () => {
+    it('should reject invalid weapon numbers', () => {
       const inventory = {
-        weapons: ["fist", "pistol", "shotgun"],
+        weapons: [ 'fist', 'pistol', 'shotgun' ],
         currentIndex: 0,
         switchTo(index: number) {
           if (index >= 0 && index < this.weapons.length) {
@@ -138,8 +138,8 @@ describe("Game Logic - Weapons", () => {
     });
   });
 
-  describe("Ammo System", () => {
-    it("should track ammo correctly", () => {
+  describe('Ammo System', () => {
+    it('should track ammo correctly', () => {
       const ammo = {
         bullets: 50,
         shells: 20,
@@ -150,10 +150,10 @@ describe("Game Logic - Weapons", () => {
       expect(ammo.bullets).toBe(50);
     });
 
-    it("should consume ammo when firing", () => {
+    it('should consume ammo when firing', () => {
       const weapon = {
-        type: "shotgun",
-        ammoType: "shells",
+        type: 'shotgun',
+        ammoType: 'shells',
         ammoPerShot: 2,
         _ammo: 20,
         fire() {
@@ -168,7 +168,7 @@ describe("Game Logic - Weapons", () => {
         },
         set ammo(val: number) {
           this._ammo = val;
-        }
+        },
       };
 
       const fired = weapon.fire();
@@ -176,10 +176,10 @@ describe("Game Logic - Weapons", () => {
       // In real implementation, ammo would decrease
     });
 
-    it("should not fire without ammo", () => {
+    it('should not fire without ammo', () => {
       const weapon = {
-        type: "shotgun",
-        ammoType: "shells",
+        type: 'shotgun',
+        ammoType: 'shells',
         ammoPerShot: 2,
         fire() {
           if (this.ammo >= this.ammoPerShot) {
@@ -198,25 +198,25 @@ describe("Game Logic - Weapons", () => {
   });
 });
 
-describe("Game Logic - Entities", () => {
-  describe("Enemy AI States", () => {
-    it("should start in IDLE state", () => {
+describe('Game Logic - Entities', () => {
+  describe('Enemy AI States', () => {
+    it('should start in IDLE state', () => {
       const enemy = {
-        state: "IDLE",
+        state: 'IDLE',
         health: 100,
       };
 
-      expect(enemy.state).toBe("IDLE");
+      expect(enemy.state).toBe('IDLE');
     });
 
-    it("should transition to CHASE when player is seen", () => {
+    it('should transition to CHASE when player is seen', () => {
       const enemy = {
-        state: "IDLE",
+        state: 'IDLE',
         health: 100,
         seePlayer: false,
         update() {
-          if (this.seePlayer && this.state === "IDLE") {
-            this.state = "CHASE";
+          if (this.seePlayer && this.state === 'IDLE') {
+            this.state = 'CHASE';
           }
         },
       };
@@ -224,33 +224,33 @@ describe("Game Logic - Entities", () => {
       enemy.seePlayer = true;
       enemy.update();
 
-      expect(enemy.state).toBe("CHASE");
+      expect(enemy.state).toBe('CHASE');
     });
 
-    it("should transition to ATTACK when in range", () => {
+    it('should transition to ATTACK when in range', () => {
       const enemy = {
-        state: "CHASE",
+        state: 'CHASE',
         health: 100,
         distanceToPlayer: 100,
         attackRange: 200,
         update() {
           if (
-            this.state === "CHASE" &&
+            this.state === 'CHASE' &&
             this.distanceToPlayer <= this.attackRange
           ) {
-            this.state = "ATTACK";
+            this.state = 'ATTACK';
           }
         },
       };
 
       enemy.update();
 
-      expect(enemy.state).toBe("ATTACK");
+      expect(enemy.state).toBe('ATTACK');
     });
   });
 
-  describe("Entity Position", () => {
-    it("should update position based on velocity", () => {
+  describe('Entity Position', () => {
+    it('should update position based on velocity', () => {
       const entity = {
         x: 0,
         y: 0,
@@ -270,7 +270,7 @@ describe("Game Logic - Entities", () => {
   });
 });
 
-describe("Game Logic - Enemy Combat Difficulty", () => {
+describe('Game Logic - Enemy Combat Difficulty', () => {
   // Design contract: enemies should die in 2-3 hits from the pistol (15 dmg).
   // Health values: imp=25, demon=30, cacodemon=50.
   const PISTOL_DAMAGE = 15;
@@ -287,57 +287,57 @@ describe("Game Logic - Enemy Combat Difficulty", () => {
     return Math.ceil(health / damage);
   }
 
-  describe("Pistol (15 dmg) - must kill in 2-3 hits", () => {
-    it("imp dies in exactly 2 pistol shots", () => {
+  describe('Pistol (15 dmg) - must kill in 2-3 hits', () => {
+    it('imp dies in exactly 2 pistol shots', () => {
       const hits = hitsToKill(ENEMY_HEALTH.imp, PISTOL_DAMAGE);
       expect(hits).toBe(2);
     });
 
-    it("demon dies in exactly 2 pistol shots", () => {
+    it('demon dies in exactly 2 pistol shots', () => {
       const hits = hitsToKill(ENEMY_HEALTH.demon, PISTOL_DAMAGE);
       expect(hits).toBe(2);
     });
 
-    it("cacodemon dies in exactly 4 pistol shots", () => {
+    it('cacodemon dies in exactly 4 pistol shots', () => {
       // cacodemon is the tank: 4 shots is still manageable
       const hits = hitsToKill(ENEMY_HEALTH.cacodemon, PISTOL_DAMAGE);
       expect(hits).toBe(4);
     });
 
-    it("all enemies die within 4 pistol shots", () => {
-      for (const [type, hp] of Object.entries(ENEMY_HEALTH)) {
+    it('all enemies die within 4 pistol shots', () => {
+      for (const [ type, hp ] of Object.entries(ENEMY_HEALTH)) {
         const hits = hitsToKill(hp, PISTOL_DAMAGE);
         expect(hits, `${type} should die in <=4 pistol shots`).toBeLessThanOrEqual(4);
       }
     });
   });
 
-  describe("Shotgun (60 dmg) - must one-shot or two-shot", () => {
-    it("imp dies in 1 shotgun blast", () => {
+  describe('Shotgun (60 dmg) - must one-shot or two-shot', () => {
+    it('imp dies in 1 shotgun blast', () => {
       expect(hitsToKill(ENEMY_HEALTH.imp, SHOTGUN_DAMAGE)).toBe(1);
     });
 
-    it("demon dies in 1 shotgun blast", () => {
+    it('demon dies in 1 shotgun blast', () => {
       expect(hitsToKill(ENEMY_HEALTH.demon, SHOTGUN_DAMAGE)).toBe(1);
     });
 
-    it("cacodemon dies in 1 shotgun blast", () => {
+    it('cacodemon dies in 1 shotgun blast', () => {
       expect(hitsToKill(ENEMY_HEALTH.cacodemon, SHOTGUN_DAMAGE)).toBe(1);
     });
   });
 
-  describe("Chaingun (10 dmg) - peppers enemies", () => {
-    it("imp dies within 3 chaingun rounds", () => {
+  describe('Chaingun (10 dmg) - peppers enemies', () => {
+    it('imp dies within 3 chaingun rounds', () => {
       expect(hitsToKill(ENEMY_HEALTH.imp, CHAINGUN_DAMAGE)).toBeLessThanOrEqual(3);
     });
 
-    it("demon dies within 3 chaingun rounds", () => {
+    it('demon dies within 3 chaingun rounds', () => {
       expect(hitsToKill(ENEMY_HEALTH.demon, CHAINGUN_DAMAGE)).toBeLessThanOrEqual(3);
     });
   });
 
-  describe("Enemy health simulation", () => {
-    it("imp loses health each hit and dies after 2 pistol shots", () => {
+  describe('Enemy health simulation', () => {
+    it('imp loses health each hit and dies after 2 pistol shots', () => {
       let hp = ENEMY_HEALTH.imp;
       hp = Math.max(0, hp - PISTOL_DAMAGE);
       expect(hp).toBe(10); // alive after 1 shot
@@ -345,7 +345,7 @@ describe("Game Logic - Enemy Combat Difficulty", () => {
       expect(hp).toBe(0); // dead after 2 shots
     });
 
-    it("demon loses health each hit and dies after 2 pistol shots", () => {
+    it('demon loses health each hit and dies after 2 pistol shots', () => {
       let hp = ENEMY_HEALTH.demon;
       hp = Math.max(0, hp - PISTOL_DAMAGE);
       expect(hp).toBe(15); // alive after 1 shot
@@ -353,7 +353,7 @@ describe("Game Logic - Enemy Combat Difficulty", () => {
       expect(hp).toBe(0); // dead after 2 shots
     });
 
-    it("cacodemon survives 3 pistol shots but dies on 4th", () => {
+    it('cacodemon survives 3 pistol shots but dies on 4th', () => {
       let hp = ENEMY_HEALTH.cacodemon;
       hp = Math.max(0, hp - PISTOL_DAMAGE); // 35
       expect(hp).toBeGreaterThan(0);
@@ -367,7 +367,7 @@ describe("Game Logic - Enemy Combat Difficulty", () => {
   });
 });
 
-describe("Game Logic - Enemy Attack Ranges", () => {
+describe('Game Logic - Enemy Attack Ranges', () => {
   // Design contract:
   //   - Demon (melee): attackRange = 1.8, must be adjacent
   //   - Imp   (ranged): rangedAttackRange = 10, fires from afar
@@ -376,40 +376,40 @@ describe("Game Logic - Enemy Attack Ranges", () => {
   const IMP_RANGED_RANGE = 10;
   const CACODEMON_RANGED_RANGE = 14;
 
-  describe("Melee enemy (demon)", () => {
-    it("cannot deal damage when player is far away", () => {
+  describe('Melee enemy (demon)', () => {
+    it('cannot deal damage when player is far away', () => {
       const distance = 5; // beyond melee range
       const canHit = distance <= MELEE_ATTACK_RANGE;
       expect(canHit).toBe(false);
     });
 
-    it("deals damage only when player is within melee range", () => {
+    it('deals damage only when player is within melee range', () => {
       const distance = 1.5; // within melee range
       const canHit = distance <= MELEE_ATTACK_RANGE;
       expect(canHit).toBe(true);
     });
 
-    it("does not have a ranged attack range", () => {
+    it('does not have a ranged attack range', () => {
       // Demon attackType is melee — rangedAttackRange is irrelevant
       const demonIsRanged = false; // demon.ai.attackType === "melee"
       expect(demonIsRanged).toBe(false);
     });
   });
 
-  describe("Ranged enemy (imp)", () => {
-    it("can attack player from within rangedAttackRange", () => {
+  describe('Ranged enemy (imp)', () => {
+    it('can attack player from within rangedAttackRange', () => {
       const distance = 8; // within imp ranged range
       const canShoot = distance <= IMP_RANGED_RANGE;
       expect(canShoot).toBe(true);
     });
 
-    it("cannot attack player beyond its rangedAttackRange", () => {
+    it('cannot attack player beyond its rangedAttackRange', () => {
       const distance = 12; // beyond imp range
       const canShoot = distance <= IMP_RANGED_RANGE;
       expect(canShoot).toBe(false);
     });
 
-    it("does NOT need to be adjacent to deal damage", () => {
+    it('does NOT need to be adjacent to deal damage', () => {
       const distance = 6;
       const needsMelee = distance <= MELEE_ATTACK_RANGE;
       const canShootRanged = distance <= IMP_RANGED_RANGE;
@@ -417,37 +417,37 @@ describe("Game Logic - Enemy Attack Ranges", () => {
       expect(canShootRanged).toBe(true);
     });
 
-    it("imp ranged range is smaller than cacodemon ranged range", () => {
+    it('imp ranged range is smaller than cacodemon ranged range', () => {
       expect(IMP_RANGED_RANGE).toBeLessThan(CACODEMON_RANGED_RANGE);
     });
   });
 
-  describe("Ranged enemy (cacodemon)", () => {
-    it("can attack player from within its long ranged range", () => {
+  describe('Ranged enemy (cacodemon)', () => {
+    it('can attack player from within its long ranged range', () => {
       const distance = 13; // deep within cacodemon range
       const canShoot = distance <= CACODEMON_RANGED_RANGE;
       expect(canShoot).toBe(true);
     });
 
-    it("cannot attack from extreme distance", () => {
+    it('cannot attack from extreme distance', () => {
       const distance = 20;
       const canShoot = distance <= CACODEMON_RANGED_RANGE;
       expect(canShoot).toBe(false);
     });
   });
 
-  describe("Ranged accuracy roll", () => {
-    it("accuracy of 0 should never hit", () => {
+  describe('Ranged accuracy roll', () => {
+    it('accuracy of 0 should never hit', () => {
       const hits = Array.from({ length: 100 }, () => Math.random() < 0).filter(Boolean);
       expect(hits.length).toBe(0);
     });
 
-    it("accuracy of 1 should always hit", () => {
+    it('accuracy of 1 should always hit', () => {
       const hits = Array.from({ length: 20 }, () => Math.random() < 1).filter(Boolean);
       expect(hits.length).toBe(20);
     });
 
-    it("imp accuracy of 0.7 produces hits roughly 60-80% of time (statistical)", () => {
+    it('imp accuracy of 0.7 produces hits roughly 60-80% of time (statistical)', () => {
       const accuracy = 0.7;
       const trials = 500;
       const hits = Array.from({ length: trials }, () => Math.random() < accuracy).filter(Boolean).length;
@@ -458,9 +458,9 @@ describe("Game Logic - Enemy Attack Ranges", () => {
   });
 });
 
-describe("Game Logic - Collision Detection", () => {
+describe('Game Logic - Collision Detection', () => {
 
-  it("should detect collision between two circles", () => {
+  it('should detect collision between two circles', () => {
     const circle1 = { x: 0, y: 0, radius: 10 };
     const circle2 = { x: 15, y: 0, radius: 10 };
 
@@ -473,7 +473,7 @@ describe("Game Logic - Collision Detection", () => {
     expect(colliding).toBe(true);
   });
 
-  it("should not detect collision when circles are separate", () => {
+  it('should not detect collision when circles are separate', () => {
     const circle1 = { x: 0, y: 0, radius: 10 };
     const circle2 = { x: 25, y: 0, radius: 10 };
 

@@ -1,5 +1,5 @@
-import { Component } from "../entities/Entity";
-import { playSound } from "../../engine/audio/GameAudio";
+import { Component } from '../entities/Entity';
+import { playSound } from '../../engine/audio/GameAudio';
 
 export class Health extends Component {
   current: number;
@@ -13,20 +13,24 @@ export class Health extends Component {
   }
 
   takeDamage(amount: number): void {
-    if (this.isDead) return;
+    if (this.isDead) {
+      return;
+    }
 
     this.current = Math.max(0, this.current - amount);
-    playSound("enemy_hurt");
+    playSound('enemy_hurt');
 
     if (this.current <= 0) {
       this.isDead = true;
-      playSound("enemy_death");
+      playSound('enemy_death');
       this.onDeath();
     }
   }
 
   heal(amount: number): void {
-    if (this.isDead) return;
+    if (this.isDead) {
+      return;
+    }
     this.current = Math.min(this.max, this.current + amount);
   }
 
@@ -40,7 +44,7 @@ export class Health extends Component {
   }
 
   protected onDeath(): void {
-    playSound("enemy_death");
+    playSound('enemy_death');
   }
 
   reset(): void {

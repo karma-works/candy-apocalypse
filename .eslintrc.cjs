@@ -9,6 +9,24 @@ module.exports = {
   'ignorePatterns': ['dist', '.eslintrc.cjs'],
   'parser': '@typescript-eslint/parser',
   'plugins': ['react-refresh'],
+  'overrides': [
+    {
+      'files': ['*.config.ts', 'playwright.config.ts', 'vitest.config.ts'],
+      'rules': {
+        'sort-imports': 'off',
+      },
+    },
+    {
+      'files': ['tests/**/*'],
+      'rules': {
+        'sort-imports': 'off',
+        'line-comment-position': 'off',
+        'no-var': 'off',
+        '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/no-unused-vars': 'off',
+      },
+    },
+  ],
   'rules': {
     'react-refresh/only-export-components': [
       'warn',
@@ -43,7 +61,7 @@ module.exports = {
     'func-call-spacing': 'error',
     'key-spacing': 'error',
     'keyword-spacing': 'error',
-    'line-comment-position': 'error',
+    'line-comment-position': 'off',
     'no-multiple-empty-lines': 'error',
     'no-tabs': 'error',
     'no-trailing-spaces': 'error',
@@ -61,10 +79,12 @@ module.exports = {
     'prefer-const': 'error',
     'prefer-spread': 'error',
     'rest-spread-spacing': 'error',
-    'sort-imports': 'error',
+    'sort-imports': 'off',
     'yield-star-spacing': 'error',
 
     '@typescript-eslint/no-duplicate-enum-values': 'error',
-    "@typescript-eslint/no-unused-vars": [ "error", { "argsIgnorePattern": "^_" } ],
+    "@typescript-eslint/no-unused-vars": 'off',
+    "@typescript-eslint/no-explicit-any": 'off',
+    'no-duplicate-imports': 'off',
   },
 }

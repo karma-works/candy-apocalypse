@@ -6,12 +6,12 @@
  */
 
 import {
-  Scene,
-  MeshBuilder,
-  StandardMaterial,
   Color3,
+  MeshBuilder,
+  Scene,
+  StandardMaterial,
   Vector3,
-} from "@babylonjs/core";
+} from '@babylonjs/core';
 
 export interface LevelConfig {
   name: string;
@@ -40,7 +40,7 @@ export class LevelGenerator {
    */
   createSimpleLevel(): void {
     const config: LevelConfig = {
-      name: "Test Level",
+      name: 'Test Level',
       size: { width: 20, depth: 20, height: 3 },
       walls: [
         { x: 0, z: 10, width: 20, height: 3 },
@@ -53,14 +53,14 @@ export class LevelGenerator {
       ],
       spawnPoint: { x: 0, y: 1.7, z: 0 },
       enemySpawns: [
-        { x: 5, y: 0, z: 5, type: "demon" },
-        { x: -5, y: 0, z: 5, type: "demon" },
-        { x: 7, y: 0, z: -3, type: "imp" },
+        { x: 5, y: 0, z: 5, type: 'demon' },
+        { x: -5, y: 0, z: 5, type: 'demon' },
+        { x: 7, y: 0, z: -3, type: 'imp' },
       ],
       pickupSpawns: [
-        { x: -3, y: 0.5, z: -3, type: "health" },
-        { x: 4, y: 0.5, z: -4, type: "ammo_pistol" },
-        { x: -5, y: 0.5, z: 5, type: "ammo_shotgun" },
+        { x: -3, y: 0.5, z: -3, type: 'health' },
+        { x: 4, y: 0.5, z: -4, type: 'ammo_pistol' },
+        { x: -5, y: 0.5, z: 5, type: 'ammo_shotgun' },
       ],
     };
 
@@ -71,18 +71,18 @@ export class LevelGenerator {
    * Generate a level from configuration
    */
   generateLevel(config: LevelConfig): void {
-    const floorMat = new StandardMaterial("floorMat", this.scene);
+    const floorMat = new StandardMaterial('floorMat', this.scene);
     // Toxic Slime floor
     floorMat.diffuseColor = new Color3(0.2, 1.0, 0.0);
     floorMat.emissiveColor = new Color3(0.05, 0.2, 0.0);
 
-    const wallMat = new StandardMaterial("wallMat", this.scene);
+    const wallMat = new StandardMaterial('wallMat', this.scene);
     // Mystic Violet walls
     wallMat.diffuseColor = new Color3(0.6, 0.36, 0.9);
     wallMat.emissiveColor = new Color3(0.1, 0.05, 0.2);
 
     const floor = MeshBuilder.CreateGround(
-      "floor",
+      'floor',
       {
         width: config.size.width,
         height: config.size.depth,
@@ -117,13 +117,13 @@ export class LevelGenerator {
       wall.checkCollisions = true;
     });
 
-    const pillarMat = new StandardMaterial("pillarMat", this.scene);
+    const pillarMat = new StandardMaterial('pillarMat', this.scene);
     // Hot Pink pillars
     pillarMat.diffuseColor = new Color3(1.0, 0.0, 0.5);
     pillarMat.emissiveColor = new Color3(0.3, 0.0, 0.1);
 
     const pillar1 = MeshBuilder.CreateCylinder(
-      "pillar_1",
+      'pillar_1',
       { height: 3, diameter: 1 },
       this.scene,
     );
@@ -132,7 +132,7 @@ export class LevelGenerator {
     pillar1.checkCollisions = true;
 
     const pillar2 = MeshBuilder.CreateCylinder(
-      "pillar_2",
+      'pillar_2',
       { height: 3, diameter: 1 },
       this.scene,
     );
@@ -147,11 +147,11 @@ export class LevelGenerator {
    * Install with: pnpm add @babylonjs/serializers
    * Then use: GLTF2Export.GLTFAsync(this.scene, filename)
    */
-  async exportToGLB(filename: string = "test-level.glb"): Promise<void> {
-    console.warn("GLB export requires @babylonjs/serializers package");
-    console.warn("Install with: pnpm add @babylonjs/serializers");
+  async exportToGLB(filename: string = 'test-level.glb'): Promise<void> {
+    console.warn('GLB export requires @babylonjs/serializers package');
+    console.warn('Install with: pnpm add @babylonjs/serializers');
     console.warn(
-      "Then use: import { GLTF2Export } from '@babylonjs/serializers'",
+      'Then use: import { GLTF2Export } from \'@babylonjs/serializers\'',
     );
     console.warn(
       `And call: await GLTF2Export.GLTFAsync(this.scene, '${filename}')`,

@@ -1,12 +1,12 @@
-import { Entity } from "./Entity";
-import { Transform } from "../components/Transform";
-import { PlayerHealth } from "../components/PlayerHealth";
-import { PlayerMovement } from "../components/PlayerMovement";
-import { Inventory } from "../components/Inventory";
-import { WeaponSystem } from "../components/WeaponSystem";
-import { FreeCamera, Scene } from "@babylonjs/core";
-import type { InputManager } from "../../engine/input/InputManager";
-import { useGameStore } from "../state/gameStore";
+import { Entity } from './Entity';
+import { Transform } from '../components/Transform';
+import { PlayerHealth } from '../components/PlayerHealth';
+import { PlayerMovement } from '../components/PlayerMovement';
+import { Inventory } from '../components/Inventory';
+import { WeaponSystem } from '../components/WeaponSystem';
+import { FreeCamera, Scene, Vector3 } from '@babylonjs/core';
+import type { InputManager } from '../../engine/input/InputManager';
+import { useGameStore } from '../state/gameStore';
 
 export class Player extends Entity {
   transform: Transform;
@@ -16,17 +16,17 @@ export class Player extends Entity {
   weapons!: WeaponSystem;
   private scene: Scene | null = null;
 
-  constructor(id: string = "player") {
-    super(id, "Player");
+  constructor(id: string = 'player') {
+    super(id, 'Player');
 
     this.transform = this.addComponent(new Transform());
     this.health = this.addComponent(new PlayerHealth(100));
     this.movement = this.addComponent(new PlayerMovement());
     this.inventory = this.addComponent(new Inventory());
 
-    this.inventory.addWeapon("pistol", 50, 100);
-    this.inventory.addWeapon("shotgun", 20, 50);
-    this.inventory.switchWeapon("pistol");
+    this.inventory.addWeapon('pistol', 50, 100);
+    this.inventory.addWeapon('shotgun', 20, 50);
+    this.inventory.switchWeapon('pistol');
   }
 
   attachToCamera(
@@ -40,7 +40,7 @@ export class Player extends Entity {
     this.weapons = this.addComponent(new WeaponSystem(scene));
     this.weapons.attachToCamera(camera);
     // switchWeapon now syncs to store automatically
-    this.weapons.switchWeapon("pistol");
+    this.weapons.switchWeapon('pistol');
   }
 
   takeDamage(amount: number): void {
@@ -65,5 +65,9 @@ export class Player extends Entity {
       return true;
     }
     return false;
+  }
+
+  getPosition(): Vector3 {
+    return this.movement['camera']?.position.clone() ?? super.getPosition();
   }
 }

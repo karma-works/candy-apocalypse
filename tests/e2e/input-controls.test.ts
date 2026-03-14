@@ -1,17 +1,17 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from '@playwright/test';
 
-test.describe("Input Controls Tests", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/");
-    await page.waitForSelector(".candy-button-primary");
-    await page.click(".candy-button-primary");
-    await page.waitForSelector("#game-canvas");
+test.describe('Input Controls Tests', () => {
+  test.beforeEach(async({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('.candy-button-primary');
+    await page.click('.candy-button-primary');
+    await page.waitForSelector('#game-canvas');
     await page.waitForTimeout(1000);
   });
 
-  test("should handle keyboard input", async ({ page }) => {
+  test('should handle keyboard input', async({ page }) => {
     // Test WASD movement
-    await page.keyboard.press("w");
+    await page.keyboard.press('w');
     await page.waitForTimeout(100);
 
     // In a real test, we'd verify player position changed
@@ -23,7 +23,7 @@ test.describe("Input Controls Tests", () => {
     expect(errors).toHaveLength(0);
   });
 
-  test("should handle weapon switching with number keys", async ({ page }) => {
+  test('should handle weapon switching with number keys', async({ page }) => {
     // Press keys 1-7 to switch weapons
     for (let i = 1; i <= 7; i++) {
       await page.keyboard.press(i.toString());
@@ -38,8 +38,8 @@ test.describe("Input Controls Tests", () => {
     expect(errors).toHaveLength(0);
   });
 
-  test("should request pointer lock on canvas click", async ({ page }) => {
-    const canvas = page.locator("#game-canvas");
+  test('should request pointer lock on canvas click', async({ page }) => {
+    const canvas = page.locator('#game-canvas');
 
     // Click canvas to request pointer lock
     await canvas.click();
@@ -50,11 +50,11 @@ test.describe("Input Controls Tests", () => {
     });
 
     // Pointer lock might not work in headless mode, so just check no errors
-    console.log("Pointer lock element:", pointerLockElement);
+    console.log('Pointer lock element:', pointerLockElement);
   });
 
-  test("should handle mouse movement", async ({ page }) => {
-    const canvas = page.locator("#game-canvas");
+  test('should handle mouse movement', async({ page }) => {
+    const canvas = page.locator('#game-canvas');
 
     await canvas.click();
 
@@ -74,12 +74,12 @@ test.describe("Input Controls Tests", () => {
   });
 });
 
-test.describe("Game State Tests", () => {
-  test("should initialize game state correctly", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForSelector(".candy-button-primary");
-    await page.click(".candy-button-primary");
-    await page.waitForSelector("#game-canvas");
+test.describe('Game State Tests', () => {
+  test('should initialize game state correctly', async({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('.candy-button-primary');
+    await page.click('.candy-button-primary');
+    await page.waitForSelector('#game-canvas');
     await page.waitForTimeout(1000);
 
     // Check if game state is initialized
@@ -88,22 +88,22 @@ test.describe("Game State Tests", () => {
       return (window as any).gameState || null;
     });
 
-    console.log("Game state:", gameState);
+    console.log('Game state:', gameState);
   });
 
-  test("should handle pause/resume", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForSelector(".candy-button-primary");
-    await page.click(".candy-button-primary");
-    await page.waitForSelector("#game-canvas");
+  test('should handle pause/resume', async({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('.candy-button-primary');
+    await page.click('.candy-button-primary');
+    await page.waitForSelector('#game-canvas');
     await page.waitForTimeout(1000);
 
     // Press Escape to pause
-    await page.keyboard.press("Escape");
+    await page.keyboard.press('Escape');
     await page.waitForTimeout(500);
 
     // Press Escape again to resume
-    await page.keyboard.press("Escape");
+    await page.keyboard.press('Escape');
     await page.waitForTimeout(500);
 
     // Verify no errors

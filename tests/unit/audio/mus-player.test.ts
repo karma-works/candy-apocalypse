@@ -1,56 +1,56 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from 'vitest';
 
-describe("Audio System - MUS Format", () => {
-  describe("MUS Parser", () => {
-    it("should parse MUS header correctly", () => {
+describe('Audio System - MUS Format', () => {
+  describe('MUS Parser', () => {
+    it('should parse MUS header correctly', () => {
       // Mock MUS header structure
       const musHeader = {
-        id: "MUS\x1a",
+        id: 'MUS\x1a',
         scoreLength: 100,
         scoreStart: 20,
         channels: 16,
         secondaryChannels: 0,
         instrumentCount: 5,
-        instruments: [1, 2, 3, 4, 5],
+        instruments: [ 1, 2, 3, 4, 5 ],
       };
 
-      expect(musHeader.id).toBe("MUS\x1a");
+      expect(musHeader.id).toBe('MUS\x1a');
       expect(musHeader.channels).toBe(16);
     });
 
-    it("should validate MUS file signature", () => {
+    it('should validate MUS file signature', () => {
       const validateMUS = (signature: string) => {
-        return signature === "MUS\x1a";
+        return signature === 'MUS\x1a';
       };
 
-      expect(validateMUS("MUS\x1a")).toBe(true);
-      expect(validateMUS("MIDI")).toBe(false);
+      expect(validateMUS('MUS\x1a')).toBe(true);
+      expect(validateMUS('MIDI')).toBe(false);
     });
   });
 
-  describe("Music Timing", () => {
-    it("should calculate tic rate correctly", () => {
+  describe('Music Timing', () => {
+    it('should calculate tic rate correctly', () => {
       // Doom uses 140 tics per second for music
       const ticRate = 140;
       const beatsPerMinute = 120;
 
-      const ticsPerBeat = (ticRate * 60) / beatsPerMinute;
+      const ticsPerBeat = ticRate * 60 / beatsPerMinute;
 
       expect(ticsPerBeat).toBe(70); // 140 * 60 / 120
     });
 
-    it("should convert tics to milliseconds", () => {
+    it('should convert tics to milliseconds', () => {
       const ticRate = 140;
       const tics = 140;
 
-      const milliseconds = (tics / ticRate) * 1000;
+      const milliseconds = tics / ticRate * 1000;
 
       expect(milliseconds).toBe(1000);
     });
   });
 
-  describe("Channel Management", () => {
-    it("should support 16 MIDI channels", () => {
+  describe('Channel Management', () => {
+    it('should support 16 MIDI channels', () => {
       const channels = Array.from({ length: 16 }, (_, i) => ({
         number: i,
         instrument: 0,
@@ -61,7 +61,7 @@ describe("Audio System - MUS Format", () => {
       expect(channels).toHaveLength(16);
     });
 
-    it("should identify drum channel (channel 15)", () => {
+    it('should identify drum channel (channel 15)', () => {
       const DRUM_CHANNEL = 15;
 
       const isDrumChannel = (channel: number) => channel === DRUM_CHANNEL;
@@ -72,23 +72,23 @@ describe("Audio System - MUS Format", () => {
   });
 });
 
-describe("Audio System - Sound Effects", () => {
-  describe("Sound Playback", () => {
-    it("should load sound sample", () => {
+describe('Audio System - Sound Effects', () => {
+  describe('Sound Playback', () => {
+    it('should load sound sample', () => {
       const sound = {
-        name: "DSPISTOL",
-        format: "PCM",
+        name: 'DSPISTOL',
+        format: 'PCM',
         sampleRate: 11025,
         bits: 8,
         channels: 1,
         data: new Uint8Array(1000),
       };
 
-      expect(sound.name).toBe("DSPISTOL");
+      expect(sound.name).toBe('DSPISTOL');
       expect(sound.sampleRate).toBe(11025);
     });
 
-    it("should calculate sound duration", () => {
+    it('should calculate sound duration', () => {
       const sound = {
         sampleRate: 11025,
         bits: 8,
@@ -104,8 +104,8 @@ describe("Audio System - Sound Effects", () => {
     });
   });
 
-  describe("Volume Control", () => {
-    it("should set volume between 0 and 100", () => {
+  describe('Volume Control', () => {
+    it('should set volume between 0 and 100', () => {
       const audio = {
         volume: 100,
         setVolume(value: number) {

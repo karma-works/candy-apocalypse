@@ -1,14 +1,14 @@
-import { Component } from "../entities/Entity";
-import { Vector3 } from "@babylonjs/core";
-import type { Player } from "../entities/Player";
+import { Component } from '../entities/Entity';
+import { Vector3 } from '@babylonjs/core';
+import type { Player } from '../entities/Player';
 
-type AIState = "idle" | "chase" | "attack";
-export type AttackType = "melee" | "ranged";
+type AIState = 'idle' | 'chase' | 'attack';
+export type AttackType = 'melee' | 'ranged';
 
 export class EnemyAI extends Component {
   target: Player | null = null;
   speed = 2;
-  aggroRange = 15;   // distance at which enemy notices player
+  aggroRange = 15; // distance at which enemy notices player
 
   /**
    * For melee enemies: attackRange is the distance at which they can hit.
@@ -19,7 +19,7 @@ export class EnemyAI extends Component {
   attackDamage = 10;
   attackCooldown = 1;
 
-  attackType: AttackType = "melee";
+  attackType: AttackType = 'melee';
 
   /** Ranged-only: max distance from which the enemy can shoot the player. */
   rangedAttackRange = 12;
@@ -27,7 +27,7 @@ export class EnemyAI extends Component {
   rangedAccuracy = 0.65;
 
   private lastAttackTime = 0;
-  private state: AIState = "idle";
+  private state: AIState = 'idle';
   private idleTime = 0;
   private idleBobOriginY = 0;
   private idleBobInitialized = false;
@@ -37,10 +37,12 @@ export class EnemyAI extends Component {
   }
 
   update(deltaTime: number): void {
-    if (!this.target || !this.entity?.mesh) return;
+    if (!this.target || !this.entity?.mesh) {
+      return;
+    }
 
     if (this.target.health.isDead) {
-      this.state = "idle";
+      this.state = 'idle';
       return;
     }
 
@@ -52,46 +54,48 @@ export class EnemyAI extends Component {
     const distance = Math.sqrt(dx * dx + dz * dz);
 
     // ── State machine ──────────────────────────────────────────
-    if (this.attackType === "melee") {
+    if (this.attackType === 'melee') {
       // Melee: only attack when physically adjacent
       if (distance <= this.attackRange) {
-        this.state = "attack";
+        this.state = 'attack';
       } else if (distance <= this.aggroRange) {
-        this.state = "chase";
+        this.state = 'chase';
       } else {
-        this.state = "idle";
+        this.state = 'idle';
       }
     } else {
       // Ranged: attack from afar; chase until within rangedAttackRange
       if (distance <= this.rangedAttackRange && distance > this.attackRange) {
         // Sweet spot — stand and shoot
-        this.state = "attack";
+        this.state = 'attack';
       } else if (distance <= this.attackRange) {
         // Player got too close — back off by switching to idle (stop moving into player)
-        this.state = "attack"; // still attack, just stop advancing
+        this.state = 'attack'; // still attack, just stop advancing
       } else if (distance <= this.aggroRange) {
-        this.state = "chase";
+        this.state = 'chase';
       } else {
-        this.state = "idle";
+        this.state = 'idle';
       }
     }
 
     // ── Execute state ──────────────────────────────────────────
     switch (this.state) {
-      case "idle":
-        this.doIdleBob(deltaTime);
-        break;
-      case "chase":
-        this.doChase(dx, dz, distance, deltaTime);
-        break;
-      case "attack":
-        this.tryAttack(distance);
-        break;
+    case 'idle':
+      this.doIdleBob(deltaTime);
+      break;
+    case 'chase':
+      this.doChase(dx, dz, distance, deltaTime);
+      break;
+    case 'attack':
+      this.tryAttack(distance);
+      break;
     }
   }
 
   private doIdleBob(deltaTime: number): void {
-    if (!this.entity?.mesh) return;
+    if (!this.entity?.mesh) {
+      return;
+    }
     if (!this.idleBobInitialized) {
       this.idleBobOriginY = this.entity.mesh.position.y;
       this.idleBobInitialized = true;
@@ -103,17 +107,21 @@ export class EnemyAI extends Component {
   }
 
   private doChase(dx: number, dz: number, len: number, deltaTime: number): void {
-    if (!this.entity?.mesh || len === 0) return;
+    if (!this.entity?.mesh || len === 0) {
+      return;
+    }
     // Reset bob origin when transitioning from idle to chase
     this.idleBobInitialized = false;
 
     // Ranged enemies stop advancing once they're within rangedAttackRange
-    if (this.attackType === "ranged" && len <= this.rangedAttackRange) return;
+    if (this.attackType === 'ranged' && len <= this.rangedAttackRange) {
+      return;
+    }
 
     const movement = new Vector3(
-      (dx / len) * this.speed * deltaTime,
+      dx / len * this.speed * deltaTime,
       0,
-      (dz / len) * this.speed * deltaTime,
+      dz / len * this.speed * deltaTime,
     );
     this.entity.mesh.position.addInPlace(movement);
     // BILLBOARDMODE_Y handles facing the camera — no lookAt needed
@@ -121,10 +129,14 @@ export class EnemyAI extends Component {
 
   private tryAttack(distance: number): void {
     const now = performance.now() / 1000;
-    if (now - this.lastAttackTime < this.attackCooldown) return;
-    if (!this.target || this.target.health.isDead) return;
+    if (now - this.lastAttackTime < this.attackCooldown) {
+      return;
+    }
+    if (!this.target || this.target.health.isDead) {
+      return;
+    }
 
-    if (this.attackType === "melee") {
+    if (this.attackType === 'melee') {
       // Melee: only deal damage if close enough
       if (distance <= this.attackRange) {
         this.target.takeDamage(this.attackDamage);

@@ -3,8 +3,8 @@
 // In a real scenario, you'd use a WAD editor or download Freedoom
 
 export const MINIMAL_WAD_FIXTURE = {
-  name: "TEST.WAD",
-  description: "Minimal single-room test level",
+  name: 'TEST.WAD',
+  description: 'Minimal single-room test level',
   structure: {
     vertices: 8, // Cube has 8 corners
     linedefs: 12, // 4 walls, 4 floor edges, 4 ceiling edges
@@ -93,8 +93,8 @@ export const EXPECTED_SINGLE_CUBE: ExpectedWADData = {
     {
       floorHeight: 0,
       ceilingHeight: 128,
-      floorTexture: "FLOOR0_1",
-      ceilingTexture: "CEIL1_1",
+      floorTexture: 'FLOOR0_1',
+      ceilingTexture: 'CEIL1_1',
       lightLevel: 160,
       specialType: 0,
       tag: 0,

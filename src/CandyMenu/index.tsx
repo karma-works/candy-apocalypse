@@ -1,1 +1,1 @@
-export { default } from "./CandyMenu";
+export { default } from './CandyMenu';

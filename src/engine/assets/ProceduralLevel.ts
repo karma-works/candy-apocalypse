@@ -1,24 +1,24 @@
 import {
-  Scene,
-  MeshBuilder,
-  StandardMaterial,
   Color3,
+  MeshBuilder,
+  Scene,
+  StandardMaterial,
   Vector3,
-} from "@babylonjs/core";
+} from '@babylonjs/core';
 
 export function createTestLevel(scene: Scene): void {
-  const floorMat = new StandardMaterial("floorMat", scene);
+  const floorMat = new StandardMaterial('floorMat', scene);
   // Toxic Slime floor
   floorMat.diffuseColor = new Color3(0.2, 1.0, 0.0);
   floorMat.emissiveColor = new Color3(0.05, 0.2, 0.0);
 
-  const wallMat = new StandardMaterial("wallMat", scene);
+  const wallMat = new StandardMaterial('wallMat', scene);
   // Mystic Violet walls
   wallMat.diffuseColor = new Color3(0.6, 0.36, 0.9);
   wallMat.emissiveColor = new Color3(0.1, 0.05, 0.2);
 
   const floor = MeshBuilder.CreateGround(
-    "floor",
+    'floor',
     { width: 20, height: 20 },
     scene,
   );
@@ -43,22 +43,22 @@ export function createTestLevel(scene: Scene): void {
     return wall;
   };
 
-  createWall("wall_n", 0, 10, 1.5, 20, 3, 0.4);
-  createWall("wall_s", 0, -10, 1.5, 20, 3, 0.4);
-  createWall("wall_e", 10, 0, 1.5, 0.4, 3, 20);
-  createWall("wall_w", -10, 0, 1.5, 0.4, 3, 20);
+  createWall('wall_n', 0, 10, 1.5, 20, 3, 0.4);
+  createWall('wall_s', 0, -10, 1.5, 20, 3, 0.4);
+  createWall('wall_e', 10, 0, 1.5, 0.4, 3, 20);
+  createWall('wall_w', -10, 0, 1.5, 0.4, 3, 20);
 
-  createWall("obstacle_1", 3, 3, 1.5, 2, 3, 0.4);
-  createWall("obstacle_2", -4, -2, 1.5, 3, 3, 0.4, Math.PI / 4);
-  createWall("obstacle_3", 5, -5, 1.5, 2, 3, 0.4);
+  createWall('obstacle_1', 3, 3, 1.5, 2, 3, 0.4);
+  createWall('obstacle_2', -4, -2, 1.5, 3, 3, 0.4, Math.PI / 4);
+  createWall('obstacle_3', 5, -5, 1.5, 2, 3, 0.4);
 
-  const pillarMat = new StandardMaterial("pillarMat", scene);
+  const pillarMat = new StandardMaterial('pillarMat', scene);
   // Hot Pink pillars
   pillarMat.diffuseColor = new Color3(1.0, 0.0, 0.5);
   pillarMat.emissiveColor = new Color3(0.3, 0.0, 0.1);
 
   const pillar1 = MeshBuilder.CreateCylinder(
-    "pillar_1",
+    'pillar_1',
     { height: 3, diameter: 1 },
     scene,
   );
@@ -67,7 +67,7 @@ export function createTestLevel(scene: Scene): void {
   pillar1.checkCollisions = true;
 
   const pillar2 = MeshBuilder.CreateCylinder(
-    "pillar_2",
+    'pillar_2',
     { height: 3, diameter: 1 },
     scene,
   );

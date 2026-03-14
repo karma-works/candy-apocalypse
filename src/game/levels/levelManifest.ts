@@ -1,4 +1,4 @@
-import type { LevelConfig } from "../state/gameStore";
+import type { LevelConfig } from '../state/gameStore';
 
 export interface LevelManifest {
   levels: Record<string, LevelConfig>;
@@ -8,9 +8,11 @@ export interface LevelManifest {
 let manifest: LevelManifest | null = null;
 
 export async function loadManifest(): Promise<LevelManifest> {
-  if (manifest) return manifest;
+  if (manifest) {
+    return manifest;
+  }
 
-  const response = await fetch("/assets/levels/manifest.json");
+  const response = await fetch('/assets/levels/manifest.json');
   const data: LevelManifest = await response.json();
   manifest = data;
   return manifest;

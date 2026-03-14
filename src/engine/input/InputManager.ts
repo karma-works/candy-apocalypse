@@ -1,4 +1,4 @@
-export type KeyState = "pressed" | "held" | "released" | "up";
+export type KeyState = 'pressed' | 'held' | 'released' | 'up';
 
 export class InputManager {
   private canvas: HTMLCanvasElement | null = null;
@@ -10,14 +10,14 @@ export class InputManager {
   initialize(canvas: HTMLCanvasElement): void {
     this.canvas = canvas;
 
-    window.addEventListener("keydown", this.onKeyDown);
-    window.addEventListener("keyup", this.onKeyUp);
-    canvas.addEventListener("mousedown", this.onMouseDown);
-    canvas.addEventListener("mouseup", this.onMouseUp);
-    canvas.addEventListener("mousemove", this.onMouseMove);
-    document.addEventListener("pointerlockchange", this.onPointerLockChange);
+    window.addEventListener('keydown', this.onKeyDown);
+    window.addEventListener('keyup', this.onKeyUp);
+    canvas.addEventListener('mousedown', this.onMouseDown);
+    canvas.addEventListener('mouseup', this.onMouseUp);
+    canvas.addEventListener('mousemove', this.onMouseMove);
+    document.addEventListener('pointerlockchange', this.onPointerLockChange);
 
-    canvas.addEventListener("click", () => {
+    canvas.addEventListener('click', () => {
       if (!this.pointerLocked) {
         canvas.requestPointerLock();
       }
@@ -25,24 +25,24 @@ export class InputManager {
   }
 
   private onKeyDown = (e: KeyboardEvent): void => {
-    if (!this.keyStates.has(e.code) || this.keyStates.get(e.code) === "up") {
-      this.keyStates.set(e.code, "pressed");
+    if (!this.keyStates.has(e.code) || this.keyStates.get(e.code) === 'up') {
+      this.keyStates.set(e.code, 'pressed');
     }
   };
 
   private onKeyUp = (e: KeyboardEvent): void => {
-    this.keyStates.set(e.code, "released");
+    this.keyStates.set(e.code, 'released');
   };
 
   private onMouseDown = (e: MouseEvent): void => {
     const state = this.mouseButtonStates.get(e.button);
-    if (!state || state === "up" || state === "released") {
-      this.mouseButtonStates.set(e.button, "pressed");
+    if (!state || state === 'up' || state === 'released') {
+      this.mouseButtonStates.set(e.button, 'pressed');
     }
   };
 
   private onMouseUp = (e: MouseEvent): void => {
-    this.mouseButtonStates.set(e.button, "released");
+    this.mouseButtonStates.set(e.button, 'released');
   };
 
   private onMouseMove = (e: MouseEvent): void => {
@@ -57,25 +57,25 @@ export class InputManager {
   };
 
   isMouseButtonPressed(button: number): boolean {
-    return this.mouseButtonStates.get(button) === "pressed";
+    return this.mouseButtonStates.get(button) === 'pressed';
   }
 
   isMouseButtonHeld(button: number): boolean {
     const state = this.mouseButtonStates.get(button);
-    return state === "pressed" || state === "held";
+    return state === 'pressed' || state === 'held';
   }
 
   isKeyPressed(key: string): boolean {
-    return this.keyStates.get(key) === "pressed";
+    return this.keyStates.get(key) === 'pressed';
   }
 
   isKeyHeld(key: string): boolean {
     const state = this.keyStates.get(key);
-    return state === "pressed" || state === "held";
+    return state === 'pressed' || state === 'held';
   }
 
   isKeyReleased(key: string): boolean {
-    return this.keyStates.get(key) === "released";
+    return this.keyStates.get(key) === 'released';
   }
 
   getMouseDelta(): { x: number; y: number } {
@@ -91,29 +91,29 @@ export class InputManager {
 
   update(): void {
     this.keyStates.forEach((state, key) => {
-      if (state === "pressed") {
-        this.keyStates.set(key, "held");
-      } else if (state === "released") {
-        this.keyStates.set(key, "up");
+      if (state === 'pressed') {
+        this.keyStates.set(key, 'held');
+      } else if (state === 'released') {
+        this.keyStates.set(key, 'up');
       }
     });
     this.mouseButtonStates.forEach((state, btn) => {
-      if (state === "pressed") {
-        this.mouseButtonStates.set(btn, "held");
-      } else if (state === "released") {
-        this.mouseButtonStates.set(btn, "up");
+      if (state === 'pressed') {
+        this.mouseButtonStates.set(btn, 'held');
+      } else if (state === 'released') {
+        this.mouseButtonStates.set(btn, 'up');
       }
     });
   }
 
   dispose(): void {
-    window.removeEventListener("keydown", this.onKeyDown);
-    window.removeEventListener("keyup", this.onKeyUp);
+    window.removeEventListener('keydown', this.onKeyDown);
+    window.removeEventListener('keyup', this.onKeyUp);
     if (this.canvas) {
-      this.canvas.removeEventListener("mousedown", this.onMouseDown);
-      this.canvas.removeEventListener("mouseup", this.onMouseUp);
-      this.canvas.removeEventListener("mousemove", this.onMouseMove);
+      this.canvas.removeEventListener('mousedown', this.onMouseDown);
+      this.canvas.removeEventListener('mouseup', this.onMouseUp);
+      this.canvas.removeEventListener('mousemove', this.onMouseMove);
     }
-    document.removeEventListener("pointerlockchange", this.onPointerLockChange);
+    document.removeEventListener('pointerlockchange', this.onPointerLockChange);
   }
 }

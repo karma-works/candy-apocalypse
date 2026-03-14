@@ -1,7 +1,7 @@
-import { defineConfig, devices } from "@playwright/test";
+import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: "./tests/e2e",
+  testDir: './tests/e2e',
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -13,31 +13,31 @@ export default defineConfig({
       maxDiffPixels: 100,
       maxDiffPixelRatio: 0.01,
       threshold: 0.2,
-      animations: "disabled",
+      animations: 'disabled',
     },
   },
-  reporter: [["list"], ["html", { outputFolder: "playwright-report" }]],
+  reporter: [ [ 'list' ], [ 'html', { outputFolder: 'playwright-report' } ] ],
   use: {
-    baseURL: "http://localhost:5173",
-    trace: "on-first-retry",
-    screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    baseURL: 'http://localhost:5173',
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
   },
   projects: [
     {
-      name: "chromium",
+      name: 'chromium',
       use: {
-        ...devices["Desktop Chrome"],
-        channel: "chrome",
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
         launchOptions: {
-          args: ["--use-gl=angle", "--use-angle=metal"],
+          args: [ '--use-gl=angle', '--use-angle=metal' ],
         },
       },
     },
   ],
   webServer: {
-    command: "pnpm dev",
-    url: "http://localhost:5173",
+    command: 'pnpm dev',
+    url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },

@@ -1,5 +1,5 @@
-import { Component } from "../entities/Entity";
-import { Vector3 } from "@babylonjs/core";
+import { Component } from '../entities/Entity';
+import { Vector3 } from '@babylonjs/core';
 
 export class Transform extends Component {
   position = Vector3.Zero();

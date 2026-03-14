@@ -6,17 +6,17 @@
  */
 
 type SoundName =
-  | "shoot_pistol"
-  | "shoot_shotgun"
-  | "shoot_chaingun"
-  | "shoot_chainsaw"
-  | "enemy_hurt"
-  | "enemy_death"
-  | "player_hurt"
-  | "player_death"
-  | "pickup"
-  | "weapon_switch"
-  | "menu_select";
+  | 'shoot_pistol'
+  | 'shoot_shotgun'
+  | 'shoot_chaingun'
+  | 'shoot_chainsaw'
+  | 'enemy_hurt'
+  | 'enemy_death'
+  | 'player_hurt'
+  | 'player_death'
+  | 'pickup'
+  | 'weapon_switch'
+  | 'menu_select';
 
 export class GameAudio {
   private ctx: AudioContext | null = null;
@@ -32,7 +32,7 @@ export class GameAudio {
       this.masterGain.connect(this.ctx.destination);
     }
     // Resume if suspended (browser autoplay policy)
-    if (this.ctx.state === "suspended") {
+    if (this.ctx.state === 'suspended') {
       this.ctx.resume().catch(() => undefined);
     }
     return this.ctx;
@@ -57,7 +57,9 @@ export class GameAudio {
   }
 
   play(name: SoundName | string): void {
-    if (this.isMuted) return;
+    if (this.isMuted) {
+      return;
+    }
     try {
       this.synth(name as SoundName);
     } catch {
@@ -67,39 +69,39 @@ export class GameAudio {
 
   private synth(name: SoundName): void {
     switch (name) {
-      case "shoot_pistol":
-        this.synthPistol();
-        break;
-      case "shoot_shotgun":
-        this.synthShotgun();
-        break;
-      case "shoot_chaingun":
-        this.synthChaingun();
-        break;
-      case "shoot_chainsaw":
-        this.synthChainsaw();
-        break;
-      case "enemy_hurt":
-        this.synthEnemyHurt();
-        break;
-      case "enemy_death":
-        this.synthEnemyDeath();
-        break;
-      case "player_hurt":
-        this.synthPlayerHurt();
-        break;
-      case "player_death":
-        this.synthPlayerDeath();
-        break;
-      case "pickup":
-        this.synthPickup();
-        break;
-      case "weapon_switch":
-        this.synthWeaponSwitch();
-        break;
-      case "menu_select":
-        this.synthMenuSelect();
-        break;
+    case 'shoot_pistol':
+      this.synthPistol();
+      break;
+    case 'shoot_shotgun':
+      this.synthShotgun();
+      break;
+    case 'shoot_chaingun':
+      this.synthChaingun();
+      break;
+    case 'shoot_chainsaw':
+      this.synthChainsaw();
+      break;
+    case 'enemy_hurt':
+      this.synthEnemyHurt();
+      break;
+    case 'enemy_death':
+      this.synthEnemyDeath();
+      break;
+    case 'player_hurt':
+      this.synthPlayerHurt();
+      break;
+    case 'player_death':
+      this.synthPlayerDeath();
+      break;
+    case 'pickup':
+      this.synthPickup();
+      break;
+    case 'weapon_switch':
+      this.synthWeaponSwitch();
+      break;
+    case 'menu_select':
+      this.synthMenuSelect();
+      break;
     }
   }
 
@@ -109,7 +111,7 @@ export class GameAudio {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     const now = ctx.currentTime;
-    osc.type = "sawtooth";
+    osc.type = 'sawtooth';
     osc.frequency.setValueAtTime(900, now);
     osc.frequency.exponentialRampToValueAtTime(80, now + 0.08);
     gain.gain.setValueAtTime(0.5, now);
@@ -126,7 +128,7 @@ export class GameAudio {
     const now = ctx.currentTime;
     const noise = this.makeNoise();
     const filter = ctx.createBiquadFilter();
-    filter.type = "lowpass";
+    filter.type = 'lowpass';
     filter.frequency.setValueAtTime(3500, now);
     filter.frequency.exponentialRampToValueAtTime(200, now + 0.25);
     const gain = ctx.createGain();
@@ -145,7 +147,7 @@ export class GameAudio {
     const now = ctx.currentTime;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = "square";
+    osc.type = 'square';
     osc.frequency.value = 280;
     gain.gain.setValueAtTime(0.3, now);
     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
@@ -163,9 +165,9 @@ export class GameAudio {
     const lfo = ctx.createOscillator();
     const lfoGain = ctx.createGain();
     const gain = ctx.createGain();
-    osc.type = "sawtooth";
+    osc.type = 'sawtooth';
     osc.frequency.value = 80;
-    lfo.type = "sine";
+    lfo.type = 'sine';
     lfo.frequency.value = 20;
     lfoGain.gain.value = 15;
     lfo.connect(lfoGain);
@@ -186,7 +188,7 @@ export class GameAudio {
     const now = ctx.currentTime;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = "sine";
+    osc.type = 'sine';
     osc.frequency.setValueAtTime(400, now);
     osc.frequency.exponentialRampToValueAtTime(150, now + 0.15);
     gain.gain.setValueAtTime(0.3, now);
@@ -215,7 +217,7 @@ export class GameAudio {
     // Descending tone
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = "sawtooth";
+    osc.type = 'sawtooth';
     osc.frequency.setValueAtTime(600, now);
     osc.frequency.exponentialRampToValueAtTime(30, now + 0.4);
     gain.gain.setValueAtTime(0.3, now);
@@ -232,7 +234,7 @@ export class GameAudio {
     const now = ctx.currentTime;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = "sine";
+    osc.type = 'sine';
     osc.frequency.setValueAtTime(200, now);
     osc.frequency.exponentialRampToValueAtTime(60, now + 0.12);
     gain.gain.setValueAtTime(0.6, now);
@@ -249,7 +251,7 @@ export class GameAudio {
     const now = ctx.currentTime;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = "sawtooth";
+    osc.type = 'sawtooth';
     osc.frequency.setValueAtTime(300, now);
     osc.frequency.exponentialRampToValueAtTime(20, now + 0.8);
     gain.gain.setValueAtTime(0.5, now);
@@ -264,12 +266,12 @@ export class GameAudio {
   private synthPickup(): void {
     const ctx = this.getCtx();
     const now = ctx.currentTime;
-    const notes = [261.6, 329.6, 392, 523.3];
+    const notes = [ 261.6, 329.6, 392, 523.3 ];
     notes.forEach((freq, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       const t = now + i * 0.06;
-      osc.type = "triangle";
+      osc.type = 'triangle';
       osc.frequency.value = freq;
       gain.gain.setValueAtTime(0.25, t);
       gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
@@ -286,7 +288,7 @@ export class GameAudio {
     const now = ctx.currentTime;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = "square";
+    osc.type = 'square';
     osc.frequency.value = 500;
     gain.gain.setValueAtTime(0.2, now);
     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
@@ -302,7 +304,7 @@ export class GameAudio {
     const now = ctx.currentTime;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = "sine";
+    osc.type = 'sine';
     osc.frequency.setValueAtTime(700, now);
     osc.frequency.exponentialRampToValueAtTime(1000, now + 0.1);
     gain.gain.setValueAtTime(0.3, now);
@@ -322,12 +324,16 @@ export class GameAudio {
 
   mute(): void {
     this.isMuted = true;
-    if (this.masterGain) this.masterGain.gain.value = 0;
+    if (this.masterGain) {
+      this.masterGain.gain.value = 0;
+    }
   }
 
   unmute(): void {
     this.isMuted = false;
-    if (this.masterGain) this.masterGain.gain.value = this.sfxVolume;
+    if (this.masterGain) {
+      this.masterGain.gain.value = this.sfxVolume;
+    }
   }
 
   toggleMute(): void {

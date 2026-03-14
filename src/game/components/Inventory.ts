@@ -1,4 +1,4 @@
-import { Component } from "../entities/Entity";
+import { Component } from '../entities/Entity';
 
 export interface WeaponSlot {
   type: string;
@@ -22,7 +22,9 @@ export class Inventory extends Component {
   }
 
   getCurrentWeapon(): WeaponSlot | undefined {
-    if (!this.currentWeapon) return undefined;
+    if (!this.currentWeapon) {
+      return undefined;
+    }
     return this.weapons.get(this.currentWeapon);
   }
 

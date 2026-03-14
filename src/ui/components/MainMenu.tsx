@@ -1,9 +1,9 @@
-import { useGameStore } from "../../game/state/gameStore";
-import { useState } from "react";
-import "./MainMenu.css";
+import { useGameStore } from '../../game/state/gameStore';
+import { useState } from 'react';
+import './MainMenu.css';
 
 export function MainMenu() {
-  const [isVisible, setIsVisible] = useState(true);
+  const [ isVisible, setIsVisible ] = useState(true);
   const { startGame, setPlaying, reset } = useGameStore();
 
   const handleStart = () => {
@@ -13,7 +13,9 @@ export function MainMenu() {
     setPlaying(true);
   };
 
-  if (!isVisible) return null;
+  if (!isVisible) {
+    return null;
+  }
 
   return (
     <div className="main-menu">

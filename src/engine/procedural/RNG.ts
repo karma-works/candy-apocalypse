@@ -10,10 +10,10 @@ export class RNG {
   }
 
   next(): number {
-    this.s = (this.s + 0x6d2b79f5) >>> 0;
-    let t = Math.imul(this.s ^ (this.s >>> 15), 1 | this.s);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    this.s = this.s + 0x6d2b79f5 >>> 0;
+    let t = Math.imul(this.s ^ this.s >>> 15, 1 | this.s);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
   }
 
   nextInt(max: number): number {
@@ -29,10 +29,10 @@ export class RNG {
   }
 
   shuffle<T>(arr: T[]): T[] {
-    const out = [...arr];
+    const out = [ ...arr ];
     for (let i = out.length - 1; i > 0; i--) {
       const j = this.nextInt(i + 1);
-      [out[i], out[j]] = [out[j], out[i]];
+      [ out[i], out[j] ] = [ out[j], out[i] ];
     }
     return out;
   }

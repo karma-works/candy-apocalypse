@@ -1,19 +1,19 @@
-import { Entity } from "./Entity";
-import { Transform } from "../components/Transform";
-import { Health } from "../components/Health";
-import { EnemyAI } from "../components/EnemyAI";
+import { Entity } from './Entity';
+import { Transform } from '../components/Transform';
+import { Health } from '../components/Health';
+import { EnemyAI } from '../components/EnemyAI';
 import {
-  Vector3,
-  Scene,
-  MeshBuilder,
-  StandardMaterial,
   Color3,
   Mesh,
-} from "@babylonjs/core";
-import type { Player } from "./Player";
-import { TextureManager } from "../../engine/assets/TextureManager";
+  MeshBuilder,
+  Scene,
+  StandardMaterial,
+  Vector3,
+} from '@babylonjs/core';
+import type { Player } from './Player';
+import { TextureManager } from '../../engine/assets/TextureManager';
 
-export type EnemyType = "demon" | "imp" | "cacodemon";
+export type EnemyType = 'demon' | 'imp' | 'cacodemon';
 
 export class Enemy extends Entity {
   transform: Transform;
@@ -24,7 +24,7 @@ export class Enemy extends Entity {
   /** Height of the billboard plane — used to offset Y so bottom sits on ground */
   private meshHeight = 1.5;
 
-  constructor(id: string, enemyType: EnemyType = "demon") {
+  constructor(id: string, enemyType: EnemyType = 'demon') {
     super(id, `Enemy_${enemyType}`);
 
     this.enemyType = enemyType;
@@ -46,8 +46,8 @@ export class Enemy extends Entity {
     };
 
     const damageMap: Record<EnemyType, number> = {
-      demon: 15,   // melee — only matters when right on top of player
-      imp: 8,      // ranged — fires repeatedly from a distance
+      demon: 15, // melee — only matters when right on top of player
+      imp: 8, // ranged — fires repeatedly from a distance
       cacodemon: 20, // ranged — slow heavy shots
     };
 
@@ -55,21 +55,21 @@ export class Enemy extends Entity {
     this.ai.attackDamage = damageMap[enemyType];
 
     // ── Attack type configuration ──────────────────────────────
-    if (enemyType === "demon") {
+    if (enemyType === 'demon') {
       // Demon: pure melee charger — must be right on top of you to deal damage
-      this.ai.attackType = "melee";
+      this.ai.attackType = 'melee';
       this.ai.attackRange = 1.8;
       this.ai.attackCooldown = 0.8;
-    } else if (enemyType === "imp") {
+    } else if (enemyType === 'imp') {
       // Imp: ranged shooter — fires fireball-like shots from up to 10 units
-      this.ai.attackType = "ranged";
-      this.ai.attackRange = 1.5;     // won't advance closer than this
+      this.ai.attackType = 'ranged';
+      this.ai.attackRange = 1.5; // won't advance closer than this
       this.ai.rangedAttackRange = 10;
       this.ai.rangedAccuracy = 0.70;
       this.ai.attackCooldown = 1.2;
-    } else if (enemyType === "cacodemon") {
+    } else if (enemyType === 'cacodemon') {
       // Cacodemon: slow heavy ranged — long range, lower accuracy, big hits
-      this.ai.attackType = "ranged";
+      this.ai.attackType = 'ranged';
       this.ai.attackRange = 2.0;
       this.ai.rangedAttackRange = 14;
       this.ai.rangedAccuracy = 0.55;
@@ -117,9 +117,15 @@ export class Enemy extends Entity {
       // The product design says "happy_imp", "cheerful_zombie", "party_demon"
       // or similar. Let's map our generic IDs to the actual SVG names if applicable.
       let texName = `enemy-${this.enemyType}`;
-      if (this.enemyType === "demon") texName = "party_demon";
-      if (this.enemyType === "imp") texName = "happy_imp";
-      if (this.enemyType === "cacodemon") texName = "disco_cacodemon";
+      if (this.enemyType === 'demon') {
+        texName = 'party_demon';
+      }
+      if (this.enemyType === 'imp') {
+        texName = 'happy_imp';
+      }
+      if (this.enemyType === 'cacodemon') {
+        texName = 'disco_cacodemon';
+      }
 
       const texture = textureManager.getTexture(texName);
       if (texture) {
