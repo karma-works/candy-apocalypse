@@ -204,35 +204,39 @@ export class WeaponSystem extends Component {
     forward.y += spreadY;
     forward.normalize();
 
-    if (this.currentWeapon!.fireType === "projectile") {
-      this.fireProjectile(forward);
-    } else {
-      // Hitscan: pick ANY pickable enabled mesh. Do NOT require checkCollisions —
-      // enemy billboard planes are extremely thin and only register via isPickable.
-      const ray = new Ray(
-        this.camera.position,
-        forward,
-        this.currentWeapon!.range,
-      );
-      const hit = this.scene.pickWithRay(ray, (mesh) => {
-        return mesh.isPickable && mesh.isEnabled();
-      });
-
-      if (hit?.hit && hit.pickedMesh && hit.pickedPoint) {
-        this.onHit(hit.pickedMesh, hit.pickedPoint, hit.distance ?? 0);
-      } else {
-        // Always give visual feedback — show impact at max range
-        const impactPos = this.camera.position.add(
-          forward.scale(Math.min(this.currentWeapon!.range, 20)),
-        );
-        this.effects.playPop(impactPos);
-      }
-    }
-
-    // Signal muzzle flash to the HUD
+    // Signal muzzle flash to the HUD — dispatch before effects so it always fires
     window.dispatchEvent(
       new CustomEvent("weaponFired", { detail: { weapon: this.currentWeapon!.type } }),
     );
+
+    try {
+      if (this.currentWeapon!.fireType === "projectile") {
+        this.fireProjectile(forward);
+      } else {
+        // Hitscan: pick ANY pickable enabled mesh. Do NOT require checkCollisions —
+        // enemy billboard planes are extremely thin and only register via isPickable.
+        const ray = new Ray(
+          this.camera.position,
+          forward,
+          this.currentWeapon!.range,
+        );
+        const hit = this.scene.pickWithRay(ray, (mesh) => {
+          return mesh.isPickable && mesh.isEnabled();
+        });
+
+        if (hit?.hit && hit.pickedMesh && hit.pickedPoint) {
+          this.onHit(hit.pickedMesh, hit.pickedPoint, hit.distance ?? 0);
+        } else {
+          // Always give visual feedback — show impact at max range
+          const impactPos = this.camera.position.add(
+            forward.scale(Math.min(this.currentWeapon!.range, 20)),
+          );
+          this.effects.playPop(impactPos);
+        }
+      }
+    } catch (e) {
+      console.warn("WeaponSystem: fire effect error", e);
+    }
 
     return true;
   }

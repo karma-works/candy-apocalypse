@@ -33,6 +33,8 @@ const COMBO_LABELS: Array<{ minCombo: number; label: string }> = [
 
 export interface GameState {
   currentLevel: string | null;
+  /** 0–9 = procedural level index; -1 = legacy test level via manifest */
+  proceduralLevelIndex: number;
   isLoading: boolean;
   isPaused: boolean;
   isPlaying: boolean;
@@ -48,6 +50,7 @@ export interface GameState {
   lastKillTime: number;
 
   setCurrentLevel: (level: string | null) => void;
+  setProceduralLevelIndex: (index: number) => void;
   setLoading: (loading: boolean) => void;
   setPaused: (paused: boolean) => void;
   setPlaying: (playing: boolean) => void;
@@ -69,6 +72,7 @@ export interface GameState {
 
 const initialState = {
   currentLevel: null,
+  proceduralLevelIndex: 0,
   isLoading: false,
   isPaused: false,
   isPlaying: false,
@@ -92,6 +96,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   ...initialState,
 
   setCurrentLevel: (level) => set({ currentLevel: level }),
+  setProceduralLevelIndex: (index) => set({ proceduralLevelIndex: index }),
   setLoading: (loading) => set({ isLoading: loading }),
   setPaused: (paused) => set({ isPaused: paused }),
   setPlaying: (playing) => set({ isPlaying: playing }),
@@ -158,6 +163,18 @@ export const useGameStore = create<GameState>((set, get) => ({
     set({ isVictory: victory, isPlaying: !victory });
     if (victory) {
       document.exitPointerLock?.();
+    }
+  },
+
+  nextLevel: () => {
+    const { proceduralLevelIndex } = get();
+    if (proceduralLevelIndex >= 9) {
+      // Last level — show victory screen
+      set({ isVictory: true, isPlaying: false });
+      document.exitPointerLock?.();
+    } else {
+      // Advance to next level: reset all gameplay state, keep going
+      set({ ...initialState, proceduralLevelIndex: proceduralLevelIndex + 1, isPlaying: true });
     }
   },
 

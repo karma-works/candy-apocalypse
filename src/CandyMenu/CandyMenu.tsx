@@ -1,13 +1,28 @@
 import "./CandyMenu.css";
 import { useState } from "react";
+import { PROCEDURAL_LEVELS } from "../engine/procedural/ProceduralLevels";
 
 interface CandyMenuProps {
-  onStartGame: () => void;
+  onSelectLevel: (index: number) => void;
   onExplore: () => void;
 }
 
-export default function CandyMenu({ onStartGame, onExplore }: CandyMenuProps) {
+export default function CandyMenu({ onSelectLevel, onExplore }: CandyMenuProps) {
   const [showCredits, setShowCredits] = useState(false);
+
+  // Gradient stops cycling through the Candy Apocalypse palette per level
+  const levelColors = [
+    "linear-gradient(135deg, #32FF00 0%, #00D4FF 100%)",
+    "linear-gradient(135deg, #00D4FF 0%, #9B5DE5 100%)",
+    "linear-gradient(135deg, #9B5DE5 0%, #FFB7C5 100%)",
+    "linear-gradient(135deg, #FFB7C5 0%, #FFE135 100%)",
+    "linear-gradient(135deg, #FFE135 0%, #FF6B35 100%)",
+    "linear-gradient(135deg, #FF6B35 0%, #FF0044 100%)",
+    "linear-gradient(135deg, #FF0044 0%, #9B5DE5 100%)",
+    "linear-gradient(135deg, #9B5DE5 0%, #FF0044 100%)",
+    "linear-gradient(135deg, #FF0044 0%, #1A1A2E 100%)",
+    "linear-gradient(135deg, #1A1A2E 0%, #FF0044 100%)",
+  ];
 
   return (
     <div className="candy-menu-container">
@@ -27,15 +42,25 @@ export default function CandyMenu({ onStartGame, onExplore }: CandyMenuProps) {
 
         {!showCredits ? (
           <>
-            <div className="candy-menu-buttons">
-              <button
-                className="candy-button candy-button-primary"
-                onClick={onStartGame}
-              >
-                <span className="candy-button-text">🎮 START GAME</span>
-                <span className="candy-button-effect">💥</span>
-              </button>
+            <p className="candy-select-label">— SELECT LEVEL —</p>
 
+            <div className="candy-level-grid">
+              {PROCEDURAL_LEVELS.map((meta, i) => (
+                <button
+                  key={i}
+                  className="candy-level-button"
+                  style={{ background: levelColors[i] }}
+                  onClick={() => onSelectLevel(i)}
+                  title={meta.description}
+                >
+                  <span className="candy-level-number">{i + 1}</span>
+                  <span className="candy-level-label">{meta.label}</span>
+                  <span className="candy-level-desc">{meta.description}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="candy-menu-buttons candy-menu-buttons--secondary">
               <button
                 className="candy-button candy-button-secondary"
                 onClick={onExplore}
@@ -54,10 +79,10 @@ export default function CandyMenu({ onStartGame, onExplore }: CandyMenuProps) {
 
             <div className="candy-footer">
               <p className="candy-disclaimer">
-                🎨 SVG Graphics Mode Active • Using DOOM 1 Shareware
+                🎨 SVG Graphics Mode Active • Procedural Levels
               </p>
               <p className="candy-instruction">
-                Click to start • WASD to move • Mouse to aim • Click to fire
+                WASD to move • Mouse to aim • Click to fire • Find the exit portal
               </p>
             </div>
           </>
@@ -89,48 +114,13 @@ export default function CandyMenu({ onStartGame, onExplore }: CandyMenuProps) {
               <div className="candy-colors">
                 <h3>Candy Apocalypse Palette:</h3>
                 <div className="candy-palette">
-                  <div
-                    className="candy-color"
-                    style={{ background: "#00D4FF" }}
-                  >
-                    <span>Sky Pop</span>
-                  </div>
-                  <div
-                    className="candy-color"
-                    style={{ background: "#FFB7C5" }}
-                  >
-                    <span>Cotton Cloud</span>
-                  </div>
-                  <div
-                    className="candy-color"
-                    style={{ background: "#FFE135" }}
-                  >
-                    <span>Solar Burst</span>
-                  </div>
-                  <div
-                    className="candy-color"
-                    style={{ background: "#32FF00" }}
-                  >
-                    <span>Toxic Lime</span>
-                  </div>
-                  <div
-                    className="candy-color"
-                    style={{ background: "#FF6B35" }}
-                  >
-                    <span>Rage Orange</span>
-                  </div>
-                  <div
-                    className="candy-color"
-                    style={{ background: "#9B5DE5" }}
-                  >
-                    <span>Mystic Violet</span>
-                  </div>
-                  <div
-                    className="candy-color"
-                    style={{ background: "#FF0044" }}
-                  >
-                    <span>Cherry Bomb</span>
-                  </div>
+                  <div className="candy-color" style={{ background: "#00D4FF" }}><span>Sky Pop</span></div>
+                  <div className="candy-color" style={{ background: "#FFB7C5" }}><span>Cotton Cloud</span></div>
+                  <div className="candy-color" style={{ background: "#FFE135" }}><span>Solar Burst</span></div>
+                  <div className="candy-color" style={{ background: "#32FF00" }}><span>Toxic Lime</span></div>
+                  <div className="candy-color" style={{ background: "#FF6B35" }}><span>Rage Orange</span></div>
+                  <div className="candy-color" style={{ background: "#9B5DE5" }}><span>Mystic Violet</span></div>
+                  <div className="candy-color" style={{ background: "#FF0044" }}><span>Cherry Bomb</span></div>
                 </div>
               </div>
 

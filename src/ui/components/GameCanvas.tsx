@@ -11,6 +11,9 @@ import { InputManager } from "../../engine/input/InputManager";
 import { AssetLoader } from "../../engine/assets/AssetLoader";
 import { TextureManager } from "../../engine/assets/TextureManager";
 import { createTestLevel } from "../../engine/assets/ProceduralLevel";
+import { generateLevel } from "../../engine/procedural/LevelLayout";
+import { buildLevel } from "../../engine/procedural/LevelBuilder";
+import { PROCEDURAL_LEVELS } from "../../engine/procedural/ProceduralLevels";
 import { initializeGameAudio } from "../../engine/audio/GameAudio";
 import { EntityManager } from "../../game/EntityManager";
 import { Player } from "../../game/entities/Player";
@@ -34,8 +37,14 @@ export function GameCanvas() {
   const playerRef = useRef<Player | null>(null);
 
   const [isReady, setIsReady] = useState(false);
-  const { currentLevel, setLoading, setCurrentLevel, startGame, setPlaying } =
-    useGameStore();
+  const {
+    currentLevel,
+    proceduralLevelIndex,
+    setLoading,
+    setCurrentLevel,
+    startGame,
+    setPlaying,
+  } = useGameStore();
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -83,6 +92,12 @@ export function GameCanvas() {
 
     initializeGameAudio();
 
+    canvas.addEventListener("click", () => {
+      const { isPaused, isPlaying } = useGameStore.getState();
+      if (!isPaused && isPlaying && playerRef.current) {
+        playerRef.current.fire();
+      }
+    });
 
     let lastTime = performance.now();
 
@@ -140,64 +155,81 @@ export function GameCanvas() {
       setLoading(true);
 
       try {
-        // Load SVG spritemaps first
         if (textureManagerRef.current) {
-          await textureManagerRef.current.loadSpritemap("/assets/spritemap.svg");
-        }
-
-        const manifest = await loadManifest();
-        const levelId = currentLevel || getDefaultLevel(manifest);
-        const config = getLevelConfig(levelId, manifest);
-
-        if (!config) {
-          console.error(`Level ${levelId} not found`);
-          return;
+          await textureManagerRef.current.loadSpritemap(
+            "/assets/spritemap.svg",
+          );
         }
 
         const scene = sceneRef.current!;
         const entityManager = entityManagerRef.current!;
 
         scene.meshes.forEach((mesh) => {
-          if (mesh.name !== "fpsCamera") {
-            mesh.dispose();
-          }
+          if (mesh.name !== "fpsCamera") mesh.dispose();
         });
         entityManager.clear();
 
-        try {
-          const meshes = await loaderRef.current!.loadLevel(config.model);
-          meshes.forEach((mesh) => {
-            mesh.checkCollisions = true;
-          });
-        } catch (loadError) {
-          console.warn("GLB load failed, using procedural level:", loadError);
-          createTestLevel(scene);
-        }
+        let spawns: import("../../game/state/gameStore").SpawnPoint[];
 
-        if (config.ambient?.fog) {
-          const fog = config.ambient.fog;
-          scene.fogMode =
-            fog.mode === "linear"
-              ? Scene.FOGMODE_LINEAR
-              : fog.mode === "exp"
-                ? Scene.FOGMODE_EXP
-                : Scene.FOGMODE_NONE;
+        if (proceduralLevelIndex >= 0) {
+          // ── Procedural path ────────────────────────────────────────────
+          const meta = PROCEDURAL_LEVELS[proceduralLevelIndex];
+          const generated = generateLevel(meta.params);
+          buildLevel(generated, scene);
 
-          if (fog.start !== undefined) scene.fogStart = fog.start;
-          if (fog.end !== undefined) scene.fogEnd = fog.end;
-          if (fog.density !== undefined) scene.fogDensity = fog.density;
-          if (fog.color) {
-            scene.fogColor = new Color3(
-              fog.color[0],
-              fog.color[1],
-              fog.color[2],
-            );
+          // Fog scaled by level length
+          scene.fogMode = Scene.FOGMODE_LINEAR;
+          scene.fogStart = 10 + meta.params.length * 3;
+          scene.fogEnd = 30 + meta.params.length * 8;
+          scene.fogColor = new Color3(0.1, 0.1, 0.15);
+
+          spawns = generated.spawns;
+        } else {
+          // ── Legacy test level path (accessed via ?level=test) ──────────
+          const manifest = await loadManifest();
+          const levelId = currentLevel || getDefaultLevel(manifest);
+          const config = getLevelConfig(levelId, manifest);
+
+          if (!config) {
+            console.error(`Level ${levelId} not found in manifest`);
+            return;
           }
+
+          try {
+            const meshes = await loaderRef.current!.loadLevel(config.model);
+            meshes.forEach((mesh) => {
+              mesh.checkCollisions = true;
+            });
+          } catch {
+            console.warn("GLB load failed, falling back to createTestLevel");
+            createTestLevel(scene);
+          }
+
+          if (config.ambient?.fog) {
+            const fog = config.ambient.fog;
+            scene.fogMode =
+              fog.mode === "linear"
+                ? Scene.FOGMODE_LINEAR
+                : fog.mode === "exp"
+                  ? Scene.FOGMODE_EXP
+                  : Scene.FOGMODE_NONE;
+            if (fog.start !== undefined) scene.fogStart = fog.start;
+            if (fog.end !== undefined) scene.fogEnd = fog.end;
+            if (fog.density !== undefined) scene.fogDensity = fog.density;
+            if (fog.color)
+              scene.fogColor = new Color3(
+                fog.color[0],
+                fog.color[1],
+                fog.color[2],
+              );
+          }
+
+          spawns = config.spawns;
+          setCurrentLevel(levelId);
         }
 
-        config.spawns.forEach((spawn, index) => {
+        spawns.forEach((spawn, index) => {
           const entity = entityManager.spawnEntity(spawn, index);
-
           if (entity instanceof Player) {
             playerRef.current = entity;
             if (cameraRef.current && inputRef.current) {
@@ -206,7 +238,6 @@ export function GameCanvas() {
           }
         });
 
-        setCurrentLevel(levelId);
         startGame();
         setPlaying(true);
       } catch (error) {
@@ -220,6 +251,7 @@ export function GameCanvas() {
   }, [
     isReady,
     currentLevel,
+    proceduralLevelIndex,
     setLoading,
     setCurrentLevel,
     startGame,
@@ -257,19 +289,6 @@ export function GameCanvas() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-  useEffect(() => {
-    const handleMouseDown = (e: MouseEvent) => {
-      if (e.button === 0) {
-        const { isPaused, isPlaying } = useGameStore.getState();
-        if (!isPaused && isPlaying) {
-          playerRef.current?.fire();
-        }
-      }
-    };
-
-    window.addEventListener("mousedown", handleMouseDown);
-    return () => window.removeEventListener("mousedown", handleMouseDown);
   }, []);
 
   useEffect(() => {
@@ -312,8 +331,10 @@ export function GameCanvas() {
             return;
           }
           const fade = 1 - elapsed / 200;
-          cam.position.x = originPos.x + (Math.random() - 0.5) * intensity * fade;
-          cam.position.z = originPos.z + (Math.random() - 0.5) * intensity * fade;
+          cam.position.x =
+            originPos.x + (Math.random() - 0.5) * intensity * fade;
+          cam.position.z =
+            originPos.z + (Math.random() - 0.5) * intensity * fade;
         }, 16);
       } else {
         prevHealth = state.health;
