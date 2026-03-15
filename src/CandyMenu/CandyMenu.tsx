@@ -4,10 +4,9 @@ import { PROCEDURAL_LEVELS } from '../engine/procedural/ProceduralLevels';
 
 interface CandyMenuProps {
   onSelectLevel: (index: number) => void;
-  onExplore: () => void;
 }
 
-export default function CandyMenu({ onSelectLevel, onExplore }: CandyMenuProps) {
+export default function CandyMenu({ onSelectLevel }: CandyMenuProps) {
   const [ showCredits, setShowCredits ] = useState(false);
 
   // Gradient stops cycling through the Candy Apocalypse palette per level
@@ -37,7 +36,7 @@ export default function CandyMenu({ onSelectLevel, onExplore }: CandyMenuProps) 
         </h1>
 
         <p className="candy-tagline">
-          What if DOOM was a Saturday Morning Cartoon?
+          Cavities are the least of your problems!
         </p>
 
         {!showCredits ?
@@ -61,14 +60,6 @@ export default function CandyMenu({ onSelectLevel, onExplore }: CandyMenuProps) 
             </div>
 
             <div className="candy-menu-buttons candy-menu-buttons--secondary">
-              <button
-                className="candy-button candy-button-secondary"
-                onClick={onExplore}
-              >
-                <span className="candy-button-text">🔍 EXPLORE WAD</span>
-                <span className="candy-button-effect">✨</span>
-              </button>
-
               <button
                 className="candy-button candy-button-tertiary"
                 onClick={() => setShowCredits(true)}

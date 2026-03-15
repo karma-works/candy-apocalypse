@@ -5,6 +5,7 @@ export class InputManager {
   private keyStates: Map<string, KeyState> = new Map();
   private mouseButtonStates: Map<number, KeyState> = new Map();
   private mouseDelta = { x: 0, y: 0 };
+  private scrollDelta = 0;
   private pointerLocked = false;
 
   initialize(canvas: HTMLCanvasElement): void {
@@ -15,6 +16,7 @@ export class InputManager {
     canvas.addEventListener('mousedown', this.onMouseDown);
     canvas.addEventListener('mouseup', this.onMouseUp);
     canvas.addEventListener('mousemove', this.onMouseMove);
+    canvas.addEventListener('wheel', this.onWheel, { passive: true });
     document.addEventListener('pointerlockchange', this.onPointerLockChange);
 
     canvas.addEventListener('click', () => {
@@ -52,6 +54,10 @@ export class InputManager {
     }
   };
 
+  private onWheel = (e: WheelEvent): void => {
+    this.scrollDelta += e.deltaY;
+  };
+
   private onPointerLockChange = (): void => {
     this.pointerLocked = document.pointerLockElement === this.canvas;
   };
@@ -85,6 +91,13 @@ export class InputManager {
     return delta;
   }
 
+  /** Returns accumulated scroll direction: +1 = scroll down, -1 = scroll up, 0 = none. Resets after read. */
+  getScrollDelta(): number {
+    const delta = this.scrollDelta;
+    this.scrollDelta = 0;
+    return delta;
+  }
+
   isPointerLocked(): boolean {
     return this.pointerLocked;
   }
@@ -113,6 +126,7 @@ export class InputManager {
       this.canvas.removeEventListener('mousedown', this.onMouseDown);
       this.canvas.removeEventListener('mouseup', this.onMouseUp);
       this.canvas.removeEventListener('mousemove', this.onMouseMove);
+      this.canvas.removeEventListener('wheel', this.onWheel);
     }
     document.removeEventListener('pointerlockchange', this.onPointerLockChange);
   }

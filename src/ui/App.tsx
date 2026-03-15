@@ -36,9 +36,6 @@ export function App() {
           onSelectLevel={(index) => {
             useGameStore.getState().startLevel(index);
           }}
-          onExplore={() => {
-            console.log('Explore WAD clicked');
-          }}
         />
       }
       {isPlaying &&

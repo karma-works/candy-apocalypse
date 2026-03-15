@@ -146,6 +146,17 @@ export function GameCanvas() {
       if (playerRef.current) {
         playerRef.current.update(deltaTime);
 
+        const scroll = inputManager.getScrollDelta();
+        if (scroll !== 0 && playerRef.current) {
+          const weapons = [...playerRef.current.inventory.weapons.keys()];
+          const current = playerRef.current.inventory.currentWeapon;
+          const idx = weapons.indexOf(current ?? '');
+          if (idx !== -1) {
+            const next = (idx + (scroll > 0 ? 1 : -1) + weapons.length) % weapons.length;
+            playerRef.current.switchWeapon(weapons[next]);
+          }
+        }
+
         // Check pickup collection
         if (entityManagerRef.current && cameraRef.current) {
           const playerPos = cameraRef.current.position;
@@ -210,7 +221,9 @@ export function GameCanvas() {
 
     let cancelled = false;
     const loadLevel = async () => {
-      console.log(`[SPAWN DEBUG] loadLevel START — proceduralLevelIndex=${proceduralLevelIndex}`);
+      console.log(
+        `[SPAWN DEBUG] loadLevel START — proceduralLevelIndex=${proceduralLevelIndex}`,
+      );
       setLoading(true);
 
       try {
@@ -221,7 +234,9 @@ export function GameCanvas() {
         }
 
         if (cancelled) {
-          console.log(`[SPAWN DEBUG] loadLevel CANCELLED — proceduralLevelIndex=${proceduralLevelIndex}`);
+          console.log(
+            `[SPAWN DEBUG] loadLevel CANCELLED — proceduralLevelIndex=${proceduralLevelIndex}`,
+          );
           return;
         }
 
@@ -241,7 +256,9 @@ export function GameCanvas() {
         bonusExitSpawnedRef.current = false;
 
         if (cameraRef.current) {
-          console.log(`[SPAWN DEBUG] camera before safety-move: ${JSON.stringify(cameraRef.current.position)}`);
+          console.log(
+            `[SPAWN DEBUG] camera before safety-move: ${JSON.stringify(cameraRef.current.position)}`,
+          );
           cameraRef.current.position.set(0, 100, 0);
         }
 
@@ -250,8 +267,11 @@ export function GameCanvas() {
         if (proceduralLevelIndex >= 0) {
           const meta = PROCEDURAL_LEVELS[proceduralLevelIndex];
           const generated = generateLevel(meta.params);
-          const playerSpawn = generated.spawns.find(s => s.type === "player");
-          console.log(`[SPAWN DEBUG] level ${proceduralLevelIndex} generated player spawn:`, playerSpawn?.position);
+          const playerSpawn = generated.spawns.find((s) => s.type === "player");
+          console.log(
+            `[SPAWN DEBUG] level ${proceduralLevelIndex} generated player spawn:`,
+            playerSpawn?.position,
+          );
           const built = buildLevel(generated, scene);
 
           if (cloudCeilingRef.current) {
@@ -339,22 +359,38 @@ export function GameCanvas() {
                 number,
               ];
               if (spawnPos) {
-                console.log(`[SPAWN DEBUG] camera BEFORE setPosition:`, JSON.stringify(cameraRef.current.position));
-                console.log(`[SPAWN DEBUG] cameraDirection BEFORE:`, JSON.stringify(cameraRef.current.cameraDirection));
+                console.log(
+                  `[SPAWN DEBUG] camera BEFORE setPosition:`,
+                  JSON.stringify(cameraRef.current.position),
+                );
+                console.log(
+                  `[SPAWN DEBUG] cameraDirection BEFORE:`,
+                  JSON.stringify(cameraRef.current.cameraDirection),
+                );
                 const cam = cameraRef.current as any;
-                console.log(`[SPAWN DEBUG] _gravity BEFORE:`, JSON.stringify(cam._gravity));
+                console.log(
+                  `[SPAWN DEBUG] _gravity BEFORE:`,
+                  JSON.stringify(cam._gravity),
+                );
                 entity.movement.setPosition(
                   spawnPos[0],
                   spawnPos[1],
                   spawnPos[2],
                 );
-                console.log(`[SPAWN DEBUG] camera AFTER setPosition:`, JSON.stringify(cameraRef.current.position));
+                console.log(
+                  `[SPAWN DEBUG] camera AFTER setPosition:`,
+                  JSON.stringify(cameraRef.current.position),
+                );
                 setSpawnPosition(spawnPos);
               } else {
-                console.warn(`[SPAWN DEBUG] spawnPos is null/undefined for player entity!`);
+                console.warn(
+                  `[SPAWN DEBUG] spawnPos is null/undefined for player entity!`,
+                );
               }
             } else {
-              console.warn(`[SPAWN DEBUG] cameraRef or inputRef is null — setPosition SKIPPED`);
+              console.warn(
+                `[SPAWN DEBUG] cameraRef or inputRef is null — setPosition SKIPPED`,
+              );
             }
           }
         });
@@ -386,9 +422,19 @@ export function GameCanvas() {
   useEffect(() => {
     const handleResize = () => {
       engineRef.current?.resize();
+      // Ensure camera aspect ratio is updated
+      if (cameraRef.current && canvasRef.current) {
+        cameraRef.current.fov =
+          window.innerWidth / window.innerHeight > 1.6 ? 1.0 : 1.2;
+      }
     };
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    // Also handle orientation change on mobile
+    window.addEventListener("orientationchange", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+    };
   }, []);
 
   useEffect(() => {
@@ -605,8 +651,10 @@ export function GameCanvas() {
       id="game-canvas"
       ref={canvasRef}
       style={{
+        position: "absolute",
+        inset: 0,
         width: "100%",
-        height: "100vh",
+        height: "100%",
         display: "block",
         outline: "none",
       }}
