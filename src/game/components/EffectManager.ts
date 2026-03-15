@@ -4,8 +4,8 @@ import {
   Scene,
   Texture,
   Vector3,
-} from "@babylonjs/core";
-import { TextureManager } from "../../engine/assets/TextureManager";
+} from '@babylonjs/core';
+import { TextureManager } from '../../engine/assets/TextureManager';
 
 export class EffectManager {
   private scene: Scene;
@@ -69,7 +69,7 @@ export class EffectManager {
         lifeTime: 1.5,
         emitRate: 400,
       },
-      "effect-confetti",
+      'effect-confetti',
     );
   }
 
@@ -84,7 +84,7 @@ export class EffectManager {
         lifeTime: 1.2,
         emitRate: 200,
       },
-      "effect-lego",
+      'effect-lego',
     );
   }
 
@@ -99,7 +99,7 @@ export class EffectManager {
         lifeTime: 1.8,
         emitRate: 150,
       },
-      "effect-feather",
+      'effect-feather',
     );
   }
 
@@ -114,7 +114,7 @@ export class EffectManager {
         lifeTime: 1.5,
         emitRate: 300,
       },
-      "effect-confetti",
+      'effect-confetti',
     );
   }
 
@@ -128,17 +128,17 @@ export class EffectManager {
       lifeTime: number;
       emitRate: number;
     },
-    textureId: string = "effect-star",
+    textureId: string = 'effect-star',
   ) {
     const particleSystem = new ParticleSystem(
-      "particles",
+      'particles',
       options.capacity,
       this.scene,
     );
 
     const tm = TextureManager.getInstance();
     if (tm) {
-      const texture = tm.getTexture(textureId) || tm.getTexture("effect-star");
+      const texture = tm.getTexture(textureId) || tm.getTexture('effect-star');
       if (texture) {
         particleSystem.particleTexture = texture;
         particleSystem.blendMode = ParticleSystem.BLENDMODE_STANDARD;

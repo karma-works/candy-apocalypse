@@ -6,7 +6,7 @@ import {
   Effect,
   Matrix,
   Vector3,
-} from "@babylonjs/core";
+} from '@babylonjs/core';
 
 export class RainbowFogEffect {
   private postProcess: PostProcess;
@@ -30,7 +30,7 @@ export class RainbowFogEffect {
     this.colorSpeed = options.colorSpeed ?? 1;
     this.rainbowIntensity = options.rainbowIntensity ?? 0.8;
 
-    Effect.ShadersStore["RainbowFogFragmentShader"] = `
+    Effect.ShadersStore['RainbowFogFragmentShader'] = `
       precision highp float;
 
       varying vec2 vUV;
@@ -84,15 +84,15 @@ export class RainbowFogEffect {
     `;
 
     this.postProcess = new PostProcess(
-      "RainbowFog",
-      "RainbowFog",
+      'RainbowFog',
+      'RainbowFog',
       [
-        "fogStart",
-        "fogEnd",
-        "time",
-        "rainbowIntensity",
-        "viewMatrix",
-        "cameraPosition",
+        'fogStart',
+        'fogEnd',
+        'time',
+        'rainbowIntensity',
+        'viewMatrix',
+        'cameraPosition',
       ],
       null,
       1.0,
@@ -101,12 +101,12 @@ export class RainbowFogEffect {
 
     this.postProcess.onApply = (effect) => {
       this.time += 0.016 * this.colorSpeed;
-      effect.setFloat("fogStart", this.fogStart);
-      effect.setFloat("fogEnd", this.fogEnd);
-      effect.setFloat("time", this.time);
-      effect.setFloat("rainbowIntensity", this.rainbowIntensity);
-      effect.setMatrix("viewMatrix", camera.getViewMatrix());
-      effect.setVector3("cameraPosition", camera.position);
+      effect.setFloat('fogStart', this.fogStart);
+      effect.setFloat('fogEnd', this.fogEnd);
+      effect.setFloat('time', this.time);
+      effect.setFloat('rainbowIntensity', this.rainbowIntensity);
+      effect.setMatrix('viewMatrix', camera.getViewMatrix());
+      effect.setVector3('cameraPosition', camera.position);
     };
   }
 

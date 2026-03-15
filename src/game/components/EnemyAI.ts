@@ -1,9 +1,9 @@
-import { Component } from "../entities/Entity";
-import { Ray, Scene, Vector3 } from "@babylonjs/core";
-import type { Player } from "../entities/Player";
+import { Component } from '../entities/Entity';
+import { Ray, Scene, Vector3 } from '@babylonjs/core';
+import type { Player } from '../entities/Player';
 
-type AIState = "idle" | "chase" | "attack";
-export type AttackType = "melee" | "ranged";
+type AIState = 'idle' | 'chase' | 'attack';
+export type AttackType = 'melee' | 'ranged';
 
 export class EnemyAI extends Component {
   target: Player | null = null;
@@ -15,13 +15,13 @@ export class EnemyAI extends Component {
   attackDamage = 10;
   attackCooldown = 1;
 
-  attackType: AttackType = "melee";
+  attackType: AttackType = 'melee';
 
   rangedAttackRange = 12;
   rangedAccuracy = 0.65;
 
   private lastAttackTime = 0;
-  private state: AIState = "idle";
+  private state: AIState = 'idle';
   private idleTime = 0;
   private idleBobOriginY = 0;
   private idleBobInitialized = false;
@@ -50,7 +50,7 @@ export class EnemyAI extends Component {
     }
 
     if (this.target.health.isDead) {
-      this.state = "idle";
+      this.state = 'idle';
       return;
     }
 
@@ -66,34 +66,34 @@ export class EnemyAI extends Component {
     }
 
     if (!this.activated) {
-      this.state = "idle";
-    } else if (this.attackType === "melee") {
+      this.state = 'idle';
+    } else if (this.attackType === 'melee') {
       if (distance <= this.attackRange) {
-        this.state = "attack";
+        this.state = 'attack';
       } else {
-        this.state = "chase";
+        this.state = 'chase';
       }
     } else {
       if (distance <= this.rangedAttackRange && distance > this.attackRange) {
-        this.state = "attack";
+        this.state = 'attack';
       } else if (distance <= this.attackRange) {
-        this.state = "attack";
+        this.state = 'attack';
       } else {
-        this.state = "chase";
+        this.state = 'chase';
       }
     }
 
     // ── Execute state ──────────────────────────────────────────
     switch (this.state) {
-      case "idle":
-        this.doIdleBob(deltaTime);
-        break;
-      case "chase":
-        this.doChase(dx, dz, distance, deltaTime);
-        break;
-      case "attack":
-        this.tryAttack(distance);
-        break;
+    case 'idle':
+      this.doIdleBob(deltaTime);
+      break;
+    case 'chase':
+      this.doChase(dx, dz, distance, deltaTime);
+      break;
+    case 'attack':
+      this.tryAttack(distance);
+      break;
     }
   }
 
@@ -122,7 +122,7 @@ export class EnemyAI extends Component {
     }
     this.idleBobInitialized = false;
 
-    if (this.attackType === "ranged" && len <= this.rangedAttackRange) {
+    if (this.attackType === 'ranged' && len <= this.rangedAttackRange) {
       return;
     }
 
@@ -160,7 +160,7 @@ export class EnemyAI extends Component {
       return;
     }
 
-    if (this.attackType === "melee") {
+    if (this.attackType === 'melee') {
       // Melee: only deal damage if close enough
       if (distance <= this.attackRange) {
         this.target.takeDamage(this.attackDamage);

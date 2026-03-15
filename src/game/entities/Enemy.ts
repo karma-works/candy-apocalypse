@@ -1,7 +1,7 @@
-import { Entity } from "./Entity";
-import { Transform } from "../components/Transform";
-import { Health } from "../components/Health";
-import { EnemyAI } from "../components/EnemyAI";
+import { Entity } from './Entity';
+import { Transform } from '../components/Transform';
+import { Health } from '../components/Health';
+import { EnemyAI } from '../components/EnemyAI';
 import {
   Color3,
   Mesh,
@@ -9,11 +9,11 @@ import {
   Scene,
   StandardMaterial,
   Vector3,
-} from "@babylonjs/core";
-import type { Player } from "./Player";
-import { TextureManager } from "../../engine/assets/TextureManager";
+} from '@babylonjs/core';
+import type { Player } from './Player';
+import { TextureManager } from '../../engine/assets/TextureManager';
 
-export type EnemyType = "demon" | "imp" | "cacodemon" | "pigeon" | "sheep";
+export type EnemyType = 'demon' | 'imp' | 'cacodemon' | 'pigeon' | 'sheep';
 
 export class Enemy extends Entity {
   transform: Transform;
@@ -24,7 +24,7 @@ export class Enemy extends Entity {
   /** Height of the billboard plane — used to offset Y so bottom sits on ground */
   private meshHeight = 1.5;
 
-  constructor(id: string, enemyType: EnemyType = "demon") {
+  constructor(id: string, enemyType: EnemyType = 'demon') {
     super(id, `Enemy_${enemyType}`);
 
     this.enemyType = enemyType;
@@ -61,30 +61,30 @@ export class Enemy extends Entity {
     this.ai.attackDamage = damageMap[enemyType];
 
     // ── Attack type configuration ──────────────────────────────
-    if (enemyType === "demon") {
+    if (enemyType === 'demon') {
       // Demon: pure melee charger — must be right on top of you to deal damage
-      this.ai.attackType = "melee";
+      this.ai.attackType = 'melee';
       this.ai.attackRange = 1.8;
       this.ai.attackCooldown = 0.8;
-    } else if (enemyType === "imp") {
+    } else if (enemyType === 'imp') {
       // Imp: ranged shooter — fires fireball-like shots from up to 10 units
-      this.ai.attackType = "ranged";
+      this.ai.attackType = 'ranged';
       this.ai.attackRange = 1.5; // won't advance closer than this
       this.ai.rangedAttackRange = 10;
       this.ai.rangedAccuracy = 0.7;
       this.ai.attackCooldown = 1.2;
-    } else if (enemyType === "cacodemon") {
-      this.ai.attackType = "ranged";
+    } else if (enemyType === 'cacodemon') {
+      this.ai.attackType = 'ranged';
       this.ai.attackRange = 2.0;
       this.ai.rangedAttackRange = 14;
       this.ai.rangedAccuracy = 0.55;
       this.ai.attackCooldown = 2.0;
-    } else if (enemyType === "pigeon") {
-      this.ai.attackType = "melee";
+    } else if (enemyType === 'pigeon') {
+      this.ai.attackType = 'melee';
       this.ai.attackRange = 1.2;
       this.ai.attackCooldown = 0.4;
-    } else if (enemyType === "sheep") {
-      this.ai.attackType = "melee";
+    } else if (enemyType === 'sheep') {
+      this.ai.attackType = 'melee';
       this.ai.attackRange = 1.5;
       this.ai.attackCooldown = 3.0;
     }
@@ -121,20 +121,20 @@ export class Enemy extends Entity {
     let appliedTexture = false;
     if (textureManager) {
       let texName = `enemy-${this.enemyType}`;
-      if (this.enemyType === "demon") {
-        texName = "party_demon";
+      if (this.enemyType === 'demon') {
+        texName = 'party_demon';
       }
-      if (this.enemyType === "imp") {
-        texName = "happy_imp";
+      if (this.enemyType === 'imp') {
+        texName = 'happy_imp';
       }
-      if (this.enemyType === "cacodemon") {
-        texName = "disco_cacodemon";
+      if (this.enemyType === 'cacodemon') {
+        texName = 'disco_cacodemon';
       }
-      if (this.enemyType === "pigeon") {
-        texName = "pigeon_possessed";
+      if (this.enemyType === 'pigeon') {
+        texName = 'pigeon_possessed';
       }
-      if (this.enemyType === "sheep") {
-        texName = "suicide_sheep";
+      if (this.enemyType === 'sheep') {
+        texName = 'suicide_sheep';
       }
 
       const texture = textureManager.getTexture(texName);
@@ -171,7 +171,7 @@ export class Enemy extends Entity {
     if (this.health.isDead) {
       if (this.isActive) {
         window.dispatchEvent(
-          new CustomEvent("enemyDeath", {
+          new CustomEvent('enemyDeath', {
             detail: {
               position: this.getPosition(),
               enemyType: this.enemyType,

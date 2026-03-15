@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 import {
   Color3,
   Engine,
@@ -6,29 +6,29 @@ import {
   HemisphericLight,
   Scene,
   Vector3,
-} from "@babylonjs/core";
-import { InputManager } from "../../engine/input/InputManager";
-import { AssetLoader } from "../../engine/assets/AssetLoader";
-import { TextureManager } from "../../engine/assets/TextureManager";
-import { createTestLevel } from "../../engine/assets/ProceduralLevel";
-import { generateLevel } from "../../engine/procedural/LevelLayout";
-import { buildLevel } from "../../engine/procedural/LevelBuilder";
-import { PROCEDURAL_LEVELS } from "../../engine/procedural/ProceduralLevels";
-import { initializeGameAudio } from "../../engine/audio/GameAudio";
-import { musicManager } from "../../engine/audio/MusicManager";
-import { EntityManager } from "../../game/EntityManager";
-import { Player } from "../../game/entities/Player";
-import { Enemy } from "../../game/entities/Enemy";
-import { Pickup } from "../../game/entities/Pickup";
-import { useGameStore } from "../../game/state/gameStore";
+} from '@babylonjs/core';
+import { InputManager } from '../../engine/input/InputManager';
+import { AssetLoader } from '../../engine/assets/AssetLoader';
+import { TextureManager } from '../../engine/assets/TextureManager';
+import { createTestLevel } from '../../engine/assets/ProceduralLevel';
+import { generateLevel } from '../../engine/procedural/LevelLayout';
+import { buildLevel } from '../../engine/procedural/LevelBuilder';
+import { PROCEDURAL_LEVELS } from '../../engine/procedural/ProceduralLevels';
+import { initializeGameAudio } from '../../engine/audio/GameAudio';
+import { musicManager } from '../../engine/audio/MusicManager';
+import { EntityManager } from '../../game/EntityManager';
+import { Player } from '../../game/entities/Player';
+import { Enemy } from '../../game/entities/Enemy';
+import { Pickup } from '../../game/entities/Pickup';
+import { useGameStore } from '../../game/state/gameStore';
 import {
   getDefaultLevel,
   getLevelConfig,
   loadManifest,
-} from "../../game/levels/levelManifest";
-import { RainbowFogEffect } from "../../engine/effects/RainbowFogEffect";
-import { EffectManager } from "../../game/components/EffectManager";
-import type { CloudCeiling } from "../../engine/effects/CloudCeiling";
+} from '../../game/levels/levelManifest';
+import { RainbowFogEffect } from '../../engine/effects/RainbowFogEffect';
+import { EffectManager } from '../../game/components/EffectManager';
+import type { CloudCeiling } from '../../engine/effects/CloudCeiling';
 
 export function GameCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -45,9 +45,9 @@ export function GameCanvas() {
   const effectManagerRef = useRef<EffectManager | null>(null);
   const cloudCeilingRef = useRef<CloudCeiling | null>(null);
 
-  const [isReady, setIsReady] = useState(false);
+  const [ isReady, setIsReady ] = useState(false);
   const noclipRef = useRef(
-    new URLSearchParams(window.location.search).get("noclip") === "true",
+    new URLSearchParams(window.location.search).get('noclip') === 'true',
   );
   const {
     currentLevel,
@@ -93,7 +93,7 @@ export function GameCanvas() {
     const entityManager = new EntityManager(scene, textureManager);
     entityManagerRef.current = entityManager;
 
-    const camera = new FreeCamera("fpsCamera", new Vector3(0, 1.7, 0), scene);
+    const camera = new FreeCamera('fpsCamera', new Vector3(0, 1.7, 0), scene);
     camera.minZ = 0.1;
     camera.maxZ = 1000;
     camera.fov = 1.2;
@@ -111,18 +111,18 @@ export function GameCanvas() {
     cameraRef.current = camera;
 
     if (noclipRef.current) {
-      console.log("NOCLIP MODE ENABLED - Use Space/Shift to fly up/down");
+      console.log('NOCLIP MODE ENABLED - Use Space/Shift to fly up/down');
     }
 
     const effectManager = new EffectManager(scene);
     effectManagerRef.current = effectManager;
 
-    const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
+    const light = new HemisphericLight('light', new Vector3(0, 1, 0), scene);
     light.intensity = 0.7;
 
     initializeGameAudio();
 
-    canvas.addEventListener("click", () => {
+    canvas.addEventListener('click', () => {
       const { isPaused, isPlaying } = useGameStore.getState();
       if (
         !isPaused &&
@@ -148,7 +148,7 @@ export function GameCanvas() {
 
         const scroll = inputManager.getScrollDelta();
         if (scroll !== 0 && playerRef.current) {
-          const weapons = [...playerRef.current.inventory.weapons.keys()];
+          const weapons = [ ...playerRef.current.inventory.weapons.keys() ];
           const current = playerRef.current.inventory.currentWeapon;
           const idx = weapons.indexOf(current ?? '');
           if (idx !== -1) {
@@ -184,10 +184,10 @@ export function GameCanvas() {
           if (allDead && cameraRef.current) {
             const playerPos = cameraRef.current.position;
             const exitId = `bonus_exit_${Date.now()}`;
-            const exit = new Pickup(exitId, "level_exit");
+            const exit = new Pickup(exitId, 'level_exit');
             exit.createMesh(sceneRef.current!, textureManagerRef.current);
             exit.setPosition(playerPos.x + 2, 1, playerPos.z + 2);
-            entityManagerRef.current["entities"].set(exitId, exit);
+            entityManagerRef.current['entities'].set(exitId, exit);
             bonusExitSpawnedRef.current = true;
           }
         }
@@ -220,7 +220,7 @@ export function GameCanvas() {
     }
 
     let cancelled = false;
-    const loadLevel = async () => {
+    const loadLevel = async() => {
       console.log(
         `[SPAWN DEBUG] loadLevel START — proceduralLevelIndex=${proceduralLevelIndex}`,
       );
@@ -244,8 +244,8 @@ export function GameCanvas() {
         const entityManager = entityManagerRef.current!;
 
         const meshesBeforeDispose = scene.meshes.length;
-        [...scene.meshes].forEach((mesh) => {
-          if (mesh.name !== "fpsCamera") {
+        [ ...scene.meshes ].forEach((mesh) => {
+          if (mesh.name !== 'fpsCamera') {
             mesh.dispose();
           }
         });
@@ -262,12 +262,12 @@ export function GameCanvas() {
           cameraRef.current.position.set(0, 100, 0);
         }
 
-        let spawns: import("../../game/state/gameStore").SpawnPoint[];
+        let spawns: import('../../game/state/gameStore').SpawnPoint[];
 
         if (proceduralLevelIndex >= 0) {
           const meta = PROCEDURAL_LEVELS[proceduralLevelIndex];
           const generated = generateLevel(meta.params);
-          const playerSpawn = generated.spawns.find((s) => s.type === "player");
+          const playerSpawn = generated.spawns.find((s) => s.type === 'player');
           console.log(
             `[SPAWN DEBUG] level ${proceduralLevelIndex} generated player spawn:`,
             playerSpawn?.position,
@@ -312,16 +312,16 @@ export function GameCanvas() {
               mesh.checkCollisions = true;
             });
           } catch {
-            console.warn("GLB load failed, falling back to createTestLevel");
+            console.warn('GLB load failed, falling back to createTestLevel');
             createTestLevel(scene);
           }
 
           if (config.ambient?.fog) {
             const fog = config.ambient.fog;
             scene.fogMode =
-              fog.mode === "linear"
+              fog.mode === 'linear'
                 ? Scene.FOGMODE_LINEAR
-                : fog.mode === "exp"
+                : fog.mode === 'exp'
                   ? Scene.FOGMODE_EXP
                   : Scene.FOGMODE_NONE;
             if (fog.start !== undefined) {
@@ -360,16 +360,16 @@ export function GameCanvas() {
               ];
               if (spawnPos) {
                 console.log(
-                  `[SPAWN DEBUG] camera BEFORE setPosition:`,
+                  '[SPAWN DEBUG] camera BEFORE setPosition:',
                   JSON.stringify(cameraRef.current.position),
                 );
                 console.log(
-                  `[SPAWN DEBUG] cameraDirection BEFORE:`,
+                  '[SPAWN DEBUG] cameraDirection BEFORE:',
                   JSON.stringify(cameraRef.current.cameraDirection),
                 );
                 const cam = cameraRef.current as any;
                 console.log(
-                  `[SPAWN DEBUG] _gravity BEFORE:`,
+                  '[SPAWN DEBUG] _gravity BEFORE:',
                   JSON.stringify(cam._gravity),
                 );
                 entity.movement.setPosition(
@@ -378,18 +378,18 @@ export function GameCanvas() {
                   spawnPos[2],
                 );
                 console.log(
-                  `[SPAWN DEBUG] camera AFTER setPosition:`,
+                  '[SPAWN DEBUG] camera AFTER setPosition:',
                   JSON.stringify(cameraRef.current.position),
                 );
                 setSpawnPosition(spawnPos);
               } else {
                 console.warn(
-                  `[SPAWN DEBUG] spawnPos is null/undefined for player entity!`,
+                  '[SPAWN DEBUG] spawnPos is null/undefined for player entity!',
                 );
               }
             } else {
               console.warn(
-                `[SPAWN DEBUG] cameraRef or inputRef is null — setPosition SKIPPED`,
+                '[SPAWN DEBUG] cameraRef or inputRef is null — setPosition SKIPPED',
               );
             }
           }
@@ -398,7 +398,7 @@ export function GameCanvas() {
         startGame();
         setPlaying(true);
       } catch (error) {
-        console.error("Failed to load level:", error);
+        console.error('Failed to load level:', error);
       } finally {
         setLoading(false);
       }
@@ -428,18 +428,18 @@ export function GameCanvas() {
           window.innerWidth / window.innerHeight > 1.6 ? 1.0 : 1.2;
       }
     };
-    window.addEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
     // Also handle orientation change on mobile
-    window.addEventListener("orientationchange", handleResize);
+    window.addEventListener('orientationchange', handleResize);
     return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("orientationchange", handleResize);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
     };
   }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === "Space") {
+      if (e.code === 'Space') {
         const { isPaused, setPaused, isPlaying, health } =
           useGameStore.getState();
         if (isPaused && isPlaying) {
@@ -450,20 +450,20 @@ export function GameCanvas() {
         }
       }
 
-      if (e.code === "Digit1") {
-        playerRef.current?.switchWeapon("pistol");
-      } else if (e.code === "Digit2") {
-        playerRef.current?.switchWeapon("shotgun");
-      } else if (e.code === "Digit3") {
-        playerRef.current?.switchWeapon("chaingun");
-      } else if (e.code === "KeyM") {
+      if (e.code === 'Digit1') {
+        playerRef.current?.switchWeapon('pistol');
+      } else if (e.code === 'Digit2') {
+        playerRef.current?.switchWeapon('shotgun');
+      } else if (e.code === 'Digit3') {
+        playerRef.current?.switchWeapon('chaingun');
+      } else if (e.code === 'KeyM') {
         const { toggleMusic } = useGameStore.getState();
         toggleMusic();
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   useEffect(() => {
@@ -478,10 +478,10 @@ export function GameCanvas() {
       }
     };
 
-    document.addEventListener("pointerlockchange", handlePointerLockChange);
+    document.addEventListener('pointerlockchange', handlePointerLockChange);
     return () =>
       document.removeEventListener(
-        "pointerlockchange",
+        'pointerlockchange',
         handlePointerLockChange,
       );
   }, []);
@@ -499,27 +499,27 @@ export function GameCanvas() {
       }
     };
 
-    window.addEventListener("playerRespawn", handleRespawn);
-    return () => window.removeEventListener("playerRespawn", handleRespawn);
+    window.addEventListener('playerRespawn', handleRespawn);
+    return () => window.removeEventListener('playerRespawn', handleRespawn);
   }, []);
 
   useEffect(() => {
     const handleEntityHit = (e: CustomEvent) => {
       const { entityId, damage } = e.detail;
       const entity = entityManagerRef.current?.getEntity(entityId);
-      if (entity && "takeDamage" in entity) {
+      if (entity && 'takeDamage' in entity) {
         (entity as any).takeDamage(damage);
 
         // When enemy dies, register the kill (handles score + combo escalation)
-        if ("health" in entity && (entity as any).health.isDead) {
+        if ('health' in entity && (entity as any).health.isDead) {
           useGameStore.getState().addKill();
         }
       }
     };
 
-    window.addEventListener("entityHit", handleEntityHit as EventListener);
+    window.addEventListener('entityHit', handleEntityHit as EventListener);
     return () =>
-      window.removeEventListener("entityHit", handleEntityHit as EventListener);
+      window.removeEventListener('entityHit', handleEntityHit as EventListener);
   }, []);
 
   useEffect(() => {
@@ -528,28 +528,28 @@ export function GameCanvas() {
       if (effectManagerRef.current) {
         const effectPos = new Vector3(position.x, position.y, position.z);
         switch (enemyType) {
-          case "pigeon":
-            effectManagerRef.current.playFeatherExplosion(effectPos);
-            break;
-          case "sheep":
-            effectManagerRef.current.playWoolConfetti(effectPos);
-            break;
-          default:
-            if (Math.random() > 0.7) {
-              effectManagerRef.current.playConfettiBurst(effectPos);
-            } else if (Math.random() > 0.5) {
-              effectManagerRef.current.playLegoScatter(effectPos);
-            } else {
-              effectManagerRef.current.playKaBoom(effectPos);
-            }
+        case 'pigeon':
+          effectManagerRef.current.playFeatherExplosion(effectPos);
+          break;
+        case 'sheep':
+          effectManagerRef.current.playWoolConfetti(effectPos);
+          break;
+        default:
+          if (Math.random() > 0.7) {
+            effectManagerRef.current.playConfettiBurst(effectPos);
+          } else if (Math.random() > 0.5) {
+            effectManagerRef.current.playLegoScatter(effectPos);
+          } else {
+            effectManagerRef.current.playKaBoom(effectPos);
+          }
         }
       }
     };
 
-    window.addEventListener("enemyDeath", handleEnemyDeath as EventListener);
+    window.addEventListener('enemyDeath', handleEnemyDeath as EventListener);
     return () =>
       window.removeEventListener(
-        "enemyDeath",
+        'enemyDeath',
         handleEnemyDeath as EventListener,
       );
   }, []);
@@ -578,10 +578,10 @@ export function GameCanvas() {
       });
     };
 
-    window.addEventListener("weaponFired", handleWeaponFired as EventListener);
+    window.addEventListener('weaponFired', handleWeaponFired as EventListener);
     return () =>
       window.removeEventListener(
-        "weaponFired",
+        'weaponFired',
         handleWeaponFired as EventListener,
       );
   }, []);
@@ -593,7 +593,7 @@ export function GameCanvas() {
       if (state.health < prevHealth && cameraRef.current) {
         prevHealth = state.health;
         // Dispatch event for HUD vignette
-        window.dispatchEvent(new CustomEvent("playerDamaged"));
+        window.dispatchEvent(new CustomEvent('playerDamaged'));
         // Camera shake: jitter then spring back
         const cam = cameraRef.current;
         const originPos = cam.position.clone();
@@ -644,19 +644,19 @@ export function GameCanvas() {
     if (!isPlaying || isPaused) {
       musicManager.stop();
     }
-  }, [proceduralLevelIndex, isReady]);
+  }, [ proceduralLevelIndex, isReady ]);
 
   return (
     <canvas
       id="game-canvas"
       ref={canvasRef}
       style={{
-        position: "absolute",
+        position: 'absolute',
         inset: 0,
-        width: "100%",
-        height: "100%",
-        display: "block",
-        outline: "none",
+        width: '100%',
+        height: '100%',
+        display: 'block',
+        outline: 'none',
       }}
     />
   );

@@ -3,8 +3,8 @@
  * Same params always produce identical output (deterministic via seeded RNG).
  */
 
-import { RNG } from "./RNG";
-import type { SpawnPoint } from "../../game/state/gameStore";
+import { RNG } from './RNG';
+import type { SpawnPoint } from '../../game/state/gameStore';
 
 // World-space constants
 const CELL = 4; // units per grid cell
@@ -47,7 +47,7 @@ export interface WallDef {
   cx: number;
   cz: number;
   len: number;
-  axis: "x" | "z"; // "x" = wall runs along X axis, "z" = along Z axis
+  axis: 'x' | 'z'; // "x" = wall runs along X axis, "z" = along Z axis
 }
 
 export interface GeneratedLevel {
@@ -59,13 +59,13 @@ export interface GeneratedLevel {
   bounds: { minX: number; minZ: number; maxX: number; maxZ: number };
 }
 
-type Dir = "E" | "W" | "N" | "S";
+type Dir = 'E' | 'W' | 'N' | 'S';
 
 function deriveSeed(p: LevelParams): number {
   return (
-    ((p.length * 73856093) ^
-      (p.difficulty * 19349663) ^
-      (p.complexity * 83492791)) >>>
+    (p.length * 73856093 ^
+      p.difficulty * 19349663 ^
+      p.complexity * 83492791) >>>
     0
   );
 }
@@ -117,34 +117,34 @@ function nextGridPos(
   newD: number,
 ): { gx: number; gz: number } {
   switch (dir) {
-    case "E":
-      return { gx: parent.gx + parent.gw, gz: parent.gz };
-    case "W":
-      return { gx: parent.gx - newW, gz: parent.gz };
-    case "S":
-      return { gx: parent.gx, gz: parent.gz + parent.gd };
-    case "N":
-      return { gx: parent.gx, gz: parent.gz - newD };
+  case 'E':
+    return { gx: parent.gx + parent.gw, gz: parent.gz };
+  case 'W':
+    return { gx: parent.gx - newW, gz: parent.gz };
+  case 'S':
+    return { gx: parent.gx, gz: parent.gz + parent.gd };
+  case 'N':
+    return { gx: parent.gx, gz: parent.gz - newD };
   }
 }
 
 // Which side of `a` faces `b` (rooms must be grid-adjacent)
 function sharedSide(a: RoomDef, b: RoomDef): Dir {
   if (b.gx === a.gx + a.gw) {
-    return "E";
+    return 'E';
   }
   if (b.gx + b.gw === a.gx) {
-    return "W";
+    return 'W';
   }
   if (b.gz === a.gz + a.gd) {
-    return "S";
+    return 'S';
   }
-  return "N";
+  return 'N';
 }
 
 // World-space coordinate of the doorway center along a shared wall
 function doorwayCenter(a: RoomDef, b: RoomDef, side: Dir): number {
-  if (side === "E" || side === "W") {
+  if (side === 'E' || side === 'W') {
     // Wall runs along Z; doorway center is a Z value
     const lo = Math.max(a.wz, b.wz);
     const hi = Math.min(a.wz + a.wd, b.wz + b.wd);
@@ -163,21 +163,21 @@ function splitSpan(
   end: number,
   gapCenters: number[],
 ): Array<[number, number]> {
-  const sorted = [...gapCenters].sort((a, b) => a - b);
+  const sorted = [ ...gapCenters ].sort((a, b) => a - b);
   const segs: Array<[number, number]> = [];
   let pos = start;
   for (const c of sorted) {
     const gs = c - DOOR_W / 2;
     const ge = c + DOOR_W / 2;
     if (gs > pos) {
-      segs.push([pos, Math.min(gs, end)]);
+      segs.push([ pos, Math.min(gs, end) ]);
     }
     pos = Math.max(pos, ge);
   }
   if (pos < end) {
-    segs.push([pos, end]);
+    segs.push([ pos, end ]);
   }
-  return segs.filter(([s, e]) => e - s > 0.1);
+  return segs.filter(([ s, e ]) => e - s > 0.1);
 }
 
 export function generateLevel(params: LevelParams): GeneratedLevel {
@@ -226,7 +226,7 @@ export function generateLevel(params: LevelParams): GeneratedLevel {
     isExit: boolean,
     isBranch: boolean,
   ): RoomDef | null {
-    const dirs = rng.shuffle<Dir>(["E", "W", "S", "N"]);
+    const dirs = rng.shuffle<Dir>([ 'E', 'W', 'S', 'N' ]);
     for (const dir of dirs) {
       const { w, d } = pickSize();
       const { gx, gz } = nextGridPos(parent, dir, w, d);
@@ -289,8 +289,10 @@ export function generateLevel(params: LevelParams): GeneratedLevel {
 
     // Try each path room as a parent for the exit
     for (const parent of pathRooms) {
-      if (exitPlaced) break;
-      const dirs: Dir[] = ["E", "W", "S", "N"];
+      if (exitPlaced) {
+        break;
+      }
+      const dirs: Dir[] = [ 'E', 'W', 'S', 'N' ];
       for (const dir of dirs) {
         const { w, d } = pickSize();
         const { gx, gz } = nextGridPos(parent, dir, w, d);
@@ -328,7 +330,7 @@ export function generateLevel(params: LevelParams): GeneratedLevel {
   // ── Verify exit is reachable from start ───────────────────────────────────
   function isReachable(fromId: number, toId: number): boolean {
     const visited = new Set<number>();
-    const queue = [fromId];
+    const queue = [ fromId ];
     while (queue.length > 0) {
       const current = queue.shift()!;
       if (current === toId) {
@@ -351,15 +353,19 @@ export function generateLevel(params: LevelParams): GeneratedLevel {
 
     // First try: find a reachable room that is grid-adjacent to exit
     for (const room of rooms) {
-      if (room.id === exitRoomDef.id) continue;
-      if (!isReachable(start.id, room.id)) continue;
+      if (room.id === exitRoomDef.id) {
+        continue;
+      }
+      if (!isReachable(start.id, room.id)) {
+        continue;
+      }
 
       const dx = Math.abs(room.gx - exitRoomDef.gx);
       const dz = Math.abs(room.gz - exitRoomDef.gz);
       const adjX = dx === room.gw || dx === exitRoomDef.gw;
       const adjZ = dz === room.gd || dz === exitRoomDef.gd;
 
-      if ((adjX && dz === 0) || (adjZ && dx === 0)) {
+      if (adjX && dz === 0 || adjZ && dx === 0) {
         room.connections.push(exitRoomDef.id);
         exitRoomDef.connections.push(room.id);
         connected = true;
@@ -388,8 +394,12 @@ export function generateLevel(params: LevelParams): GeneratedLevel {
       let maxDist = 0;
 
       for (const room of rooms) {
-        if (room.id === exitRoomDef.id) continue;
-        if (!isReachable(start.id, room.id)) continue;
+        if (room.id === exitRoomDef.id) {
+          continue;
+        }
+        if (!isReachable(start.id, room.id)) {
+          continue;
+        }
 
         const dist =
           Math.abs(room.gx - start.gx) + Math.abs(room.gz - start.gz);
@@ -428,32 +438,32 @@ export function generateLevel(params: LevelParams): GeneratedLevel {
     }
 
     // North wall — runs along X at z = room.wz
-    for (const [s, e] of splitSpan(room.wx, room.wx + room.ww, doorways.N)) {
-      walls.push({ cx: (s + e) / 2, cz: room.wz, len: e - s, axis: "x" });
+    for (const [ s, e ] of splitSpan(room.wx, room.wx + room.ww, doorways.N)) {
+      walls.push({ cx: (s + e) / 2, cz: room.wz, len: e - s, axis: 'x' });
     }
 
     // South wall — runs along X at z = room.wz + room.wd
-    for (const [s, e] of splitSpan(room.wx, room.wx + room.ww, doorways.S)) {
+    for (const [ s, e ] of splitSpan(room.wx, room.wx + room.ww, doorways.S)) {
       walls.push({
         cx: (s + e) / 2,
         cz: room.wz + room.wd,
         len: e - s,
-        axis: "x",
+        axis: 'x',
       });
     }
 
     // West wall — runs along Z at x = room.wx
-    for (const [s, e] of splitSpan(room.wz, room.wz + room.wd, doorways.W)) {
-      walls.push({ cx: room.wx, cz: (s + e) / 2, len: e - s, axis: "z" });
+    for (const [ s, e ] of splitSpan(room.wz, room.wz + room.wd, doorways.W)) {
+      walls.push({ cx: room.wx, cz: (s + e) / 2, len: e - s, axis: 'z' });
     }
 
     // East wall — runs along Z at x = room.wx + room.ww
-    for (const [s, e] of splitSpan(room.wz, room.wz + room.wd, doorways.E)) {
+    for (const [ s, e ] of splitSpan(room.wz, room.wz + room.wd, doorways.E)) {
       walls.push({
         cx: room.wx + room.ww,
         cz: (s + e) / 2,
         len: e - s,
-        axis: "z",
+        axis: 'z',
       });
     }
   }
@@ -475,28 +485,28 @@ export function generateLevel(params: LevelParams): GeneratedLevel {
 
   // Player in start room
   const sp = randomPosInRoom(start, 1.5);
-  spawns.push({ type: "player", position: [sp.x, 1.7, sp.z] });
+  spawns.push({ type: 'player', position: [ sp.x, 1.7, sp.z ] });
 
   // Exit in last critical path room (30% lower offset from ground)
   const exitRoom = rooms.find((r) => r.isExit) ?? rooms[rooms.length - 1];
   spawns.push({
-    type: "pickup-exit",
-    position: [exitRoom.cx, 0.35, exitRoom.cz],
+    type: 'pickup-exit',
+    position: [ exitRoom.cx, 0.35, exitRoom.cz ],
   });
 
   // Enemies
   function pickEnemyType(): string {
     if (params.difficulty <= 3) {
-      return "enemy-demon";
+      return 'enemy-demon';
     }
     if (params.difficulty <= 6) {
-      return rng.pick(["enemy-demon", "enemy-imp"]);
+      return rng.pick([ 'enemy-demon', 'enemy-imp' ]);
     }
     return rng.pick([
-      "enemy-demon",
-      "enemy-imp",
-      "enemy-imp",
-      "enemy-cacodemon",
+      'enemy-demon',
+      'enemy-imp',
+      'enemy-imp',
+      'enemy-cacodemon',
     ]);
   }
 
@@ -512,7 +522,7 @@ export function generateLevel(params: LevelParams): GeneratedLevel {
       continue;
     }
     const pos = randomPosInRoom(room, margin);
-    spawns.push({ type: pickEnemyType(), position: [pos.x, 0, pos.z] });
+    spawns.push({ type: pickEnemyType(), position: [ pos.x, 0, pos.z ] });
   }
 
   // Pickups — prefer dead-end (branch) rooms, then others
@@ -524,12 +534,12 @@ export function generateLevel(params: LevelParams): GeneratedLevel {
   const otherRooms = rooms.filter(
     (r) => !r.isStart && !r.isExit && !r.isBranch,
   );
-  const pickupRooms = [...branchRooms, ...otherRooms];
+  const pickupRooms = [ ...branchRooms, ...otherRooms ];
   const pickupTypes = [
-    "pickup-health",
-    "pickup-health",
-    "pickup-ammo-pistol",
-    "pickup-ammo-shotgun",
+    'pickup-health',
+    'pickup-health',
+    'pickup-ammo-pistol',
+    'pickup-ammo-shotgun',
   ];
   for (let i = 0; i < pickupCount; i++) {
     if (pickupRooms.length === 0) {
@@ -541,12 +551,12 @@ export function generateLevel(params: LevelParams): GeneratedLevel {
       continue;
     }
     const pos = randomPosInRoom(room, margin);
-    spawns.push({ type: rng.pick(pickupTypes), position: [pos.x, 0.5, pos.z] });
+    spawns.push({ type: rng.pick(pickupTypes), position: [ pos.x, 0.5, pos.z ] });
   }
 
   // ── Bounds ────────────────────────────────────────────────────────────────
-  const allX = rooms.flatMap((r) => [r.wx, r.wx + r.ww]);
-  const allZ = rooms.flatMap((r) => [r.wz, r.wz + r.wd]);
+  const allX = rooms.flatMap((r) => [ r.wx, r.wx + r.ww ]);
+  const allZ = rooms.flatMap((r) => [ r.wz, r.wz + r.wd ]);
   const bounds = {
     minX: Math.min(...allX),
     minZ: Math.min(...allZ),

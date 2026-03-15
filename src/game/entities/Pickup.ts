@@ -1,5 +1,5 @@
-import { Entity } from "./Entity";
-import { Transform } from "../components/Transform";
+import { Entity } from './Entity';
+import { Transform } from '../components/Transform';
 import {
   Color3,
   Mesh,
@@ -7,16 +7,16 @@ import {
   Scene,
   StandardMaterial,
   Vector3,
-} from "@babylonjs/core";
-import { useGameStore } from "../state/gameStore";
-import { playSound } from "../../engine/audio/GameAudio";
-import { TextureManager } from "../../engine/assets/TextureManager";
+} from '@babylonjs/core';
+import { useGameStore } from '../state/gameStore';
+import { playSound } from '../../engine/audio/GameAudio';
+import { TextureManager } from '../../engine/assets/TextureManager';
 
 export type PickupType =
-  | "health"
-  | "ammo_pistol"
-  | "ammo_shotgun"
-  | "level_exit";
+  | 'health'
+  | 'ammo_pistol'
+  | 'ammo_shotgun'
+  | 'level_exit';
 
 export interface PickupConfig {
   type: PickupType;
@@ -25,19 +25,19 @@ export interface PickupConfig {
 }
 
 const PICKUP_CONFIGS: Record<PickupType, PickupConfig> = {
-  health: { type: "health", amount: 25, color: new Color3(1, 0.2, 0.2) },
+  health: { type: 'health', amount: 25, color: new Color3(1, 0.2, 0.2) },
   ammo_pistol: {
-    type: "ammo_pistol",
+    type: 'ammo_pistol',
     amount: 10,
     color: new Color3(0.2, 0.5, 1),
   },
   ammo_shotgun: {
-    type: "ammo_shotgun",
+    type: 'ammo_shotgun',
     amount: 5,
     color: new Color3(1, 0.6, 0.2),
   },
   level_exit: {
-    type: "level_exit",
+    type: 'level_exit',
     amount: 0,
     color: new Color3(1, 1, 1),
   },
@@ -54,7 +54,7 @@ export class Pickup extends Entity {
   private time = Math.random() * Math.PI * 2;
   private isBillboard = false;
 
-  constructor(id: string, pickupType: PickupType = "health") {
+  constructor(id: string, pickupType: PickupType = 'health') {
     super(id, `Pickup_${pickupType}`);
 
     this.pickupType = pickupType;
@@ -64,7 +64,7 @@ export class Pickup extends Entity {
 
   createMesh(scene: Scene, textureManager: TextureManager | null = null): void {
     let texture = null;
-    const isLevelExit = this.pickupType === "level_exit";
+    const isLevelExit = this.pickupType === 'level_exit';
     const size = isLevelExit ? 3.6 : 1.2;
 
     if (textureManager) {
@@ -108,7 +108,7 @@ export class Pickup extends Entity {
   }
 
   setPosition(x: number, y: number, z: number): void {
-    const heightOffset = this.pickupType === "level_exit" ? 2 : 0;
+    const heightOffset = this.pickupType === 'level_exit' ? 2 : 0;
     this.initialY = y + heightOffset;
     if (this.mesh) {
       this.mesh.position.set(x, this.initialY, z);
@@ -132,23 +132,23 @@ export class Pickup extends Entity {
   }
 
   collect(): void {
-    playSound("pickup");
+    playSound('pickup');
 
     const store = useGameStore.getState();
 
     switch (this.pickupType) {
-      case "health":
-        store.heal(this.config.amount);
-        break;
-      case "ammo_pistol":
-        store.addAmmo("pistol", this.config.amount);
-        break;
-      case "ammo_shotgun":
-        store.addAmmo("shotgun", this.config.amount);
-        break;
-      case "level_exit":
-        useGameStore.getState().nextLevel();
-        break;
+    case 'health':
+      store.heal(this.config.amount);
+      break;
+    case 'ammo_pistol':
+      store.addAmmo('pistol', this.config.amount);
+      break;
+    case 'ammo_shotgun':
+      store.addAmmo('shotgun', this.config.amount);
+      break;
+    case 'level_exit':
+      useGameStore.getState().nextLevel();
+      break;
     }
 
     this.isActive = false;
