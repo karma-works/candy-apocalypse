@@ -228,11 +228,15 @@ export function GameCanvas() {
         const scene = sceneRef.current!;
         const entityManager = entityManagerRef.current!;
 
-        scene.meshes.forEach((mesh) => {
+        const meshesBeforeDispose = scene.meshes.length;
+        [...scene.meshes].forEach((mesh) => {
           if (mesh.name !== "fpsCamera") {
             mesh.dispose();
           }
         });
+        console.log(
+          `[LEVEL DEBUG] disposed meshes: ${meshesBeforeDispose} before → ${scene.meshes.length} after (expect 0 or 1)`,
+        );
         entityManager.clear();
         bonusExitSpawnedRef.current = false;
 
