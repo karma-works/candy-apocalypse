@@ -13,6 +13,7 @@ export class PlayerMovement extends Component {
   private yaw = 0;
   private pitch = 0;
   private isGrounded = true;
+  private _debugFrames = 0;
 
   attachToCamera(camera: FreeCamera, inputManager: InputManager): void {
     this.camera = camera;
@@ -23,7 +24,24 @@ export class PlayerMovement extends Component {
     this.noclip = enabled;
   }
 
+  private _inputManager_locked(): boolean {
+    return this.inputManager?.isPointerLocked() ?? false;
+  }
+
   update(deltaTime: number): void {
+    if (this.camera && this._debugFrames < 5) {
+      const cam = this.camera as any;
+      console.log(
+        `[SPAWN DEBUG] frame ${this._debugFrames} — pos:`,
+        `x=${this.camera.position.x.toFixed(3)}`,
+        `y=${this.camera.position.y.toFixed(3)}`,
+        `z=${this.camera.position.z.toFixed(3)}`,
+        `| locked=${this._inputManager_locked()}`,
+        `| _gravity.y=${cam._gravity?.y?.toFixed(3) ?? 'n/a'}`,
+      );
+      this._debugFrames++;
+    }
+
     if (
       !this.camera ||
       !this.inputManager ||
@@ -91,7 +109,22 @@ export class PlayerMovement extends Component {
 
   setPosition(x: number, y: number, z: number): void {
     if (this.camera) {
+      this._debugFrames = 0;
       this.camera.position.set(x, y, z);
+      // Reset velocity and gravity accumulation so stale state from the
+      // previous level cannot displace the camera on the first frame.
+      this.camera.cameraDirection.setAll(0);
+      const cam = this.camera as any;
+      if (cam._gravity) {
+        cam._gravity.setAll(0);
+      }
+      // Reset yaw/pitch and re-aim the camera so its orientation matches
+      // the new level immediately (avoids rotation-transformed movement).
+      this.yaw = 0;
+      this.pitch = 0;
+      this.camera.setTarget(
+        this.camera.position.add(new Vector3(0, 0, 1)),
+      );
     }
   }
 }

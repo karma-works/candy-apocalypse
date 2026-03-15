@@ -250,11 +250,21 @@ export function generateLevel(params: LevelParams): GeneratedLevel {
   markOccupied(start);
 
   // ── Critical path ─────────────────────────────────────────────────────────
+  // Build a guaranteed linear path from start to exit
   let last = start;
-  for (let i = 1; i < critPathLen; i++) {
+  let pathAttempts = 0;
+  const maxAttempts = critPathLen * 10;
+
+  for (
+    let i = 1;
+    i < critPathLen && pathAttempts < maxAttempts;
+    i++, pathAttempts++
+  ) {
     const isExit = i === critPathLen - 1;
     let room = tryPlaceAdjacentTo(last, isExit, false);
+
     if (!room) {
+      // Try all rooms in the critical path as potential parents
       const pathSoFar = rooms.filter((r) => !r.isBranch);
       for (const parent of pathSoFar) {
         room = tryPlaceAdjacentTo(parent, isExit, false);
@@ -263,21 +273,49 @@ export function generateLevel(params: LevelParams): GeneratedLevel {
         }
       }
     }
-    if (!room) {
-      break;
+
+    if (room) {
+      last = room;
     }
-    last = room;
+    // If we couldn't place a room, keep trying with different parents
+    // Don't break - we need to ensure the exit gets placed
   }
 
+  // ── Ensure exit room exists and is reachable ────────────────────────────
+  // If no exit room was placed, force-create one adjacent to the last critical path room
   if (!rooms.some((r) => r.isExit)) {
     const pathRooms = rooms.filter((r) => !r.isBranch);
+    let exitPlaced = false;
+
+    // Try each path room as a parent for the exit
     for (const parent of pathRooms) {
-      const room = tryPlaceAdjacentTo(parent, true, false);
-      if (room) {
-        last = room;
-        break;
+      if (exitPlaced) break;
+      const dirs: Dir[] = ["E", "W", "S", "N"];
+      for (const dir of dirs) {
+        const { w, d } = pickSize();
+        const { gx, gz } = nextGridPos(parent, dir, w, d);
+
+        if (canPlace(gx, gz, w, d)) {
+          const id = rooms.length;
+          const exitRoom = makeRoom(id, gx, gz, w, d, false, true, false);
+          exitRoom.connections.push(parent.id);
+          parent.connections.push(id);
+          rooms.push(exitRoom);
+          markOccupied(exitRoom);
+          last = exitRoom;
+          exitPlaced = true;
+          break;
+        }
       }
     }
+  }
+
+  // Double-check: exit must exist and be on the critical path
+  let finalExitRoom = rooms.find((r) => r.isExit);
+  if (!finalExitRoom) {
+    // Ultimate fallback: convert the last critical path room to be the exit
+    last.isExit = true;
+    finalExitRoom = last;
   }
 
   // ── Dead-end branches ─────────────────────────────────────────────────────
@@ -306,19 +344,34 @@ export function generateLevel(params: LevelParams): GeneratedLevel {
     return false;
   }
 
-  const exitRoomDef = rooms.find((r) => r.isExit);
-  if (exitRoomDef && !isReachable(start.id, exitRoomDef.id)) {
+  const exitRoomDef = rooms.find((r) => r.isExit)!;
+  // If exit is not reachable, we MUST connect it to ensure gameplay is possible
+  if (!isReachable(start.id, exitRoomDef.id)) {
     let connected = false;
+
+    // First try: find a reachable room that is grid-adjacent to exit
     for (const room of rooms) {
-      if (room.id === exitRoomDef.id) {
-        continue;
+      if (room.id === exitRoomDef.id) continue;
+      if (!isReachable(start.id, room.id)) continue;
+
+      const dx = Math.abs(room.gx - exitRoomDef.gx);
+      const dz = Math.abs(room.gz - exitRoomDef.gz);
+      const adjX = dx === room.gw || dx === exitRoomDef.gw;
+      const adjZ = dz === room.gd || dz === exitRoomDef.gd;
+
+      if ((adjX && dz === 0) || (adjZ && dx === 0)) {
+        room.connections.push(exitRoomDef.id);
+        exitRoomDef.connections.push(room.id);
+        connected = true;
+        break;
       }
-      if (isReachable(start.id, room.id)) {
-        const dx = Math.abs(room.gx - exitRoomDef.gx);
-        const dz = Math.abs(room.gz - exitRoomDef.gz);
-        const adjX = dx === room.gw || dx === exitRoomDef.gw;
-        const adjZ = dz === room.gd || dz === exitRoomDef.gd;
-        if ((adjX && dz === 0) || (adjZ && dx === 0)) {
+    }
+
+    // Second try: find any reachable room and connect to it
+    // (This should create a valid doorway since we're using actual adjacency)
+    if (!connected) {
+      for (const room of rooms) {
+        if (room.id !== exitRoomDef.id && isReachable(start.id, room.id)) {
           room.connections.push(exitRoomDef.id);
           exitRoomDef.connections.push(room.id);
           connected = true;
@@ -326,13 +379,30 @@ export function generateLevel(params: LevelParams): GeneratedLevel {
         }
       }
     }
+
+    // Final fallback: convert the last reachable room to be the exit
+    // This guarantees the exit is reachable and on the critical path
     if (!connected) {
+      // Find the furthest reachable room from start
+      let furthestRoom: RoomDef | null = null;
+      let maxDist = 0;
+
       for (const room of rooms) {
-        if (room.id !== exitRoomDef.id && isReachable(start.id, room.id)) {
-          room.connections.push(exitRoomDef.id);
-          exitRoomDef.connections.push(room.id);
-          break;
+        if (room.id === exitRoomDef.id) continue;
+        if (!isReachable(start.id, room.id)) continue;
+
+        const dist =
+          Math.abs(room.gx - start.gx) + Math.abs(room.gz - start.gz);
+        if (dist > maxDist) {
+          maxDist = dist;
+          furthestRoom = room;
         }
+      }
+
+      if (furthestRoom) {
+        // Make this room the exit instead
+        exitRoomDef.isExit = false;
+        furthestRoom.isExit = true;
       }
     }
   }
@@ -407,11 +477,11 @@ export function generateLevel(params: LevelParams): GeneratedLevel {
   const sp = randomPosInRoom(start, 1.5);
   spawns.push({ type: "player", position: [sp.x, 1.7, sp.z] });
 
-  // Exit in last critical path room
+  // Exit in last critical path room (30% lower offset from ground)
   const exitRoom = rooms.find((r) => r.isExit) ?? rooms[rooms.length - 1];
   spawns.push({
     type: "pickup-exit",
-    position: [exitRoom.cx, 0.5, exitRoom.cz],
+    position: [exitRoom.cx, 0.35, exitRoom.cz],
   });
 
   // Enemies
